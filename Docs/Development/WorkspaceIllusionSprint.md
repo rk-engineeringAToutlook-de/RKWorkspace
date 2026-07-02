@@ -1,7 +1,7 @@
 # Workspace Illusion Sprint
 
 Dokument-ID: RKWS-DEV-WORKSPACE-ILLUSION-SPRINT
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -29,6 +29,8 @@ Das Bediengefuehl war aber noch zu technisch. Die zentrale Rueckmeldung lautet: 
 Klassisches Drag-and-Drop trennt den Ablauf oft in drei sichtbare Schritte: ziehen, loslassen, neu anzeigen. RK Workspace soll spaeter anders wirken: Das Objekt soll lebendig bleiben, der Rand soll ein Uebergang sein, und die Zielarbeitsflaeche soll reagieren, bevor der Benutzer loslaesst.
 
 Der Prototyp bildet diese Kontinuitaet nur optisch ab. Der eigentliche Core bleibt plattformneutral und unveraendert.
+
+UX-LAB-001 macht diese optischen Entscheidungen variierbar. Die Illusion aus MA005.03 ist damit nicht mehr eine einzelne feste Loesung, sondern eine von mehreren testbaren Kombinationen.
 
 ## Workspace Illusion
 
@@ -113,4 +115,5 @@ Nach MA005.03 bewertet der Owner nicht die Technik, sondern das Gefuehl:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | Bezug zum Workspace Experience Lab ergaenzt. |
 | 1.0.0 | 2026-07-02 | MA005.03 Workspace Illusion Sprint dokumentiert. |

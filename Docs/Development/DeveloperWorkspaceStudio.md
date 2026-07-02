@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -35,7 +35,7 @@ Automatisierter Smoke-Test ohne dauerhaft offene GUI:
 
 ## Layout
 
-Die Oberflaeche ist in fuenf Bereiche gegliedert:
+Die Oberflaeche ist in Registerkarten gegliedert. Die erste Registerkarte enthaelt das bestehende Developer Studio:
 
 - Oben: Interaktiver Workspace-Prototyp mit Workspace A links, Workspace B rechts und einer sichtbaren Textkarte.
 - Mitte links: Workspace-Liste mit Name, Type, Position, State, Trusted und Priority.
@@ -43,6 +43,8 @@ Die Oberflaeche ist in fuenf Bereiche gegliedert:
 - Mitte rechts: Agents und Diagnostics mit Runtime State, Plugin Count, Workspace Count, Transfer Object Count, Capabilities, Last Result und Last Error.
 - Unten: Log und Transfer-History.
 - Separat: Multi Window Prototype mit zwei echten Workspace-Fenstern, gemeinsamem Core-Kontext, Objektkarten, Workspace Preview, Edge-Hot-Zones, Ghost-Uebergang, History, Diagnostics, UX-Diagnose und Log je Fenster.
+
+Die zweite Registerkarte heisst `Workspace Experience Lab`. Sie dient ausschliesslich dem Live-Vergleich von UX-Varianten.
 
 ## Aktionen
 
@@ -57,12 +59,15 @@ Minimal verfuegbare Aktionen:
 - Reset Interactive Demo
 - Run Full Interactive Demo
 - Open Multi Window Prototype
+- Workspace Experience Lab: Greifen, Rand, Uebergang, Ablegen, Preview, Animation und Geschwindigkeit live umschalten
 
 `Run Full Demo` startet die Runtime, erzeugt `RKWS-Demo-Laptop` und `RKWS-Demo-Display-Right`, erzeugt ein Textobjekt `Hallo von RK Workspace`, fuehrt einen Transfer nach rechts aus und erwartet `SUCCESS`.
 
 `Run Full Interactive Demo` initialisiert denselben interaktiven Zustand, simuliert Drag, Target Highlight und Drop auf Workspace B und erwartet `InteractiveDemo: SUCCESS`.
 
 `Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Fenster fuer `Window A / Laptop` und `Window B / Display Right`. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Workspaces, Transferobjekte, Diagnostics, History, Log und die wichtigsten Aktionen.
+
+`Workspace Experience Lab` stellt mindestens acht Varianten fuer Greifen, Rand, Uebergang und Ablegen sowie mindestens fuenf Preview-Varianten bereit. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante kann lokal mit `Gefaellt mir`, `Neutral` oder `Gefaellt mir nicht` bewertet werden.
 
 ## Interaktiver Workspace-Prototyp
 
@@ -102,6 +107,8 @@ Der Ablauf wird nicht als separate Studio-Logik dupliziert. Das Studio ruft den 
 
 Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktiven Workspace-Prototyp und den Multi Window Workspace Prototype. Die interaktiven Demos verwenden keinen Local-IPC-Kanal und keine Netzwerkfunktion.
 
+Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing im Studio. Es veraendert keine Core-Komponenten und keinen Transport.
+
 ## Nicht-Ziele
 
 - keine Netzwerkfunktion
@@ -118,6 +125,7 @@ Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktive
 - Der Smoke-Test prueft den Core-Ablauf ohne sichtbares Fenster.
 - Der Smoke-Test prueft den interaktiven Demo-Ablauf viewmodelbasiert ohne echte UI-Automation.
 - Der Smoke-Test prueft den Multi-Window-Ablauf, `Run Full Demo`, EdgeTarget-Logik, Roundtrip B nach A, UX-Diagnostics, Workspace Illusion und `WorkspaceSessionCandidate` viewmodelbasiert ohne echte UI-Automation.
+- Der Smoke-Test prueft das Workspace Experience Lab viewmodelbasiert: Variantenanzahl, Live-Wechsel, Bewertung und Anwendung im Multi-Window-Kontext.
 - Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
@@ -127,11 +135,14 @@ Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktive
 - Drag-and-Drop im Multi-Window-Prototyp ist fuer Demo-Transferobjekte zwischen Window A und Window B vorgesehen.
 - `WorkspaceSessionCandidate` ist vorbereitet, aber noch keine Live-Workspace-Session.
 - Die Workspace-Illusion ist optisch; echte OS-Hot-Zones, Monitoruebertritt und Live-Sessions sind noch nicht implementiert.
+- Das Workspace Experience Lab ist ein internes Experimentierlabor, kein Produkt und kein Endanwenderwerkzeug.
+- Lab-Bewertungen werden lokal in `%LOCALAPPDATA%\RKWorkspace\workspace-experience-lab.json` gespeichert.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-02 | UX-LAB-001 Workspace Experience Lab dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA005.03 Workspace Illusion, Edge-Hot-Zones und Candidate-Zustaende dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA005.02 Workspace Experience Sprint, Ruecktransfer und UX-Diagnose dokumentiert. |
 | 1.4.0 | 2026-07-02 | MA005.01 UX-Feinschliff, EdgeTarget-Logik und Feedback dokumentiert. |

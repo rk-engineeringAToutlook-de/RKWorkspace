@@ -57,4 +57,6 @@ internal sealed record MultiWindowWorkspaceSnapshot
     public required string LastError { get; init; }
 
     public required MultiWindowUxDiagnosticsSnapshot UxDiagnostics { get; init; }
+
+    public required WorkspaceExperienceLabSnapshot ExperienceLab { get; init; }
 }

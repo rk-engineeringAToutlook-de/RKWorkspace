@@ -11,8 +11,12 @@ internal sealed class MainWindow : Form
     private readonly DataGridView _logGrid = CreateGrid();
     private readonly DataGridView _historyGrid = CreateGrid();
     private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
+    private readonly WorkspaceExperienceLabState _experienceLab = WorkspaceExperienceLabState.Load();
     private readonly List<WorkspaceWindow> _workspaceWindows = new();
     private readonly ToolTip _toolTip = new();
+    private readonly Dictionary<string, ComboBox> _labVariantCombos = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Label> _labDescriptionLabels = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, RadioButton[]> _labRatingButtons = new(StringComparer.Ordinal);
     private readonly Label _runtimeState = ValueLabel();
     private readonly Label _pluginCount = ValueLabel();
     private readonly Label _workspaceCount = ValueLabel();
@@ -20,7 +24,12 @@ internal sealed class MainWindow : Form
     private readonly Label _capabilities = ValueLabel();
     private readonly Label _lastResult = ValueLabel();
     private readonly Label _lastError = ValueLabel();
+    private readonly Label _labSummary = ValueLabel();
+    private readonly Label _labSpeedLabel = ValueLabel();
+    private readonly CheckBox _labAnimationEnabled = new();
+    private readonly TrackBar _labSpeed = new();
     private MultiWindowWorkspaceContext? _multiWindowContext;
+    private bool _syncingLabControls;
 
     public MainWindow()
     {
@@ -51,14 +60,17 @@ internal sealed class MainWindow : Form
         };
 
         Controls.Add(BuildLayout());
+        _experienceLab.Changed += OnExperienceLabChanged;
         ConfigureToolTips();
         RefreshUi();
+        RefreshLabControls();
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
+            _experienceLab.Changed -= OnExperienceLabChanged;
             _toolTip.Dispose();
         }
 
@@ -66,6 +78,21 @@ internal sealed class MainWindow : Form
     }
 
     private Control BuildLayout()
+    {
+        var tabs = new TabControl
+        {
+            Dock = DockStyle.Fill
+        };
+        var studioPage = new TabPage("Developer Studio");
+        studioPage.Controls.Add(BuildDeveloperStudioLayout());
+        var labPage = new TabPage("Workspace Experience Lab");
+        labPage.Controls.Add(BuildExperienceLab());
+        tabs.TabPages.Add(studioPage);
+        tabs.TabPages.Add(labPage);
+        return tabs;
+    }
+
+    private Control BuildDeveloperStudioLayout()
     {
         var root = new TableLayoutPanel
         {
@@ -144,6 +171,215 @@ internal sealed class MainWindow : Form
         return panel;
     }
 
+    private Control BuildExperienceLab()
+    {
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1,
+            Padding = new Padding(10)
+        };
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 64));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36));
+
+        var variants = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 5,
+            AutoScroll = true
+        };
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+        variants.Controls.Add(BuildLabVariantGroup("grip", "Greifen", WorkspaceExperienceLabState.GripVariants), 0, 0);
+        variants.Controls.Add(BuildLabVariantGroup("edge", "Rand", WorkspaceExperienceLabState.EdgeVariants), 0, 1);
+        variants.Controls.Add(BuildLabVariantGroup("transition", "Uebergang", WorkspaceExperienceLabState.TransitionVariants), 0, 2);
+        variants.Controls.Add(BuildLabVariantGroup("drop", "Ablegen", WorkspaceExperienceLabState.DropVariants), 0, 3);
+        variants.Controls.Add(BuildLabVariantGroup("preview", "Preview", WorkspaceExperienceLabState.PreviewVariants), 0, 4);
+
+        root.Controls.Add(variants, 0, 0);
+        root.Controls.Add(BuildLabDashboard(), 1, 0);
+        return root;
+    }
+
+    private Control BuildLabVariantGroup(
+        string category,
+        string title,
+        IReadOnlyList<WorkspaceExperienceLabOption> options)
+    {
+        var group = new GroupBox
+        {
+            Dock = DockStyle.Fill,
+            Text = title,
+            Padding = new Padding(10)
+        };
+        var layout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 3
+        };
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+
+        var combo = new ComboBox
+        {
+            Dock = DockStyle.Fill,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            DisplayMember = nameof(WorkspaceExperienceLabOption.DisplayName),
+            ValueMember = nameof(WorkspaceExperienceLabOption.Id),
+            DataSource = options.ToArray()
+        };
+        combo.SelectedIndexChanged += (_, _) =>
+        {
+            if (_syncingLabControls || combo.SelectedItem is not WorkspaceExperienceLabOption option)
+            {
+                return;
+            }
+
+            _experienceLab.SetVariant(category, option.Id);
+        };
+
+        var description = ValueLabel();
+        description.Padding = new Padding(0, 4, 0, 4);
+
+        var ratingPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false
+        };
+        var like = RatingButton(category, WorkspaceExperienceLabRating.Like, "Gefaellt mir");
+        var neutral = RatingButton(category, WorkspaceExperienceLabRating.Neutral, "Neutral");
+        var dislike = RatingButton(category, WorkspaceExperienceLabRating.Dislike, "Gefaellt mir nicht");
+        ratingPanel.Controls.Add(like);
+        ratingPanel.Controls.Add(neutral);
+        ratingPanel.Controls.Add(dislike);
+
+        _labVariantCombos[category] = combo;
+        _labDescriptionLabels[category] = description;
+        _labRatingButtons[category] = new[] { like, neutral, dislike };
+
+        layout.Controls.Add(combo, 0, 0);
+        layout.Controls.Add(description, 0, 1);
+        layout.Controls.Add(ratingPanel, 0, 2);
+        group.Controls.Add(layout);
+        return group;
+    }
+
+    private RadioButton RatingButton(
+        string category,
+        WorkspaceExperienceLabRating rating,
+        string text)
+    {
+        var button = new RadioButton
+        {
+            Text = text,
+            AutoSize = true,
+            Margin = new Padding(4, 6, 18, 4)
+        };
+        button.CheckedChanged += (_, _) =>
+        {
+            if (_syncingLabControls || !button.Checked)
+            {
+                return;
+            }
+
+            var option = GetSelectedLabOption(category);
+            if (option is not null)
+            {
+                _experienceLab.SetRating(category, option.Id, rating);
+            }
+        };
+        return button;
+    }
+
+    private Control BuildLabDashboard()
+    {
+        var panel = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 5,
+            Padding = new Padding(10)
+        };
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 88));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        _labSummary.Dock = DockStyle.Fill;
+        _labSummary.TextAlign = ContentAlignment.TopLeft;
+        _labSummary.Padding = new Padding(6);
+        _labSummary.BorderStyle = BorderStyle.FixedSingle;
+        _labSummary.AutoEllipsis = false;
+
+        _labAnimationEnabled.Text = "Animation aktiv";
+        _labAnimationEnabled.Dock = DockStyle.Fill;
+        _labAnimationEnabled.CheckedChanged += (_, _) =>
+        {
+            if (!_syncingLabControls)
+            {
+                _experienceLab.SetAnimationEnabled(_labAnimationEnabled.Checked);
+            }
+        };
+
+        _labSpeed.Minimum = 1;
+        _labSpeed.Maximum = 10;
+        _labSpeed.TickFrequency = 1;
+        _labSpeed.Dock = DockStyle.Fill;
+        _labSpeed.ValueChanged += (_, _) =>
+        {
+            _labSpeedLabel.Text = $"Geschwindigkeit: {_labSpeed.Value}";
+            if (!_syncingLabControls)
+            {
+                _experienceLab.SetSpeed(_labSpeed.Value);
+            }
+        };
+        _labSpeedLabel.Dock = DockStyle.Fill;
+        _labSpeedLabel.TextAlign = ContentAlignment.MiddleLeft;
+
+        var openButton = Button(
+            "Multi-Window-Prototyp oeffnen",
+            OpenMultiWindowPrototype,
+            "Oeffnet zwei echte Arbeitsflaechen, die die Lab-Varianten live verwenden.");
+        var hint = new Label
+        {
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.TopLeft,
+            ForeColor = Color.FromArgb(74, 84, 96),
+            Text = "Leitsatz: Nehmen. Tragen. Ablegen.\r\nVarianten duerfen nur die Darstellung veraendern, nie den Core."
+        };
+
+        panel.Controls.Add(Panel("Live-Auswahl", _labSummary), 0, 0);
+        panel.Controls.Add(_labAnimationEnabled, 0, 1);
+        panel.Controls.Add(Panel("Geschwindigkeit", BuildSpeedPanel()), 0, 2);
+        panel.Controls.Add(openButton, 0, 3);
+        panel.Controls.Add(hint, 0, 4);
+        return panel;
+    }
+
+    private Control BuildSpeedPanel()
+    {
+        var panel = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2
+        };
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
+        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        panel.Controls.Add(_labSpeedLabel, 0, 0);
+        panel.Controls.Add(_labSpeed, 0, 1);
+        return panel;
+    }
+
     private bool OpenMultiWindowPrototype()
     {
         _workspaceWindows.RemoveAll(window => window.IsDisposed);
@@ -165,7 +401,7 @@ internal sealed class MainWindow : Form
         }
 
         _workspaceWindows.Clear();
-        _multiWindowContext = new MultiWindowWorkspaceContext();
+        _multiWindowContext = new MultiWindowWorkspaceContext(_experienceLab);
         var baseLocation = PointToScreen(new Point(20, 120));
         var workspaceA = new WorkspaceWindow(
             _multiWindowContext,
@@ -337,6 +573,104 @@ internal sealed class MainWindow : Form
         ApplyColumnHeaders(_agentGrid);
         ApplyColumnHeaders(_logGrid);
         ApplyColumnHeaders(_historyGrid);
+    }
+
+    private void OnExperienceLabChanged(object? sender, EventArgs args)
+    {
+        if (IsDisposed)
+        {
+            return;
+        }
+
+        if (InvokeRequired)
+        {
+            BeginInvoke(RefreshLabControls);
+            return;
+        }
+
+        RefreshLabControls();
+    }
+
+    private void RefreshLabControls()
+    {
+        _syncingLabControls = true;
+        try
+        {
+            SelectLabOption("grip", _experienceLab.GripVariantId);
+            SelectLabOption("edge", _experienceLab.EdgeVariantId);
+            SelectLabOption("transition", _experienceLab.TransitionVariantId);
+            SelectLabOption("drop", _experienceLab.DropVariantId);
+            SelectLabOption("preview", _experienceLab.PreviewVariantId);
+            foreach (var category in _labVariantCombos.Keys)
+            {
+                RefreshLabRating(category);
+            }
+
+            _labAnimationEnabled.Checked = _experienceLab.AnimationEnabled;
+            _labSpeed.Value = Math.Clamp(_experienceLab.Speed, _labSpeed.Minimum, _labSpeed.Maximum);
+            _labSpeedLabel.Text = $"Geschwindigkeit: {_labSpeed.Value}";
+            _labSummary.Text = _experienceLab.GetSelectedSummary();
+        }
+        finally
+        {
+            _syncingLabControls = false;
+        }
+    }
+
+    private void SelectLabOption(string category, string variantId)
+    {
+        if (!_labVariantCombos.TryGetValue(category, out var combo))
+        {
+            return;
+        }
+
+        for (var index = 0; index < combo.Items.Count; index++)
+        {
+            if (combo.Items[index] is WorkspaceExperienceLabOption option &&
+                string.Equals(option.Id, variantId, StringComparison.Ordinal))
+            {
+                combo.SelectedIndex = index;
+                if (_labDescriptionLabels.TryGetValue(category, out var label))
+                {
+                    label.Text = option.Description;
+                }
+
+                return;
+            }
+        }
+    }
+
+    private void RefreshLabRating(string category)
+    {
+        var option = GetSelectedLabOption(category);
+        if (option is null || !_labRatingButtons.TryGetValue(category, out var buttons))
+        {
+            return;
+        }
+
+        var rating = _experienceLab.GetRating(category, option.Id);
+        foreach (var button in buttons)
+        {
+            if (button.Text.StartsWith("Gefaellt mir nicht", StringComparison.Ordinal))
+            {
+                button.Checked = rating == WorkspaceExperienceLabRating.Dislike;
+            }
+            else if (button.Text.StartsWith("Gefaellt mir", StringComparison.Ordinal))
+            {
+                button.Checked = rating == WorkspaceExperienceLabRating.Like;
+            }
+            else
+            {
+                button.Checked = rating == WorkspaceExperienceLabRating.Neutral;
+            }
+        }
+    }
+
+    private WorkspaceExperienceLabOption? GetSelectedLabOption(string category)
+    {
+        return _labVariantCombos.TryGetValue(category, out var combo)
+            ? combo.SelectedItem as WorkspaceExperienceLabOption
+            : null;
     }
 
     private static DataGridView CreateGrid()

@@ -12,6 +12,7 @@ internal sealed class MultiWindowWorkspaceContext
 {
     public static readonly WorkspaceId WorkspaceAId = WorkspaceId.Create("RKWS-MultiWindow-Workspace-A");
     public static readonly WorkspaceId WorkspaceBId = WorkspaceId.Create("RKWS-MultiWindow-Workspace-B");
+    private readonly WorkspaceExperienceLabState _experienceLab;
     private readonly List<MultiWindowLogRow> _log = new();
     private RuntimeEngine _runtime = CreateRuntime();
     private TransferEngine _transferEngine;
@@ -41,8 +42,10 @@ internal sealed class MultiWindowWorkspaceContext
     private WorkspaceSessionCandidateStatus _candidateStatus = WorkspaceSessionCandidateStatus.None;
     private WorkspaceSessionCandidate _sessionCandidate = WorkspaceSessionCandidate.Empty;
 
-    public MultiWindowWorkspaceContext()
+    public MultiWindowWorkspaceContext(WorkspaceExperienceLabState? experienceLab = null)
     {
+        _experienceLab = experienceLab ?? WorkspaceExperienceLabState.Load();
+        _experienceLab.Changed += (_, _) => NotifyChanged();
         _runtime.Start();
         _transferEngine = CreateTransferEngine(_runtime);
         InitializeWorkspaces();
@@ -55,6 +58,8 @@ internal sealed class MultiWindowWorkspaceContext
     public WorkspaceId SourceWorkspaceId => WorkspaceAId;
 
     public WorkspaceId TargetWorkspaceId => WorkspaceBId;
+
+    public WorkspaceExperienceLabState ExperienceLab => _experienceLab;
 
     public bool RunFullDemo()
     {
@@ -291,7 +296,8 @@ internal sealed class MultiWindowWorkspaceContext
             Diagnostics = BuildDiagnostics(),
             LastResult = _lastResult,
             LastError = _lastError,
-            UxDiagnostics = BuildUxDiagnostics()
+            UxDiagnostics = BuildUxDiagnostics(),
+            ExperienceLab = _experienceLab.GetSnapshot()
         };
     }
 

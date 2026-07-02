@@ -297,10 +297,9 @@ internal sealed class WorkspaceWindow : Form
         _lastResult.Text = StudioUiText.Display(_snapshot.LastResult);
         _lastError.Text = StudioUiText.Display(_snapshot.LastError);
         _statusHint.Text = StudioUiText.Display(_snapshot.StatusHint);
-        _workspacePreview.Text = string.IsNullOrWhiteSpace(_snapshot.SuggestedWorkspacePreview)
-            ? string.Empty
-            : $"Vorschau\r\n{_snapshot.SuggestedWorkspacePreview}";
-        _workspacePreview.Visible = !string.IsNullOrWhiteSpace(_snapshot.SuggestedWorkspacePreview);
+        _workspacePreview.Text = BuildPreviewText(_snapshot);
+        _workspacePreview.Visible = ShouldShowPreview(_snapshot);
+        _workspacePreview.Size = GetPreviewSize(_snapshot.ExperienceLab.PreviewVariantId);
         UpdateIllusionLayer();
         _uxDiagnostics.Text = FormatUxDiagnostics(_snapshot.UxDiagnostics);
         _statusHint.BackColor = _snapshot.IsDropTargetHighlighted
@@ -359,18 +358,18 @@ internal sealed class WorkspaceWindow : Form
     private Control CreateObjectCard(MultiWindowTransferObjectRow item)
     {
         var canDrag = _context.CanDrag(item.ObjectId, _workspaceId);
-        var pulse = item.IsBeingDragged && (_pulseStep % 6) < 3;
-        var grabbedBackColor = pulse
-            ? Color.FromArgb(218, 235, 255)
-            : Color.FromArgb(232, 243, 255);
+        var lab = _snapshot?.ExperienceLab ?? WorkspaceExperienceLabSnapshot.Default;
+        var pulse = lab.AnimationEnabled && item.IsBeingDragged && (_pulseStep % 6) < 3;
+        var grabbedBackColor = GetGrabbedBackColor(lab.GripVariantId, pulse);
+        var grabbedHeight = GetGrabbedHeight(lab.GripVariantId);
         var card = new Panel
         {
             Width = Math.Max(460, _objectPanel.ClientSize.Width - (item.IsBeingDragged ? 34 : 42)),
-            Height = item.IsBeingDragged ? 112 : 98,
+            Height = item.IsBeingDragged ? grabbedHeight : 98,
             BackColor = item.IsBeingDragged ? grabbedBackColor : Color.White,
             BorderStyle = item.IsBeingDragged ? BorderStyle.Fixed3D : BorderStyle.FixedSingle,
             Margin = item.IsBeingDragged
-                ? new Padding(pulse ? 12 : 10, 7, 5, 11)
+                ? GetGrabbedMargin(lab.GripVariantId, pulse)
                 : new Padding(8),
             Tag = item.ObjectId,
             Cursor = canDrag
@@ -415,7 +414,7 @@ internal sealed class WorkspaceWindow : Form
         var detail = new Label
         {
             Text = item.IsBeingDragged
-                ? $"{StudioUiText.Display(item.ObjectType)} | Objekt lebt am Cursor | {item.MimeType}"
+                ? $"{StudioUiText.Display(item.ObjectType)} | {GetGripDetail(lab.GripVariantId)} | {item.MimeType}"
                 : $"{StudioUiText.Display(item.ObjectType)} | Status: {StudioUiText.Display(item.State)} | {item.MimeType}",
             Dock = DockStyle.Fill,
             ForeColor = Color.FromArgb(87, 98, 112),
@@ -534,6 +533,7 @@ internal sealed class WorkspaceWindow : Form
     {
         _animationStep = 0;
         _animationCard.Text = objectName;
+        ApplyDropVariantToAnimationCard();
         _animationCard.Left = 8;
         _animationCard.Top = 7;
         _animationLayer.Visible = true;
@@ -543,6 +543,245 @@ internal sealed class WorkspaceWindow : Form
         _animationTimer.Start();
     }
 
+    private void ApplyDropVariantToAnimationCard()
+    {
+        var dropVariant = _snapshot?.ExperienceLab.DropVariantId ?? WorkspaceExperienceLabSnapshot.Default.DropVariantId;
+        _animationCard.Size = dropVariant switch
+        {
+            "drop-grow" or "drop-combo" => new Size(214, 36),
+            "drop-snap" or "drop-align" => new Size(196, 30),
+            _ => new Size(190, 30)
+        };
+        _animationCard.BackColor = dropVariant switch
+        {
+            "drop-glow" or "drop-combo" => Color.FromArgb(222, 255, 236),
+            "drop-bounce" => Color.FromArgb(255, 249, 222),
+            "drop-snap" => Color.FromArgb(226, 238, 255),
+            _ => Color.White
+        };
+    }
+
+    private static string BuildPreviewText(MultiWindowWorkspaceSnapshot snapshot)
+    {
+        if (string.IsNullOrWhiteSpace(snapshot.SuggestedWorkspacePreview))
+        {
+            return string.Empty;
+        }
+
+        return snapshot.ExperienceLab.PreviewVariantId switch
+        {
+            "preview-none" => string.Empty,
+            "preview-ghost" => string.Empty,
+            "preview-arrow" => snapshot.SuggestedWorkspaceId.EndsWith("-B", StringComparison.OrdinalIgnoreCase)
+                ? "->"
+                : "<-",
+            "preview-miniature" => $"Miniatur\r\n{snapshot.SuggestedWorkspaceName}",
+            _ => $"Vorschau\r\n{snapshot.SuggestedWorkspacePreview}"
+        };
+    }
+
+    private static bool ShouldShowPreview(MultiWindowWorkspaceSnapshot snapshot)
+    {
+        return !string.IsNullOrWhiteSpace(snapshot.SuggestedWorkspacePreview) &&
+            snapshot.ExperienceLab.PreviewVariantId is not "preview-none" and not "preview-ghost";
+    }
+
+    private static Size GetPreviewSize(string previewVariantId)
+    {
+        return previewVariantId switch
+        {
+            "preview-arrow" => new Size(70, 54),
+            "preview-miniature" => new Size(196, 54),
+            _ => new Size(248, 54)
+        };
+    }
+
+    private static Color GetGrabbedBackColor(string gripVariantId, bool pulse)
+    {
+        return gripVariantId switch
+        {
+            "grip-normal" => Color.White,
+            "grip-float" => Color.FromArgb(240, 248, 255),
+            "grip-shrink" => Color.FromArgb(244, 247, 250),
+            "grip-inertia" => Color.FromArgb(237, 235, 255),
+            "grip-pulse" => pulse ? Color.FromArgb(216, 237, 255) : Color.FromArgb(236, 247, 255),
+            "grip-collected" => Color.FromArgb(255, 247, 226),
+            "grip-combo" => pulse ? Color.FromArgb(214, 240, 255) : Color.FromArgb(236, 246, 255),
+            _ => pulse ? Color.FromArgb(218, 235, 255) : Color.FromArgb(232, 243, 255)
+        };
+    }
+
+    private static int GetGrabbedHeight(string gripVariantId)
+    {
+        return gripVariantId switch
+        {
+            "grip-normal" => 98,
+            "grip-shrink" or "grip-collected" => 88,
+            "grip-float" => 106,
+            "grip-inertia" => 116,
+            "grip-combo" => 118,
+            _ => 112
+        };
+    }
+
+    private static Padding GetGrabbedMargin(string gripVariantId, bool pulse)
+    {
+        return gripVariantId switch
+        {
+            "grip-normal" => new Padding(8),
+            "grip-shrink" => new Padding(18, 12, 14, 12),
+            "grip-collected" => new Padding(20, 10, 16, 12),
+            "grip-inertia" => new Padding(14, 8, 4, 12),
+            "grip-combo" => new Padding(pulse ? 16 : 12, 6, 4, 12),
+            _ => new Padding(pulse ? 12 : 10, 7, 5, 11)
+        };
+    }
+
+    private static string GetGripDetail(string gripVariantId)
+    {
+        return gripVariantId switch
+        {
+            "grip-normal" => "normal gegriffen",
+            "grip-float" => "schwebt am Cursor",
+            "grip-shrink" => "eingezogen",
+            "grip-inertia" => "traegt Gewicht",
+            "grip-pulse" => "pulsiert",
+            "grip-collected" => "eingesammelt",
+            "grip-combo" => "genommen und getragen",
+            _ => "hebt sich"
+        };
+    }
+
+    private static Color GetCandidateEdgeColor(string edgeVariantId, bool pulse)
+    {
+        return edgeVariantId switch
+        {
+            "edge-glow" => Color.FromArgb(222, 242, 255),
+            "edge-runner" => pulse ? Color.FromArgb(203, 231, 255) : Color.FromArgb(231, 243, 255),
+            "edge-opening" => Color.FromArgb(232, 245, 255),
+            "edge-magnetic" => Color.FromArgb(219, 231, 255),
+            "edge-large" => Color.FromArgb(226, 240, 255),
+            "edge-combo" => pulse ? Color.FromArgb(199, 230, 255) : Color.FromArgb(224, 241, 255),
+            _ => pulse ? Color.FromArgb(213, 232, 255) : Color.FromArgb(230, 241, 255)
+        };
+    }
+
+    private static Color GetLockedEdgeColor(string edgeVariantId, bool pulse)
+    {
+        return edgeVariantId switch
+        {
+            "edge-glow" => Color.FromArgb(203, 246, 224),
+            "edge-runner" => pulse ? Color.FromArgb(159, 235, 196) : Color.FromArgb(211, 250, 230),
+            "edge-opening" => Color.FromArgb(217, 255, 235),
+            "edge-magnetic" => Color.FromArgb(191, 239, 214),
+            "edge-large" => Color.FromArgb(205, 247, 225),
+            "edge-combo" => pulse ? Color.FromArgb(159, 235, 196) : Color.FromArgb(209, 249, 229),
+            _ => pulse ? Color.FromArgb(176, 236, 205) : Color.FromArgb(201, 246, 223)
+        };
+    }
+
+    private static int GetEdgeWidth(string edgeVariantId)
+    {
+        return edgeVariantId switch
+        {
+            "edge-opening" => 132,
+            "edge-large" => 156,
+            "edge-combo" => 144,
+            "edge-invisible" => 1,
+            _ => 96
+        };
+    }
+
+    private static string BuildEdgeLabelText(string hint, string edgeVariantId)
+    {
+        if (edgeVariantId == "edge-runner")
+        {
+            return $">>>\r\n{hint.Replace(" ", "\r\n", StringComparison.Ordinal)}";
+        }
+
+        if (edgeVariantId == "edge-magnetic")
+        {
+            return $"MAGNET\r\n{hint.Replace(" ", "\r\n", StringComparison.Ordinal)}";
+        }
+
+        return hint.Replace(" ", "\r\n", StringComparison.Ordinal);
+    }
+
+    private static bool ShouldShowGhost(string transitionVariantId, string previewVariantId)
+    {
+        return transitionVariantId is not "transition-vanish" &&
+            previewVariantId is not "preview-none";
+    }
+
+    private static string BuildGhostText(string objectName, string transitionVariantId)
+    {
+        return transitionVariantId switch
+        {
+            "transition-takeover" => $"{objectName}\r\nwird uebernommen",
+            "transition-continuous" => $"{objectName}\r\ntraegt weiter",
+            "transition-fade" => $"{objectName}\r\nsoft fade",
+            "transition-half" => $"{objectName}\r\nhalb im Rand",
+            "transition-slide" => $"{objectName}\r\ngleitet",
+            "transition-combo" => $"{objectName}\r\nUebergang",
+            _ => $"{objectName}\r\nim Rand"
+        };
+    }
+
+    private static Size GetGhostSize(string transitionVariantId)
+    {
+        return transitionVariantId switch
+        {
+            "transition-half" or "transition-continuous" or "transition-combo" => new Size(226, 38),
+            "transition-fade" => new Size(176, 30),
+            "transition-vanish" => new Size(1, 1),
+            _ => new Size(192, 32)
+        };
+    }
+
+    private static Color GetGhostBackColor(string transitionVariantId, bool locked)
+    {
+        if (locked)
+        {
+            return transitionVariantId switch
+            {
+                "transition-takeover" or "transition-combo" => Color.FromArgb(215, 255, 232),
+                "transition-fade" => Color.FromArgb(242, 255, 247),
+                _ => Color.FromArgb(232, 255, 241)
+            };
+        }
+
+        return transitionVariantId switch
+        {
+            "transition-fade" => Color.FromArgb(255, 253, 244),
+            "transition-slide" => Color.FromArgb(238, 247, 255),
+            "transition-combo" => Color.FromArgb(255, 247, 222),
+            _ => Color.FromArgb(255, 252, 234)
+        };
+    }
+
+    private static int GetPulseInterval(int speed)
+    {
+        return Math.Clamp(220 - (speed * 14), 60, 220);
+    }
+
+    private static int GetAnimationSteps(int speed)
+    {
+        return Math.Clamp(28 - (speed * 2), 8, 28);
+    }
+
+    private static int GetDropAnimationTop(string dropVariantId, double ratio)
+    {
+        var arc = (int)(Math.Sin(ratio * Math.PI) * -5);
+        return dropVariantId switch
+        {
+            "drop-bounce" or "drop-combo" => 7 + arc + (ratio > 0.72 ? (int)(Math.Sin(ratio * Math.PI * 4) * 4) : 0),
+            "drop-snap" => ratio > 0.85 ? 7 : 7 + arc,
+            "drop-soft" => 7 + (int)(Math.Sin(ratio * Math.PI) * -3),
+            "drop-grow" => 7 + (int)(Math.Sin(ratio * Math.PI) * -6),
+            _ => 7 + arc
+        };
+    }
+
     private void UpdateIllusionLayer()
     {
         if (_snapshot is null)
@@ -550,12 +789,15 @@ internal sealed class WorkspaceWindow : Form
             return;
         }
 
+        var lab = _snapshot.ExperienceLab;
         var isActive = _snapshot.IsObjectGrabbed || _snapshot.IsEdgeCandidateActive || _snapshot.IsEdgeLocked;
-        var pulse = (_pulseStep % 6) < 3;
+        var pulse = lab.AnimationEnabled && (_pulseStep % 6) < 3;
         var activeBackColor = _snapshot.IsEdgeLocked
-            ? (pulse ? Color.FromArgb(176, 236, 205) : Color.FromArgb(201, 246, 223))
-            : (pulse ? Color.FromArgb(213, 232, 255) : Color.FromArgb(230, 241, 255));
+            ? GetLockedEdgeColor(lab.EdgeVariantId, pulse)
+            : GetCandidateEdgeColor(lab.EdgeVariantId, pulse);
         var inactiveBackColor = Color.FromArgb(239, 244, 249);
+        _leftEdgeZone.Width = GetEdgeWidth(lab.EdgeVariantId);
+        _rightEdgeZone.Width = GetEdgeWidth(lab.EdgeVariantId);
         ConfigureEdgeZoneState(
             _leftEdgeZone,
             _leftEdgeLabel,
@@ -563,7 +805,8 @@ internal sealed class WorkspaceWindow : Form
             isActive,
             _snapshot.EdgeHotZoneHint,
             activeBackColor,
-            inactiveBackColor);
+            inactiveBackColor,
+            lab.EdgeVariantId);
         ConfigureEdgeZoneState(
             _rightEdgeZone,
             _rightEdgeLabel,
@@ -571,16 +814,17 @@ internal sealed class WorkspaceWindow : Form
             isActive,
             _snapshot.EdgeHotZoneHint,
             activeBackColor,
-            inactiveBackColor);
+            inactiveBackColor,
+            lab.EdgeVariantId);
 
         _transitionGhost.Text = string.IsNullOrWhiteSpace(_snapshot.EdgeGhostObjectName)
             ? string.Empty
-            : $"{_snapshot.EdgeGhostObjectName}\r\nim Rand";
+            : BuildGhostText(_snapshot.EdgeGhostObjectName, lab.TransitionVariantId);
         _transitionGhost.Visible = !string.IsNullOrWhiteSpace(_snapshot.EdgeGhostObjectName) &&
-            _snapshot.ActiveEdge != MultiWindowEdge.None;
-        _transitionGhost.BackColor = _snapshot.IsEdgeLocked
-            ? Color.FromArgb(232, 255, 241)
-            : Color.FromArgb(255, 252, 234);
+            _snapshot.ActiveEdge != MultiWindowEdge.None &&
+            ShouldShowGhost(lab.TransitionVariantId, lab.PreviewVariantId);
+        _transitionGhost.Size = GetGhostSize(lab.TransitionVariantId);
+        _transitionGhost.BackColor = GetGhostBackColor(lab.TransitionVariantId, _snapshot.IsEdgeLocked);
         _transitionGhost.ForeColor = _snapshot.IsEdgeLocked
             ? Color.FromArgb(21, 91, 56)
             : Color.FromArgb(94, 71, 18);
@@ -594,9 +838,10 @@ internal sealed class WorkspaceWindow : Form
         bool visible,
         string hint,
         Color activeBackColor,
-        Color inactiveBackColor)
+        Color inactiveBackColor,
+        string edgeVariantId)
     {
-        panel.Visible = visible && activeEdge;
+        panel.Visible = visible && activeEdge && !string.Equals(edgeVariantId, "edge-invisible", StringComparison.Ordinal);
         panel.BackColor = activeEdge ? activeBackColor : inactiveBackColor;
         label.BackColor = panel.BackColor;
         label.ForeColor = activeEdge
@@ -604,7 +849,7 @@ internal sealed class WorkspaceWindow : Form
             : Color.FromArgb(74, 90, 108);
         label.Text = string.IsNullOrWhiteSpace(hint)
             ? string.Empty
-            : hint.Replace(" ", "\r\n", StringComparison.Ordinal);
+            : BuildEdgeLabelText(hint, edgeVariantId);
     }
 
     private void UpdateIllusionLayerLayout()
@@ -639,10 +884,16 @@ internal sealed class WorkspaceWindow : Form
     private void UpdatePulseTimer()
     {
         var shouldPulse = _snapshot is not null &&
+            _snapshot.ExperienceLab.AnimationEnabled &&
             (_snapshot.IsObjectGrabbed ||
                 _snapshot.IsEdgeCandidateActive ||
                 _snapshot.IsEdgeLocked ||
                 _snapshot.IsSuccessPulseActive);
+        if (_snapshot is not null)
+        {
+            _pulseTimer.Interval = GetPulseInterval(_snapshot.ExperienceLab.Speed);
+        }
+
         if (shouldPulse && !_pulseTimer.Enabled)
         {
             _pulseTimer.Start();
@@ -658,10 +909,12 @@ internal sealed class WorkspaceWindow : Form
     {
         _animationStep++;
         var maxLeft = Math.Max(8, _animationLayer.ClientSize.Width - _animationCard.Width - 8);
-        var ratio = Math.Min(1.0, _animationStep / 18.0);
+        var lab = _snapshot?.ExperienceLab ?? WorkspaceExperienceLabSnapshot.Default;
+        var totalSteps = GetAnimationSteps(lab.Speed);
+        var ratio = Math.Min(1.0, _animationStep / (double)totalSteps);
         _animationCard.Left = 8 + (int)((maxLeft - 8) * ratio);
-        _animationCard.Top = 7 + (int)(Math.Sin(ratio * Math.PI) * -5);
-        if (_animationStep >= 18)
+        _animationCard.Top = GetDropAnimationTop(lab.DropVariantId, ratio);
+        if (_animationStep >= totalSteps)
         {
             _animationTimer.Stop();
             _animationCard.Visible = false;

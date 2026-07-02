@@ -36,6 +36,7 @@ internal static class Program
         var roundTripSuccess = roundTripWindow.RunRoundTripDemo();
         var illusionWindow = new MultiWindowWorkspaceContext();
         var illusionResult = illusionWindow.RunWorkspaceIllusionDemo();
+        var labResult = RunWorkspaceExperienceLabSmokeTest();
         var edgeLeft = multiWindow.DetectWindowEdge(5, 0, 200, 24);
         var edgeRight = multiWindow.DetectWindowEdge(195, 0, 200, 24);
         var edgeMiddle = multiWindow.DetectWindowEdge(100, 0, 200, 24);
@@ -81,7 +82,8 @@ internal static class Program
             returnTransferSuccess &&
             uxDiagnosticsSuccess &&
             sessionCandidateReady &&
-            illusionResult.IsSuccess;
+            illusionResult.IsSuccess &&
+            labResult.IsSuccess;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -113,6 +115,14 @@ internal static class Program
         Console.WriteLine($"IllusionCandidateStatus: {illusionResult.Diagnostics.CandidateStatus}");
         Console.WriteLine($"IllusionTransitionMs: {illusionResult.Diagnostics.LastTransitionDurationMs}");
         Console.WriteLine($"IllusionReturnCount: {illusionResult.Diagnostics.ReturnTransferCount}");
+        Console.WriteLine($"LabGripVariants: {WorkspaceExperienceLabState.GripVariants.Count}");
+        Console.WriteLine($"LabEdgeVariants: {WorkspaceExperienceLabState.EdgeVariants.Count}");
+        Console.WriteLine($"LabTransitionVariants: {WorkspaceExperienceLabState.TransitionVariants.Count}");
+        Console.WriteLine($"LabDropVariants: {WorkspaceExperienceLabState.DropVariants.Count}");
+        Console.WriteLine($"LabPreviewVariants: {WorkspaceExperienceLabState.PreviewVariants.Count}");
+        Console.WriteLine($"LabLiveSwitch: {(labResult.LiveSwitchSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"LabRating: {(labResult.RatingSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"LabAppliedToMultiWindow: {(labResult.MultiWindowAppliedSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"EdgeTargetLeft: {edgeLeftSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetRight: {edgeRightSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetLogic: {(edgeLogicSuccess ? "SUCCESS" : "FAILED")}");
@@ -128,11 +138,70 @@ internal static class Program
         Console.WriteLine(returnTransferSuccess ? "RoundTrip: SUCCESS" : "RoundTrip: FAILED");
         Console.WriteLine(uxDiagnosticsSuccess ? "UxDiagnostics: SUCCESS" : "UxDiagnostics: FAILED");
         Console.WriteLine(illusionResult.IsSuccess ? "WorkspaceIllusion: SUCCESS" : "WorkspaceIllusion: FAILED");
+        Console.WriteLine(labResult.IsSuccess ? "WorkspaceExperienceLab: SUCCESS" : "WorkspaceExperienceLab: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();
         fullDemoViewModel.StopDualAgents();
 
         return interactiveSuccess ? 0 : 1;
+    }
+
+    private static WorkspaceExperienceLabSmokeResult RunWorkspaceExperienceLabSmokeTest()
+    {
+        var lab = WorkspaceExperienceLabState.Load();
+        var initial = lab.GetSnapshot();
+        var initialGripRating = lab.GetRating("grip", "grip-shrink");
+        try
+        {
+            var countsSuccess = lab.SmokeCheck();
+            lab.SetVariant("grip", "grip-pulse");
+            var firstSwitch = string.Equals(lab.GripVariantId, "grip-pulse", StringComparison.Ordinal);
+            lab.SetVariant("grip", "grip-shrink");
+            var secondSwitch = string.Equals(lab.GripVariantId, "grip-shrink", StringComparison.Ordinal);
+            lab.SetRating("grip", "grip-shrink", WorkspaceExperienceLabRating.Like);
+            var ratingSuccess = lab.GetRating("grip", "grip-shrink") == WorkspaceExperienceLabRating.Like;
+            var context = new MultiWindowWorkspaceContext(lab);
+            var snapshot = context.GetSnapshot(context.SourceWorkspaceId.ToString());
+            var multiWindowApplied = string.Equals(
+                snapshot.ExperienceLab.GripVariantId,
+                "grip-shrink",
+                StringComparison.Ordinal);
+
+            return new WorkspaceExperienceLabSmokeResult
+            {
+                CountsSuccess = countsSuccess,
+                LiveSwitchSuccess = firstSwitch && secondSwitch,
+                RatingSuccess = ratingSuccess,
+                MultiWindowAppliedSuccess = multiWindowApplied
+            };
+        }
+        finally
+        {
+            lab.SetVariant("grip", initial.GripVariantId);
+            lab.SetVariant("edge", initial.EdgeVariantId);
+            lab.SetVariant("transition", initial.TransitionVariantId);
+            lab.SetVariant("drop", initial.DropVariantId);
+            lab.SetVariant("preview", initial.PreviewVariantId);
+            lab.SetAnimationEnabled(initial.AnimationEnabled);
+            lab.SetSpeed(initial.Speed);
+            lab.SetRating("grip", "grip-shrink", initialGripRating);
+        }
+    }
+
+    private sealed record WorkspaceExperienceLabSmokeResult
+    {
+        public required bool CountsSuccess { get; init; }
+
+        public required bool LiveSwitchSuccess { get; init; }
+
+        public required bool RatingSuccess { get; init; }
+
+        public required bool MultiWindowAppliedSuccess { get; init; }
+
+        public bool IsSuccess => CountsSuccess &&
+            LiveSwitchSuccess &&
+            RatingSuccess &&
+            MultiWindowAppliedSuccess;
     }
 }

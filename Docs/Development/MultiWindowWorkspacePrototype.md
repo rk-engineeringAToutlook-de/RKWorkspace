@@ -1,7 +1,7 @@
 # Multi Window Workspace Prototype
 
 Dokument-ID: RKWS-DEV-MULTI-WINDOW-WORKSPACE-PROTOTYPE
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -71,6 +71,8 @@ Alle Objekte sind reine Core-Objekte. Es gibt keine echte Datei-, PDF-, Bild- od
 9. Dasselbe Objekt kann in Fenster B erneut gegriffen und nach Fenster A zurueckgezogen werden.
 
 Beim Greifen zeigt das Quellfenster einen aktiven Kartenrahmen, Glow, leichte Groessenaenderung, Puls und die Meldung `Objekt gefasst`. Der rechte Fensterrand schlaegt die rechte Arbeitsflaeche vor, der linke Fensterrand die linke Arbeitsflaeche. Eine Workspace Preview zeigt Zielname, Objektanzahl und Status. Die Randzone wird als Uebergang sichtbar: Quelle zeigt `Nach rechts schieben` oder `Nach links schieben`, das Ziel zeigt vor dem Drop einen Eintrittsbereich und ein halb im Rand liegendes Ghost-Objekt. Diese Logik ist in `MultiWindowWorkspaceContext` gekapselt, damit spaeter echte Monitor- und Bildschirmrand-Erkennung angebunden werden kann.
+
+Ab UX-LAB-001 koennen Greifen, Rand, Uebergang, Ablegen und Preview ueber die Registerkarte `Workspace Experience Lab` live variiert werden. Der Core bleibt unveraendert; nur Darstellung, Timing und lokale Bewertung werden veraendert.
 
 ## Feedback
 
@@ -163,12 +165,15 @@ Er prueft:
 - `RoundTrip: SUCCESS`, `UxDiagnostics: SUCCESS`, `WorkspaceSessionCandidate: READY`
 - Workspace Illusion prueft Greifzustand, Edge Candidate, Edge Locked, Transfer A -> B, Transfer B -> A und Candidate Completed.
 - `WorkspaceIllusion: SUCCESS`
+- Workspace Experience Lab prueft Variantenanzahl, Live-Wechsel, Bewertung und Anwendung im Multi-Window-Kontext.
+- `WorkspaceExperienceLab: SUCCESS`
 - `MultiWindow: SUCCESS` und `RESULT: SUCCESS` werden ausgegeben.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-02 | UX-LAB-001 Live-Varianten aus Workspace Experience Lab dokumentiert. |
 | 1.3.0 | 2026-07-02 | MA005.03 Workspace Illusion, Edge-Hot-Zones und Candidate-Status dokumentiert. |
 | 1.2.0 | 2026-07-02 | MA005.02 Workspace Experience Sprint, Ruecktransfer, Preview und UX-Diagnostics dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA005.01 Drag-Feedback, Randziel-Logik und Erfolgs-/Fehlerfeedback dokumentiert. |
