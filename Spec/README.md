@@ -1,7 +1,7 @@
 # RKWS Specification Index
 
 Dokument-ID: RKWS-SPEC-INDEX  
-Version: 0.5.0
+Version: 0.6.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -13,6 +13,7 @@ Dieses Verzeichnis enthaelt normative Spezifikationen. Dokumente in `Docs/` erkl
 
 ```mermaid
 flowchart TB
+    NorthStar["Nordstern"] --> Product["ProductVision"]
     Product["ProductVision"] --> Object["ObjectModel"]
     Product --> Philosophy["ProductPhilosophy"]
     Philosophy --> Plugin["PluginArchitecture"]
@@ -33,6 +34,7 @@ flowchart TB
 
 ## Startpunkte
 
+- `../Docs/Nordstern.md`
 - `ProductVision.md`
 - `ProductPhilosophy.md`
 - `PluginArchitecture.md`
@@ -63,6 +65,7 @@ flowchart TB
 
 ## Querverweise
 
+- `Docs/Nordstern.md`
 - `Docs/Architecture/ArchitectureFreeze.md`
 - `Docs/Architecture/ArchitectureBaseline.md`
 - `Docs/Architecture/ArchitectureBaselineReview.md`
@@ -76,6 +79,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.6.0 | 2026-07-03 | Nordstern als obersten Orientierungspunkt aufgenommen. |
 | 0.5.0 | 2026-07-02 | RuntimeArchitecture fuer Core Runtime Orchestrator aufgenommen. |
 | 0.4.0 | 2026-07-02 | Readiness- und Glossarverweise fuer MA002B ergaenzt. |
 | 0.3.0 | 2026-07-02 | Architecture Baseline Completion 002A in den Spezifikationsindex aufgenommen. |

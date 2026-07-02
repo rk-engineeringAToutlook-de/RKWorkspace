@@ -1,13 +1,21 @@
 # RKWS-0350 Product Philosophy
 
 Dokument-ID: RKWS-SPEC-PHILOSOPHY-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
 ## Zweck
 
 Dieses Dokument definiert die Produktphilosophie von RK Workspace. Sie ist verbindlich fuer Architektur, UX, Plugins, Capabilities und spaetere Plattformimplementierungen.
+
+Die Produktphilosophie folgt dem Nordstern in `Docs/Nordstern.md`. Wenn eine technische Entscheidung diesem Nordstern widerspricht, wird die technische Entscheidung ueberarbeitet.
+
+## Nordstern-Prinzip
+
+Code folgt dem Gefuehl. Nicht umgekehrt.
+
+Jede neue Funktion muss zuerst beantworten, was der Mensch in diesem Moment fuehlen soll. Der Massstab ist nicht nur, ob Code laeuft oder Tests gruen sind, sondern ob der Benutzer vergisst, dass er zwischen mehreren Geraeten arbeitet.
 
 ## Grundsaetze
 
@@ -40,6 +48,7 @@ flowchart TB
 
 ## Querverweise
 
+- `Docs/Nordstern.md`
 - `Docs/00_ProductVision.md`
 - `Docs/ADR/ADR-0001-workspaces-instead-of-devices.md`
 - `Spec/CapabilityModel.md`
@@ -49,4 +58,5 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | Nordstern-Prinzip als verbindliche Produktphilosophie ergaenzt. |
 | 1.0.0 | 2026-07-02 | Produktphilosophie fuer RKWS-0350 definiert. |
