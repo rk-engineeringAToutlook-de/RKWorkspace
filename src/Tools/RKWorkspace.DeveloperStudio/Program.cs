@@ -27,10 +27,16 @@ internal static class Program
         var diagnostics = viewModel.Diagnostics;
         var interactive = viewModel.InteractiveWorkspace;
         var history = viewModel.TransferHistory.ToArray();
+        var multiWindow = new MultiWindowWorkspaceContext();
+        var multiWindowSuccess = multiWindow.RunFullDemo() &&
+            multiWindow.HasTransferredObjectInTarget();
+        var multiWindowSource = multiWindow.GetSnapshot(multiWindow.SourceWorkspaceId.ToString());
+        var multiWindowTarget = multiWindow.GetSnapshot(multiWindow.TargetWorkspaceId.ToString());
         var interactiveSuccess = success &&
             string.Equals(diagnostics.LastResult, "SUCCESS", StringComparison.Ordinal) &&
             string.Equals(interactive.ObjectLocation, "Workspace B", StringComparison.Ordinal) &&
-            history.Any(entry => string.Equals(entry.Action, "State:Completed", StringComparison.Ordinal));
+            history.Any(entry => string.Equals(entry.Action, "State:Completed", StringComparison.Ordinal)) &&
+            multiWindowSuccess;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -42,6 +48,9 @@ internal static class Program
         Console.WriteLine($"InteractiveObjectLocation: {interactive.ObjectLocation}");
         Console.WriteLine($"InteractiveObjectState: {interactive.ObjectState}");
         Console.WriteLine($"InteractiveHistory: {string.Join(" -> ", history.Select(entry => entry.Action))}");
+        Console.WriteLine($"MultiWindowSourceObjects: {multiWindowSource.TransferObjects.Count}");
+        Console.WriteLine($"MultiWindowTargetObjects: {multiWindowTarget.TransferObjects.Count}");
+        Console.WriteLine($"MultiWindowLastResult: {multiWindowTarget.LastResult}");
         foreach (var agent in viewModel.Agents)
         {
             Console.WriteLine($"Agent: {agent.AgentId} Runtime={agent.Runtime} Workspace={agent.Workspace} Status={agent.Status}");
@@ -50,6 +59,7 @@ internal static class Program
         Console.WriteLine($"LastResult: {diagnostics.LastResult}");
         Console.WriteLine($"LastError: {diagnostics.LastError}");
         Console.WriteLine(interactiveSuccess ? "InteractiveDemo: SUCCESS" : "InteractiveDemo: FAILED");
+        Console.WriteLine(multiWindowSuccess ? "MultiWindow: SUCCESS" : "MultiWindow: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();

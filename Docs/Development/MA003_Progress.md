@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.14.0
+Version: 0.15.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -27,6 +27,7 @@ flowchart LR
     MA00402 --> MA00403["MA004.03 Local IPC Two Process Test"]
     MA00403 --> MA00404["MA004.04 Transport Abstraction Layer"]
     MA00404 --> MA004X["MA004.X Interactive Workspace Prototype"]
+    MA004X --> MA00500["MA005.00 Multi Window Workspace Prototype"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -445,9 +446,41 @@ Nicht im Umfang:
 - Firmware
 - Cloud
 
-## Offene Punkte nach MA004.X
+## MA005.00 Multi Window Workspace Prototype
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche mit interaktivem Drag-and-Drop-Prototyp, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation, den lokalen Zwei-Prozess-IPC-Test und eine neutrale Transport Abstraction Layer. Nach gemeinsamer Bedienpruefung wird entschieden, ob die GUI weiter verbessert, Local Discovery gebaut oder echter Netzwerktransfer begonnen wird.
+Status: Abgeschlossen.
+
+Umfang:
+
+- Developer Workspace Studio um `Open Multi Window Prototype` erweitert
+- zwei echte OS-Fenster fuer `Window A / Laptop` und `Window B / Display Right`
+- gemeinsamer `MultiWindowWorkspaceContext` fuer beide Fenster
+- gemeinsamer Core-Lebenszyklus ueber Runtime Engine, Workspace Registry, Capability Manager, Transfer Object Manager und Transfer Engine
+- Transferobjekte fuer Text, PDF, Bild und Link
+- Drag-and-Drop aus Window A nach Window B
+- Ziel-Hervorhebung in Window B waehrend Drag
+- Drop loest `TransferEngine.ExecuteLogicalTransfer()` aus
+- beide Fenster synchronisieren Objektlisten, History, Diagnostics und Log aus demselben Core-Kontext
+- einfache Transferanimation im Zielfenster
+- Smoke-Test erweitert um Multi-Window-Core-Pfad
+- Dokumentation `Docs/Development/MultiWindowWorkspacePrototype.md`
+
+Nicht im Umfang:
+
+- Endanwender-GUI
+- Netzwerkfunktion
+- Local IPC
+- Discovery
+- Pairing-Automatik
+- Remote-Kommunikation
+- Hardware
+- Firmware
+- Cloud
+- Persistenz
+
+## Offene Punkte nach MA005.00
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche mit Single-Window- und Multi-Window-Drag-and-Drop-Prototyp, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation, den lokalen Zwei-Prozess-IPC-Test und eine neutrale Transport Abstraction Layer. Nach gemeinsamer Bedienpruefung des Multi-Window-Flusses wird entschieden, ob die GUI weiter verbessert, Local Discovery gebaut oder echter Netzwerktransfer begonnen wird.
 
 ## Querverweise
 
@@ -456,6 +489,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 - `Spec/RuntimeArchitecture.md`
 - `Docs/Development/DeveloperWorkspaceStudio.md`
 - `Docs/Development/InteractiveWorkspacePrototype.md`
+- `Docs/Development/MultiWindowWorkspacePrototype.md`
 - `Docs/Development/WorkspaceAgentRuntime.md`
 - `Docs/Development/DualAgentSimulation.md`
 - `Docs/Development/LocalIpcTwoProcessTest.md`
@@ -467,6 +501,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.15.0 | 2026-07-02 | MA005.00 Multi Window Workspace Prototype dokumentiert. |
 | 0.14.0 | 2026-07-02 | MA004.X Interactive Workspace Prototype dokumentiert. |
 | 0.13.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer dokumentiert. |
 | 0.12.0 | 2026-07-02 | MA004.03 Local IPC Two Process Test dokumentiert. |

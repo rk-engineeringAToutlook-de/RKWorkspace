@@ -11,6 +11,7 @@ internal sealed class MainWindow : Form
     private readonly DataGridView _logGrid = CreateGrid();
     private readonly DataGridView _historyGrid = CreateGrid();
     private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
+    private readonly List<WorkspaceWindow> _workspaceWindows = new();
     private readonly Label _runtimeState = ValueLabel();
     private readonly Label _pluginCount = ValueLabel();
     private readonly Label _workspaceCount = ValueLabel();
@@ -18,6 +19,7 @@ internal sealed class MainWindow : Form
     private readonly Label _capabilities = ValueLabel();
     private readonly Label _lastResult = ValueLabel();
     private readonly Label _lastError = ValueLabel();
+    private MultiWindowWorkspaceContext? _multiWindowContext;
 
     public MainWindow()
     {
@@ -92,8 +94,53 @@ internal sealed class MainWindow : Form
         panel.Controls.Add(Button("Run Full Demo", _viewModel.RunFullDemo));
         panel.Controls.Add(Button("Reset Interactive Demo", _viewModel.ResetInteractiveDemo));
         panel.Controls.Add(Button("Run Full Interactive Demo", _viewModel.RunFullInteractiveDemo));
+        panel.Controls.Add(Button("Open Multi Window Prototype", OpenMultiWindowPrototype));
 
         return panel;
+    }
+
+    private bool OpenMultiWindowPrototype()
+    {
+        _workspaceWindows.RemoveAll(window => window.IsDisposed);
+        if (_workspaceWindows.Count == 2)
+        {
+            foreach (var window in _workspaceWindows)
+            {
+                window.Show();
+                window.WindowState = FormWindowState.Normal;
+                window.BringToFront();
+            }
+
+            return true;
+        }
+
+        foreach (var window in _workspaceWindows.ToArray())
+        {
+            window.Close();
+        }
+
+        _workspaceWindows.Clear();
+        _multiWindowContext = new MultiWindowWorkspaceContext();
+        var baseLocation = PointToScreen(new Point(20, 120));
+        var workspaceA = new WorkspaceWindow(
+            _multiWindowContext,
+            _multiWindowContext.SourceWorkspaceId.ToString())
+        {
+            Location = baseLocation
+        };
+        var workspaceB = new WorkspaceWindow(
+            _multiWindowContext,
+            _multiWindowContext.TargetWorkspaceId.ToString())
+        {
+            Location = new Point(baseLocation.X + workspaceA.Width + 24, baseLocation.Y)
+        };
+        workspaceA.FormClosed += (_, _) => _workspaceWindows.Remove(workspaceA);
+        workspaceB.FormClosed += (_, _) => _workspaceWindows.Remove(workspaceB);
+        _workspaceWindows.Add(workspaceA);
+        _workspaceWindows.Add(workspaceB);
+        workspaceA.Show(this);
+        workspaceB.Show(this);
+        return true;
     }
 
     private Control BuildInteractivePanel()

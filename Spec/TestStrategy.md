@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.0.0
+Version: 2.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -54,6 +54,8 @@ Ab MA004.03 prueft `tools/run-tests.ps1` zusaetzlich den Local-IPC-Zwei-Prozess-
 Ab MA004.04 pruefen die Unit-Tests zusaetzlich die Transport Abstraction Layer und die NamedPipeTransport-Implementierung. Der Local-IPC-Zwei-Prozess-Test bleibt im Foundation-Check und laeuft intern ueber die TAL.
 
 Ab MA004.X prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Interactive Workspace Prototype. Der Smoke-Test bleibt viewmodelbasiert und erzwingt keine fragile UI-Automation.
+
+Ab MA005.00 prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Multi Window Workspace Prototype. Der Smoke-Test verwendet denselben Core-Kontext wie die sichtbaren Fenster und prueft den Transferpfad von Window A nach Window B ohne echte Maus-UI-Automation.
 
 ## MA003.05 Core Integration Tests
 
@@ -241,6 +243,29 @@ Er prueft:
 
 Nicht automatisiert wird echtes Maus-UI-Dragging, weil stabile UI-Automation fuer diesen Entwicklungsprototyp nicht erzwungen wird.
 
+## MA005.00 Multi Window Workspace Prototype Tests
+
+MA005.00 erweitert das Developer Workspace Studio um zwei echte Workspace-Fenster. Der manuelle Test erfolgt im sichtbaren Studio-Fenster ueber `Open Multi Window Prototype`: Objektkarte in Window A greifen, aus dem Fenster heraus ueber Window B ziehen, Ziel-Hervorhebung pruefen, loslassen und den abgeschlossenen Core-Transfer in Window B, History, Diagnostics und Log pruefen.
+
+Der automatisierte Smoke-Test bleibt bewusst viewmodelbasiert:
+
+```powershell
+.\tools\run-studio.ps1 -SmokeTest
+```
+
+Er prueft:
+
+- Multi-Window-Kontext kann initialisiert werden.
+- Window A enthaelt mehrere Demo-Transferobjekte.
+- Drag, Target Highlight und Drop werden ueber denselben Core-Kontext simuliert.
+- Drop loest `TransferEngine.ExecuteLogicalTransfer()` aus.
+- Danach liegt mindestens ein Objekt in Window B.
+- Diagnostics melden `LastResult: SUCCESS`.
+- Ausgabe enthaelt `MultiWindow: SUCCESS`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+
+Nicht automatisiert wird echtes Cross-Window-Maus-Dragging, weil stabile UI-Automation fuer diesen Entwicklungsprototyp nicht erzwungen wird.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -252,6 +277,7 @@ Nicht automatisiert wird echtes Maus-UI-Dragging, weil stabile UI-Automation fue
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.1.0 | 2026-07-02 | MA005.00 Multi Window Workspace Prototype Smoke-Test dokumentiert. |
 | 2.0.0 | 2026-07-02 | MA004.X Interactive Workspace Prototype Smoke-Test dokumentiert. |
 | 1.9.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer Tests dokumentiert. |
 | 1.8.0 | 2026-07-02 | MA004.03 Local IPC Two Process Tests dokumentiert. |
