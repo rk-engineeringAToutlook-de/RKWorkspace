@@ -21,7 +21,9 @@ internal sealed class WorkspaceWindow : Form
     private readonly ToolTip _toolTip = new();
     private readonly Panel _animationLayer = new();
     private readonly Label _statusHint = new();
+    private readonly Label _workspacePreview = new();
     private readonly Label _animationCard = new();
+    private readonly Label _uxDiagnostics = ValueLabel();
     private readonly System.Windows.Forms.Timer _animationTimer = new();
     private MultiWindowWorkspaceSnapshot? _snapshot;
     private int _animationStep;
@@ -69,19 +71,21 @@ internal sealed class WorkspaceWindow : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 5,
+            RowCount = 6,
             Padding = new Padding(10)
         };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 116));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 34));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 43));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 32));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 38));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
         root.Controls.Add(BuildHeader(), 0, 0);
         root.Controls.Add(BuildAnimationLayer(), 0, 1);
         root.Controls.Add(Panel("Transferobjekte", BuildObjectPanel()), 0, 2);
         root.Controls.Add(BuildHistoryLogPanel(), 0, 3);
         root.Controls.Add(Panel("Diagnose", BuildDiagnostics()), 0, 4);
+        root.Controls.Add(Panel("UX-Diagnose", BuildUxDiagnostics()), 0, 5);
 
         return root;
     }
@@ -92,16 +96,66 @@ internal sealed class WorkspaceWindow : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 2,
+            RowCount = 1,
+            Padding = new Padding(8),
+            BackColor = Color.FromArgb(230, 235, 242)
+        };
+        header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 132));
+        header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        header.Controls.Add(BuildMonitorBadge(), 0, 0);
+
+        var details = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
             RowCount = 4,
+            Padding = new Padding(8, 4, 4, 4)
+        };
+        details.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
+        details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        AddInfoRow(details, 0, "Name", _name);
+        AddInfoRow(details, 1, "Typ", _type);
+        AddInfoRow(details, 2, "Position", _position);
+        AddInfoRow(details, 3, "Status", _status);
+        header.Controls.Add(details, 1, 0);
+        return header;
+    }
+
+    private Control BuildMonitorBadge()
+    {
+        var badge = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.FromArgb(28, 36, 48),
+            BorderStyle = BorderStyle.FixedSingle,
             Padding = new Padding(8)
         };
-        header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
-        header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddInfoRow(header, 0, "Name", _name);
-        AddInfoRow(header, 1, "Typ", _type);
-        AddInfoRow(header, 2, "Position", _position);
-        AddInfoRow(header, 3, "Status", _status);
-        return header;
+        var screen = new Label
+        {
+            Dock = DockStyle.Fill,
+            Text = "WORKSPACE\r\nSCREEN",
+            TextAlign = ContentAlignment.MiddleCenter,
+            ForeColor = Color.White,
+            BackColor = Color.FromArgb(47, 65, 88),
+            Font = new Font(SystemFonts.DefaultFont.FontFamily, 9, FontStyle.Bold)
+        };
+        var stand = new Panel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 8,
+            BackColor = Color.FromArgb(17, 24, 34)
+        };
+        badge.Controls.Add(screen);
+        badge.Controls.Add(stand);
+        return badge;
+    }
+
+    private Control BuildUxDiagnostics()
+    {
+        _uxDiagnostics.Dock = DockStyle.Fill;
+        _uxDiagnostics.TextAlign = ContentAlignment.TopLeft;
+        _uxDiagnostics.Padding = new Padding(6);
+        return _uxDiagnostics;
     }
 
     private Control BuildAnimationLayer()
@@ -116,6 +170,17 @@ internal sealed class WorkspaceWindow : Form
         _statusHint.AutoEllipsis = true;
         _statusHint.ForeColor = Color.FromArgb(48, 62, 78);
         _animationLayer.Controls.Add(_statusHint);
+
+        _workspacePreview.AutoSize = false;
+        _workspacePreview.TextAlign = ContentAlignment.MiddleLeft;
+        _workspacePreview.Padding = new Padding(8, 0, 8, 0);
+        _workspacePreview.BackColor = Color.White;
+        _workspacePreview.ForeColor = Color.FromArgb(34, 49, 66);
+        _workspacePreview.BorderStyle = BorderStyle.FixedSingle;
+        _workspacePreview.Size = new Size(248, 54);
+        _workspacePreview.Visible = false;
+        _animationLayer.Controls.Add(_workspacePreview);
+        _animationLayer.Resize += (_, _) => UpdatePreviewCardLayout();
 
         _animationCard.AutoSize = false;
         _animationCard.TextAlign = ContentAlignment.MiddleCenter;
@@ -189,6 +254,12 @@ internal sealed class WorkspaceWindow : Form
         _lastResult.Text = StudioUiText.Display(_snapshot.LastResult);
         _lastError.Text = StudioUiText.Display(_snapshot.LastError);
         _statusHint.Text = StudioUiText.Display(_snapshot.StatusHint);
+        _workspacePreview.Text = string.IsNullOrWhiteSpace(_snapshot.SuggestedWorkspacePreview)
+            ? string.Empty
+            : $"Vorschau\r\n{_snapshot.SuggestedWorkspacePreview}";
+        _workspacePreview.Visible = !string.IsNullOrWhiteSpace(_snapshot.SuggestedWorkspacePreview);
+        UpdatePreviewCardLayout();
+        _uxDiagnostics.Text = FormatUxDiagnostics(_snapshot.UxDiagnostics);
         _statusHint.BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(198, 239, 219)
             : string.IsNullOrWhiteSpace(_snapshot.SuccessHint)
@@ -202,7 +273,9 @@ internal sealed class WorkspaceWindow : Form
             : SystemColors.Control;
         _objectPanel.BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(229, 246, 237)
-            : Color.FromArgb(245, 247, 250);
+            : _snapshot.IsSuccessPulseActive
+                ? Color.FromArgb(223, 247, 232)
+                : Color.FromArgb(245, 247, 250);
         _historyGrid.DataSource = _snapshot.History.ToArray();
         _logGrid.DataSource = _snapshot.Log.ToArray();
 
@@ -226,7 +299,7 @@ internal sealed class WorkspaceWindow : Form
         {
             _objectPanel.Controls.Add(new Label
             {
-                Text = "Keine Transferobjekte in dieser Arbeitsflaeche.",
+                Text = "Leere Arbeitsflaeche: keine Transferobjekte.",
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Width = Math.Max(420, _objectPanel.ClientSize.Width - 28),
@@ -245,7 +318,7 @@ internal sealed class WorkspaceWindow : Form
         var card = new Panel
         {
             Width = Math.Max(460, _objectPanel.ClientSize.Width - 42),
-            Height = item.IsBeingDragged ? 84 : 78,
+            Height = item.IsBeingDragged ? 104 : 98,
             BackColor = item.IsBeingDragged ? Color.FromArgb(226, 238, 255) : Color.White,
             BorderStyle = item.IsBeingDragged ? BorderStyle.Fixed3D : BorderStyle.FixedSingle,
             Margin = item.IsBeingDragged ? new Padding(10, 8, 6, 10) : new Padding(8),
@@ -254,32 +327,71 @@ internal sealed class WorkspaceWindow : Form
                 ? Cursors.Hand
                 : Cursors.Default
         };
+        var grid = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 3,
+            Padding = new Padding(8)
+        };
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64));
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
+        grid.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
+        grid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        var symbol = new Label
+        {
+            Text = item.Symbol,
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleCenter,
+            BackColor = item.IsBeingDragged ? Color.FromArgb(44, 102, 174) : Color.FromArgb(236, 241, 247),
+            ForeColor = item.IsBeingDragged ? Color.White : Color.FromArgb(36, 52, 70),
+            Font = new Font(SystemFonts.DefaultFont.FontFamily, 10, FontStyle.Bold)
+        };
         var title = new Label
         {
-            Text = $"{StudioUiText.Display(item.ObjectType)}: {item.DisplayName}",
-            Dock = DockStyle.Top,
-            Height = 28,
+            Text = item.DisplayName,
+            Dock = DockStyle.Fill,
             Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold),
-            Padding = new Padding(8, 6, 8, 0),
+            AutoEllipsis = true
+        };
+        var preview = new Label
+        {
+            Text = item.Preview,
+            Dock = DockStyle.Fill,
+            ForeColor = Color.FromArgb(64, 76, 92),
             AutoEllipsis = true
         };
         var detail = new Label
         {
-            Text = $"Status: {StudioUiText.Display(item.State)} | MIME: {item.MimeType}",
+            Text = $"{StudioUiText.Display(item.ObjectType)} | Status: {StudioUiText.Display(item.State)} | {item.MimeType}",
             Dock = DockStyle.Fill,
-            Padding = new Padding(8, 0, 8, 4),
+            ForeColor = Color.FromArgb(87, 98, 112),
             AutoEllipsis = true
         };
-        card.Controls.Add(detail);
-        card.Controls.Add(title);
+        grid.Controls.Add(symbol, 0, 0);
+        grid.SetRowSpan(symbol, 3);
+        grid.Controls.Add(title, 1, 0);
+        grid.Controls.Add(preview, 1, 1);
+        grid.Controls.Add(detail, 1, 2);
+        card.Controls.Add(grid);
         WireDragSource(card, item.ObjectId);
+        WireDragSource(grid, item.ObjectId);
+        WireDragSource(symbol, item.ObjectId);
         WireDragSource(title, item.ObjectId);
+        WireDragSource(preview, item.ObjectId);
         WireDragSource(detail, item.ObjectId);
+        var targetName = _workspaceId == _context.SourceWorkspaceId.ToString()
+            ? "Arbeitsflaeche B"
+            : "Arbeitsflaeche A";
         var tooltip = canDrag
-            ? "Dieses Objekt kann in Window B gezogen werden. Beim Loslassen wird der Core-Transfer ausgefuehrt."
-            : "Dieses Objekt liegt in dieser Arbeitsflaeche. Bereits uebertragene Objekte sind hier nur sichtbar.";
+            ? $"Dieses Objekt kann nach {targetName} gezogen werden. Beim Loslassen wird der Core-Transfer ausgefuehrt."
+            : "Dieses Objekt liegt nicht in dieser Arbeitsflaeche und kann hier nicht gegriffen werden.";
         _toolTip.SetToolTip(card, tooltip);
+        _toolTip.SetToolTip(grid, tooltip);
+        _toolTip.SetToolTip(symbol, tooltip);
         _toolTip.SetToolTip(title, tooltip);
+        _toolTip.SetToolTip(preview, tooltip);
         _toolTip.SetToolTip(detail, tooltip);
         return card;
     }
@@ -302,6 +414,7 @@ internal sealed class WorkspaceWindow : Form
                 _context.CancelDrag(objectId, _workspaceId);
             }
 
+            _context.SetTargetHighlighted(_context.SourceWorkspaceId.ToString(), highlighted: false);
             _context.SetTargetHighlighted(_context.TargetWorkspaceId.ToString(), highlighted: false);
         };
         control.GiveFeedback += (_, args) =>
@@ -376,6 +489,12 @@ internal sealed class WorkspaceWindow : Form
         _animationCard.BringToFront();
         _animationTimer.Stop();
         _animationTimer.Start();
+    }
+
+    private void UpdatePreviewCardLayout()
+    {
+        _workspacePreview.Left = Math.Max(8, _animationLayer.ClientSize.Width - _workspacePreview.Width - 10);
+        _workspacePreview.Top = 9;
     }
 
     private void AdvanceAnimation()
@@ -506,6 +625,17 @@ internal sealed class WorkspaceWindow : Form
         }
     }
 
+    private static string FormatUxDiagnostics(MultiWindowUxDiagnosticsSnapshot diagnostics)
+    {
+        var candidate = diagnostics.SessionCandidate;
+        var candidateText = string.IsNullOrWhiteSpace(candidate.TargetWorkspaceId)
+            ? "kein Kandidat"
+            : $"{candidate.SourceWorkspaceId} -> {candidate.TargetWorkspaceId}";
+        return $"Drag Start: {diagnostics.DragStartCount} | Ziel erkannt: {diagnostics.TargetDetectedCount} | Drop: {diagnostics.DropCount}\r\n" +
+            $"Drag Dauer: {diagnostics.LastDragDurationMs} ms | Transferzeit: {diagnostics.LastTransferDurationMs} ms | Erfolgsquote: {diagnostics.SuccessRatePercent}%\r\n" +
+            $"Erfolgreich: {diagnostics.SuccessfulTransfers} | Fehler: {diagnostics.FailedTransfers} | SessionCandidate: {candidateText}";
+    }
+
     private void ConfigureToolTips()
     {
         _toolTip.AutoPopDelay = 12000;
@@ -526,5 +656,11 @@ internal sealed class WorkspaceWindow : Form
         _toolTip.SetToolTip(
             _statusHint,
             "Statushinweis: zeigt Drag-Zustand, Randvorschlag, Drop-Ziel oder Transferergebnis.");
+        _toolTip.SetToolTip(
+            _workspacePreview,
+            "Workspace Preview: zeigt Zielname, Objektanzahl und Status beim magnetischen Randvorschlag.");
+        _toolTip.SetToolTip(
+            _uxDiagnostics,
+            "Lokale UX-Diagnose fuer Drag-Start, Zielerkennung, Drop, Transferzeit und Erfolgsquote.");
     }
 }

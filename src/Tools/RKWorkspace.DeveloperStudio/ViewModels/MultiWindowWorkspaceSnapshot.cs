@@ -18,9 +18,15 @@ internal sealed record MultiWindowWorkspaceSnapshot
 
     public required string SuggestedWorkspaceId { get; init; }
 
+    public required string SuggestedWorkspaceName { get; init; }
+
+    public required string SuggestedWorkspacePreview { get; init; }
+
     public required string StatusHint { get; init; }
 
     public required string SuccessHint { get; init; }
+
+    public required bool IsSuccessPulseActive { get; init; }
 
     public required IReadOnlyCollection<MultiWindowTransferObjectRow> TransferObjects { get; init; }
 
@@ -33,4 +39,6 @@ internal sealed record MultiWindowWorkspaceSnapshot
     public required string LastResult { get; init; }
 
     public required string LastError { get; init; }
+
+    public required MultiWindowUxDiagnosticsSnapshot UxDiagnostics { get; init; }
 }

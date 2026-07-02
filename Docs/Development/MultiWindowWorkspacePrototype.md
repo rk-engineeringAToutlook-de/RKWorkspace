@@ -1,7 +1,7 @@
 # Multi Window Workspace Prototype
 
 Dokument-ID: RKWS-DEV-MULTI-WINDOW-WORKSPACE-PROTOTYPE
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -9,7 +9,7 @@ Datum: 2026-07-02
 
 Der Multi Window Workspace Prototype prueft erstmals zwei echte Betriebssystemfenster als getrennte Arbeitsflaechen. Das Ziel ist die Validierung des Bediengefuehls, nicht Infrastrukturentwicklung.
 
-Der Benutzer kann ein Core-Transferobjekt aus Fenster A greifen, in Fenster B loslassen und so einen logischen Transfer ausloesen.
+Der Benutzer kann ein Core-Transferobjekt aus Fenster A greifen, in Fenster B loslassen und spaeter wieder nach Fenster A zurueckziehen. Der erste Transfer nutzt den Core-Transferablauf, der Ruecktransfer im Developer Studio aktualisiert die logische Objektposition fuer die UX-Bewertung.
 
 ## Architektur
 
@@ -66,10 +66,11 @@ Alle Objekte sind reine Core-Objekte. Es gibt keine echte Datei-, PDF-, Bild- od
 4. Objektkarte in Fenster A greifen.
 5. Objekt ueber Fenster B loslassen.
 6. Fenster B wird beim Drag als Ziel hervorgehoben.
-7. Der Drop loest `TransferEngine.ExecuteLogicalTransfer()` aus.
+7. Der Drop loest fuer noch nicht abgeschlossene Objekte `TransferEngine.ExecuteLogicalTransfer()` aus.
 8. Nach Erfolg erscheint das Objekt in Fenster B.
+9. Dasselbe Objekt kann in Fenster B erneut gegriffen und nach Fenster A zurueckgezogen werden.
 
-Beim Ziehen zeigt das Quellfenster einen aktiven Kartenrahmen, eine Statusmeldung und Randziel-Vorschlaege. Der rechte Fensterrand schlaegt Workspace B vor, der linke Fensterrand Workspace A. Diese Logik ist in `MultiWindowWorkspaceContext` gekapselt, damit spaeter echte Monitor- und Bildschirmrand-Erkennung angebunden werden kann.
+Beim Ziehen zeigt das Quellfenster einen aktiven Kartenrahmen, eine Statusmeldung und Randziel-Vorschlaege. Der rechte Fensterrand schlaegt Workspace B vor, der linke Fensterrand Workspace A. Eine Workspace Preview zeigt Zielname, Objektanzahl und Status. Diese Logik ist in `MultiWindowWorkspaceContext` gekapselt, damit spaeter echte Monitor- und Bildschirmrand-Erkennung angebunden werden kann.
 
 ## Feedback
 
@@ -85,8 +86,10 @@ Nach Drop:
 - Fenster A loggt `Objekt wird gezogen` und `Transfer erfolgreich abgeschlossen`
 - Fenster B loggt `Transfer received` und `Transfer erfolgreich abgeschlossen`
 - Fenster B zeigt eine kurze Transferanimation
+- das Ziel leuchtet kurz als Success-Pulse auf
 - History enthaelt `State:Completed`
 - Diagnostics melden `Ergebnis=ERFOLG` und den letzten Transfer
+- UX-Diagnostics zeigen Drag Starts, Zielerkennung, Drops, Transferzeit und Erfolgsquote
 - ungueltige Drops loggen `Kein gueltiges Ziel` und lassen das Objekt im Quellfenster
 
 ## Grenzen
@@ -105,8 +108,12 @@ Der Prototyp fuehrt nicht ein:
 - keine Prozesskommunikation
 - keine echte Monitorerkennung
 - keine Betriebssystem-Hot-Zones ausserhalb der Fenster
+- keine Live-Workspace-Session
+- keine echte Session-Aushandlung
 
 Beide Fenster laufen im selben Prozess und verwenden denselben Core-Kontext.
+
+`WorkspaceSessionCandidate` ist als interne Vorbereitung vorhanden. Er beschreibt Objekt, Quelle, Ziel und Richtung, wird aber noch nicht fuer Live-Workspace-Funktionen verwendet.
 
 ## Erkenntnisse
 
@@ -146,11 +153,17 @@ Er prueft:
 - Target-Fenster sieht danach ein Objekt.
 - `Run Full Demo` wird erfolgreich ausgefuehrt.
 - EdgeTarget-Logik liefert links Workspace A, rechts Workspace B und in der Mitte kein Ziel.
+- Roundtrip A -> B -> A ist erfolgreich.
+- nach dem Roundtrip liegen wieder fuenf Objekte in Workspace A.
+- UX-Diagnostics melden Drag-Start, Zielerkennung, Drop und 100 Prozent Erfolgsquote.
+- `WorkspaceSessionCandidate` ist vorbereitet.
+- `RoundTrip: SUCCESS`, `UxDiagnostics: SUCCESS`, `WorkspaceSessionCandidate: READY`
 - `MultiWindow: SUCCESS` und `RESULT: SUCCESS` werden ausgegeben.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-02 | MA005.02 Workspace Experience Sprint, Ruecktransfer, Preview und UX-Diagnostics dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA005.01 Drag-Feedback, Randziel-Logik und Erfolgs-/Fehlerfeedback dokumentiert. |
 | 1.0.0 | 2026-07-02 | Multi Window Workspace Prototype dokumentiert. |

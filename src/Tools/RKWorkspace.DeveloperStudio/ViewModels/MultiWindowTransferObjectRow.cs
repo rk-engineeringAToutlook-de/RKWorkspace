@@ -6,7 +6,11 @@ internal sealed record MultiWindowTransferObjectRow
 
     public required string ObjectType { get; init; }
 
+    public required string Symbol { get; init; }
+
     public required string DisplayName { get; init; }
+
+    public required string Preview { get; init; }
 
     public required string State { get; init; }
 

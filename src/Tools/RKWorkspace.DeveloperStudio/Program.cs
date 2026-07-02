@@ -32,6 +32,8 @@ internal static class Program
         var multiWindow = new MultiWindowWorkspaceContext();
         var multiWindowSuccess = multiWindow.RunFullDemo() &&
             multiWindow.HasTransferredObjectInTarget();
+        var roundTripWindow = new MultiWindowWorkspaceContext();
+        var roundTripSuccess = roundTripWindow.RunRoundTripDemo();
         var edgeLeft = multiWindow.DetectWindowEdge(5, 0, 200, 24);
         var edgeRight = multiWindow.DetectWindowEdge(195, 0, 200, 24);
         var edgeMiddle = multiWindow.DetectWindowEdge(100, 0, 200, 24);
@@ -45,13 +47,38 @@ internal static class Program
             string.Equals(edgeRightSuggestion.WorkspaceId, multiWindow.TargetWorkspaceId.ToString(), StringComparison.Ordinal);
         var multiWindowSource = multiWindow.GetSnapshot(multiWindow.SourceWorkspaceId.ToString());
         var multiWindowTarget = multiWindow.GetSnapshot(multiWindow.TargetWorkspaceId.ToString());
+        var roundTripSource = roundTripWindow.GetSnapshot(roundTripWindow.SourceWorkspaceId.ToString());
+        var roundTripTarget = roundTripWindow.GetSnapshot(roundTripWindow.TargetWorkspaceId.ToString());
+        var uxDiagnostics = roundTripSource.UxDiagnostics;
+        var uxDiagnosticsSuccess =
+            uxDiagnostics.DragStartCount >= 2 &&
+            uxDiagnostics.TargetDetectedCount >= 2 &&
+            uxDiagnostics.DropCount >= 2 &&
+            uxDiagnostics.SuccessfulTransfers >= 2 &&
+            uxDiagnostics.FailedTransfers == 0 &&
+            uxDiagnostics.SuccessRatePercent >= 100;
+        var sessionCandidateReady =
+            !string.IsNullOrWhiteSpace(uxDiagnostics.SessionCandidate.CandidateId) &&
+            !string.IsNullOrWhiteSpace(uxDiagnostics.SessionCandidate.TransferObjectId) &&
+            string.Equals(
+                uxDiagnostics.SessionCandidate.TargetWorkspaceId,
+                roundTripWindow.SourceWorkspaceId.ToString(),
+                StringComparison.Ordinal) &&
+            !uxDiagnostics.SessionCandidate.IsLiveWorkspacePrepared;
+        var returnTransferSuccess =
+            roundTripSuccess &&
+            roundTripSource.TransferObjects.Count == 5 &&
+            roundTripTarget.TransferObjects.Count == 0;
         var interactiveSuccess = success &&
             fullDemoSuccess &&
             string.Equals(diagnostics.LastResult, "SUCCESS", StringComparison.Ordinal) &&
             string.Equals(interactive.ObjectLocation, "Workspace B", StringComparison.Ordinal) &&
             history.Any(entry => string.Equals(entry.Action, "State:Completed", StringComparison.Ordinal)) &&
             multiWindowSuccess &&
-            edgeLogicSuccess;
+            edgeLogicSuccess &&
+            returnTransferSuccess &&
+            uxDiagnosticsSuccess &&
+            sessionCandidateReady;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -67,6 +94,13 @@ internal static class Program
         Console.WriteLine($"MultiWindowSourceObjects: {multiWindowSource.TransferObjects.Count}");
         Console.WriteLine($"MultiWindowTargetObjects: {multiWindowTarget.TransferObjects.Count}");
         Console.WriteLine($"MultiWindowLastResult: {multiWindowTarget.LastResult}");
+        Console.WriteLine($"RoundTripSourceObjects: {roundTripSource.TransferObjects.Count}");
+        Console.WriteLine($"RoundTripTargetObjects: {roundTripTarget.TransferObjects.Count}");
+        Console.WriteLine($"UxDragStart: {uxDiagnostics.DragStartCount}");
+        Console.WriteLine($"UxTargetDetected: {uxDiagnostics.TargetDetectedCount}");
+        Console.WriteLine($"UxDrop: {uxDiagnostics.DropCount}");
+        Console.WriteLine($"UxSuccessRate: {uxDiagnostics.SuccessRatePercent}");
+        Console.WriteLine($"WorkspaceSessionCandidate: {(sessionCandidateReady ? "READY" : "FAILED")}");
         Console.WriteLine($"EdgeTargetLeft: {edgeLeftSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetRight: {edgeRightSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetLogic: {(edgeLogicSuccess ? "SUCCESS" : "FAILED")}");
@@ -79,6 +113,8 @@ internal static class Program
         Console.WriteLine($"LastError: {diagnostics.LastError}");
         Console.WriteLine(interactiveSuccess ? "InteractiveDemo: SUCCESS" : "InteractiveDemo: FAILED");
         Console.WriteLine(multiWindowSuccess ? "MultiWindow: SUCCESS" : "MultiWindow: FAILED");
+        Console.WriteLine(returnTransferSuccess ? "RoundTrip: SUCCESS" : "RoundTrip: FAILED");
+        Console.WriteLine(uxDiagnosticsSuccess ? "UxDiagnostics: SUCCESS" : "UxDiagnostics: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();
