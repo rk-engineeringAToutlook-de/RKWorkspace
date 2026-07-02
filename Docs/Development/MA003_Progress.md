@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.3.0
+Version: 0.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -16,6 +16,7 @@ flowchart LR
     Baseline["Architecture Baseline v1.0"] --> MA00301["MA003.01 Plugin Manager"]
     MA00301 --> MA00302["MA003.02 Capability Manager"]
     MA00302 --> MA00303["MA003.03 Workspace Registry"]
+    MA00303 --> MA00304["MA003.04 Transfer Object Manager"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -103,9 +104,38 @@ Nicht im Umfang:
 - UWB- oder Sensorlogik
 - Firmware oder Hardware
 
-## Offene Punkte nach MA003.03
+## MA003.04 Transfer Object Manager
 
-Der Core besitzt nun Plugin-, Capability- und Workspace-Registry-Grundbausteine. Spaetere Auftraege muessen Runtime-Erkennung, Policy-Filter, Trust-Integration, Raumkartenlogik, konkrete Plattformadapter und echte Transfer-End-to-End-Integration weiterhin getrennt und auf Basis neuer ADRs bzw. freigegebener Spezifikationen umsetzen.
+Status: Abgeschlossen.
+
+Umfang:
+
+- `TransferObjectId`
+- `TransferObjectType`
+- `TransferObjectState`
+- `TransferMetadata`
+- `TransferHistoryEntry`
+- `ITransferObject`
+- `ITransferObjectManager`
+- `TransferObject`
+- `TransferObjectManager`
+- `TransferObjectException`
+- FakeTransferObject im Testprojekt
+- Unit-Tests fuer Create, Delete, Archive, Clone, Metadata, State, History, Find, Snapshot, Duplikate, Validierung, Fehlerfaelle und Plattformneutralitaet
+- Vorbereitung fuer spaetere Integration mit Plugin Manager, Capability Manager und Workspace Registry
+
+Nicht im Umfang:
+
+- Netzwerkkommunikation
+- Persistenz
+- OS-APIs
+- GUI
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA003.04
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Object-Grundbausteine. MA003.05 muss diese vier Komponenten erstmals gemeinsam in einem End-to-End-Core-Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit verwenden.
 
 ## Querverweise
 
@@ -118,6 +148,7 @@ Der Core besitzt nun Plugin-, Capability- und Workspace-Registry-Grundbausteine.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.4.0 | 2026-07-02 | MA003.04 Transfer Object Manager als vierte produktive Core-Komponente dokumentiert. |
 | 0.3.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente dokumentiert. |
 | 0.2.0 | 2026-07-02 | MA003.01 abgeschlossen und MA003.02 Capability Manager dokumentiert. |
 | 0.1.0 | 2026-07-02 | Fortschrittsdokument fuer MA003 angelegt. |

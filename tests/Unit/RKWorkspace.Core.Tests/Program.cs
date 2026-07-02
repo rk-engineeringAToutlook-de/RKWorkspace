@@ -15,6 +15,17 @@ using RegistryWorkspaceQuery = RKWorkspace.Core.Workspaces.WorkspaceQuery;
 using RegistryWorkspaceRegistry = RKWorkspace.Core.Workspaces.WorkspaceRegistry;
 using RegistryWorkspaceState = RKWorkspace.Core.Workspaces.WorkspaceState;
 using RegistryWorkspaceType = RKWorkspace.Core.Workspaces.WorkspaceType;
+using ManagedTransferHistoryEntry = RKWorkspace.Core.TransferObjects.TransferHistoryEntry;
+using ManagedTransferMetadata = RKWorkspace.Core.TransferObjects.TransferMetadata;
+using ManagedTransferObject = RKWorkspace.Core.TransferObjects.TransferObject;
+using ManagedTransferObjectErrorCode = RKWorkspace.Core.TransferObjects.TransferObjectErrorCode;
+using ManagedTransferObjectException = RKWorkspace.Core.TransferObjects.TransferObjectException;
+using ManagedTransferObjectId = RKWorkspace.Core.TransferObjects.TransferObjectId;
+using ManagedTransferObjectManager = RKWorkspace.Core.TransferObjects.TransferObjectManager;
+using ManagedTransferObjectState = RKWorkspace.Core.TransferObjects.TransferObjectState;
+using ManagedTransferObjectType = RKWorkspace.Core.TransferObjects.TransferObjectType;
+using ManagedITransferObject = RKWorkspace.Core.TransferObjects.ITransferObject;
+using ManagedITransferObjectManager = RKWorkspace.Core.TransferObjects.ITransferObjectManager;
 
 var tests = new (string Name, Action Body)[]
 {
@@ -75,7 +86,24 @@ var tests = new (string Name, Action Body)[]
     ("WorkspaceRegistry best target prefers last seen", WorkspaceRegistryBestTargetPrefersLastSeen),
     ("WorkspaceRegistry creates snapshots", WorkspaceRegistryCreatesSnapshots),
     ("WorkspaceRegistry throws workspace errors", WorkspaceRegistryThrowsWorkspaceErrors),
-    ("Workspace registry core assembly has no platform dependencies", WorkspaceRegistryCoreAssemblyHasNoPlatformDependencies)
+    ("Workspace registry core assembly has no platform dependencies", WorkspaceRegistryCoreAssemblyHasNoPlatformDependencies),
+    ("Transfer object enums cover the object model baseline", TransferObjectEnumsCoverObjectModelBaseline),
+    ("TransferObjectId validates and compares ids", TransferObjectIdValidatesAndComparesIds),
+    ("TransferObjectManager creates an object", TransferObjectManagerCreatesObject),
+    ("TransferObjectManager deletes an object", TransferObjectManagerDeletesObject),
+    ("TransferObjectManager archives an object", TransferObjectManagerArchivesObject),
+    ("TransferObjectManager clones an object", TransferObjectManagerClonesObject),
+    ("TransferObjectManager updates metadata", TransferObjectManagerUpdatesMetadata),
+    ("TransferObjectManager updates state", TransferObjectManagerUpdatesState),
+    ("TransferObjectManager records history", TransferObjectManagerRecordsHistory),
+    ("TransferObjectManager finds objects", TransferObjectManagerFindsObjects),
+    ("TransferObjectManager snapshots objects", TransferObjectManagerSnapshotsObjects),
+    ("TransferObjectManager prevents duplicates", TransferObjectManagerPreventsDuplicates),
+    ("TransferObjectManager validates objects", TransferObjectManagerValidatesObjects),
+    ("TransferObjectManager reports missing objects", TransferObjectManagerReportsMissingObjects),
+    ("TransferObjectManager rejects invalid metadata and states", TransferObjectManagerRejectsInvalidMetadataAndStates),
+    ("FakeTransferObject implements transfer object contract", FakeTransferObjectImplementsTransferObjectContract),
+    ("Transfer object core assembly has no platform dependencies", TransferObjectCoreAssemblyHasNoPlatformDependencies)
 };
 
 var failed = 0;
@@ -1209,6 +1237,345 @@ static void WorkspaceRegistryCoreAssemblyHasNoPlatformDependencies()
     Assert.Equal(0, references.Length);
 }
 
+static void TransferObjectEnumsCoverObjectModelBaseline()
+{
+    var expectedTypes = new[]
+    {
+        ManagedTransferObjectType.Text,
+        ManagedTransferObjectType.File,
+        ManagedTransferObjectType.Folder,
+        ManagedTransferObjectType.PDF,
+        ManagedTransferObjectType.Image,
+        ManagedTransferObjectType.Clipboard,
+        ManagedTransferObjectType.Link,
+        ManagedTransferObjectType.Context,
+        ManagedTransferObjectType.Binary,
+        ManagedTransferObjectType.Unknown
+    };
+    var expectedStates = new[]
+    {
+        ManagedTransferObjectState.Created,
+        ManagedTransferObjectState.Validated,
+        ManagedTransferObjectState.Queued,
+        ManagedTransferObjectState.Prepared,
+        ManagedTransferObjectState.Locked,
+        ManagedTransferObjectState.Completed,
+        ManagedTransferObjectState.Cancelled,
+        ManagedTransferObjectState.Failed,
+        ManagedTransferObjectState.Archived
+    };
+    var expectedErrors = new[]
+    {
+        ManagedTransferObjectErrorCode.InvalidId,
+        ManagedTransferObjectErrorCode.MissingMetadata,
+        ManagedTransferObjectErrorCode.InvalidState,
+        ManagedTransferObjectErrorCode.ObjectNotFound,
+        ManagedTransferObjectErrorCode.ObjectAlreadyExists,
+        ManagedTransferObjectErrorCode.ArchiveFailed,
+        ManagedTransferObjectErrorCode.ValidationFailed
+    };
+
+    Assert.Equal(expectedTypes.Length, Enum.GetValues<ManagedTransferObjectType>().Length);
+    Assert.Equal(expectedStates.Length, Enum.GetValues<ManagedTransferObjectState>().Length);
+    Assert.Equal(expectedErrors.Length, Enum.GetValues<ManagedTransferObjectErrorCode>().Length);
+    Assert.True(expectedTypes.All(type => Enum.IsDefined(type)));
+    Assert.True(expectedStates.All(state => Enum.IsDefined(state)));
+    Assert.True(expectedErrors.All(error => Enum.IsDefined(error)));
+}
+
+static void TransferObjectIdValidatesAndComparesIds()
+{
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.InvalidId,
+        () => ManagedTransferObjectId.Create(" "));
+
+    var id = ManagedTransferObjectId.Create(" Object-A ");
+    var same = ManagedTransferObjectId.Create("object-a");
+    string value = id;
+
+    Assert.Equal("Object-A", id.ToString());
+    Assert.Equal("Object-A", value);
+    Assert.True(id.Equals(same));
+    Assert.True(id == same);
+    Assert.False(id != same);
+    Assert.Equal(0, id.CompareTo(same));
+    Assert.StartsWith("rkws-obj-", ManagedTransferObjectId.NewId().ToString());
+}
+
+static void TransferObjectManagerCreatesObject()
+{
+    ManagedITransferObjectManager manager = new ManagedTransferObjectManager();
+    var metadata = ManagedMetadata("object-a", displayName: "Readme.txt", tags: new[] { "docs", "text" });
+
+    var transferObject = manager.Create(ManagedTransferObjectType.Text, metadata);
+
+    Assert.Equal(metadata.ObjectId, transferObject.Id);
+    Assert.Equal(ManagedTransferObjectType.Text, transferObject.ObjectType);
+    Assert.Equal(ManagedTransferObjectState.Created, transferObject.State);
+    Assert.Equal("Readme.txt", transferObject.Metadata.DisplayName);
+    Assert.Equal(2, transferObject.Metadata.Tags.Count);
+    Assert.Equal(1, transferObject.History.Count);
+    Assert.Same(transferObject, Assert.NotNull(manager.Get(metadata.ObjectId)));
+}
+
+static void TransferObjectManagerDeletesObject()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.File, ManagedMetadata("object-a"));
+
+    manager.Delete(transferObject.Id);
+
+    Assert.Null(manager.Get(transferObject.Id));
+    Assert.Equal(0, manager.GetAll().Count);
+}
+
+static void TransferObjectManagerArchivesObject()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.Image, ManagedMetadata("object-a"));
+
+    var archived = manager.Archive(transferObject.Id);
+
+    Assert.Equal(ManagedTransferObjectState.Archived, archived.State);
+    Assert.True(archived.History.Any(entry => entry.Action == "State:Archived"));
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.ArchiveFailed,
+        () => manager.Archive(transferObject.Id));
+}
+
+static void TransferObjectManagerClonesObject()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.PDF, ManagedMetadata("object-a", displayName: "Report.pdf"));
+
+    var clone = manager.Clone(transferObject.Id);
+
+    Assert.False(clone.Id == transferObject.Id);
+    Assert.Equal(ManagedTransferObjectType.PDF, clone.ObjectType);
+    Assert.Equal("Report.pdf Copy", clone.Metadata.DisplayName);
+    Assert.Equal(2, manager.GetAll().Count);
+    Assert.True(clone.History.Any(entry => entry.Action == "Cloned"));
+}
+
+static void TransferObjectManagerUpdatesMetadata()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.Link, ManagedMetadata("object-a"));
+    var updated = transferObject.Metadata with
+    {
+        DisplayName = "Updated link",
+        MimeType = "text/uri-list",
+        ModifiedAt = new DateTimeOffset(2026, 7, 2, 10, 0, 0, TimeSpan.Zero),
+        Priority = 7,
+        Tags = new[] { "link", "updated" }
+    };
+
+    var result = manager.UpdateMetadata(transferObject.Id, updated);
+
+    Assert.Equal("Updated link", result.Metadata.DisplayName);
+    Assert.Equal("text/uri-list", result.Metadata.MimeType);
+    Assert.Equal(7, result.Metadata.Priority);
+    Assert.Equal(2, result.Metadata.Tags.Count);
+    Assert.True(result.History.Any(entry => entry.Action == "MetadataUpdated"));
+}
+
+static void TransferObjectManagerUpdatesState()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.Clipboard, ManagedMetadata("object-a"));
+
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Queued);
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Prepared);
+    var locked = manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Locked);
+
+    Assert.Equal(ManagedTransferObjectState.Locked, locked.State);
+    Assert.True(locked.History.Any(entry => entry.Action == "State:Locked"));
+}
+
+static void TransferObjectManagerRecordsHistory()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.Binary, ManagedMetadata("object-a"));
+
+    manager.Validate(transferObject.Id);
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Queued);
+    manager.Archive(transferObject.Id);
+
+    var history = Assert.NotNull(manager.Get(transferObject.Id)).History.ToArray();
+
+    Assert.True(history.Length >= 4);
+    Assert.Equal("Created", history[0].Action);
+    Assert.True(history.Any(entry => entry.Action == "State:Validated"));
+    Assert.True(history.Any(entry => entry.Workspace == "workspace-b"));
+}
+
+static void TransferObjectManagerFindsObjects()
+{
+    var manager = new ManagedTransferObjectManager();
+    var text = manager.Create(ManagedTransferObjectType.Text, ManagedMetadata("object-text", priority: 1));
+    var image = manager.Create(ManagedTransferObjectType.Image, ManagedMetadata("object-image", priority: 10));
+
+    var highPriority = manager.Find(item => item.Metadata.Priority >= 10).ToArray();
+    var images = manager.Find(item => item.ObjectType == ManagedTransferObjectType.Image).ToArray();
+
+    Assert.Equal(1, highPriority.Length);
+    Assert.Same(image, highPriority[0]);
+    Assert.Equal(1, images.Length);
+    Assert.Same(image, images[0]);
+    Assert.True(manager.GetAll().Any(item => ReferenceEquals(item, text)));
+}
+
+static void TransferObjectManagerSnapshotsObjects()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.Text, ManagedMetadata("object-a", displayName: "Original"));
+    var snapshot = manager.Snapshot().ToArray();
+
+    manager.UpdateMetadata(transferObject.Id, transferObject.Metadata with
+    {
+        DisplayName = "Updated",
+        ModifiedAt = new DateTimeOffset(2026, 7, 2, 11, 0, 0, TimeSpan.Zero)
+    });
+
+    Assert.Equal(1, snapshot.Length);
+    Assert.Equal("Original", snapshot[0].Metadata.DisplayName);
+}
+
+static void TransferObjectManagerPreventsDuplicates()
+{
+    var manager = new ManagedTransferObjectManager();
+    var metadata = ManagedMetadata("object-a");
+
+    manager.Create(ManagedTransferObjectType.Text, metadata);
+
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.ObjectAlreadyExists,
+        () => manager.Create(ManagedTransferObjectType.Text, metadata));
+}
+
+static void TransferObjectManagerValidatesObjects()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.File, ManagedMetadata("object-a"));
+
+    manager.Validate(transferObject.Id);
+
+    Assert.Equal(ManagedTransferObjectState.Validated, transferObject.State);
+    Assert.True(transferObject.History.Any(entry => entry.Action == "State:Validated"));
+}
+
+static void TransferObjectManagerReportsMissingObjects()
+{
+    var manager = new ManagedTransferObjectManager();
+
+    Assert.Null(manager.Get(ManagedTransferObjectId.Create("missing")));
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.ObjectNotFound,
+        () => manager.Delete(ManagedTransferObjectId.Create("missing")));
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.ObjectNotFound,
+        () => manager.Validate(ManagedTransferObjectId.Create("missing")));
+}
+
+static void TransferObjectManagerRejectsInvalidMetadataAndStates()
+{
+    var manager = new ManagedTransferObjectManager();
+    var transferObject = manager.Create(ManagedTransferObjectType.Text, ManagedMetadata("object-a"));
+
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.ValidationFailed,
+        () => manager.Create(ManagedTransferObjectType.Unknown, ManagedMetadata("unknown")));
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.MissingMetadata,
+        () => manager.Create(ManagedTransferObjectType.Text, transferObject.Metadata with { DisplayName = string.Empty }));
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.InvalidId,
+        () => manager.UpdateMetadata(transferObject.Id, transferObject.Metadata with
+        {
+            ObjectId = ManagedTransferObjectId.Create("other")
+        }));
+
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Queued);
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Prepared);
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Locked);
+    manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Completed);
+
+    Assert.ThrowsWithCode(
+        ManagedTransferObjectErrorCode.InvalidState,
+        () => manager.UpdateState(transferObject.Id, ManagedTransferObjectState.Queued));
+}
+
+static void FakeTransferObjectImplementsTransferObjectContract()
+{
+    var fake = FakeTransferObject.Create(
+        ManagedTransferObjectType.Context,
+        ManagedMetadata("fake-object", displayName: "Context"));
+
+    fake.Validate();
+    var clone = fake.Clone();
+    fake.Archive();
+
+    Assert.Equal(ManagedTransferObjectType.Context, fake.ObjectType);
+    Assert.Equal(ManagedTransferObjectState.Archived, fake.State);
+    Assert.False(clone.Id == fake.Id);
+    Assert.True(fake.History.Any(entry => entry.Action == "Validated"));
+    Assert.True(fake.History.Any(entry => entry.Action == "Archived"));
+}
+
+static void TransferObjectCoreAssemblyHasNoPlatformDependencies()
+{
+    var forbiddenFragments = new[]
+    {
+        "Windows",
+        "Presentation",
+        "WinForms",
+        "Wpf",
+        "UIKit",
+        "AppKit",
+        "Android"
+    };
+
+    var references = typeof(ManagedTransferObjectManager)
+        .Assembly
+        .GetReferencedAssemblies()
+        .Select(reference => reference.Name ?? string.Empty)
+        .Where(name => forbiddenFragments.Any(fragment => name.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        .ToArray();
+
+    Assert.Equal(0, references.Length);
+}
+
+static ManagedTransferMetadata ManagedMetadata(
+    string objectId,
+    string displayName = "Transfer object",
+    string mimeType = "application/octet-stream",
+    long size = 42,
+    string checksum = "sha256:test",
+    string sourceWorkspace = "workspace-a",
+    string targetWorkspace = "workspace-b",
+    string owner = "rk",
+    int priority = 0,
+    string[]? tags = null,
+    string version = "1.0.0")
+{
+    return new ManagedTransferMetadata
+    {
+        ObjectId = ManagedTransferObjectId.Create(objectId),
+        DisplayName = displayName,
+        MimeType = mimeType,
+        Size = size,
+        Checksum = checksum,
+        CreatedAt = new DateTimeOffset(2026, 7, 2, 9, 0, 0, TimeSpan.Zero),
+        ModifiedAt = new DateTimeOffset(2026, 7, 2, 9, 0, 0, TimeSpan.Zero),
+        SourceWorkspace = sourceWorkspace,
+        TargetWorkspace = targetWorkspace,
+        Owner = owner,
+        Priority = priority,
+        Tags = tags ?? Array.Empty<string>(),
+        Version = version
+    };
+}
+
 static RegistryWorkspaceDescriptor RegistryDescriptor(
     string workspaceId,
     RegistryWorkspaceType type = RegistryWorkspaceType.SmartDevice,
@@ -1363,6 +1730,21 @@ internal static class Assert
         }
 
         throw new InvalidOperationException($"Expected workspace exception {expectedCode}.");
+    }
+
+    public static void ThrowsWithCode(ManagedTransferObjectErrorCode expectedCode, Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (ManagedTransferObjectException ex)
+        {
+            Equal(expectedCode, ex.Code);
+            return;
+        }
+
+        throw new InvalidOperationException($"Expected transfer object exception {expectedCode}.");
     }
 
     public static void StartsWith(string expectedPrefix, string actual)

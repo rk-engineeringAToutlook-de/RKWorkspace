@@ -1,7 +1,7 @@
 # RKWS-0210 Object Model Specification
 
 Dokument-ID: RKWS-SPEC-OBJECT-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -111,6 +111,23 @@ flowchart LR
 | Oeffnen | Benutzerrechte fehlen, Datei blockiert. | Nicht oeffnen, aber Transferstatus erhalten. |
 | Archivieren | Log-Speicher voll, Retention-Konflikt. | Diagnosemeldung, lokaler Fallback. |
 
+## MA003.04 Transfer Object Manager
+
+MA003.04 fuehrt den plattformneutralen Transfer Object Manager als vierte produktive Core-Komponente ein. Die Implementierung liegt in `src/Core/TransferObjects/` und verwaltet Transferobjekte ausschliesslich im Speicher.
+
+Der Manager stellt folgende Bausteine bereit:
+
+- `TransferObjectId` als starke Objektkennung.
+- `TransferObjectType` fuer Text, File, Folder, PDF, Image, Clipboard, Link, Context, Binary und Unknown.
+- `TransferObjectState` fuer Created, Validated, Queued, Prepared, Locked, Completed, Cancelled, Failed und Archived.
+- `TransferMetadata` mit ObjectId, DisplayName, MimeType, Size, Checksum, CreatedAt, ModifiedAt, SourceWorkspace, TargetWorkspace, Owner, Priority, Tags und Version.
+- `TransferHistoryEntry` fuer Zeit, Aktion, Benutzer, Workspace und Beschreibung.
+- `ITransferObject` und `ITransferObjectManager` als plattformneutrale Vertraege.
+- `TransferObjectManager` fuer Create, Delete, Archive, Clone, Get, GetAll, UpdateMetadata, UpdateState, Find, Snapshot und Validate.
+- `TransferObjectException` mit stabilen Fehlercodes.
+
+Dieser Schritt implementiert keine Payload-Uebertragung, keine Persistenz, keine Netzwerkkommunikation, keine OS-Pfade als Betriebssystemoperation, keine GUI und keine Cloud. Integration mit Workspace Registry, Capability Manager und Plugin Manager wird ueber neutrale IDs, Metadaten und spaetere Core-Integrationstests vorbereitet.
+
 ## Querverweise
 
 - `Spec/StateMachine.md`
@@ -122,5 +139,6 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.04 Transfer Object Manager als plattformneutrale Core-Komponente dokumentiert. |
 | 1.0.0 | 2026-07-02 | Vollstaendiges Objektmodell fuer RKWS-0210 definiert. |
 | 0.1.0 | 2026-07-02 | Erste Objektmodell-Skizze angelegt. |
