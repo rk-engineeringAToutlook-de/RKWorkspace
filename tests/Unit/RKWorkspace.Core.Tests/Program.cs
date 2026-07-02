@@ -3,6 +3,18 @@ using RKWorkspace.Core.Models;
 using RKWorkspace.Core.Plugins;
 using RKWorkspace.Core.Services;
 using RKWorkspace.Core.Simulation;
+using RegistryIWorkspace = RKWorkspace.Core.Workspaces.IWorkspace;
+using RegistryIWorkspaceRegistry = RKWorkspace.Core.Workspaces.IWorkspaceRegistry;
+using RegistryWorkspace = RKWorkspace.Core.Workspaces.Workspace;
+using RegistryWorkspaceDescriptor = RKWorkspace.Core.Workspaces.WorkspaceDescriptor;
+using RegistryWorkspaceErrorCode = RKWorkspace.Core.Workspaces.WorkspaceErrorCode;
+using RegistryWorkspaceException = RKWorkspace.Core.Workspaces.WorkspaceException;
+using RegistryWorkspaceId = RKWorkspace.Core.Workspaces.WorkspaceId;
+using RegistryWorkspacePosition = RKWorkspace.Core.Workspaces.WorkspacePosition;
+using RegistryWorkspaceQuery = RKWorkspace.Core.Workspaces.WorkspaceQuery;
+using RegistryWorkspaceRegistry = RKWorkspace.Core.Workspaces.WorkspaceRegistry;
+using RegistryWorkspaceState = RKWorkspace.Core.Workspaces.WorkspaceState;
+using RegistryWorkspaceType = RKWorkspace.Core.Workspaces.WorkspaceType;
 
 var tests = new (string Name, Action Body)[]
 {
@@ -42,7 +54,28 @@ var tests = new (string Name, Action Body)[]
     ("CapabilityManager finds matching providers", CapabilityManagerFindsMatchingProviders),
     ("CapabilityManager reports capability availability", CapabilityManagerReportsCapabilityAvailability),
     ("CapabilityManager throws capability errors", CapabilityManagerThrowsCapabilityErrors),
-    ("Capability core assembly has no platform dependencies", CapabilityCoreAssemblyHasNoPlatformDependencies)
+    ("Capability core assembly has no platform dependencies", CapabilityCoreAssemblyHasNoPlatformDependencies),
+    ("Workspace registry enums cover the architecture baseline", WorkspaceRegistryEnumsCoverArchitectureBaseline),
+    ("WorkspaceId validates and compares ids", WorkspaceIdValidatesAndComparesIds),
+    ("WorkspaceRegistry registers a workspace", WorkspaceRegistryRegistersWorkspace),
+    ("WorkspaceRegistry prevents duplicate workspace ids", WorkspaceRegistryPreventsDuplicateWorkspaceIds),
+    ("WorkspaceRegistry unregisters a workspace", WorkspaceRegistryUnregistersWorkspace),
+    ("WorkspaceRegistry rejects unknown workspace removal", WorkspaceRegistryRejectsUnknownWorkspaceRemoval),
+    ("WorkspaceRegistry updates a workspace", WorkspaceRegistryUpdatesWorkspace),
+    ("WorkspaceRegistry gets workspaces", WorkspaceRegistryGetsWorkspaces),
+    ("WorkspaceRegistry gets all workspaces", WorkspaceRegistryGetsAllWorkspaces),
+    ("WorkspaceRegistry finds by position", WorkspaceRegistryFindsByPosition),
+    ("WorkspaceRegistry finds by capability", WorkspaceRegistryFindsByCapability),
+    ("WorkspaceRegistry finds matching workspaces", WorkspaceRegistryFindsMatchingWorkspaces),
+    ("WorkspaceRegistry best target uses only target", WorkspaceRegistryBestTargetUsesOnlyTarget),
+    ("WorkspaceRegistry best target prefers position", WorkspaceRegistryBestTargetPrefersPosition),
+    ("WorkspaceRegistry best target prefers capabilities", WorkspaceRegistryBestTargetPrefersCapabilities),
+    ("WorkspaceRegistry best target prefers trust", WorkspaceRegistryBestTargetPrefersTrust),
+    ("WorkspaceRegistry best target prefers priority", WorkspaceRegistryBestTargetPrefersPriority),
+    ("WorkspaceRegistry best target prefers last seen", WorkspaceRegistryBestTargetPrefersLastSeen),
+    ("WorkspaceRegistry creates snapshots", WorkspaceRegistryCreatesSnapshots),
+    ("WorkspaceRegistry throws workspace errors", WorkspaceRegistryThrowsWorkspaceErrors),
+    ("Workspace registry core assembly has no platform dependencies", WorkspaceRegistryCoreAssemblyHasNoPlatformDependencies)
 };
 
 var failed = 0;
@@ -719,6 +752,492 @@ static void CapabilityCoreAssemblyHasNoPlatformDependencies()
     Assert.Equal(0, references.Length);
 }
 
+static void WorkspaceRegistryEnumsCoverArchitectureBaseline()
+{
+    var expectedTypes = new[]
+    {
+        RegistryWorkspaceType.SmartDevice,
+        RegistryWorkspaceType.DisplayNode,
+        RegistryWorkspaceType.HeadlessNode,
+        RegistryWorkspaceType.KvmNode,
+        RegistryWorkspaceType.RemoteWorkspace,
+        RegistryWorkspaceType.CloudWorkspace,
+        RegistryWorkspaceType.HybridWorkspace,
+        RegistryWorkspaceType.Unknown
+    };
+    var expectedStates = new[]
+    {
+        RegistryWorkspaceState.Discovered,
+        RegistryWorkspaceState.Registered,
+        RegistryWorkspaceState.Available,
+        RegistryWorkspaceState.Unavailable,
+        RegistryWorkspaceState.Trusted,
+        RegistryWorkspaceState.Untrusted,
+        RegistryWorkspaceState.Disabled,
+        RegistryWorkspaceState.Failed,
+        RegistryWorkspaceState.Unknown
+    };
+    var expectedPositions = new[]
+    {
+        RegistryWorkspacePosition.Center,
+        RegistryWorkspacePosition.Left,
+        RegistryWorkspacePosition.Right,
+        RegistryWorkspacePosition.Above,
+        RegistryWorkspacePosition.Below,
+        RegistryWorkspacePosition.Front,
+        RegistryWorkspacePosition.Back,
+        RegistryWorkspacePosition.Unknown
+    };
+    var expectedErrors = new[]
+    {
+        RegistryWorkspaceErrorCode.MissingWorkspaceId,
+        RegistryWorkspaceErrorCode.WorkspaceAlreadyRegistered,
+        RegistryWorkspaceErrorCode.WorkspaceNotRegistered,
+        RegistryWorkspaceErrorCode.InvalidDescriptor,
+        RegistryWorkspaceErrorCode.InvalidQuery,
+        RegistryWorkspaceErrorCode.TargetNotFound,
+        RegistryWorkspaceErrorCode.InvalidOperation
+    };
+
+    Assert.Equal(expectedTypes.Length, Enum.GetValues<RegistryWorkspaceType>().Length);
+    Assert.Equal(expectedStates.Length, Enum.GetValues<RegistryWorkspaceState>().Length);
+    Assert.Equal(expectedPositions.Length, Enum.GetValues<RegistryWorkspacePosition>().Length);
+    Assert.Equal(expectedErrors.Length, Enum.GetValues<RegistryWorkspaceErrorCode>().Length);
+    Assert.True(expectedTypes.All(type => Enum.IsDefined(type)));
+    Assert.True(expectedStates.All(state => Enum.IsDefined(state)));
+    Assert.True(expectedPositions.All(position => Enum.IsDefined(position)));
+    Assert.True(expectedErrors.All(error => Enum.IsDefined(error)));
+}
+
+static void WorkspaceIdValidatesAndComparesIds()
+{
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.MissingWorkspaceId,
+        () => RegistryWorkspaceId.Create(" "));
+
+    var id = RegistryWorkspaceId.Create(" Workspace-A ");
+    var same = RegistryWorkspaceId.Create("workspace-a");
+    string value = id;
+
+    Assert.Equal("Workspace-A", id.ToString());
+    Assert.Equal("Workspace-A", value);
+    Assert.True(id.Equals(same));
+    Assert.True(id == same);
+    Assert.False(id != same);
+    Assert.Equal(0, id.CompareTo(same));
+}
+
+static void WorkspaceRegistryRegistersWorkspace()
+{
+    RegistryIWorkspaceRegistry registry = new RegistryWorkspaceRegistry();
+    var descriptor = RegistryDescriptor(
+        "workspace-a",
+        RegistryWorkspaceType.SmartDevice,
+        RegistryWorkspaceState.Available,
+        RegistryWorkspacePosition.Center,
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Pairing });
+    var workspace = RegistryWorkspace.FromDescriptor(descriptor);
+
+    registry.RegisterWorkspace(workspace);
+
+    Assert.True(registry.ContainsWorkspace(descriptor.WorkspaceId));
+    Assert.Same(workspace, Assert.NotNull(registry.GetWorkspace(descriptor.WorkspaceId)));
+    Assert.Equal(RegistryWorkspaceState.Available, workspace.State);
+    Assert.True(workspace.Capabilities.Contains(CapabilityId.Display));
+}
+
+static void WorkspaceRegistryPreventsDuplicateWorkspaceIds()
+{
+    var registry = new RegistryWorkspaceRegistry();
+
+    registry.RegisterWorkspace(FakeWorkspace.Create("workspace-a", capabilityIds: CapabilityId.Display));
+
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.WorkspaceAlreadyRegistered,
+        () => registry.RegisterWorkspace(FakeWorkspace.Create("WORKSPACE-A", capabilityIds: CapabilityId.Keyboard)));
+}
+
+static void WorkspaceRegistryUnregistersWorkspace()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var workspace = FakeWorkspace.Create("workspace-a", capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(workspace);
+    registry.UnregisterWorkspace(workspace.Id);
+
+    Assert.False(registry.ContainsWorkspace(workspace.Id));
+    Assert.Null(registry.GetWorkspace(workspace.Id));
+}
+
+static void WorkspaceRegistryRejectsUnknownWorkspaceRemoval()
+{
+    var registry = new RegistryWorkspaceRegistry();
+
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.WorkspaceNotRegistered,
+        () => registry.UnregisterWorkspace(RegistryWorkspaceId.Create("missing")));
+}
+
+static void WorkspaceRegistryUpdatesWorkspace()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var workspace = FakeWorkspace.Create("workspace-a", capabilityIds: CapabilityId.Display);
+    registry.RegisterWorkspace(workspace);
+
+    var updated = workspace.Descriptor with
+    {
+        DisplayName = "Updated workspace",
+        WorkspaceState = RegistryWorkspaceState.Trusted,
+        Capabilities = CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Pairing),
+        Priority = 10
+    };
+
+    registry.UpdateWorkspace(updated);
+    var current = Assert.NotNull(registry.GetWorkspace(workspace.Id));
+
+    Assert.Equal("Updated workspace", current.Descriptor.DisplayName);
+    Assert.Equal(RegistryWorkspaceState.Trusted, current.State);
+    Assert.True(current.Capabilities.Contains(CapabilityId.Pairing));
+    Assert.Equal(10, current.Descriptor.Priority);
+    Assert.Equal(1, workspace.UpdateCount);
+}
+
+static void WorkspaceRegistryGetsWorkspaces()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var workspace = FakeWorkspace.Create("workspace-a", capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(workspace);
+
+    Assert.Same(workspace, Assert.NotNull(registry.GetWorkspace(workspace.Id)));
+    Assert.Null(registry.GetWorkspace(RegistryWorkspaceId.Create("missing")));
+}
+
+static void WorkspaceRegistryGetsAllWorkspaces()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var workspaceB = FakeWorkspace.Create("workspace-b", capabilityIds: CapabilityId.Keyboard);
+    var workspaceA = FakeWorkspace.Create("workspace-a", capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(workspaceB);
+    registry.RegisterWorkspace(workspaceA);
+
+    var all = registry.GetAllWorkspaces().ToArray();
+
+    Assert.Equal(2, all.Length);
+    Assert.Equal("workspace-a", all[0].Id.ToString());
+    Assert.Equal("workspace-b", all[1].Id.ToString());
+}
+
+static void WorkspaceRegistryFindsByPosition()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var right = FakeWorkspace.Create(
+        "workspace-right",
+        position: RegistryWorkspacePosition.Right,
+        capabilityIds: CapabilityId.Display);
+    var left = FakeWorkspace.Create(
+        "workspace-left",
+        position: RegistryWorkspacePosition.Left,
+        capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(right);
+    registry.RegisterWorkspace(left);
+
+    var matches = registry.FindByPosition(RegistryWorkspacePosition.Right).ToArray();
+
+    Assert.Equal(1, matches.Length);
+    Assert.Same(right, matches[0]);
+}
+
+static void WorkspaceRegistryFindsByCapability()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var display = FakeWorkspace.Create(
+        "workspace-display",
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Overlay });
+    var input = FakeWorkspace.Create("workspace-input", capabilityIds: CapabilityId.Keyboard);
+
+    registry.RegisterWorkspace(display);
+    registry.RegisterWorkspace(input);
+
+    var matches = registry.FindByCapability(CapabilityId.Overlay).ToArray();
+
+    Assert.Equal(1, matches.Length);
+    Assert.Same(display, matches[0]);
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.InvalidQuery,
+        () => registry.FindByCapability(CapabilityId.Unknown));
+}
+
+static void WorkspaceRegistryFindsMatchingWorkspaces()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var good = FakeWorkspace.Create(
+        "workspace-good",
+        type: RegistryWorkspaceType.SmartDevice,
+        state: RegistryWorkspaceState.Available,
+        isTrusted: true,
+        priority: 5,
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Notification });
+    var untrusted = FakeWorkspace.Create(
+        "workspace-untrusted",
+        isTrusted: false,
+        priority: 5,
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Notification });
+    var lowPriority = FakeWorkspace.Create(
+        "workspace-low",
+        priority: 1,
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Notification });
+    var wrongType = FakeWorkspace.Create(
+        "workspace-node",
+        type: RegistryWorkspaceType.DisplayNode,
+        priority: 5,
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Notification });
+    var query = new RegistryWorkspaceQuery
+    {
+        WorkspaceType = RegistryWorkspaceType.SmartDevice,
+        TrustedOnly = true,
+        AvailableOnly = true,
+        MinimumPriority = 2,
+        RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display),
+        OptionalCapabilities = CapabilitySet.FromIds(CapabilityId.Notification)
+    };
+
+    registry.RegisterWorkspace(good);
+    registry.RegisterWorkspace(untrusted);
+    registry.RegisterWorkspace(lowPriority);
+    registry.RegisterWorkspace(wrongType);
+
+    var results = registry.FindMatching(query).ToArray();
+
+    Assert.Equal(1, results.Length);
+    Assert.True(results[0].IsMatch);
+    Assert.Same(good, results[0].Workspace);
+    Assert.True(results[0].Score > 0);
+    Assert.Equal(0, results[0].MissingCapabilities.Count);
+    Assert.True(results[0].Reasons.Any(reason => reason.Contains("matched", StringComparison.OrdinalIgnoreCase)));
+    Assert.Equal(1, query.ToCapabilityRequirement().RequiredCapabilities.Count);
+}
+
+static void WorkspaceRegistryBestTargetUsesOnlyTarget()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var only = FakeWorkspace.Create("workspace-only", capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(only);
+
+    Assert.Same(only, registry.GetBestTarget(RegistryWorkspaceQuery.Empty));
+}
+
+static void WorkspaceRegistryBestTargetPrefersPosition()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var left = FakeWorkspace.Create(
+        "workspace-left",
+        position: RegistryWorkspacePosition.Left,
+        priority: 100,
+        capabilityIds: CapabilityId.Display);
+    var right = FakeWorkspace.Create(
+        "workspace-right",
+        position: RegistryWorkspacePosition.Right,
+        priority: 1,
+        capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(left);
+    registry.RegisterWorkspace(right);
+
+    var target = registry.GetBestTarget(new RegistryWorkspaceQuery
+    {
+        Position = RegistryWorkspacePosition.Right,
+        RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display)
+    });
+
+    Assert.Same(right, target);
+}
+
+static void WorkspaceRegistryBestTargetPrefersCapabilities()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var basic = FakeWorkspace.Create("workspace-basic", capabilityIds: CapabilityId.Display);
+    var rich = FakeWorkspace.Create(
+        "workspace-rich",
+        capabilityIds: new[] { CapabilityId.Display, CapabilityId.Notification });
+
+    registry.RegisterWorkspace(basic);
+    registry.RegisterWorkspace(rich);
+
+    var target = registry.GetBestTarget(new RegistryWorkspaceQuery
+    {
+        RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display),
+        OptionalCapabilities = CapabilitySet.FromIds(CapabilityId.Notification)
+    });
+
+    Assert.Same(rich, target);
+}
+
+static void WorkspaceRegistryBestTargetPrefersTrust()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var untrusted = FakeWorkspace.Create(
+        "workspace-untrusted",
+        isTrusted: false,
+        priority: 100,
+        capabilityIds: CapabilityId.Display);
+    var trusted = FakeWorkspace.Create(
+        "workspace-trusted",
+        isTrusted: true,
+        priority: 1,
+        capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(untrusted);
+    registry.RegisterWorkspace(trusted);
+
+    var target = registry.GetBestTarget(new RegistryWorkspaceQuery
+    {
+        RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display)
+    });
+
+    Assert.Same(trusted, target);
+}
+
+static void WorkspaceRegistryBestTargetPrefersPriority()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var low = FakeWorkspace.Create("workspace-low", priority: 1, capabilityIds: CapabilityId.Display);
+    var high = FakeWorkspace.Create("workspace-high", priority: 10, capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(low);
+    registry.RegisterWorkspace(high);
+
+    var target = registry.GetBestTarget(new RegistryWorkspaceQuery
+    {
+        RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display)
+    });
+
+    Assert.Same(high, target);
+}
+
+static void WorkspaceRegistryBestTargetPrefersLastSeen()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var older = FakeWorkspace.Create(
+        "workspace-older",
+        lastSeen: new DateTimeOffset(2026, 7, 2, 8, 0, 0, TimeSpan.Zero),
+        capabilityIds: CapabilityId.Display);
+    var newer = FakeWorkspace.Create(
+        "workspace-newer",
+        lastSeen: new DateTimeOffset(2026, 7, 2, 9, 0, 0, TimeSpan.Zero),
+        capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(older);
+    registry.RegisterWorkspace(newer);
+
+    var target = registry.GetBestTarget(new RegistryWorkspaceQuery
+    {
+        RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display)
+    });
+
+    Assert.Same(newer, target);
+}
+
+static void WorkspaceRegistryCreatesSnapshots()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    var workspace = FakeWorkspace.Create("workspace-a", displayName: "Original", capabilityIds: CapabilityId.Display);
+
+    registry.RegisterWorkspace(workspace);
+    var snapshot = registry.CreateSnapshot().ToArray();
+    registry.UpdateWorkspace(workspace.Descriptor with { DisplayName = "Updated" });
+
+    Assert.Equal(1, snapshot.Length);
+    Assert.Equal("Original", snapshot[0].DisplayName);
+    Assert.True(snapshot[0].Capabilities.Contains(CapabilityId.Display));
+}
+
+static void WorkspaceRegistryThrowsWorkspaceErrors()
+{
+    var registry = new RegistryWorkspaceRegistry();
+    RegistryIWorkspace nullWorkspace = null!;
+    var workspace = RegistryWorkspace.FromDescriptor(RegistryDescriptor("workspace-a", capabilityIds: CapabilityId.Display));
+
+    registry.RegisterWorkspace(workspace);
+
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.InvalidDescriptor,
+        () => registry.RegisterWorkspace(nullWorkspace));
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.InvalidDescriptor,
+        () => RegistryWorkspace.FromDescriptor(workspace.Descriptor with { DisplayName = string.Empty }));
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.WorkspaceNotRegistered,
+        () => registry.UpdateWorkspace(RegistryDescriptor("missing", capabilityIds: CapabilityId.Display)));
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.InvalidQuery,
+        () => registry.FindMatching(new RegistryWorkspaceQuery { MinimumPriority = -1 }));
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.TargetNotFound,
+        () => new RegistryWorkspaceRegistry().GetBestTarget(new RegistryWorkspaceQuery
+        {
+            RequiredCapabilities = CapabilitySet.FromIds(CapabilityId.Display)
+        }));
+    Assert.ThrowsWithCode(
+        RegistryWorkspaceErrorCode.InvalidOperation,
+        () => workspace.UpdateDescriptor(RegistryDescriptor("other", capabilityIds: CapabilityId.Display)));
+}
+
+static void WorkspaceRegistryCoreAssemblyHasNoPlatformDependencies()
+{
+    var forbiddenFragments = new[]
+    {
+        "Windows",
+        "Presentation",
+        "WinForms",
+        "Wpf",
+        "UIKit",
+        "AppKit",
+        "Android"
+    };
+
+    var references = typeof(RegistryWorkspaceRegistry)
+        .Assembly
+        .GetReferencedAssemblies()
+        .Select(reference => reference.Name ?? string.Empty)
+        .Where(name => forbiddenFragments.Any(fragment => name.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        .ToArray();
+
+    Assert.Equal(0, references.Length);
+}
+
+static RegistryWorkspaceDescriptor RegistryDescriptor(
+    string workspaceId,
+    RegistryWorkspaceType type = RegistryWorkspaceType.SmartDevice,
+    RegistryWorkspaceState state = RegistryWorkspaceState.Available,
+    RegistryWorkspacePosition position = RegistryWorkspacePosition.Unknown,
+    bool isTrusted = true,
+    int priority = 0,
+    DateTimeOffset? lastSeen = null,
+    string? displayName = null,
+    params CapabilityId[] capabilityIds)
+{
+    return new RegistryWorkspaceDescriptor
+    {
+        WorkspaceId = RegistryWorkspaceId.Create(workspaceId),
+        DisplayName = displayName ?? workspaceId,
+        WorkspaceType = type,
+        WorkspaceState = state,
+        Position = position,
+        Capabilities = CapabilitySet.FromIds(capabilityIds),
+        IsTrusted = isTrusted,
+        Priority = priority,
+        LastSeen = lastSeen ?? DateTimeOffset.UnixEpoch,
+        Metadata = new Dictionary<string, string>
+        {
+            ["source"] = "test"
+        }
+    };
+}
+
 static Workspace TestWorkspace(
     string workspaceId,
     WorkspacePosition position,
@@ -829,6 +1348,21 @@ internal static class Assert
         }
 
         throw new InvalidOperationException($"Expected capability exception {expectedCode}.");
+    }
+
+    public static void ThrowsWithCode(RegistryWorkspaceErrorCode expectedCode, Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (RegistryWorkspaceException ex)
+        {
+            Equal(expectedCode, ex.Code);
+            return;
+        }
+
+        throw new InvalidOperationException($"Expected workspace exception {expectedCode}.");
     }
 
     public static void StartsWith(string expectedPrefix, string actual)

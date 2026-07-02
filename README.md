@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 0.7.0
+Version: 0.8.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -20,8 +20,9 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der plattformneutrale Core enthaelt erste Modelle und Richtungslogik.
 - Der Plugin Manager ist als erste produktive Core-Komponente angelegt.
 - Der Capability Manager ist als zweite produktive Core-Komponente angelegt.
+- Die Workspace Registry ist als dritte produktive Core-Komponente angelegt.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
-- Unit-Tests pruefen Core-Regeln, Simulation, Plugin Manager und Capability Manager.
+- Unit-Tests pruefen Core-Regeln, Simulation, Plugin Manager, Capability Manager und Workspace Registry.
 
 ## Einstieg fuer Entwickler
 
@@ -64,6 +65,7 @@ Spec/                 Spezifikationen fuer Modelle, UX, Kommunikation und Tests
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
 src/Core/Capabilities/ Plattformneutraler Capability Manager und Capability-Vertraege
+src/Core/Workspaces/  Plattformneutrale Workspace Registry und Workspace-Vertraege
 src/Windows/          Reserviert fuer spaeteren Windows-Agent
 src/macOS/            Reserviert fuer spaeteren macOS-Agent
 src/Linux/            Reserviert fuer spaeteren Linux-Agent
@@ -102,7 +104,7 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. Weitere produktive Core-Schritte folgen auf Basis separater freigegebener Arbeitsauftraege.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. Weitere produktive Core-Schritte folgen auf Basis separater freigegebener Arbeitsauftraege.
 
 ## Querverweise
 
@@ -125,6 +127,7 @@ MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten au
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.8.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente ergaenzt. |
 | 0.7.0 | 2026-07-02 | MA003.02 Capability Manager als zweite produktive Core-Komponente ergaenzt. |
 | 0.6.0 | 2026-07-02 | MA003.01 Plugin Manager als erste produktive Core-Komponente ergaenzt. |
 | 0.5.0 | 2026-07-02 | Developer-Onboarding, Baseline-v1.0 und Git-Readiness-Verweise fuer RKWS-0530 ergaenzt. |

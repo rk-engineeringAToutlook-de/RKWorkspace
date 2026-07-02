@@ -1,7 +1,7 @@
 # RKWS-0260 Display Node Model Specification
 
 Dokument-ID: RKWS-SPEC-NODE-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -92,6 +92,12 @@ Discovery: gemischt.
 Pairing: mehrstufig.  
 Beispiele: Industrie-Leitstand mit lokalem Dongle und zentralem System.
 
+## Registry-Anbindung MA003.03
+
+Die Workspace Registry behandelt Smart Devices, Display Nodes, Headless Nodes, KVM Nodes, Remote Workspaces, Cloud Workspaces und Hybrid Workspaces als `WorkspaceType`. Diese Typen beschreiben die Arbeitsflaeche, entscheiden aber nicht allein ueber Verhalten.
+
+Display Nodes und andere Nodes werden ueber `WorkspaceDescriptor` und `CapabilitySet` beschrieben. Zielauswahl V1 nutzt Position, Capabilities, Trust, Priority und LastSeen. UWB-basierte Positionierung, Hardware-Sensorik, Firmware, Netzwerk-Discovery und Plattformadapter bleiben spaetere Schichten.
+
 ## Querverweise
 
 - `Spec/WorkspaceModel.md`
@@ -102,4 +108,5 @@ Beispiele: Industrie-Leitstand mit lokalem Dongle und zentralem System.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.03 Workspace Registry Anbindung fuer Node-Klassen dokumentiert. |
 | 1.0.0 | 2026-07-02 | Display-Node-Modell fuer RKWS-0260 definiert. |

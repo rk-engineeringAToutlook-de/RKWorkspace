@@ -1,7 +1,7 @@
 # RKWS-0380 Workspace Capability Matrix
 
 Dokument-ID: RKWS-SPEC-CAPABILITY-MATRIX-001  
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -89,6 +89,12 @@ Der Capability Manager bildet die technische Laufzeitseite dieser Matrix ab. Pro
 
 Die Tabellen in diesem Dokument bleiben Default- und Planungswerte. Sie duerfen nicht als harte Laufzeitentscheidung verwendet werden. Ein Windows Laptop ist also nicht automatisch transferfaehig, nur weil die Matrix typische Werte beschreibt; entscheidend ist, ob zur Laufzeit die benoetigten Capabilities gemeldet, erlaubt und vertrauenswuerdig sind.
 
+## Registry-Anbindung MA003.03
+
+MA003.03 nutzt diese Matrix weiterhin nur als fachliche Orientierung. Die Workspace Registry speichert pro Arbeitsflaeche konkrete `CapabilitySet`-Snapshots im `WorkspaceDescriptor` und sucht Ziele ueber `WorkspaceQuery`.
+
+Die Zielauswahl V1 priorisiert logisch konfigurierte Positionen, vorhandene Capabilities, Trust, Priority und LastSeen. Die Matrix erzeugt keine automatische Runtime-Erkennung und ersetzt keine Policy-Pruefung. UWB, Netzwerk-Discovery und Betriebssystemabfragen bleiben ausserhalb des Core.
+
 ## Querverweise
 
 - `Spec/CapabilityModel.md`
@@ -99,5 +105,6 @@ Die Tabellen in diesem Dokument bleiben Default- und Planungswerte. Sie duerfen 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-02 | MA003.03 Workspace Registry und Zielauswahl V1 mit CapabilitySet dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA003.02 Runtime-Anbindung an den Capability Manager ergaenzt. |
 | 1.0.0 | 2026-07-02 | Workspace-Capability-Matrix fuer RKWS-0380 definiert. |

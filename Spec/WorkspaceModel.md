@@ -1,7 +1,7 @@
 # RKWS Workspace Model Specification
 
 Dokument-ID: RKWS-SPEC-WORKSPACE-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -46,6 +46,19 @@ Transfers duerfen nur geplant werden, wenn Quelle und Ziel `Paired` oder `Truste
 
 Capabilities beschreiben, welche Objektarten und Protokollrollen eine Arbeitsflaeche unterstuetzt. Der Core muss Capabilities pruefen, bevor ein Transferobjekt erzeugt wird.
 
+## MA003.03 Workspace Registry
+
+MA003.03 fuehrt die plattformneutrale Workspace Registry als dritte produktive Core-Komponente ein. Die Implementierung liegt in `src/Core/Workspaces/` und verwaltet bekannte Arbeitsflaechen ueber stabile `WorkspaceId`-Werte, `WorkspaceDescriptor`, `IWorkspace` und `IWorkspaceRegistry`.
+
+Die Registry arbeitet ausschliesslich mit Arbeitsflaechen und Capabilities. Geraete bleiben Implementierungsdetails. `WorkspaceDescriptor.Capabilities` verwendet direkt `CapabilitySet`; Suchanfragen nutzen `WorkspaceQuery` mit required und optional Capabilities.
+
+Die Zielauswahl V1 ist bewusst logisch und manuell:
+
+- Position wird als konfigurierter Wert behandelt.
+- Capabilities werden ueber das Capability-Modell bewertet.
+- Trust, Priority und LastSeen dienen als deterministische Tie-Breaker.
+- UWB, Sensorik, automatische Raumvermessung, Netzwerkverbindungen und OS-APIs sind nicht Bestandteil dieses Schritts.
+
 ## Querverweise
 
 - `Spec/DisplayNodeModel.md`
@@ -56,5 +69,6 @@ Capabilities beschreiben, welche Objektarten und Protokollrollen eine Arbeitsfla
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.03 Workspace Registry und logische Zielauswahl V1 ergaenzt. |
 | 1.0.0 | 2026-07-02 | Workspace-Modell fuer Architektur-Freeze erweitert. |
 | 0.1.0 | 2026-07-02 | Erstes Workspace-Modell angelegt. |

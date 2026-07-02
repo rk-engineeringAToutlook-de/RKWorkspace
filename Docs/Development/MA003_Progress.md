@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.2.0
+Version: 0.3.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -15,6 +15,7 @@ Dieses Dokument verfolgt die produktive Core-Entwicklung nach der veroeffentlich
 flowchart LR
     Baseline["Architecture Baseline v1.0"] --> MA00301["MA003.01 Plugin Manager"]
     MA00301 --> MA00302["MA003.02 Capability Manager"]
+    MA00302 --> MA00303["MA003.03 Workspace Registry"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -72,9 +73,39 @@ Nicht im Umfang:
 - GUI
 - Firmware oder Hardware
 
-## Offene Punkte nach MA003.02
+## MA003.03 Workspace Registry
 
-Der Core besitzt nun Plugin- und Capability-Grundbausteine. Spaetere Auftraege muessen Runtime-Erkennung, Policy-Filter, Trust-Integration und konkrete Plattformadapter weiterhin getrennt und auf Basis neuer ADRs bzw. freigegebener Spezifikationen umsetzen.
+Status: Abgeschlossen.
+
+Umfang:
+
+- `WorkspaceId`
+- `WorkspaceType`
+- `WorkspaceState`
+- `WorkspacePosition`
+- `WorkspaceDescriptor`
+- `WorkspaceQuery`
+- `WorkspaceMatchResult`
+- `IWorkspace`
+- `IWorkspaceRegistry`
+- `WorkspaceRegistry`
+- `WorkspaceException`
+- FakeWorkspace im Testprojekt
+- Unit-Tests fuer Registrierung, Aktualisierung, Suche, Zielauswahl V1, Snapshots, Fehlerfaelle und Plattformneutralitaet
+- direkte Integration mit `CapabilitySet`
+
+Nicht im Umfang:
+
+- Netzwerkverbindungen
+- automatische Discovery
+- OS-APIs
+- GUI
+- UWB- oder Sensorlogik
+- Firmware oder Hardware
+
+## Offene Punkte nach MA003.03
+
+Der Core besitzt nun Plugin-, Capability- und Workspace-Registry-Grundbausteine. Spaetere Auftraege muessen Runtime-Erkennung, Policy-Filter, Trust-Integration, Raumkartenlogik, konkrete Plattformadapter und echte Transfer-End-to-End-Integration weiterhin getrennt und auf Basis neuer ADRs bzw. freigegebener Spezifikationen umsetzen.
 
 ## Querverweise
 
@@ -87,5 +118,6 @@ Der Core besitzt nun Plugin- und Capability-Grundbausteine. Spaetere Auftraege m
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.3.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente dokumentiert. |
 | 0.2.0 | 2026-07-02 | MA003.01 abgeschlossen und MA003.02 Capability Manager dokumentiert. |
 | 0.1.0 | 2026-07-02 | Fortschrittsdokument fuer MA003 angelegt. |
