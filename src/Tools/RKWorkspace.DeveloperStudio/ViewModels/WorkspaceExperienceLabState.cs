@@ -6,7 +6,15 @@ internal sealed class WorkspaceExperienceLabState
 {
     private const string LabFolderName = "RKWorkspace";
     private const string LabFileName = "workspace-experience-lab.json";
+    private const int MaxCombinationHistory = 24;
     private readonly Dictionary<string, WorkspaceExperienceLabRating> _ratings = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _testedByVariant = new(StringComparer.Ordinal);
+    private readonly List<string> _combinationHistory = new();
+    private int _testedVariants;
+    private int _likedVariants;
+    private int _nearlyLikedVariants;
+    private int _rejectedVariants;
+    private int _evolutionStep;
 
     private WorkspaceExperienceLabState()
     {
@@ -14,76 +22,164 @@ internal sealed class WorkspaceExperienceLabState
 
     public event EventHandler? Changed;
 
-    public string GripVariantId { get; private set; } = "grip-lift";
+    public string GripVariantId { get; private set; } = "grip-generation-04";
 
-    public string EdgeVariantId { get; private set; } = "edge-pulse";
+    public string EdgeVariantId { get; private set; } = "edge-generation-02";
 
-    public string TransitionVariantId { get; private set; } = "transition-ghost";
+    public string TransitionVariantId { get; private set; } = "transition-generation-03";
 
-    public string DropVariantId { get; private set; } = "drop-soft";
+    public string DropVariantId { get; private set; } = "drop-generation-02";
 
-    public string PreviewVariantId { get; private set; } = "preview-workspace";
+    public string PreviewVariantId { get; private set; } = "preview-generation-03";
 
     public bool AnimationEnabled { get; private set; } = true;
 
     public int Speed { get; private set; } = 5;
 
-    public static IReadOnlyList<WorkspaceExperienceLabOption> GripVariants { get; } = new[]
-    {
-        Option("grip-normal", "A - Normales Drag", "Karte bleibt ruhig, klassisches Drag-Gefuehl."),
-        Option("grip-float", "B - Objekt schwebt", "Karte wird weich heller und wirkt losgeloest."),
-        Option("grip-shrink", "C - Objekt wird kleiner", "Karte zieht sich zusammen, als wuerde sie aufgenommen."),
-        Option("grip-lift", "D - Objekt hebt sich", "Karte wird groesser und bekommt einen klaren Rahmen."),
-        Option("grip-inertia", "E - Objekt bekommt Traegheit", "Karte folgt mit optischem Gewicht und breiterem Rand."),
-        Option("grip-pulse", "F - Objekt pulsiert", "Karte pulsiert waehrend sie gehalten wird."),
-        Option("grip-collected", "G - Eingesammelt", "Karte wirkt komprimiert und gefasst."),
-        Option("grip-combo", "H - Kombination", "Lift, Pulse und schwebender Objektstatus kombiniert.")
-    };
+    public int TestedVariants => _testedVariants;
 
-    public static IReadOnlyList<WorkspaceExperienceLabOption> EdgeVariants { get; } = new[]
-    {
-        Option("edge-glow", "A - Glow", "Rand leuchtet konstant."),
-        Option("edge-pulse", "B - Pulsieren", "Rand pulsiert beim Uebergang."),
-        Option("edge-runner", "C - Lauflicht", "Rand wirkt wie ein aktiver Kanal."),
-        Option("edge-opening", "D - Oeffnender Rand", "Rand wird breiter und wirkt wie eine Oeffnung."),
-        Option("edge-magnetic", "E - Magnetischer Rand", "Rand zieht optisch staerker an."),
-        Option("edge-invisible", "F - Unsichtbarer Rand", "Nur Status und Cursor zeigen den Randkontakt."),
-        Option("edge-large", "G - Grosser Zielbereich", "Randzone wird deutlich breiter."),
-        Option("edge-combo", "H - Kombination", "Puls, Glow und breiter Zielbereich kombiniert.")
-    };
+    public int LikedVariants => _likedVariants;
 
-    public static IReadOnlyList<WorkspaceExperienceLabOption> TransitionVariants { get; } = new[]
-    {
-        Option("transition-vanish", "A - Objekt verschwindet", "Objekt verlaesst die Quelle schnell."),
-        Option("transition-slide", "B - Objekt gleitet", "Objekt bewegt sich weich in Richtung Ziel."),
-        Option("transition-ghost", "C - Ghost erscheint", "Ghost-Objekt liegt im Rand."),
-        Option("transition-half", "D - Halb sichtbar", "Objekt bleibt halb aus der Arbeitsflaeche herausgeschoben."),
-        Option("transition-takeover", "E - Wird uebernommen", "Ziel wirkt, als wuerde es das Objekt aufnehmen."),
-        Option("transition-continuous", "F - Kontinuierlich", "Quelle und Ziel zeigen gleichzeitig den Uebergang."),
-        Option("transition-fade", "G - Soft Fade", "Objekt wird weich heller und taucht im Ziel auf."),
-        Option("transition-combo", "H - Kombination", "Ghost, halb sichtbar und Zieluebernahme kombiniert.")
-    };
+    public int NearlyLikedVariants => _nearlyLikedVariants;
 
-    public static IReadOnlyList<WorkspaceExperienceLabOption> DropVariants { get; } = new[]
-    {
-        Option("drop-normal", "A - Normales Drop", "Karte erscheint ohne Sonderbewegung."),
-        Option("drop-soft", "B - Sanftes Aufsetzen", "Karte setzt weich im Ziel auf."),
-        Option("drop-bounce", "C - Kleiner Bounce", "Karte federt kurz nach."),
-        Option("drop-snap", "D - Magnetisches Einrasten", "Karte rastet sichtbar ein."),
-        Option("drop-grow", "E - Leichtes Vergroessern", "Karte wird kurz groesser."),
-        Option("drop-glow", "F - Glow", "Ziel und Karte leuchten beim Ablegen."),
-        Option("drop-align", "G - Objekt richtet sich aus", "Karte wirkt geordnet und ausgerichtet."),
-        Option("drop-combo", "H - Kombination", "Soft, Glow und kleiner Bounce kombiniert.")
-    };
+    public int RejectedVariants => _rejectedVariants;
 
-    public static IReadOnlyList<WorkspaceExperienceLabOption> PreviewVariants { get; } = new[]
-    {
-        Option("preview-none", "A - Keine Vorschau", "Nur Rand und Status."),
-        Option("preview-ghost", "B - Ghost", "Nur das Ghost-Objekt im Rand."),
-        Option("preview-workspace", "C - Workspace Preview", "Zielname, Status und Objektanzahl."),
-        Option("preview-miniature", "D - Miniatur", "Kompakte Vorschaukarte mit Ziel und Objekt."),
-        Option("preview-arrow", "E - Nur Richtungspfeil", "Reduzierte Richtung, wenig Text.")
-    };
+    public int EvolutionStep => _evolutionStep;
+
+    public static IReadOnlyList<WorkspaceExperienceLabOption> GripVariants { get; } = BuildGeneratedVariants(
+        "grip",
+        "Greifen",
+        new[]
+        {
+            "ruhiges Drag mit neutraler Groesse und wenig Schatten",
+            "leichtes Schweben mit mehr Schatten und hellerem Objekt",
+            "kleineres Objekt mit aufgenommenem, kompaktem Gefuehl",
+            "angehobenes Objekt mit klarerem Rahmen und mehr Tiefe",
+            "traeges Objekt mit optischem Gewicht und langsamerem Tempo",
+            "sanftes Pulsieren mit wechselndem Glow",
+            "eingesammeltes Objekt mit dichterem Abstand und warmer Farbe",
+            "Kombination aus Lift, Pulse, Glow und leichtem Einsammeln",
+            "groesseres Objekt mit ruhigem Schatten und schnellem Ansprechen",
+            "transparenteres Objekt mit schwebender Cursor-Naehe",
+            "minimales Schrumpfen mit magnetischem Griffpunkt",
+            "mehr Tiefeneindruck mit staerkerem Rahmen",
+            "spuerbare Traegheit mit kleiner Rotation",
+            "heller Puls mit geringerer Deckkraft",
+            "leichtes Einrasten direkt nach dem Greifen",
+            "Kombination aus Rotation, Schweben und sanfter Traegheit",
+            "kleines Objekt mit schneller Reaktion und kurzem Glow",
+            "grosseres Objekt mit langsamem Schweben und weichem Schatten",
+            "kompaktes Objekt mit transparenter Kante",
+            "tiefer Schatten mit stabilem, schwerem Griffgefuehl",
+            "langsamer Puls mit groesserer Distanz zum Cursor",
+            "magnetisches Einsammeln mit sichtbarer Zielspannung",
+            "leichte Rotation mit wechselnder Transparenz",
+            "maximale Kombination aus Nehmen, Tragen und Ablegen"
+        });
+
+    public static IReadOnlyList<WorkspaceExperienceLabOption> EdgeVariants { get; } = BuildGeneratedVariants(
+        "edge",
+        "Rand",
+        new[]
+        {
+            "konstantes Licht am Rand",
+            "pulsierender Rand mit ruhiger Zielspannung",
+            "Lauflicht als aktive Kante",
+            "sich oeffnender Rand mit breiterer Zone",
+            "magnetischer Rand mit optischem Zug",
+            "unsichtbarer Rand mit fast nur Statusfeedback",
+            "grosser Zielbereich fuer fruehes Erkennen",
+            "Glow, Puls und breiter Rand kombiniert",
+            "weiche Wellenbewegung im Randbereich",
+            "einziehender Rand mit staerkerem Zielgefuehl",
+            "Projektionsrand mit hellem Zielsignal",
+            "bewegte Pfeile in Richtung Zielarbeitsflaeche",
+            "Farbdynamik von neutral zu erfolgreich",
+            "schmaler Rand mit sehr direktem Magnetismus",
+            "breiter Rand mit langsamem Oeffnen",
+            "Lichtkanal mit kurzer Einziehbewegung",
+            "ruhige Projektionsflaeche ohne harte Kante",
+            "schnelle Welle mit klarer Richtung",
+            "grosser, fast unsichtbarer Zielraum",
+            "magnetische Kante mit pulsierendem Zentrum",
+            "Oeffnung plus Richtungspfeile",
+            "Lauflicht plus Farbumschlag",
+            "weicher Rand mit Sog nach innen",
+            "voller Randmix aus Licht, Magnetismus und Bewegung"
+        });
+
+    public static IReadOnlyList<WorkspaceExperienceLabOption> TransitionVariants { get; } = BuildGeneratedVariants(
+        "transition",
+        "Uebergang",
+        new[]
+        {
+            "Objekt verschwindet schnell aus der Quelle",
+            "Objekt gleitet weich in Richtung Ziel",
+            "Ghost erscheint im Rand",
+            "Objekt bleibt halb sichtbar am Fensterrand",
+            "Ziel wirkt, als wuerde es das Objekt uebernehmen",
+            "Quelle und Ziel zeigen den Uebergang gleichzeitig",
+            "Soft Fade mit heller werdendem Objekt",
+            "Ghost, halb sichtbar und Zieluebernahme kombiniert",
+            "magnetischer Zug mit leichtem Beschleunigen",
+            "traeger Uebergang mit Nachlauf",
+            "halb transparente Projektion im Ziel",
+            "Schatten wandert vor dem Objekt",
+            "Perspektivischer Eindruck mit Tiefe",
+            "Objekt schrumpft in den Rand",
+            "Objekt blendet aus und taucht weich auf",
+            "Portalartiger Uebergang am Rand",
+            "kontinuierlicher Pfad mit sichtbarer Richtung",
+            "Ghost bleibt kurz im Ziel stehen",
+            "Quelle gibt los, Ziel nimmt sichtbar auf",
+            "kurzer Schattenimpuls vor dem Ablegen",
+            "sanfter Perspektivwechsel ohne harte Bewegung",
+            "schneller Magnetzug mit weichem Ende",
+            "verzoegerter Uebergang mit ruhigem Fade",
+            "voller Uebergangsmix aus Ghost, Magnet und Portal"
+        });
+
+    public static IReadOnlyList<WorkspaceExperienceLabOption> DropVariants { get; } = BuildGeneratedVariants(
+        "drop",
+        "Ablegen",
+        new[]
+        {
+            "normales Ablegen ohne Sonderbewegung",
+            "sanftes Aufsetzen mit kurzem Ausklingen",
+            "kleiner Bounce nach dem Kontakt",
+            "magnetisches Einrasten am Ziel",
+            "kurzes Vergroessern beim Aufsetzen",
+            "Glow um Objekt und Ziel",
+            "Objekt richtet sich sichtbar aus",
+            "Soft, Glow und Bounce kombiniert",
+            "leichtes Schweben vor dem finalen Kontakt",
+            "magnetisches Setzen mit schneller Stabilisierung",
+            "langsames Aufsetzen mit mehr Gewicht",
+            "heller Zielimpuls direkt nach dem Drop",
+            "kleines Nachfedern mit geringer Rotation",
+            "kompakter Snap ohne sichtbaren Bounce",
+            "Objekt wird erst gross, dann ruhig",
+            "weiches Ausrichten mit Zielglow",
+            "schwebender Abschluss mit sehr sanftem Ende",
+            "schneller Drop mit magnetischem Stop",
+            "tiefer Schatten beim Aufsetzen",
+            "voller Ablegemix aus Snap, Glow und Nachfedern"
+        });
+
+    public static IReadOnlyList<WorkspaceExperienceLabOption> PreviewVariants { get; } = BuildGeneratedVariants(
+        "preview",
+        "Vorschau",
+        new[]
+        {
+            "keine Vorschau, nur Rand und Status",
+            "Ghost im Rand ohne zusaetzliche Karte",
+            "Workspace Preview mit Zielname und Objektanzahl",
+            "Miniaturkarte mit Ziel und Objekt",
+            "reduzierter Richtungspfeil",
+            "kompakte Zielvorschau mit Status",
+            "Richtungsanzeige plus Zielname",
+            "minimaler Zielhinweis direkt am Rand"
+        });
 
     public static WorkspaceExperienceLabState Load()
     {
@@ -109,10 +205,25 @@ internal sealed class WorkspaceExperienceLabState
             state.PreviewVariantId = ValidOrDefault(PreviewVariants, persisted.PreviewVariantId, state.PreviewVariantId);
             state.AnimationEnabled = persisted.AnimationEnabled;
             state.Speed = Math.Clamp(persisted.Speed, 1, 10);
+            state._testedVariants = Math.Max(0, persisted.TestedVariants);
+            state._likedVariants = Math.Max(0, persisted.LikedVariants);
+            state._nearlyLikedVariants = Math.Max(0, persisted.NearlyLikedVariants);
+            state._rejectedVariants = Math.Max(0, persisted.RejectedVariants);
+            state._evolutionStep = Math.Max(0, persisted.EvolutionStep);
             foreach (var pair in persisted.Ratings)
             {
                 state._ratings[pair.Key] = pair.Value;
             }
+
+            foreach (var pair in persisted.TestedByVariant)
+            {
+                state._testedByVariant[pair.Key] = Math.Max(0, pair.Value);
+            }
+
+            state._combinationHistory.AddRange(
+                persisted.CombinationHistory
+                    .Where(entry => !string.IsNullOrWhiteSpace(entry))
+                    .TakeLast(MaxCombinationHistory));
         }
         catch
         {
@@ -133,7 +244,14 @@ internal sealed class WorkspaceExperienceLabState
             PreviewVariantId = PreviewVariantId,
             AnimationEnabled = AnimationEnabled,
             Speed = Speed,
-            Ratings = new Dictionary<string, WorkspaceExperienceLabRating>(_ratings, StringComparer.Ordinal)
+            Ratings = new Dictionary<string, WorkspaceExperienceLabRating>(_ratings, StringComparer.Ordinal),
+            TestedVariants = _testedVariants,
+            LikedVariants = _likedVariants,
+            NearlyLikedVariants = _nearlyLikedVariants,
+            RejectedVariants = _rejectedVariants,
+            EvolutionStep = _evolutionStep,
+            CombinationHistory = _combinationHistory.ToArray(),
+            TestedByVariant = new Dictionary<string, int>(_testedByVariant, StringComparer.Ordinal)
         };
     }
 
@@ -146,33 +264,25 @@ internal sealed class WorkspaceExperienceLabState
 
     public void SetVariant(string category, string variantId)
     {
-        switch (category)
+        if (ApplyVariant(category, variantId))
         {
-            case "grip":
-                GripVariantId = ValidOrDefault(GripVariants, variantId, GripVariantId);
-                break;
-            case "edge":
-                EdgeVariantId = ValidOrDefault(EdgeVariants, variantId, EdgeVariantId);
-                break;
-            case "transition":
-                TransitionVariantId = ValidOrDefault(TransitionVariants, variantId, TransitionVariantId);
-                break;
-            case "drop":
-                DropVariantId = ValidOrDefault(DropVariants, variantId, DropVariantId);
-                break;
-            case "preview":
-                PreviewVariantId = ValidOrDefault(PreviewVariants, variantId, PreviewVariantId);
-                break;
-            default:
-                return;
+            PersistAndNotify();
         }
-
-        PersistAndNotify();
     }
 
     public void SetRating(string category, string variantId, WorkspaceExperienceLabRating rating)
     {
-        _ratings[BuildRatingKey(category, variantId)] = rating;
+        var key = BuildRatingKey(category, variantId);
+        if (rating == WorkspaceExperienceLabRating.NotRated)
+        {
+            _ratings.Remove(key);
+            PersistAndNotify();
+            return;
+        }
+
+        _ratings[key] = rating;
+        RecordEvaluation(category, variantId, rating);
+        ApplyVariant(category, SelectNextGeneration(category, variantId, rating));
         PersistAndNotify();
     }
 
@@ -188,12 +298,43 @@ internal sealed class WorkspaceExperienceLabState
         PersistAndNotify();
     }
 
+    public void Restore(WorkspaceExperienceLabSnapshot snapshot)
+    {
+        GripVariantId = ValidOrDefault(GripVariants, snapshot.GripVariantId, GripVariantId);
+        EdgeVariantId = ValidOrDefault(EdgeVariants, snapshot.EdgeVariantId, EdgeVariantId);
+        TransitionVariantId = ValidOrDefault(TransitionVariants, snapshot.TransitionVariantId, TransitionVariantId);
+        DropVariantId = ValidOrDefault(DropVariants, snapshot.DropVariantId, DropVariantId);
+        PreviewVariantId = ValidOrDefault(PreviewVariants, snapshot.PreviewVariantId, PreviewVariantId);
+        AnimationEnabled = snapshot.AnimationEnabled;
+        Speed = Math.Clamp(snapshot.Speed, 1, 10);
+        _ratings.Clear();
+        foreach (var pair in snapshot.Ratings)
+        {
+            _ratings[pair.Key] = pair.Value;
+        }
+
+        _testedVariants = Math.Max(0, snapshot.TestedVariants);
+        _likedVariants = Math.Max(0, snapshot.LikedVariants);
+        _nearlyLikedVariants = Math.Max(0, snapshot.NearlyLikedVariants);
+        _rejectedVariants = Math.Max(0, snapshot.RejectedVariants);
+        _evolutionStep = Math.Max(0, snapshot.EvolutionStep);
+        _testedByVariant.Clear();
+        foreach (var pair in snapshot.TestedByVariant)
+        {
+            _testedByVariant[pair.Key] = Math.Max(0, pair.Value);
+        }
+
+        _combinationHistory.Clear();
+        _combinationHistory.AddRange(snapshot.CombinationHistory.TakeLast(MaxCombinationHistory));
+        PersistAndNotify();
+    }
+
     public bool SmokeCheck()
     {
-        return GripVariants.Count >= 8 &&
-            EdgeVariants.Count >= 8 &&
-            TransitionVariants.Count >= 8 &&
-            DropVariants.Count >= 8 &&
+        return GripVariants.Count >= 20 &&
+            EdgeVariants.Count >= 20 &&
+            TransitionVariants.Count >= 20 &&
+            DropVariants.Count >= 20 &&
             PreviewVariants.Count >= 5 &&
             !string.IsNullOrWhiteSpace(GripVariantId) &&
             !string.IsNullOrWhiteSpace(EdgeVariantId) &&
@@ -204,7 +345,13 @@ internal sealed class WorkspaceExperienceLabState
 
     public string GetSelectedSummary()
     {
-        return $"Greifen={Find(GripVariants, GripVariantId).DisplayName}; Rand={Find(EdgeVariants, EdgeVariantId).DisplayName}; Uebergang={Find(TransitionVariants, TransitionVariantId).DisplayName}; Ablegen={Find(DropVariants, DropVariantId).DisplayName}; Preview={Find(PreviewVariants, PreviewVariantId).DisplayName}; Speed={Speed}; Animation={(AnimationEnabled ? "An" : "Aus")}";
+        return $"Greifen={Find(GripVariants, GripVariantId).DisplayName}; Rand={Find(EdgeVariants, EdgeVariantId).DisplayName}; Uebergang={Find(TransitionVariants, TransitionVariantId).DisplayName}; Ablegen={Find(DropVariants, DropVariantId).DisplayName}; Vorschau={Find(PreviewVariants, PreviewVariantId).DisplayName}; Speed={Speed}; Animation={(AnimationEnabled ? "An" : "Aus")}";
+    }
+
+    public string GetEvolutionSummary()
+    {
+        var last = _combinationHistory.LastOrDefault() ?? "Noch keine Bewertung.";
+        return $"Evolution: {_evolutionStep}\r\nGetestet: {_testedVariants}\r\nGruen: {_likedVariants}  Gelb: {_nearlyLikedVariants}  Rot: {_rejectedVariants}\r\nKombinationen: {_combinationHistory.Count}\r\nLetzte Entscheidung: {last}";
     }
 
     public static WorkspaceExperienceLabOption Find(
@@ -221,16 +368,33 @@ internal sealed class WorkspaceExperienceLabState
     }
 
     private static WorkspaceExperienceLabOption Option(
-        string id,
-        string displayName,
-        string description)
+        string category,
+        int generation,
+        string title,
+        string traits)
     {
         return new WorkspaceExperienceLabOption
         {
-            Id = id,
-            DisplayName = displayName,
-            Description = description
+            Id = $"{category}-generation-{generation:00}",
+            DisplayName = $"Generation {generation:00} - {title}",
+            Description = $"Generation {generation:00}: {traits}.",
+            Generation = generation,
+            Traits = traits
         };
+    }
+
+    private static IReadOnlyList<WorkspaceExperienceLabOption> BuildGeneratedVariants(
+        string category,
+        string title,
+        IReadOnlyList<string> traits)
+    {
+        var options = new List<WorkspaceExperienceLabOption>(traits.Count);
+        for (var index = 0; index < traits.Count; index++)
+        {
+            options.Add(Option(category, index + 1, title, traits[index]));
+        }
+
+        return options;
     }
 
     private static string ValidOrDefault(
@@ -241,6 +405,130 @@ internal sealed class WorkspaceExperienceLabState
         return options.Any(option => string.Equals(option.Id, id, StringComparison.Ordinal))
             ? id ?? fallback
             : fallback;
+    }
+
+    private bool ApplyVariant(string category, string variantId)
+    {
+        switch (category)
+        {
+            case "grip":
+                GripVariantId = ValidOrDefault(GripVariants, variantId, GripVariantId);
+                return true;
+            case "edge":
+                EdgeVariantId = ValidOrDefault(EdgeVariants, variantId, EdgeVariantId);
+                return true;
+            case "transition":
+                TransitionVariantId = ValidOrDefault(TransitionVariants, variantId, TransitionVariantId);
+                return true;
+            case "drop":
+                DropVariantId = ValidOrDefault(DropVariants, variantId, DropVariantId);
+                return true;
+            case "preview":
+                PreviewVariantId = ValidOrDefault(PreviewVariants, variantId, PreviewVariantId);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void RecordEvaluation(string category, string variantId, WorkspaceExperienceLabRating rating)
+    {
+        _testedVariants++;
+        _evolutionStep++;
+        var key = BuildRatingKey(category, variantId);
+        _testedByVariant[key] = _testedByVariant.TryGetValue(key, out var count) ? count + 1 : 1;
+
+        switch (rating)
+        {
+            case WorkspaceExperienceLabRating.Like:
+                _likedVariants++;
+                break;
+            case WorkspaceExperienceLabRating.Neutral:
+                _nearlyLikedVariants++;
+                break;
+            case WorkspaceExperienceLabRating.Dislike:
+                _rejectedVariants++;
+                break;
+        }
+
+        var options = GetOptions(category);
+        var option = options.Count > 0
+            ? Find(options, variantId)
+            : new WorkspaceExperienceLabOption
+            {
+                Id = variantId,
+                DisplayName = variantId,
+                Description = variantId,
+                Generation = 0,
+                Traits = variantId
+            };
+        _combinationHistory.Add($"{category} {option.DisplayName} => {RatingLabel(rating)}");
+        while (_combinationHistory.Count > MaxCombinationHistory)
+        {
+            _combinationHistory.RemoveAt(0);
+        }
+    }
+
+    private string SelectNextGeneration(string category, string variantId, WorkspaceExperienceLabRating rating)
+    {
+        var options = GetOptions(category);
+        if (options.Count == 0)
+        {
+            return variantId;
+        }
+
+        var currentIndex = Math.Max(
+            0,
+            options.ToList().FindIndex(option => string.Equals(option.Id, variantId, StringComparison.Ordinal)));
+        var anchorIndex = rating == WorkspaceExperienceLabRating.Dislike
+            ? FindRatedIndex(category, WorkspaceExperienceLabRating.Like) ?? currentIndex
+            : currentIndex;
+        var step = rating switch
+        {
+            WorkspaceExperienceLabRating.Like => 1,
+            WorkspaceExperienceLabRating.Neutral => 2,
+            WorkspaceExperienceLabRating.Dislike => 3,
+            _ => 1
+        };
+        return options[(anchorIndex + step) % options.Count].Id;
+    }
+
+    private int? FindRatedIndex(string category, WorkspaceExperienceLabRating rating)
+    {
+        var options = GetOptions(category);
+        for (var index = options.Count - 1; index >= 0; index--)
+        {
+            if (GetRating(category, options[index].Id) == rating)
+            {
+                return index;
+            }
+        }
+
+        return null;
+    }
+
+    private static IReadOnlyList<WorkspaceExperienceLabOption> GetOptions(string category)
+    {
+        return category switch
+        {
+            "grip" => GripVariants,
+            "edge" => EdgeVariants,
+            "transition" => TransitionVariants,
+            "drop" => DropVariants,
+            "preview" => PreviewVariants,
+            _ => Array.Empty<WorkspaceExperienceLabOption>()
+        };
+    }
+
+    private static string RatingLabel(WorkspaceExperienceLabRating rating)
+    {
+        return rating switch
+        {
+            WorkspaceExperienceLabRating.Like => "fuehlt sich richtig an",
+            WorkspaceExperienceLabRating.Neutral => "fast",
+            WorkspaceExperienceLabRating.Dislike => "fuehlt sich falsch an",
+            _ => "nicht bewertet"
+        };
     }
 
     private void PersistAndNotify()
@@ -258,7 +546,14 @@ internal sealed class WorkspaceExperienceLabState
                     PreviewVariantId = PreviewVariantId,
                     AnimationEnabled = AnimationEnabled,
                     Speed = Speed,
-                    Ratings = _ratings
+                    Ratings = _ratings,
+                    TestedByVariant = _testedByVariant,
+                    TestedVariants = _testedVariants,
+                    LikedVariants = _likedVariants,
+                    NearlyLikedVariants = _nearlyLikedVariants,
+                    RejectedVariants = _rejectedVariants,
+                    EvolutionStep = _evolutionStep,
+                    CombinationHistory = _combinationHistory
                 },
                 new JsonSerializerOptions { WriteIndented = true }));
         Changed?.Invoke(this, EventArgs.Empty);
@@ -289,5 +584,19 @@ internal sealed class WorkspaceExperienceLabState
         public int Speed { get; set; } = 5;
 
         public Dictionary<string, WorkspaceExperienceLabRating> Ratings { get; set; } = new(StringComparer.Ordinal);
+
+        public Dictionary<string, int> TestedByVariant { get; set; } = new(StringComparer.Ordinal);
+
+        public int TestedVariants { get; set; }
+
+        public int LikedVariants { get; set; }
+
+        public int NearlyLikedVariants { get; set; }
+
+        public int RejectedVariants { get; set; }
+
+        public int EvolutionStep { get; set; }
+
+        public List<string> CombinationHistory { get; set; } = new();
     }
 }

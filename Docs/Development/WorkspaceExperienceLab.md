@@ -1,7 +1,7 @@
 # Workspace Experience Lab
 
 Dokument-ID: RKWS-DEV-WORKSPACE-EXPERIENCE-LAB
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -29,69 +29,59 @@ Workspace Experience Lab
 
 Dort koennen Varianten zur Laufzeit umgeschaltet werden. Offene Multi-Window-Arbeitsflaechen lesen dieselben Lab-Einstellungen und reagieren ohne Neukompilieren.
 
+## UX Evolution Lab Sprint 1
+
+Mit Sprint 1 wird das Lab zur Evolutionsplattform. Varianten werden nicht mehr als A/B/C benannt, sondern als Generationen:
+
+```text
+Generation 01
+Generation 02
+Generation 03
+...
+```
+
+Nach jeder Bewertung waehlt das Lab automatisch eine nahe Folgegeneration. Die Auswahl ist deterministisch und orientiert sich an der besten lokalen Bewertung, nicht an Zufall.
+
 ## Varianten
 
 ### Greifen
 
-- A - Normales Drag
-- B - Objekt schwebt
-- C - Objekt wird kleiner
-- D - Objekt hebt sich
-- E - Objekt bekommt Traegheit
-- F - Objekt pulsiert
-- G - Eingesammelt
-- H - Kombination
+Es existieren 24 Greif-Generationen. Variiert werden unter anderem Groesse, Schatten, Glow, Schweben, Traegheit, Pulsieren, Einrasten, Geschwindigkeit, Transparenz, Rotation und Tiefeneindruck.
 
 ### Rand
 
-- A - Glow
-- B - Pulsieren
-- C - Lauflicht
-- D - Oeffnender Rand
-- E - Magnetischer Rand
-- F - Unsichtbarer Rand
-- G - Grosser Zielbereich
-- H - Kombination
+Es existieren 24 Rand-Generationen. Variiert werden Licht, Magnetismus, Wellen, Einziehen, Oeffnen, Projektion, Bewegung, Pfeile und Farbdynamik.
 
 ### Uebergang
 
-- A - Objekt verschwindet
-- B - Objekt gleitet
-- C - Ghost erscheint
-- D - Halb sichtbar
-- E - Wird uebernommen
-- F - Kontinuierlich
-- G - Soft Fade
-- H - Kombination
+Es existieren 24 Uebergangs-Generationen. Variiert werden Gleiten, Magnetzug, Traegheit, Halb-Sichtbarkeit, Ghost, Schatten, Perspektive, Schrumpfen, Ausblenden und Portalwirkung.
 
 ### Ablegen
 
-- A - Normales Drop
-- B - Sanftes Aufsetzen
-- C - Kleiner Bounce
-- D - Magnetisches Einrasten
-- E - Leichtes Vergroessern
-- F - Glow
-- G - Objekt richtet sich aus
-- H - Kombination
+Es existieren 20 Ablege-Generationen. Variiert werden normales Ablegen, sanftes Aufsetzen, Einrasten, Nachfedern, Schweben, Magnetwirkung, Aufsetzen, Zielglow und Ausrichtung.
 
 ### Preview
 
-- A - Keine Vorschau
-- B - Ghost
-- C - Workspace Preview
-- D - Miniatur
-- E - Nur Richtungspfeil
+Es existieren 8 Vorschau-Generationen: keine Vorschau, Ghost, Workspace Preview, Miniatur, Richtungspfeil, kompakte Zielvorschau, Richtung plus Zielname und minimaler Randhinweis.
 
 ## Bewertung
 
 Jede Variante kann bewertet werden:
 
-- Gefaellt mir
-- Neutral
-- Gefaellt mir nicht
+- Gruen: Das fuehlt sich richtig an.
+- Gelb: Fast.
+- Rot: Fuehlt sich falsch an.
 
 Die Bewertung wird lokal gespeichert. Es gibt keine Cloud, keine Telemetrie und keine Netzwerkfunktion.
+
+Das Lab speichert zusaetzlich lokale Statistik:
+
+- getestete Varianten
+- gruene Bewertungen
+- gelbe Bewertungen
+- rote Bewertungen
+- Evolutionsschritt
+- zuletzt bewertete Kombinationen
 
 Speicherort:
 
@@ -117,13 +107,15 @@ Das Lab ist kein Produkt und kein Endanwenderwerkzeug.
 
 Der Studio-Smoke-Test prueft:
 
-- mindestens 8 Greifvarianten
-- mindestens 8 Randvarianten
-- mindestens 8 Uebergangsvarianten
-- mindestens 8 Ablegevarianten
+- mindestens 20 Greifvarianten
+- mindestens 20 Greifvarianten
+- mindestens 20 Randvarianten
+- mindestens 20 Uebergangsvarianten
+- mindestens 20 Ablegevarianten
 - mindestens 5 Previewvarianten
 - Live-Wechsel der Greifvariante
 - lokale Bewertung
+- automatische Folgegeneration
 - Anwendung der Lab-Auswahl im Multi-Window-Kontext
 
 Ausfuehrung:
@@ -137,6 +129,7 @@ Erwartete Zusatzsignale:
 ```text
 LabLiveSwitch: SUCCESS
 LabRating: SUCCESS
+LabEvolution: SUCCESS
 LabAppliedToMultiWindow: SUCCESS
 WorkspaceExperienceLab: SUCCESS
 RESULT: SUCCESS
@@ -150,4 +143,5 @@ Nach manueller Bewertung kann eine Gewinnerkombination in den produktnahen Multi
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | UX-EVO Sprint 1 mit Generationen, Evolutionsbewertung und Statistik dokumentiert. |
 | 1.0.0 | 2026-07-02 | UX-LAB-001 Workspace Experience Lab dokumentiert. |

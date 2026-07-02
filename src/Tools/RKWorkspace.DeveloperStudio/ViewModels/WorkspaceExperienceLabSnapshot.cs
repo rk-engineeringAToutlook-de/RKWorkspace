@@ -18,15 +18,36 @@ internal sealed record WorkspaceExperienceLabSnapshot
 
     public required IReadOnlyDictionary<string, WorkspaceExperienceLabRating> Ratings { get; init; }
 
+    public required int TestedVariants { get; init; }
+
+    public required int LikedVariants { get; init; }
+
+    public required int NearlyLikedVariants { get; init; }
+
+    public required int RejectedVariants { get; init; }
+
+    public required int EvolutionStep { get; init; }
+
+    public required IReadOnlyList<string> CombinationHistory { get; init; }
+
+    public required IReadOnlyDictionary<string, int> TestedByVariant { get; init; }
+
     public static WorkspaceExperienceLabSnapshot Default { get; } = new()
     {
-        GripVariantId = "grip-lift",
-        EdgeVariantId = "edge-pulse",
-        TransitionVariantId = "transition-ghost",
-        DropVariantId = "drop-soft",
-        PreviewVariantId = "preview-workspace",
+        GripVariantId = "grip-generation-04",
+        EdgeVariantId = "edge-generation-02",
+        TransitionVariantId = "transition-generation-03",
+        DropVariantId = "drop-generation-02",
+        PreviewVariantId = "preview-generation-03",
         AnimationEnabled = true,
         Speed = 5,
-        Ratings = new Dictionary<string, WorkspaceExperienceLabRating>()
+        Ratings = new Dictionary<string, WorkspaceExperienceLabRating>(),
+        TestedVariants = 0,
+        LikedVariants = 0,
+        NearlyLikedVariants = 0,
+        RejectedVariants = 0,
+        EvolutionStep = 0,
+        CombinationHistory = Array.Empty<string>(),
+        TestedByVariant = new Dictionary<string, int>()
     };
 }

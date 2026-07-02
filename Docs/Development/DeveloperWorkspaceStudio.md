@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -67,7 +67,7 @@ Minimal verfuegbare Aktionen:
 
 `Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Fenster fuer `Window A / Laptop` und `Window B / Display Right`. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Workspaces, Transferobjekte, Diagnostics, History, Log und die wichtigsten Aktionen.
 
-`Workspace Experience Lab` stellt mindestens acht Varianten fuer Greifen, Rand, Uebergang und Ablegen sowie mindestens fuenf Preview-Varianten bereit. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante kann lokal mit `Gefaellt mir`, `Neutral` oder `Gefaellt mir nicht` bewertet werden.
+`Workspace Experience Lab` stellt ab UX Evolution Lab Sprint 1 generierte Generationen bereit: 24 Greifvarianten, 24 Randvarianten, 24 Uebergangsvarianten, 20 Ablegevarianten und 8 Vorschauvarianten. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante wird lokal mit den drei Gefuehlsbuttons `Gruen - Das fuehlt sich richtig an`, `Gelb - Fast` oder `Rot - Fuehlt sich falsch an` bewertet. Nach einer Bewertung waehlt das Lab automatisch eine nahe Folgegeneration.
 
 ## Interaktiver Workspace-Prototyp
 
@@ -107,7 +107,7 @@ Der Ablauf wird nicht als separate Studio-Logik dupliziert. Das Studio ruft den 
 
 Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktiven Workspace-Prototyp und den Multi Window Workspace Prototype. Die interaktiven Demos verwenden keinen Local-IPC-Kanal und keine Netzwerkfunktion.
 
-Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing im Studio. Es veraendert keine Core-Komponenten und keinen Transport.
+Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing im Studio. Es veraendert keine Core-Komponenten und keinen Transport. Die Evolutionslogik arbeitet nur auf Studio-Varianten, lokaler Bewertung und lokaler Statistik.
 
 ## Nicht-Ziele
 
@@ -125,7 +125,7 @@ Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing i
 - Der Smoke-Test prueft den Core-Ablauf ohne sichtbares Fenster.
 - Der Smoke-Test prueft den interaktiven Demo-Ablauf viewmodelbasiert ohne echte UI-Automation.
 - Der Smoke-Test prueft den Multi-Window-Ablauf, `Run Full Demo`, EdgeTarget-Logik, Roundtrip B nach A, UX-Diagnostics, Workspace Illusion und `WorkspaceSessionCandidate` viewmodelbasiert ohne echte UI-Automation.
-- Der Smoke-Test prueft das Workspace Experience Lab viewmodelbasiert: Variantenanzahl, Live-Wechsel, Bewertung und Anwendung im Multi-Window-Kontext.
+- Der Smoke-Test prueft das Workspace Experience Lab viewmodelbasiert: Variantenanzahl, Live-Wechsel, Bewertung, automatische Folgegeneration und Anwendung im Multi-Window-Kontext.
 - Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
@@ -136,12 +136,13 @@ Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing i
 - `WorkspaceSessionCandidate` ist vorbereitet, aber noch keine Live-Workspace-Session.
 - Die Workspace-Illusion ist optisch; echte OS-Hot-Zones, Monitoruebertritt und Live-Sessions sind noch nicht implementiert.
 - Das Workspace Experience Lab ist ein internes Experimentierlabor, kein Produkt und kein Endanwenderwerkzeug.
-- Lab-Bewertungen werden lokal in `%LOCALAPPDATA%\RKWorkspace\workspace-experience-lab.json` gespeichert.
+- Lab-Bewertungen, Evolutionsschritt und lokale Statistik werden in `%LOCALAPPDATA%\RKWorkspace\workspace-experience-lab.json` gespeichert.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-02 | UX Evolution Lab Sprint 1 mit Generationen, Gefuehlsbewertung und Statistik dokumentiert. |
 | 1.7.0 | 2026-07-02 | UX-LAB-001 Workspace Experience Lab dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA005.03 Workspace Illusion, Edge-Hot-Zones und Candidate-Zustaende dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA005.02 Workspace Experience Sprint, Ruecktransfer und UX-Diagnose dokumentiert. |

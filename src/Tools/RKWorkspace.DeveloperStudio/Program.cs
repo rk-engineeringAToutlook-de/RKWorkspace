@@ -122,6 +122,7 @@ internal static class Program
         Console.WriteLine($"LabPreviewVariants: {WorkspaceExperienceLabState.PreviewVariants.Count}");
         Console.WriteLine($"LabLiveSwitch: {(labResult.LiveSwitchSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"LabRating: {(labResult.RatingSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"LabEvolution: {(labResult.EvolutionSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"LabAppliedToMultiWindow: {(labResult.MultiWindowAppliedSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"EdgeTargetLeft: {edgeLeftSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetRight: {edgeRightSuggestion.WorkspaceId}");
@@ -151,21 +152,22 @@ internal static class Program
     {
         var lab = WorkspaceExperienceLabState.Load();
         var initial = lab.GetSnapshot();
-        var initialGripRating = lab.GetRating("grip", "grip-shrink");
         try
         {
             var countsSuccess = lab.SmokeCheck();
-            lab.SetVariant("grip", "grip-pulse");
-            var firstSwitch = string.Equals(lab.GripVariantId, "grip-pulse", StringComparison.Ordinal);
-            lab.SetVariant("grip", "grip-shrink");
-            var secondSwitch = string.Equals(lab.GripVariantId, "grip-shrink", StringComparison.Ordinal);
-            lab.SetRating("grip", "grip-shrink", WorkspaceExperienceLabRating.Like);
-            var ratingSuccess = lab.GetRating("grip", "grip-shrink") == WorkspaceExperienceLabRating.Like;
+            lab.SetVariant("grip", "grip-generation-06");
+            var firstSwitch = string.Equals(lab.GripVariantId, "grip-generation-06", StringComparison.Ordinal);
+            lab.SetVariant("grip", "grip-generation-03");
+            var secondSwitch = string.Equals(lab.GripVariantId, "grip-generation-03", StringComparison.Ordinal);
+            lab.SetRating("grip", "grip-generation-03", WorkspaceExperienceLabRating.Like);
+            var ratingSuccess = lab.GetRating("grip", "grip-generation-03") == WorkspaceExperienceLabRating.Like;
+            var evolutionSuccess = lab.EvolutionStep == initial.EvolutionStep + 1 &&
+                string.Equals(lab.GripVariantId, "grip-generation-04", StringComparison.Ordinal);
             var context = new MultiWindowWorkspaceContext(lab);
             var snapshot = context.GetSnapshot(context.SourceWorkspaceId.ToString());
             var multiWindowApplied = string.Equals(
                 snapshot.ExperienceLab.GripVariantId,
-                "grip-shrink",
+                "grip-generation-04",
                 StringComparison.Ordinal);
 
             return new WorkspaceExperienceLabSmokeResult
@@ -173,19 +175,13 @@ internal static class Program
                 CountsSuccess = countsSuccess,
                 LiveSwitchSuccess = firstSwitch && secondSwitch,
                 RatingSuccess = ratingSuccess,
+                EvolutionSuccess = evolutionSuccess,
                 MultiWindowAppliedSuccess = multiWindowApplied
             };
         }
         finally
         {
-            lab.SetVariant("grip", initial.GripVariantId);
-            lab.SetVariant("edge", initial.EdgeVariantId);
-            lab.SetVariant("transition", initial.TransitionVariantId);
-            lab.SetVariant("drop", initial.DropVariantId);
-            lab.SetVariant("preview", initial.PreviewVariantId);
-            lab.SetAnimationEnabled(initial.AnimationEnabled);
-            lab.SetSpeed(initial.Speed);
-            lab.SetRating("grip", "grip-shrink", initialGripRating);
+            lab.Restore(initial);
         }
     }
 
@@ -197,11 +193,14 @@ internal static class Program
 
         public required bool RatingSuccess { get; init; }
 
+        public required bool EvolutionSuccess { get; init; }
+
         public required bool MultiWindowAppliedSuccess { get; init; }
 
         public bool IsSuccess => CountsSuccess &&
             LiveSwitchSuccess &&
             RatingSuccess &&
+            EvolutionSuccess &&
             MultiWindowAppliedSuccess;
     }
 }

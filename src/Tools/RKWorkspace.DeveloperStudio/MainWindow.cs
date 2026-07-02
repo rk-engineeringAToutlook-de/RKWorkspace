@@ -25,6 +25,7 @@ internal sealed class MainWindow : Form
     private readonly Label _lastResult = ValueLabel();
     private readonly Label _lastError = ValueLabel();
     private readonly Label _labSummary = ValueLabel();
+    private readonly Label _labEvolutionSummary = ValueLabel();
     private readonly Label _labSpeedLabel = ValueLabel();
     private readonly CheckBox _labAnimationEnabled = new();
     private readonly TrackBar _labSpeed = new();
@@ -254,9 +255,9 @@ internal sealed class MainWindow : Form
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false
         };
-        var like = RatingButton(category, WorkspaceExperienceLabRating.Like, "Gefaellt mir");
-        var neutral = RatingButton(category, WorkspaceExperienceLabRating.Neutral, "Neutral");
-        var dislike = RatingButton(category, WorkspaceExperienceLabRating.Dislike, "Gefaellt mir nicht");
+        var like = RatingButton(category, WorkspaceExperienceLabRating.Like, "\U0001F7E2 Das fuehlt sich richtig an.");
+        var neutral = RatingButton(category, WorkspaceExperienceLabRating.Neutral, "\U0001F7E1 Fast.");
+        var dislike = RatingButton(category, WorkspaceExperienceLabRating.Dislike, "\U0001F534 Fuehlt sich falsch an.");
         ratingPanel.Controls.Add(like);
         ratingPanel.Controls.Add(neutral);
         ratingPanel.Controls.Add(dislike);
@@ -280,9 +281,11 @@ internal sealed class MainWindow : Form
         var button = new RadioButton
         {
             Text = text,
+            Tag = rating,
             AutoSize = true,
             Margin = new Padding(4, 6, 18, 4)
         };
+        _toolTip.SetToolTip(button, "Bewertet diese Generation und waehlt automatisch eine nahe Folgegeneration aus.");
         button.CheckedChanged += (_, _) =>
         {
             if (_syncingLabControls || !button.Checked)
@@ -305,11 +308,12 @@ internal sealed class MainWindow : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 5,
+            RowCount = 6,
             Padding = new Padding(10)
         };
-        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
-        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 104));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 128));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 88));
         panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
         panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -319,6 +323,12 @@ internal sealed class MainWindow : Form
         _labSummary.Padding = new Padding(6);
         _labSummary.BorderStyle = BorderStyle.FixedSingle;
         _labSummary.AutoEllipsis = false;
+
+        _labEvolutionSummary.Dock = DockStyle.Fill;
+        _labEvolutionSummary.TextAlign = ContentAlignment.TopLeft;
+        _labEvolutionSummary.Padding = new Padding(6);
+        _labEvolutionSummary.BorderStyle = BorderStyle.FixedSingle;
+        _labEvolutionSummary.AutoEllipsis = false;
 
         _labAnimationEnabled.Text = "Animation aktiv";
         _labAnimationEnabled.Dock = DockStyle.Fill;
@@ -354,14 +364,15 @@ internal sealed class MainWindow : Form
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.TopLeft,
             ForeColor = Color.FromArgb(74, 84, 96),
-            Text = "Leitsatz: Nehmen. Tragen. Ablegen.\r\nVarianten duerfen nur die Darstellung veraendern, nie den Core."
+            Text = "Leitsatz: Nehmen. Tragen. Ablegen.\r\nBewertungen erzeugen automatisch eine nahe Folgegeneration.\r\nVarianten duerfen nur die Darstellung veraendern, nie den Core."
         };
 
         panel.Controls.Add(Panel("Live-Auswahl", _labSummary), 0, 0);
-        panel.Controls.Add(_labAnimationEnabled, 0, 1);
-        panel.Controls.Add(Panel("Geschwindigkeit", BuildSpeedPanel()), 0, 2);
-        panel.Controls.Add(openButton, 0, 3);
-        panel.Controls.Add(hint, 0, 4);
+        panel.Controls.Add(Panel("Evolution", _labEvolutionSummary), 0, 1);
+        panel.Controls.Add(_labAnimationEnabled, 0, 2);
+        panel.Controls.Add(Panel("Geschwindigkeit", BuildSpeedPanel()), 0, 3);
+        panel.Controls.Add(openButton, 0, 4);
+        panel.Controls.Add(hint, 0, 5);
         return panel;
     }
 
@@ -610,6 +621,7 @@ internal sealed class MainWindow : Form
             _labSpeed.Value = Math.Clamp(_experienceLab.Speed, _labSpeed.Minimum, _labSpeed.Maximum);
             _labSpeedLabel.Text = $"Geschwindigkeit: {_labSpeed.Value}";
             _labSummary.Text = _experienceLab.GetSelectedSummary();
+            _labEvolutionSummary.Text = _experienceLab.GetEvolutionSummary();
         }
         finally
         {
@@ -632,7 +644,7 @@ internal sealed class MainWindow : Form
                 combo.SelectedIndex = index;
                 if (_labDescriptionLabels.TryGetValue(category, out var label))
                 {
-                    label.Text = option.Description;
+                    label.Text = $"{option.Description}\r\nMerkmale: {option.Traits}";
                 }
 
                 return;
@@ -651,17 +663,9 @@ internal sealed class MainWindow : Form
         var rating = _experienceLab.GetRating(category, option.Id);
         foreach (var button in buttons)
         {
-            if (button.Text.StartsWith("Gefaellt mir nicht", StringComparison.Ordinal))
+            if (button.Tag is WorkspaceExperienceLabRating buttonRating)
             {
-                button.Checked = rating == WorkspaceExperienceLabRating.Dislike;
-            }
-            else if (button.Text.StartsWith("Gefaellt mir", StringComparison.Ordinal))
-            {
-                button.Checked = rating == WorkspaceExperienceLabRating.Like;
-            }
-            else
-            {
-                button.Checked = rating == WorkspaceExperienceLabRating.Neutral;
+                button.Checked = rating == buttonRating;
             }
         }
     }
