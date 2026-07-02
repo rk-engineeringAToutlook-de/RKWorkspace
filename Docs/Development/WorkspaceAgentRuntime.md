@@ -1,7 +1,7 @@
 # Workspace Agent Runtime
 
 Dokument-ID: RKWS-DEV-WORKSPACE-AGENT-RUNTIME
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -17,6 +17,8 @@ Der Agent ist noch kein Windows-Service, kein macOS-Daemon und kein Linux-System
 .\tools\run-agent.ps1
 .\tools\run-agent.ps1 -Once
 .\tools\run-agent.ps1 -Status
+.\tools\run-agent.ps1 -AgentId rkws-agent-b -WorkspaceName Workspace-B -Position Right -IpcServer rkws-b
+.\tools\run-agent.ps1 -AgentId rkws-agent-a -WorkspaceName Workspace-A -Position Left -IpcClient rkws-b -TargetAgentId rkws-agent-b -Once
 ```
 
 Direkte Agent-Optionen:
@@ -26,7 +28,26 @@ Direkte Agent-Optionen:
 --status
 --demo
 --no-demo
+--agent-id <id>
+--workspace-name <name>
+--position <Left|Right|Center>
+--ipc-server <pipeName>
+--ipc-client <pipeName>
+--target-agent-id <id>
+--ipc-stop-after-transfer
 --help
+```
+
+PowerShell-Optionen:
+
+```text
+-AgentId
+-WorkspaceName
+-Position
+-IpcServer
+-IpcClient
+-TargetAgentId
+-IpcStopAfterTransfer
 ```
 
 ## Default-Konfiguration
@@ -53,6 +74,18 @@ MA004.02 ergaenzt zwei vordefinierte LocalOnly-Konfigurationen:
 | Agent B | `rkws-agent-b` | `Workspace-B` | `Right` |
 
 Beide Konfigurationen verwenden eigene `AgentRuntime`-Instanzen und erzeugen eigene `RuntimeEngine`-Instanzen. Es gibt keinen gemeinsamen Singleton-Zustand zwischen den Agenten.
+
+## Local IPC
+
+MA004.03 ergaenzt einen lokalen IPC-Modus ueber Named Pipes:
+
+- Agent B kann als IPC-Server gestartet werden.
+- Agent A kann als IPC-Client gestartet werden.
+- Nachrichten werden als einfache JSON-Nachrichten ueber lokale Named Pipes uebertragen.
+- Unterstuetzt werden AgentHello, AgentStatusRequest, AgentStatusResponse, WorkspaceAdvertisement, TransferRequest, TransferResponse, ShutdownRequest und ErrorResponse.
+- Der IPC-Test startet zwei echte Agent-Prozesse ueber `tools/run-local-ipc.ps1`.
+
+Die IPC bleibt lokal. Es werden keine TCP-/UDP-Ports, keine Firewall-Freigaben und keine Netzwerkkommunikation verwendet.
 
 ## Lokale Workspace
 
@@ -96,11 +129,13 @@ Der Agent verwendet echte Core-Komponenten:
 - Es gibt keine Konfigurationsdatei; Defaults liegen im Code.
 - Pro Agent wird genau eine lokale Workspace registriert.
 - Transfers zwischen zwei AgentRuntime-Instanzen werden in MA004.02 nur logisch ueber den lokalen Dual-Agent-Harness simuliert.
+- Transfers zwischen zwei echten Agent-Prozessen werden in MA004.03 nur lokal ueber Named Pipes simuliert.
 - Ctrl+C wird sauber behandelt, aber noch nicht durch Systemdienst-Lifecycle ersetzt.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-02 | Local-IPC-CLI und Named-Pipe-Zwei-Prozess-Modus dokumentiert. |
 | 1.1.0 | 2026-07-02 | Dual-Agent-Konfigurationen und Harness-Einschraenkung ergaenzt. |
 | 1.0.0 | 2026-07-02 | Workspace Agent Runtime fuer MA004.01 dokumentiert. |

@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.11.0
+Version: 0.12.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -24,6 +24,7 @@ flowchart LR
     MA00307R --> MA00308["MA003.08 Developer Workspace Studio"]
     MA00308 --> MA00401["MA004.01 Workspace Agent Runtime"]
     MA00401 --> MA00402["MA004.02 Dual Local Agent Simulation"]
+    MA00402 --> MA00403["MA004.03 Local IPC Two Process Test"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -350,7 +351,38 @@ Nicht im Umfang:
 
 ## Offene Punkte nach MA004.02
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche, den ersten LocalOnly-Agent-Prozess und eine Dual-Agent-Simulation ueber einen lokalen Harness. Der naechste Teilauftrag ist MA004.03 Local IPC.
+## MA004.03 Local IPC Two Process Test
+
+Status: Abgeschlossen.
+
+Umfang:
+
+- Local-IPC-Projekt `src/Communication/RKWorkspace.LocalIpc/`
+- Named-Pipe-Transport fuer lokale Prozesskommunikation
+- IPC-Nachrichten AgentHello, AgentStatusRequest, AgentStatusResponse, WorkspaceAdvertisement, TransferRequest, TransferResponse, ShutdownRequest und ErrorResponse
+- Agent-CLI fuer `--agent-id`, `--workspace-name`, `--position`, `--ipc-server`, `--ipc-client`, `--target-agent-id` und `--ipc-stop-after-transfer`
+- Agent B als lokaler IPC-Server
+- Agent A als lokaler IPC-Client
+- Two-Process-Harness `tools/LocalIpcHarness/`
+- Startscript `tools/run-local-ipc.ps1`
+- Fehlerfallpruefungen fuer nicht erreichbaren Server, ungueltige Nachricht, unbekannten MessageType, falsche TargetAgentId, TransferRequest ohne Payload und Timeout
+- Local-IPC-Test in `tools/run-tests.ps1` mit 30-Sekunden-Timeout
+- Dokumentation `Docs/Development/LocalIpcTwoProcessTest.md`
+
+Nicht im Umfang:
+
+- Netzwerkkommunikation ueber TCP oder UDP
+- Remote-Kommunikation
+- echte Discovery
+- Betriebssystemdienst-Installation
+- GUI-Kommunikationspartner
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA004.03
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation und den ersten lokalen Zwei-Prozess-IPC-Test ueber Named Pipes. Der naechste Teilauftrag ist MA004.04 Local Discovery Simulation.
 
 ## Querverweise
 
@@ -360,6 +392,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 - `Docs/Development/DeveloperWorkspaceStudio.md`
 - `Docs/Development/WorkspaceAgentRuntime.md`
 - `Docs/Development/DualAgentSimulation.md`
+- `Docs/Development/LocalIpcTwoProcessTest.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `README.md`
 
@@ -367,6 +400,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.12.0 | 2026-07-02 | MA004.03 Local IPC Two Process Test dokumentiert. |
 | 0.11.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation dokumentiert. |
 | 0.10.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime dokumentiert. |
 | 0.9.0 | 2026-07-02 | MA003.08 Developer Workspace Studio dokumentiert. |

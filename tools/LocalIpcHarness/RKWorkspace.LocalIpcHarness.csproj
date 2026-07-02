@@ -7,7 +7,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Communication\RKWorkspace.LocalIpc\RKWorkspace.LocalIpc.csproj" />
-    <ProjectReference Include="..\..\Core\RKWorkspace.Core.csproj" />
+    <ProjectReference Include="..\..\src\Communication\RKWorkspace.LocalIpc\RKWorkspace.LocalIpc.csproj" />
   </ItemGroup>
 </Project>

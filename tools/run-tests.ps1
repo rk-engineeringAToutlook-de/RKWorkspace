@@ -104,3 +104,71 @@ if (-not $dualAgentText.Contains('Transfer Result: SUCCESS')) {
 if (-not $dualAgentText.Contains('RESULT: SUCCESS')) {
     throw "Dual Agent Harness Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Local IPC Two Process Test'
+Write-Host '--------------------------'
+$localIpcScript = Join-Path $root 'tools\run-local-ipc.ps1'
+$localIpcStdOut = [System.IO.Path]::GetTempFileName()
+$localIpcStdErr = [System.IO.Path]::GetTempFileName()
+try {
+    $localIpcProcess = Start-Process `
+        -FilePath 'powershell' `
+        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$localIpcScript`"" `
+        -RedirectStandardOutput $localIpcStdOut `
+        -RedirectStandardError $localIpcStdErr `
+        -PassThru
+
+    if (-not $localIpcProcess.WaitForExit(30000)) {
+        try {
+            $localIpcProcess.Kill()
+        }
+        catch {
+        }
+
+        throw 'Local IPC Two Process Test timed out after 30 seconds.'
+    }
+
+    $localIpcOutput = @()
+    if (Test-Path $localIpcStdOut) {
+        $localIpcOutput += Get-Content $localIpcStdOut
+    }
+
+    if (Test-Path $localIpcStdErr) {
+        $localIpcOutput += Get-Content $localIpcStdErr
+    }
+
+    $localIpcOutput | ForEach-Object { Write-Host $_ }
+    if ($localIpcProcess.ExitCode -ne 0) {
+        throw "Local IPC Two Process Test failed with exit code $($localIpcProcess.ExitCode)."
+    }
+
+    $localIpcText = $localIpcOutput -join [Environment]::NewLine
+    if (-not $localIpcText.Contains('RK Workspace Local IPC Harness')) {
+        throw "Local IPC Two Process Test failed because output did not contain RK Workspace Local IPC Harness."
+    }
+
+    if (-not $localIpcText.Contains('AgentHello: OK')) {
+        throw "Local IPC Two Process Test failed because output did not contain AgentHello: OK."
+    }
+
+    if (-not $localIpcText.Contains('StatusRequest: OK')) {
+        throw "Local IPC Two Process Test failed because output did not contain StatusRequest: OK."
+    }
+
+    if (-not $localIpcText.Contains('TransferRequest: OK')) {
+        throw "Local IPC Two Process Test failed because output did not contain TransferRequest: OK."
+    }
+
+    if (-not $localIpcText.Contains('TransferResponse: SUCCESS')) {
+        throw "Local IPC Two Process Test failed because output did not contain TransferResponse: SUCCESS."
+    }
+
+    if (-not $localIpcText.Contains('RESULT: SUCCESS')) {
+        throw "Local IPC Two Process Test failed because output did not contain RESULT: SUCCESS."
+    }
+}
+finally {
+    Remove-Item -LiteralPath $localIpcStdOut -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $localIpcStdErr -Force -ErrorAction SilentlyContinue
+}

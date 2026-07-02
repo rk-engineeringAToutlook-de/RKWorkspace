@@ -1,7 +1,7 @@
 # Dual Local Agent Simulation
 
 Dokument-ID: RKWS-DEV-DUAL-AGENT-SIMULATION
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -9,7 +9,7 @@ Datum: 2026-07-02
 
 Die Dual Local Agent Simulation ist der erste Nachweis, dass zwei RK Workspace Agenten gleichzeitig betrieben werden koennen. Beide Agenten laufen noch im selben Testprozess, werden aber als getrennte Runtime-Instanzen behandelt.
 
-Der Harness bereitet MA004.03 Local IPC vor. Erst dort kommunizieren zwei echte Prozesse miteinander.
+Der Harness bereitet MA004.03 Local IPC vor. Ab MA004.03 kommunizieren zwei echte Agent-Prozesse lokal ueber Named Pipes miteinander.
 
 ## Architektur
 
@@ -91,8 +91,13 @@ RESULT: SUCCESS
 - keine Firmware
 - keine Hardware
 
+## Nachfolger
+
+MA004.03 fuehrt `tools/LocalIpcHarness/` und `tools/run-local-ipc.ps1` ein. Dort laufen Agent A und Agent B erstmals als getrennte Prozesse und kommunizieren lokal ueber Named Pipes.
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | Nachfolger MA004.03 Local IPC ergaenzt. |
 | 1.0.0 | 2026-07-02 | Dual Local Agent Simulation fuer MA004.02 dokumentiert. |

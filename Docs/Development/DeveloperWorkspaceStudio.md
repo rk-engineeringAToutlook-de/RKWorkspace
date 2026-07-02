@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -68,6 +68,10 @@ Das Studio verwendet echte Core-Komponenten:
 
 Der Ablauf wird nicht als separate Studio-Logik dupliziert. Das Studio ruft den vorhandenen Core auf und visualisiert dessen Zustand.
 
+## IPC-Hinweis
+
+Developer Studio zeigt aktuell lokale Simulationen und Dual-Agent-Diagnose. Die IPC-Anbindung folgt spaeter.
+
 ## Nicht-Ziele
 
 - keine Netzwerkfunktion
@@ -85,9 +89,11 @@ Der Ablauf wird nicht als separate Studio-Logik dupliziert. Das Studio ruft den 
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
 - Das Studio nutzt Demo-Daten und keine automatische Discovery.
+- Das Studio spricht in MA004.03 noch nicht selbst mit dem Local-IPC-Kanal.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | Hinweis zur spaeteren IPC-Anbindung ergaenzt. |
 | 1.0.0 | 2026-07-02 | Developer Workspace Studio fuer MA003.08 dokumentiert. |

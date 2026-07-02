@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -48,6 +48,8 @@ flowchart TB
 Ab MA004.01 prueft `tools/run-tests.ps1` zusaetzlich den Agent Smoke-Test mit `tools/run-agent.ps1 -Once`.
 
 Ab MA004.02 prueft `tools/run-tests.ps1` zusaetzlich den Dual-Agent-Harness mit `tools/run-dual-agent.ps1`.
+
+Ab MA004.03 prueft `tools/run-tests.ps1` zusaetzlich den Local-IPC-Zwei-Prozess-Test mit `tools/run-local-ipc.ps1`. Dieser Teil ist durch einen aeusseren 30-Sekunden-Timeout gegen Haenger abgesichert.
 
 ## MA003.05 Core Integration Tests
 
@@ -160,6 +162,37 @@ Der Dual-Agent-Harness prueft:
 - Ausgabe enthaelt `Transfer Result: SUCCESS`.
 - Ausgabe enthaelt `RESULT: SUCCESS`.
 
+## MA004.03 Local IPC Two Process Tests
+
+MA004.03 fuehrt `src/Communication/RKWorkspace.LocalIpc/`, `tools/LocalIpcHarness/` und `tools/run-local-ipc.ps1` ein. Der Test startet zwei echte Agent-Prozesse auf demselben Rechner und verwendet Named Pipes als lokale IPC-Technik.
+
+Der Local-IPC-Harness prueft:
+
+- Agent B startet als eigener Prozess und oeffnet einen lokalen Named-Pipe-Server.
+- Agent A startet als eigener Prozess und verbindet sich als Named-Pipe-Client.
+- AgentHello funktioniert.
+- AgentStatusRequest und AgentStatusResponse funktionieren.
+- TransferRequest funktioniert.
+- TransferResponse liefert `SUCCESS`.
+- Agent A und Agent B stoppen sauber.
+- nicht erreichbarer Server wird sauber gemeldet.
+- ungueltige Nachricht wird sauber gemeldet.
+- unbekannter MessageType wird sauber gemeldet.
+- falsche TargetAgentId wird sauber gemeldet.
+- TransferRequest ohne Payload wird sauber gemeldet.
+- Timeout wird sauber gemeldet.
+
+`tools/run-tests.ps1` prueft fuer den Harness:
+
+- Exitcode 0.
+- Ausgabe enthaelt `RK Workspace Local IPC Harness`.
+- Ausgabe enthaelt `AgentHello: OK`.
+- Ausgabe enthaelt `StatusRequest: OK`.
+- Ausgabe enthaelt `TransferRequest: OK`.
+- Ausgabe enthaelt `TransferResponse: SUCCESS`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+- externer Timeout maximal 30 Sekunden.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -171,6 +204,7 @@ Der Dual-Agent-Harness prueft:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-02 | MA004.03 Local IPC Two Process Tests dokumentiert. |
 | 1.7.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation Tests dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime Smoke-Test dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA003.08 Developer Workspace Studio Tests dokumentiert. |
