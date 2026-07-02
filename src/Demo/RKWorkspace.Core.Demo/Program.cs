@@ -1,25 +1,39 @@
 using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Plugins;
+using RKWorkspace.Core.Runtime;
 using RKWorkspace.Core.TransferObjects;
 using RKWorkspace.Core.Transfers;
 using RKWorkspace.Core.Workspaces;
+
+RuntimeEngine? runtime = null;
 
 try
 {
     Console.WriteLine("RK Workspace Core Demo");
     Console.WriteLine("======================");
 
-    var pluginManager = new PluginManager();
-    Console.WriteLine("[OK] Plugin Manager initialized");
+    runtime = new RuntimeEngine(new RuntimeConfiguration
+    {
+        LoggingEnabled = true,
+        SimulationEnabled = true,
+        DiagnosticsEnabled = true
+    });
+    Console.WriteLine("[OK] Runtime Engine created");
 
-    var capabilityManager = new CapabilityManager();
-    Console.WriteLine("[OK] Capability Manager initialized");
+    runtime.Start();
+    Console.WriteLine("[OK] Runtime Engine started");
 
-    var workspaceRegistry = new WorkspaceRegistry();
-    Console.WriteLine("[OK] Workspace Registry initialized");
+    var pluginManager = runtime.PluginManager;
+    Console.WriteLine("[OK] Plugin Manager initialized by Runtime");
 
-    var transferObjectManager = new TransferObjectManager();
-    Console.WriteLine("[OK] Transfer Object Manager initialized");
+    var capabilityManager = runtime.CapabilityManager;
+    Console.WriteLine("[OK] Capability Manager initialized by Runtime");
+
+    var workspaceRegistry = runtime.WorkspaceRegistry;
+    Console.WriteLine("[OK] Workspace Registry initialized by Runtime");
+
+    var transferObjectManager = runtime.TransferObjectManager;
+    Console.WriteLine("[OK] Transfer Object Manager initialized by Runtime");
 
     var transferEngine = new TransferEngine(
         workspaceRegistry,
@@ -142,12 +156,24 @@ try
     Console.WriteLine("ObjectType: Text");
     Console.WriteLine("Text: \"Hallo von RK Workspace\"");
     Console.WriteLine($"FinalState: {finalObject.State}");
+    var diagnostics = runtime.GetDiagnostics();
+    Console.WriteLine($"RuntimeState: {diagnostics.RuntimeState}");
+    Console.WriteLine($"RuntimePlugins: {diagnostics.PluginCount}");
+    Console.WriteLine($"RuntimeWorkspaces: {diagnostics.WorkspaceCount}");
+    Console.WriteLine($"RuntimeTransferObjects: {diagnostics.TransferObjectCount}");
     Console.WriteLine();
+    runtime.Shutdown();
+    Console.WriteLine("[OK] Runtime shutdown");
     Console.WriteLine("RESULT: SUCCESS");
     return 0;
 }
 catch (Exception ex)
 {
+    if (runtime is not null && runtime.GetStatus() is RuntimeState.Running or RuntimeState.Paused)
+    {
+        runtime.Shutdown();
+    }
+
     Console.WriteLine();
     Console.WriteLine("RESULT: FAILED");
     Console.WriteLine($"Reason: {ex.Message}");
@@ -155,8 +181,8 @@ catch (Exception ex)
 }
 
 static void RegisterWorkspace(
-    WorkspaceRegistry workspaceRegistry,
-    CapabilityManager capabilityManager,
+    IWorkspaceRegistry workspaceRegistry,
+    ICapabilityManager capabilityManager,
     WorkspaceDescriptor descriptor)
 {
     workspaceRegistry.RegisterWorkspace(RKWorkspace.Core.Workspaces.Workspace.FromDescriptor(descriptor));

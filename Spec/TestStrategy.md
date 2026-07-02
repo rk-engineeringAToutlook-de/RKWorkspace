@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -86,6 +86,18 @@ Die Core-Integrationstests verwenden ab MA003.07 die Transfer Engine statt manue
 
 Der Demo Runner nutzt ebenfalls `TransferEngine.ExecuteLogicalTransfer`. Damit laufen Unit-Tests, Integration-Tests und sichtbare Demo ueber denselben logischen Core-Pfad.
 
+## MA003.07 Core Runtime Orchestrator Tests
+
+Der Core Runtime Orchestrator wird in Unit-Tests und Integrationstests geprueft. Die Unit-Tests decken RuntimeState, RuntimeConfiguration, Start, Stop, Pause, Resume, Shutdown, Diagnostics, ungueltige Uebergaenge, Initialisierungsfehler und Plattformneutralitaet ab.
+
+Die Integrationstests verwenden die Runtime Engine fuer alle bisherigen Core-Szenarien. Zusaetzlich pruefen sie:
+
+- Runtime initialisiert Plugin Manager, Capability Manager, Workspace Registry und Transfer Object Manager.
+- Runtime stoppt aktivierte Plugins sauber.
+- Runtime Diagnostics melden RuntimeState, Runtime-Version, Startzeit und Komponentenzaehler korrekt.
+
+Der Demo Runner startet ab diesem Stand zuerst `RuntimeEngine.Start()` und verwendet danach nur die von der Runtime bereitgestellten Manager.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -97,6 +109,7 @@ Der Demo Runner nutzt ebenfalls `TransferEngine.ExecuteLogicalTransfer`. Damit l
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-02 | Core Runtime Orchestrator Tests dokumentiert. |
 | 1.3.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime Tests dokumentiert. |
 | 1.2.0 | 2026-07-02 | MA003.06 Core Demo Runner Test dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA003.05 Core Integration Tests und getrennte Testausgabe dokumentiert. |

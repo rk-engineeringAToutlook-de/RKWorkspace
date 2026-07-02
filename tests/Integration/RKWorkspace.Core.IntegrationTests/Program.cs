@@ -54,6 +54,30 @@ var tests = new (string Name, Func<CoreIntegrationScenarioResult> Body, Action<C
             Assert.Equal("workspace-high", result.SelectedTarget);
         }),
     (
+        "CoreIntegrationScenario_RuntimeInitializesAllCoreComponents",
+        runner.RuntimeInitializesAllCoreComponents,
+        result =>
+        {
+            Assert.Success(result);
+            Assert.Contains("All core managers resolved from Runtime Engine.", result.Steps);
+        }),
+    (
+        "CoreIntegrationScenario_RuntimeStopsCoreComponentsCleanly",
+        runner.RuntimeStopsCoreComponentsCleanly,
+        result =>
+        {
+            Assert.Success(result);
+            Assert.Contains("Runtime Engine stopped.", result.Steps);
+        }),
+    (
+        "CoreIntegrationScenario_RuntimeDiagnosticsCorrect",
+        runner.RuntimeDiagnosticsCorrect,
+        result =>
+        {
+            Assert.Success(result);
+            Assert.Contains("Runtime diagnostics fixtures registered.", result.Steps);
+        }),
+    (
         "Core integration assembly has no platform dependencies",
         PlatformDependencies,
         result => Assert.Success(result))

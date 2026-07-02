@@ -1,7 +1,7 @@
 # RKWS Specification Index
 
 Dokument-ID: RKWS-SPEC-INDEX  
-Version: 0.4.0  
+Version: 0.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -19,6 +19,7 @@ flowchart TB
     Plugin --> Capability["CapabilityModel"]
     Capability --> Matrix["WorkspaceCapabilityMatrix"]
     Plugin --> Layer["LayerModel"]
+    Layer --> Runtime["RuntimeArchitecture"]
     Object --> State["StateMachine"]
     State --> Protocol["Protocol"]
     Security["SecurityModel"] --> Protocol
@@ -37,6 +38,7 @@ flowchart TB
 - `PluginArchitecture.md`
 - `PluginDependencyDiagram.md`
 - `LayerModel.md`
+- `RuntimeArchitecture.md`
 - `CapabilityModel.md`
 - `WorkspaceCapabilityMatrix.md`
 - `ObjectModel.md`
@@ -74,6 +76,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.5.0 | 2026-07-02 | RuntimeArchitecture fuer Core Runtime Orchestrator aufgenommen. |
 | 0.4.0 | 2026-07-02 | Readiness- und Glossarverweise fuer MA002B ergaenzt. |
 | 0.3.0 | 2026-07-02 | Architecture Baseline Completion 002A in den Spezifikationsindex aufgenommen. |
 | 0.2.0 | 2026-07-02 | Spezifikationsindex fuer Master-Arbeitsauftrag 002 erweitert. |

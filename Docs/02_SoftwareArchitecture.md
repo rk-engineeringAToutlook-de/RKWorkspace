@@ -1,7 +1,7 @@
 # 02 Software Architecture
 
 Dokument-ID: RKWS-DOC-02  
-Version: 0.3.0  
+Version: 0.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -12,7 +12,7 @@ Die Softwarearchitektur schuetzt RK Workspace vor einer fruehen Verengung auf ei
 ## Projektlayout
 
 ```text
-src/Core              Plattformneutrale Modelle, Regeln und Simulation
+src/Core              Plattformneutrale Modelle, Regeln, Runtime und Simulation
 src/Windows           Spaeterer Windows-Agent
 src/macOS             Spaeterer macOS-Agent
 src/Linux             Spaeterer Linux-Agent
@@ -35,43 +35,35 @@ Der Core enthaelt keine Clipboard-API-Aufrufe, keine Dateisystem-Watcher bestimm
 
 ```mermaid
 classDiagram
-    class Workspace {
-        WorkspaceId
-        DisplayName
-        DeviceId
-        Platform
-        Capabilities
-        Position
-        TrustState
-        LastSeen
+    class RuntimeEngine {
+        Initialize()
+        Start()
+        Stop()
+        Pause()
+        Resume()
+        Shutdown()
     }
-    class DeviceIdentity {
-        DeviceId
-        DisplayName
-        Platform
-        PublicKeyFingerprint
-        PairingId
-    }
-    class TransferObject {
-        ObjectId
-        ObjectType
-        SourceWorkspaceId
-        TargetWorkspaceId
-        PayloadReference
-        Checksum
-        EncryptionInfo
-    }
+    class PluginManager
+    class CapabilityManager
+    class WorkspaceRegistry
+    class TransferObjectManager
+    class TransferEngine
     class WorkspaceMap
     class TransferPlanner
     class LocalTransferSimulation
 
-    Workspace --> DeviceIdentity
+    RuntimeEngine --> PluginManager
+    RuntimeEngine --> CapabilityManager
+    RuntimeEngine --> WorkspaceRegistry
+    RuntimeEngine --> TransferObjectManager
+    TransferEngine --> WorkspaceRegistry
+    TransferEngine --> CapabilityManager
+    TransferEngine --> TransferObjectManager
     TransferPlanner --> WorkspaceMap
-    TransferPlanner --> TransferObject
     LocalTransferSimulation --> TransferPlanner
 ```
 
-`WorkspaceMap` loest Richtungen auf Arbeitsflaechen auf. `TransferPlanner` prueft Trust-State und Capabilities und erzeugt Transferobjekte. `LocalTransferSimulation` bildet den ersten nachweisbaren Ablauf ab: zwei simulierte Arbeitsflaechen, Richtung `Right`, Textobjekt, vollstaendiges Log.
+`RuntimeEngine` steuert den Lebenszyklus der zentralen Core-Manager. `TransferEngine` fuehrt den logischen Transferpfad ueber Workspace Registry, Capability Manager und Transfer Object Manager aus. `WorkspaceMap` und `TransferPlanner` bleiben als fruehe neutrale Modell- und Simulationsbausteine erhalten. `LocalTransferSimulation` bildet den ersten nachweisbaren Ablauf ab: zwei simulierte Arbeitsflaechen, Richtung `Right`, Textobjekt, vollstaendiges Log.
 
 ## Plugin-Grenze
 
@@ -87,6 +79,7 @@ Der erste Test-Runner nutzt bewusst keine externen NuGet-Testframeworks. Dadurch
 - `Spec/PluginArchitecture.md`
 - `Spec/PluginDependencyDiagram.md`
 - `Spec/LayerModel.md`
+- `Spec/RuntimeArchitecture.md`
 - `Spec/ObjectModel.md`
 - `Spec/StateMachine.md`
 - `Spec/TestStrategy.md`
@@ -95,6 +88,7 @@ Der erste Test-Runner nutzt bewusst keine externen NuGet-Testframeworks. Dadurch
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.4.0 | 2026-07-02 | Core Runtime Orchestrator und aktualisiertes Core-Diagramm ergaenzt. |
 | 0.3.0 | 2026-07-02 | Plugin-Grenze fuer Architecture Baseline Completion ergaenzt. |
 | 0.2.0 | 2026-07-02 | Architektur-Freeze-Verweise ergaenzt. |
 | 0.1.0 | 2026-07-02 | Softwarearchitektur angelegt. |

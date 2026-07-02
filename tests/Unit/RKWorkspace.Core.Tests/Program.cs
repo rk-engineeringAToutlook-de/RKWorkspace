@@ -35,6 +35,10 @@ using CoreTransferPlan = RKWorkspace.Core.Transfers.TransferPlan;
 using CoreTransferRequest = RKWorkspace.Core.Transfers.TransferRequest;
 using CoreTransferStep = RKWorkspace.Core.Transfers.TransferStep;
 using CoreTransferStepStatus = RKWorkspace.Core.Transfers.TransferStepStatus;
+using CoreRuntimeConfiguration = RKWorkspace.Core.Runtime.RuntimeConfiguration;
+using CoreRuntimeEngine = RKWorkspace.Core.Runtime.RuntimeEngine;
+using CoreRuntimeException = RKWorkspace.Core.Runtime.RuntimeException;
+using CoreRuntimeState = RKWorkspace.Core.Runtime.RuntimeState;
 
 var tests = new (string Name, Action Body)[]
 {
@@ -130,7 +134,17 @@ var tests = new (string Name, Action Body)[]
     ("TransferEngine cancels transfers", TransferEngineCancelsTransfers),
     ("TransferEngine fails transfers", TransferEngineFailsTransfers),
     ("TransferEngine executes logical transfers successfully", TransferEngineExecutesLogicalTransfersSuccessfully),
-    ("Transfer engine core assembly has no platform dependencies", TransferEngineCoreAssemblyHasNoPlatformDependencies)
+    ("Transfer engine core assembly has no platform dependencies", TransferEngineCoreAssemblyHasNoPlatformDependencies),
+    ("RuntimeState covers the core lifecycle", RuntimeStateCoversCoreLifecycle),
+    ("RuntimeConfiguration stores neutral flags", RuntimeConfigurationStoresNeutralFlags),
+    ("RuntimeEngine starts core managers", RuntimeEngineStartsCoreManagers),
+    ("RuntimeEngine stops core managers", RuntimeEngineStopsCoreManagers),
+    ("RuntimeEngine pauses and resumes", RuntimeEnginePausesAndResumes),
+    ("RuntimeEngine shuts down", RuntimeEngineShutsDown),
+    ("RuntimeEngine reports diagnostics", RuntimeEngineReportsDiagnostics),
+    ("RuntimeEngine rejects invalid transitions", RuntimeEngineRejectsInvalidTransitions),
+    ("RuntimeEngine records initialization failures", RuntimeEngineRecordsInitializationFailures),
+    ("Runtime engine core assembly has no platform dependencies", RuntimeEngineCoreAssemblyHasNoPlatformDependencies)
 };
 
 var failed = 0;
@@ -1828,6 +1842,181 @@ static void TransferEngineCoreAssemblyHasNoPlatformDependencies()
     };
 
     var references = typeof(CoreTransferEngine)
+        .Assembly
+        .GetReferencedAssemblies()
+        .Select(reference => reference.Name ?? string.Empty)
+        .Where(name => forbiddenFragments.Any(fragment => name.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        .ToArray();
+
+    Assert.Equal(0, references.Length);
+}
+
+static void RuntimeStateCoversCoreLifecycle()
+{
+    var expectedStates = new[]
+    {
+        CoreRuntimeState.Created,
+        CoreRuntimeState.Initializing,
+        CoreRuntimeState.Running,
+        CoreRuntimeState.Paused,
+        CoreRuntimeState.Stopping,
+        CoreRuntimeState.Stopped,
+        CoreRuntimeState.Failed
+    };
+
+    Assert.Equal(expectedStates.Length, Enum.GetValues<CoreRuntimeState>().Length);
+    Assert.True(expectedStates.All(state => Enum.IsDefined(state)));
+}
+
+static void RuntimeConfigurationStoresNeutralFlags()
+{
+    var configuration = new CoreRuntimeConfiguration
+    {
+        LoggingEnabled = false,
+        SimulationEnabled = true,
+        TestModeEnabled = true,
+        DiagnosticsEnabled = true,
+        DebugModeEnabled = true
+    };
+
+    var snapshot = configuration.Snapshot();
+
+    Assert.False(snapshot.LoggingEnabled);
+    Assert.True(snapshot.SimulationEnabled);
+    Assert.True(snapshot.TestModeEnabled);
+    Assert.True(snapshot.DiagnosticsEnabled);
+    Assert.True(snapshot.DebugModeEnabled);
+}
+
+static void RuntimeEngineStartsCoreManagers()
+{
+    var runtime = new CoreRuntimeEngine(new CoreRuntimeConfiguration { TestModeEnabled = true });
+
+    runtime.Start();
+
+    Assert.Equal(CoreRuntimeState.Running, runtime.GetStatus());
+    Assert.NotNull(runtime.PluginManager);
+    Assert.NotNull(runtime.CapabilityManager);
+    Assert.NotNull(runtime.WorkspaceRegistry);
+    Assert.NotNull(runtime.TransferObjectManager);
+}
+
+static void RuntimeEngineStopsCoreManagers()
+{
+    var runtime = new CoreRuntimeEngine(new CoreRuntimeConfiguration { TestModeEnabled = true });
+    var plugin = FakePlugin.Create("runtime.plugin", PluginType.Testing, "Runtime plugin");
+
+    runtime.Start();
+    Assert.Success(runtime.PluginManager.RegisterPlugin(plugin));
+    Assert.Success(runtime.PluginManager.ActivatePlugin(plugin.PluginId));
+
+    runtime.Stop();
+
+    Assert.Equal(CoreRuntimeState.Stopped, runtime.GetStatus());
+    Assert.Equal(PluginState.Unloaded, plugin.State);
+    Assert.Equal(1, plugin.DeactivateCount);
+    Assert.Equal(1, plugin.ShutdownCount);
+}
+
+static void RuntimeEnginePausesAndResumes()
+{
+    var runtime = new CoreRuntimeEngine(new CoreRuntimeConfiguration { TestModeEnabled = true });
+
+    runtime.Start();
+    runtime.Pause();
+    Assert.Equal(CoreRuntimeState.Paused, runtime.GetStatus());
+
+    runtime.Resume();
+
+    Assert.Equal(CoreRuntimeState.Running, runtime.GetStatus());
+}
+
+static void RuntimeEngineShutsDown()
+{
+    var runtime = new CoreRuntimeEngine(new CoreRuntimeConfiguration { TestModeEnabled = true });
+
+    runtime.Start();
+    runtime.Shutdown();
+
+    Assert.Equal(CoreRuntimeState.Stopped, runtime.GetStatus());
+}
+
+static void RuntimeEngineReportsDiagnostics()
+{
+    var runtime = new CoreRuntimeEngine(new CoreRuntimeConfiguration
+    {
+        TestModeEnabled = true,
+        DiagnosticsEnabled = true
+    });
+
+    runtime.Start();
+    Assert.Success(runtime.PluginManager.RegisterPlugin(
+        FakePlugin.Create("runtime.diagnostics", PluginType.Testing, "Runtime diagnostics")));
+    runtime.WorkspaceRegistry.RegisterWorkspace(RegistryWorkspace.FromDescriptor(RightTarget("workspace-runtime")));
+    runtime.TransferObjectManager.Create(
+        ManagedTransferObjectType.Text,
+        ManagedMetadata("runtime-object", targetWorkspace: string.Empty));
+
+    var diagnostics = runtime.GetDiagnostics();
+
+    Assert.Equal(CoreRuntimeState.Running, diagnostics.RuntimeState);
+    Assert.Equal(1, diagnostics.PluginCount);
+    Assert.Equal(1, diagnostics.WorkspaceCount);
+    Assert.Equal(1, diagnostics.TransferObjectCount);
+    Assert.True(diagnostics.StartTime.HasValue);
+    Assert.True(diagnostics.Uptime >= TimeSpan.Zero);
+    Assert.True(!string.IsNullOrWhiteSpace(diagnostics.RuntimeVersion));
+}
+
+static void RuntimeEngineRejectsInvalidTransitions()
+{
+    var runtime = new CoreRuntimeEngine(new CoreRuntimeConfiguration { TestModeEnabled = true });
+
+    Assert.Throws<CoreRuntimeException>(() => runtime.Pause());
+
+    runtime.Start();
+
+    Assert.Throws<CoreRuntimeException>(() => runtime.Start());
+    Assert.Throws<CoreRuntimeException>(() => runtime.Resume());
+
+    runtime.Pause();
+
+    Assert.Throws<CoreRuntimeException>(() => runtime.Start());
+    runtime.Resume();
+    runtime.Stop();
+
+    Assert.Throws<CoreRuntimeException>(() => runtime.Stop());
+    Assert.True(runtime.GetDiagnostics().Errors.Count >= 4);
+}
+
+static void RuntimeEngineRecordsInitializationFailures()
+{
+    var runtime = new CoreRuntimeEngine(
+        new CoreRuntimeConfiguration { TestModeEnabled = true },
+        pluginManagerFactory: () => throw new InvalidOperationException("factory failed"));
+
+    Assert.Throws<CoreRuntimeException>(() => runtime.Start());
+
+    var diagnostics = runtime.GetDiagnostics();
+
+    Assert.Equal(CoreRuntimeState.Failed, diagnostics.RuntimeState);
+    Assert.True(diagnostics.Errors.Any(error => error.Contains("factory failed", StringComparison.Ordinal)));
+}
+
+static void RuntimeEngineCoreAssemblyHasNoPlatformDependencies()
+{
+    var forbiddenFragments = new[]
+    {
+        "Windows",
+        "Presentation",
+        "WinForms",
+        "Wpf",
+        "UIKit",
+        "AppKit",
+        "Android"
+    };
+
+    var references = typeof(CoreRuntimeEngine)
         .Assembly
         .GetReferencedAssemblies()
         .Select(reference => reference.Name ?? string.Empty)

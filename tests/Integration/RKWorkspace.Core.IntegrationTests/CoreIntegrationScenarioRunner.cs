@@ -1,5 +1,6 @@
 using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Plugins;
+using RKWorkspace.Core.Runtime;
 using RKWorkspace.Core.TransferObjects;
 using RKWorkspace.Core.Transfers;
 using RKWorkspace.Core.Workspaces;
@@ -124,21 +125,199 @@ internal sealed class CoreIntegrationScenarioRunner
         });
     }
 
-    private static CoreIntegrationScenarioResult RunTransferScenario(ScenarioOptions options)
+    public CoreIntegrationScenarioResult RuntimeInitializesAllCoreComponents()
     {
         var steps = new List<string>();
+        var runtime = new RuntimeEngine(new RuntimeConfiguration
+        {
+            TestModeEnabled = true,
+            DiagnosticsEnabled = true
+        });
 
         try
         {
-            var pluginManager = new PluginManager();
-            var capabilityManager = new CapabilityManager();
-            var workspaceRegistry = new WorkspaceRegistry();
-            var transferObjectManager = new TransferObjectManager();
+            runtime.Start();
+            steps.Add("Runtime Engine started.");
+
+            _ = runtime.PluginManager;
+            _ = runtime.CapabilityManager;
+            _ = runtime.WorkspaceRegistry;
+            _ = runtime.TransferObjectManager;
+            steps.Add("All core managers resolved from Runtime Engine.");
+
+            return new CoreIntegrationScenarioResult
+            {
+                ScenarioName = "CoreIntegrationScenario_RuntimeInitializesAllCoreComponents",
+                IsSuccess = runtime.GetStatus() == RuntimeState.Running,
+                Steps = steps,
+                ErrorMessage = runtime.GetStatus() == RuntimeState.Running
+                    ? string.Empty
+                    : $"Unexpected runtime state: {runtime.GetStatus()}."
+            };
+        }
+        catch (Exception ex)
+        {
+            return Failure("CoreIntegrationScenario_RuntimeInitializesAllCoreComponents", steps, ex.Message);
+        }
+        finally
+        {
+            ShutdownRuntime(runtime, steps);
+        }
+    }
+
+    public CoreIntegrationScenarioResult RuntimeStopsCoreComponentsCleanly()
+    {
+        var steps = new List<string>();
+        var runtime = new RuntimeEngine(new RuntimeConfiguration
+        {
+            TestModeEnabled = true,
+            DiagnosticsEnabled = true
+        });
+
+        try
+        {
+            runtime.Start();
+            steps.Add("Runtime Engine started.");
+
+            var plugin = new IntegrationPlugin(
+                "integration.runtime.stop",
+                PluginType.Testing,
+                "Runtime stop scenario",
+                new[] { CapabilityId.Testing.ToString() });
+            var registration = runtime.PluginManager.RegisterPlugin(plugin);
+            if (!registration.Success)
+            {
+                return Failure(
+                    "CoreIntegrationScenario_RuntimeStopsCoreComponentsCleanly",
+                    steps,
+                    $"Plugin registration failed: {registration.Error?.Code}");
+            }
+
+            var activation = runtime.PluginManager.ActivatePlugin(plugin.PluginId);
+            if (!activation.Success)
+            {
+                return Failure(
+                    "CoreIntegrationScenario_RuntimeStopsCoreComponentsCleanly",
+                    steps,
+                    $"Plugin activation failed: {activation.Error?.Code}");
+            }
+
+            steps.Add("Runtime plugin activated.");
+
+            runtime.Stop();
+            steps.Add("Runtime Engine stopped.");
+
+            return new CoreIntegrationScenarioResult
+            {
+                ScenarioName = "CoreIntegrationScenario_RuntimeStopsCoreComponentsCleanly",
+                IsSuccess = runtime.GetStatus() == RuntimeState.Stopped &&
+                    plugin.State == PluginState.Unloaded,
+                Steps = steps,
+                ErrorMessage = runtime.GetStatus() == RuntimeState.Stopped &&
+                    plugin.State == PluginState.Unloaded
+                        ? string.Empty
+                        : $"Unexpected runtime/plugin state: {runtime.GetStatus()}/{plugin.State}."
+            };
+        }
+        catch (Exception ex)
+        {
+            return Failure("CoreIntegrationScenario_RuntimeStopsCoreComponentsCleanly", steps, ex.Message);
+        }
+        finally
+        {
+            ShutdownRuntime(runtime, steps);
+        }
+    }
+
+    public CoreIntegrationScenarioResult RuntimeDiagnosticsCorrect()
+    {
+        var steps = new List<string>();
+        var runtime = new RuntimeEngine(new RuntimeConfiguration
+        {
+            TestModeEnabled = true,
+            DiagnosticsEnabled = true
+        });
+
+        try
+        {
+            runtime.Start();
+            steps.Add("Runtime Engine started.");
+
+            var plugin = new IntegrationPlugin(
+                "integration.runtime.diagnostics",
+                PluginType.Testing,
+                "Runtime diagnostics scenario",
+                new[] { CapabilityId.Testing.ToString() });
+            var registration = runtime.PluginManager.RegisterPlugin(plugin);
+            if (!registration.Success)
+            {
+                return Failure(
+                    "CoreIntegrationScenario_RuntimeDiagnosticsCorrect",
+                    steps,
+                    $"Plugin registration failed: {registration.Error?.Code}");
+            }
+
+            var workspace = Workspace(
+                "workspace-diagnostics",
+                WorkspacePosition.Right,
+                priority: 1,
+                CapabilityId.Display,
+                CapabilityId.Clipboard);
+            RegisterWorkspace(runtime.WorkspaceRegistry, runtime.CapabilityManager, workspace);
+            runtime.TransferObjectManager.Create(
+                TransferObjectType.Text,
+                Metadata(workspace.WorkspaceId.ToString()));
+            steps.Add("Runtime diagnostics fixtures registered.");
+
+            var diagnostics = runtime.GetDiagnostics();
+            return new CoreIntegrationScenarioResult
+            {
+                ScenarioName = "CoreIntegrationScenario_RuntimeDiagnosticsCorrect",
+                IsSuccess = diagnostics.RuntimeState == RuntimeState.Running &&
+                    diagnostics.PluginCount == 1 &&
+                    diagnostics.WorkspaceCount == 1 &&
+                    diagnostics.TransferObjectCount == 1 &&
+                    !string.IsNullOrWhiteSpace(diagnostics.RuntimeVersion) &&
+                    diagnostics.StartTime.HasValue,
+                Steps = steps,
+                ErrorMessage = diagnostics.Errors.Count == 0
+                    ? string.Empty
+                    : string.Join(" ", diagnostics.Errors)
+            };
+        }
+        catch (Exception ex)
+        {
+            return Failure("CoreIntegrationScenario_RuntimeDiagnosticsCorrect", steps, ex.Message);
+        }
+        finally
+        {
+            ShutdownRuntime(runtime, steps);
+        }
+    }
+
+    private static CoreIntegrationScenarioResult RunTransferScenario(ScenarioOptions options)
+    {
+        var steps = new List<string>();
+        var runtime = new RuntimeEngine(new RuntimeConfiguration
+        {
+            TestModeEnabled = true,
+            DiagnosticsEnabled = true
+        });
+
+        try
+        {
+            runtime.Start();
+            steps.Add("Runtime Engine started.");
+
+            var pluginManager = runtime.PluginManager;
+            var capabilityManager = runtime.CapabilityManager;
+            var workspaceRegistry = runtime.WorkspaceRegistry;
+            var transferObjectManager = runtime.TransferObjectManager;
             var transferEngine = new TransferEngine(
                 workspaceRegistry,
                 capabilityManager,
                 transferObjectManager);
-            steps.Add("Core managers created.");
+            steps.Add("Core managers resolved from Runtime Engine.");
             steps.Add("Transfer Engine created.");
 
             var plugin = new IntegrationPlugin(
@@ -289,11 +468,15 @@ internal sealed class CoreIntegrationScenarioRunner
         {
             return Failure(options.Name, steps, ex.Message);
         }
+        finally
+        {
+            ShutdownRuntime(runtime, steps);
+        }
     }
 
     private static void RegisterWorkspace(
-        WorkspaceRegistry workspaceRegistry,
-        CapabilityManager capabilityManager,
+        IWorkspaceRegistry workspaceRegistry,
+        ICapabilityManager capabilityManager,
         WorkspaceDescriptor descriptor)
     {
         var workspace = RKWorkspace.Core.Workspaces.Workspace.FromDescriptor(descriptor);
@@ -357,6 +540,15 @@ internal sealed class CoreIntegrationScenarioRunner
             Steps = steps,
             ErrorMessage = errorMessage
         };
+    }
+
+    private static void ShutdownRuntime(RuntimeEngine runtime, ICollection<string> steps)
+    {
+        if (runtime.GetStatus() is RuntimeState.Running or RuntimeState.Paused)
+        {
+            runtime.Shutdown();
+            steps.Add("Runtime Engine shut down.");
+        }
     }
 
     private sealed class ScenarioOptions
