@@ -23,8 +23,14 @@ internal static class Program
     private static int RunSmokeTest()
     {
         var viewModel = new StudioViewModel();
-        var success = viewModel.RunFullDemo();
+        var success = viewModel.RunFullInteractiveDemo();
         var diagnostics = viewModel.Diagnostics;
+        var interactive = viewModel.InteractiveWorkspace;
+        var history = viewModel.TransferHistory.ToArray();
+        var interactiveSuccess = success &&
+            string.Equals(diagnostics.LastResult, "SUCCESS", StringComparison.Ordinal) &&
+            string.Equals(interactive.ObjectLocation, "Workspace B", StringComparison.Ordinal) &&
+            history.Any(entry => string.Equals(entry.Action, "State:Completed", StringComparison.Ordinal));
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -33,6 +39,9 @@ internal static class Program
         Console.WriteLine($"WorkspaceCount: {diagnostics.WorkspaceCount}");
         Console.WriteLine($"TransferObjectCount: {diagnostics.TransferObjectCount}");
         Console.WriteLine($"AgentCount: {viewModel.Agents.Count}");
+        Console.WriteLine($"InteractiveObjectLocation: {interactive.ObjectLocation}");
+        Console.WriteLine($"InteractiveObjectState: {interactive.ObjectState}");
+        Console.WriteLine($"InteractiveHistory: {string.Join(" -> ", history.Select(entry => entry.Action))}");
         foreach (var agent in viewModel.Agents)
         {
             Console.WriteLine($"Agent: {agent.AgentId} Runtime={agent.Runtime} Workspace={agent.Workspace} Status={agent.Status}");
@@ -40,10 +49,11 @@ internal static class Program
 
         Console.WriteLine($"LastResult: {diagnostics.LastResult}");
         Console.WriteLine($"LastError: {diagnostics.LastError}");
-        Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
+        Console.WriteLine(interactiveSuccess ? "InteractiveDemo: SUCCESS" : "InteractiveDemo: FAILED");
+        Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();
 
-        return success ? 0 : 1;
+        return interactiveSuccess ? 0 : 1;
     }
 }

@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.9.0
+Version: 2.0.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -52,6 +52,8 @@ Ab MA004.02 prueft `tools/run-tests.ps1` zusaetzlich den Dual-Agent-Harness mit 
 Ab MA004.03 prueft `tools/run-tests.ps1` zusaetzlich den Local-IPC-Zwei-Prozess-Test mit `tools/run-local-ipc.ps1`. Dieser Teil ist durch einen aeusseren 30-Sekunden-Timeout gegen Haenger abgesichert.
 
 Ab MA004.04 pruefen die Unit-Tests zusaetzlich die Transport Abstraction Layer und die NamedPipeTransport-Implementierung. Der Local-IPC-Zwei-Prozess-Test bleibt im Foundation-Check und laeuft intern ueber die TAL.
+
+Ab MA004.X prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Interactive Workspace Prototype. Der Smoke-Test bleibt viewmodelbasiert und erzwingt keine fragile UI-Automation.
 
 ## MA003.05 Core Integration Tests
 
@@ -216,6 +218,29 @@ Der Local-IPC-Harness prueft weiterhin den vollstaendigen Zwei-Prozess-Pfad:
 - Die alte LocalIpc-Schicht bleibt als Kompatibilitaetsschicht erhalten und mappt intern auf `TransportResult`.
 - Bestehende CLI-Optionen `--ipc-server`, `--ipc-client`, `--target-agent-id` und `--ipc-stop-after-transfer` bleiben kompatibel.
 
+## MA004.X Interactive Workspace Prototype Tests
+
+MA004.X erweitert das Developer Workspace Studio um den ersten interaktiven Bedienprototyp. Der manuelle Test erfolgt im sichtbaren Studio-Fenster: Textobjekt greifen, nach rechts ziehen, auf Workspace B loslassen und den abgeschlossenen Core-Transfer pruefen.
+
+Der automatisierte Smoke-Test bleibt bewusst viewmodelbasiert:
+
+```powershell
+.\tools\run-studio.ps1 -SmokeTest
+```
+
+Er prueft:
+
+- Interactive Demo kann initialisiert werden.
+- Run Full Interactive Demo loest denselben A-nach-B-Ablauf aus.
+- Das Objekt liegt danach in Workspace B.
+- Das Objekt erreicht `Completed`.
+- History enthaelt `State:Completed`.
+- Diagnostics melden `LastResult: SUCCESS`.
+- Ausgabe enthaelt `InteractiveDemo: SUCCESS`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+
+Nicht automatisiert wird echtes Maus-UI-Dragging, weil stabile UI-Automation fuer diesen Entwicklungsprototyp nicht erzwungen wird.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -227,6 +252,7 @@ Der Local-IPC-Harness prueft weiterhin den vollstaendigen Zwei-Prozess-Pfad:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.0.0 | 2026-07-02 | MA004.X Interactive Workspace Prototype Smoke-Test dokumentiert. |
 | 1.9.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer Tests dokumentiert. |
 | 1.8.0 | 2026-07-02 | MA004.03 Local IPC Two Process Tests dokumentiert. |
 | 1.7.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation Tests dokumentiert. |

@@ -9,6 +9,8 @@ internal sealed class MainWindow : Form
     private readonly DataGridView _transferGrid = CreateGrid();
     private readonly DataGridView _agentGrid = CreateGrid();
     private readonly DataGridView _logGrid = CreateGrid();
+    private readonly DataGridView _historyGrid = CreateGrid();
+    private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
     private readonly Label _runtimeState = ValueLabel();
     private readonly Label _pluginCount = ValueLabel();
     private readonly Label _workspaceCount = ValueLabel();
@@ -24,6 +26,26 @@ internal sealed class MainWindow : Form
         Width = 1280;
         Height = 800;
         StartPosition = FormStartPosition.CenterScreen;
+        _interactiveSurface.DragStarted = () =>
+        {
+            var success = _viewModel.BeginInteractiveDrag();
+            RefreshUi();
+            return success;
+        };
+        _interactiveSurface.TargetHighlightChanged = highlighted =>
+        {
+            var success = _viewModel.SetInteractiveTargetHighlighted(highlighted);
+            RefreshUi();
+            return success;
+        };
+        _interactiveSurface.ObjectDropped = overTarget =>
+        {
+            var success = overTarget
+                ? _viewModel.CompleteInteractiveDropOnTarget()
+                : _viewModel.CancelInteractiveDrag();
+            RefreshUi();
+            return success;
+        };
 
         Controls.Add(BuildLayout());
         RefreshUi();
@@ -35,16 +57,18 @@ internal sealed class MainWindow : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 3,
+            RowCount = 4,
             Padding = new Padding(10)
         };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 86));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 66));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 34));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 48));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 27));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
 
         root.Controls.Add(BuildToolbar(), 0, 0);
-        root.Controls.Add(BuildMainGrid(), 0, 1);
-        root.Controls.Add(BuildLogPanel(), 0, 2);
+        root.Controls.Add(BuildInteractivePanel(), 0, 1);
+        root.Controls.Add(BuildMainGrid(), 0, 2);
+        root.Controls.Add(BuildLogPanel(), 0, 3);
 
         return root;
     }
@@ -66,8 +90,15 @@ internal sealed class MainWindow : Form
         panel.Controls.Add(Button("Stop Dual Agents", _viewModel.StopDualAgents));
         panel.Controls.Add(Button("Reset", _viewModel.Reset));
         panel.Controls.Add(Button("Run Full Demo", _viewModel.RunFullDemo));
+        panel.Controls.Add(Button("Reset Interactive Demo", _viewModel.ResetInteractiveDemo));
+        panel.Controls.Add(Button("Run Full Interactive Demo", _viewModel.RunFullInteractiveDemo));
 
         return panel;
+    }
+
+    private Control BuildInteractivePanel()
+    {
+        return Panel("Interactive Workspace Prototype", _interactiveSurface);
     }
 
     private Control BuildMainGrid()
@@ -116,7 +147,18 @@ internal sealed class MainWindow : Form
 
     private Control BuildLogPanel()
     {
-        return Panel("Log", _logGrid);
+        var grid = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 1
+        };
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 58));
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42));
+        grid.Controls.Add(Panel("Log", _logGrid), 0, 0);
+        grid.Controls.Add(Panel("History", _historyGrid), 1, 0);
+
+        return grid;
     }
 
     private static void AddDiagnosticRow(TableLayoutPanel panel, int row, string label, Label value)
@@ -134,10 +176,11 @@ internal sealed class MainWindow : Form
 
     private Button Button(string text, Func<bool> action)
     {
+        var preferredWidth = Math.Max(150, TextRenderer.MeasureText(text, SystemFonts.DefaultFont).Width + 28);
         var button = new Button
         {
             Text = text,
-            Width = 150,
+            Width = preferredWidth,
             Height = 32,
             Margin = new Padding(4, 6, 4, 4)
         };
@@ -179,6 +222,8 @@ internal sealed class MainWindow : Form
         _transferGrid.DataSource = _viewModel.TransferObjects.ToArray();
         _agentGrid.DataSource = _viewModel.Agents.ToArray();
         _logGrid.DataSource = _viewModel.LogEntries.ToArray();
+        _historyGrid.DataSource = _viewModel.TransferHistory.ToArray();
+        _interactiveSurface.SetSnapshot(_viewModel.InteractiveWorkspace);
 
         var diagnostics = _viewModel.Diagnostics;
         _runtimeState.Text = diagnostics.RuntimeState.ToString();
@@ -193,6 +238,7 @@ internal sealed class MainWindow : Form
         ResizeColumns(_transferGrid);
         ResizeColumns(_agentGrid);
         ResizeColumns(_logGrid);
+        ResizeColumns(_historyGrid);
     }
 
     private static DataGridView CreateGrid()

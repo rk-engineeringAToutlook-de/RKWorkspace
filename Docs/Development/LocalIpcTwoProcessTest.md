@@ -1,7 +1,7 @@
 # Local IPC Two Process Test
 
 Dokument-ID: RKWS-DEV-LOCAL-IPC-TWO-PROCESS
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -133,11 +133,12 @@ Fehler werden als `ErrorResponse` oder als fehlgeschlagenes `TransportResult` ge
 
 ## Naechster Schritt
 
-MA004.05 fuehrt eine lokale Discovery-Simulation ein. Agenten sollen sich dann nicht mehr fest ueber Pipe-Namen kennen muessen, sondern ueber lokale Agent-Announcement- und Lookup-Mechanismen gefunden werden.
+Nach MA004.04 wurde zuerst der Interactive Workspace Prototype im Developer Studio umgesetzt. Nach der gemeinsamen Bedienpruefung wird entschieden, ob die GUI weiter verbessert, Local Discovery gebaut oder echter Netzwerktransfer begonnen wird.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-02 | Nachfolger-Hinweis nach Interactive Workspace Prototype aktualisiert. |
 | 1.1.0 | 2026-07-02 | MA004.04 TAL-Anbindung und neutrales TransportMessage-Format dokumentiert. |
 | 1.0.0 | 2026-07-02 | Local IPC Two Process Test fuer MA004.03 dokumentiert. |

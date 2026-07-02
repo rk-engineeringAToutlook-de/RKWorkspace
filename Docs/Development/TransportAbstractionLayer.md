@@ -1,7 +1,7 @@
 # Transport Abstraction Layer
 
 Dokument-ID: RKWS-DEV-TRANSPORT-ABSTRACTION-LAYER
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -95,7 +95,8 @@ Damit bleibt die Reihenfolge stabil:
 2. Dual Local Agent Simulation
 3. Local IPC Two Process Test
 4. Transport Abstraction Layer
-5. Local Discovery Simulation
+5. Interactive Workspace Prototype
+6. danach Entscheidung: GUI verbessern, Local Discovery bauen oder echten Netzwerktransfer beginnen
 
 ## Grenzen
 
@@ -136,4 +137,5 @@ Erwartet werden 0 Warnungen, 0 Fehler, erfolgreiche Unit- und Integration-Tests,
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | Nachfolger-Reihenfolge nach Interactive Workspace Prototype aktualisiert. |
 | 1.0.0 | 2026-07-02 | Transport Abstraction Layer fuer MA004.04 dokumentiert. |

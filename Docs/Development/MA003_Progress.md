@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.13.0
+Version: 0.14.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -26,6 +26,7 @@ flowchart LR
     MA00401 --> MA00402["MA004.02 Dual Local Agent Simulation"]
     MA00402 --> MA00403["MA004.03 Local IPC Two Process Test"]
     MA00403 --> MA00404["MA004.04 Transport Abstraction Layer"]
+    MA00404 --> MA004X["MA004.X Interactive Workspace Prototype"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -414,7 +415,39 @@ Nicht im Umfang:
 
 ## Offene Punkte nach MA004.04
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation, den lokalen Zwei-Prozess-IPC-Test und eine neutrale Transport Abstraction Layer. Der naechste Teilauftrag ist MA004.05 Local Discovery Simulation.
+## MA004.X Interactive Workspace Prototype
+
+Status: Abgeschlossen.
+
+Umfang:
+
+- vorhandenes Developer Workspace Studio erweitert, keine zweite GUI
+- interaktive Workspace-Flaeche mit `Workspace A / Laptop` und `Workspace B / Display Right`
+- sichtbares Textobjekt `Hallo von RK Workspace`
+- Maus-Drag fuer das Textobjekt
+- Ziel-Hervorhebung fuer Workspace B
+- Drop auf Workspace B loest `TransferEngine.ExecuteLogicalTransfer()` aus
+- Transferobjekt wechselt nach `Completed`
+- Transfer-History wird im Studio angezeigt
+- Diagnostics melden `Last Result: SUCCESS`
+- Reset Interactive Demo
+- Run Full Interactive Demo fuer Smoke-Test
+- Dokumentation `Docs/Development/InteractiveWorkspacePrototype.md`
+
+Nicht im Umfang:
+
+- Endanwender-GUI
+- Netzwerkfunktion
+- Discovery
+- Pairing
+- Remote-Kommunikation
+- Hardware
+- Firmware
+- Cloud
+
+## Offene Punkte nach MA004.X
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche mit interaktivem Drag-and-Drop-Prototyp, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation, den lokalen Zwei-Prozess-IPC-Test und eine neutrale Transport Abstraction Layer. Nach gemeinsamer Bedienpruefung wird entschieden, ob die GUI weiter verbessert, Local Discovery gebaut oder echter Netzwerktransfer begonnen wird.
 
 ## Querverweise
 
@@ -422,6 +455,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 - `Spec/CapabilityModel.md`
 - `Spec/RuntimeArchitecture.md`
 - `Docs/Development/DeveloperWorkspaceStudio.md`
+- `Docs/Development/InteractiveWorkspacePrototype.md`
 - `Docs/Development/WorkspaceAgentRuntime.md`
 - `Docs/Development/DualAgentSimulation.md`
 - `Docs/Development/LocalIpcTwoProcessTest.md`
@@ -433,6 +467,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.14.0 | 2026-07-02 | MA004.X Interactive Workspace Prototype dokumentiert. |
 | 0.13.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer dokumentiert. |
 | 0.12.0 | 2026-07-02 | MA004.03 Local IPC Two Process Test dokumentiert. |
 | 0.11.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation dokumentiert. |
