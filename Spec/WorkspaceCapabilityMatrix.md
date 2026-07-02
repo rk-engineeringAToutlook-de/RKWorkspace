@@ -1,7 +1,7 @@
 # RKWS-0380 Workspace Capability Matrix
 
 Dokument-ID: RKWS-SPEC-CAPABILITY-MATRIX-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -33,7 +33,7 @@ Legende: `Y` vorhanden, `O` optional/abhaengig vom Modell oder Policy, `N` fehlt
 
 ## Kommunikation und Hardware
 
-| Workspace-Klasse | BLE | WLAN | LAN | USB | USB-C | UWB | Hardware Node | Display Node | Firmware Update |
+| Workspace-Klasse | BLE | WiFi | LAN | USB | USB-C | UWB | Hardware Node | Display Node | Firmware Update |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Windows Desktop | O | O | Y | Y | O | O | N | N | N |
 | Windows Laptop | O | Y | O | Y | O | O | N | N | N |
@@ -83,6 +83,12 @@ flowchart TB
 
 Die Matrix liefert Defaults. Die effektiven Capabilities entstehen erst nach Runtime-Erkennung, Sicherheitspruefung und Policy-Filter.
 
+## Runtime-Anbindung MA003.02
+
+Der Capability Manager bildet die technische Laufzeitseite dieser Matrix ab. Provider melden konkrete `CapabilitySet`-Instanzen; der Manager kombiniert diese Sets, prueft `CapabilityRequirement` und sucht passende Provider.
+
+Die Tabellen in diesem Dokument bleiben Default- und Planungswerte. Sie duerfen nicht als harte Laufzeitentscheidung verwendet werden. Ein Windows Laptop ist also nicht automatisch transferfaehig, nur weil die Matrix typische Werte beschreibt; entscheidend ist, ob zur Laufzeit die benoetigten Capabilities gemeldet, erlaubt und vertrauenswuerdig sind.
+
 ## Querverweise
 
 - `Spec/CapabilityModel.md`
@@ -93,4 +99,5 @@ Die Matrix liefert Defaults. Die effektiven Capabilities entstehen erst nach Run
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.02 Runtime-Anbindung an den Capability Manager ergaenzt. |
 | 1.0.0 | 2026-07-02 | Workspace-Capability-Matrix fuer RKWS-0380 definiert. |

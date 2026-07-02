@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 0.6.0  
+Version: 0.7.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -11,7 +11,7 @@ Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet s
 
 ## Status
 
-Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung hat mit MA003.01 begonnen. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und den ersten plattformneutralen Core-Baustein:
+Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung laeuft in MA003. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und die ersten plattformneutralen Core-Bausteine:
 
 - Produktvision und Architektur sind dokumentiert.
 - Spec-Dokumente fuer Objektmodell, Arbeitsflaechenmodell, Kommunikation, Plugins, Capabilities, UX, Hardware, Firmware und Tests sind angelegt.
@@ -19,8 +19,9 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - CI/CD-Grundstruktur und GitHub-Templates sind vorbereitet.
 - Der plattformneutrale Core enthaelt erste Modelle und Richtungslogik.
 - Der Plugin Manager ist als erste produktive Core-Komponente angelegt.
+- Der Capability Manager ist als zweite produktive Core-Komponente angelegt.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
-- Unit-Tests pruefen Core-Regeln, Simulation und Plugin Manager.
+- Unit-Tests pruefen Core-Regeln, Simulation, Plugin Manager und Capability Manager.
 
 ## Einstieg fuer Entwickler
 
@@ -62,6 +63,7 @@ Docs/                 Produkt-, Architektur-, ADR- und Entscheidungsdokumente
 Spec/                 Spezifikationen fuer Modelle, UX, Kommunikation und Tests
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
+src/Core/Capabilities/ Plattformneutraler Capability Manager und Capability-Vertraege
 src/Windows/          Reserviert fuer spaeteren Windows-Agent
 src/macOS/            Reserviert fuer spaeteren macOS-Agent
 src/Linux/            Reserviert fuer spaeteren Linux-Agent
@@ -100,7 +102,7 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. Der naechste geplante Auftrag ist MA003.02, der Capability Manager.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. Weitere produktive Core-Schritte folgen auf Basis separater freigegebener Arbeitsauftraege.
 
 ## Querverweise
 
@@ -123,6 +125,7 @@ MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten au
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.7.0 | 2026-07-02 | MA003.02 Capability Manager als zweite produktive Core-Komponente ergaenzt. |
 | 0.6.0 | 2026-07-02 | MA003.01 Plugin Manager als erste produktive Core-Komponente ergaenzt. |
 | 0.5.0 | 2026-07-02 | Developer-Onboarding, Baseline-v1.0 und Git-Readiness-Verweise fuer RKWS-0530 ergaenzt. |
 | 0.4.0 | 2026-07-02 | Architecture Baseline Completion 002A verlinkt. |

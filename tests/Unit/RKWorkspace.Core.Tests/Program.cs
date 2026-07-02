@@ -1,3 +1,4 @@
+using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Models;
 using RKWorkspace.Core.Plugins;
 using RKWorkspace.Core.Services;
@@ -22,7 +23,26 @@ var tests = new (string Name, Action Body)[]
     ("PluginManager reports missing dependencies", PluginManagerReportsMissingDependencies),
     ("PluginManager rejects invalid lifecycle transitions", PluginManagerRejectsInvalidLifecycleTransitions),
     ("PluginManager preserves lifecycle exception details", PluginManagerPreservesLifecycleExceptionDetails),
-    ("Plugin core assembly has no platform dependencies", PluginCoreAssemblyHasNoPlatformDependencies)
+    ("Plugin core assembly has no platform dependencies", PluginCoreAssemblyHasNoPlatformDependencies),
+    ("Capability ids and categories cover the architecture baseline", CapabilityIdsAndCategoriesCoverArchitectureBaseline),
+    ("Capability creates default category and metadata", CapabilityCreatesDefaultCategoryAndMetadata),
+    ("CapabilitySet adds capabilities and prevents duplicates", CapabilitySetAddsCapabilitiesAndPreventsDuplicates),
+    ("CapabilitySet removes capabilities", CapabilitySetRemovesCapabilities),
+    ("CapabilitySet checks all and any requirements", CapabilitySetChecksAllAndAnyRequirements),
+    ("CapabilitySet intersects, differs and snapshots", CapabilitySetIntersectsDiffersAndSnapshots),
+    ("CapabilityRequirement validates invalid ids", CapabilityRequirementValidatesInvalidIds),
+    ("CapabilityManager matches requirements positively", CapabilityManagerMatchesRequirementsPositively),
+    ("CapabilityManager reports missing required capabilities", CapabilityManagerReportsMissingRequiredCapabilities),
+    ("CapabilityManager detects forbidden capabilities", CapabilityManagerDetectsForbiddenCapabilities),
+    ("CapabilityManager registers providers", CapabilityManagerRegistersProviders),
+    ("CapabilityManager prevents duplicate providers", CapabilityManagerPreventsDuplicateProviders),
+    ("CapabilityManager unregisters providers", CapabilityManagerUnregistersProviders),
+    ("CapabilityManager returns provider capability snapshots", CapabilityManagerReturnsProviderCapabilitySnapshots),
+    ("CapabilityManager combines capabilities", CapabilityManagerCombinesCapabilities),
+    ("CapabilityManager finds matching providers", CapabilityManagerFindsMatchingProviders),
+    ("CapabilityManager reports capability availability", CapabilityManagerReportsCapabilityAvailability),
+    ("CapabilityManager throws capability errors", CapabilityManagerThrowsCapabilityErrors),
+    ("Capability core assembly has no platform dependencies", CapabilityCoreAssemblyHasNoPlatformDependencies)
 };
 
 var failed = 0;
@@ -329,6 +349,376 @@ static void PluginCoreAssemblyHasNoPlatformDependencies()
     Assert.Equal(0, references.Length);
 }
 
+static void CapabilityIdsAndCategoriesCoverArchitectureBaseline()
+{
+    var expectedIds = new[]
+    {
+        CapabilityId.Touch,
+        CapabilityId.Touchpad,
+        CapabilityId.Mouse,
+        CapabilityId.Keyboard,
+        CapabilityId.Clipboard,
+        CapabilityId.DragDrop,
+        CapabilityId.BLE,
+        CapabilityId.WiFi,
+        CapabilityId.LAN,
+        CapabilityId.USB,
+        CapabilityId.USBC,
+        CapabilityId.UWB,
+        CapabilityId.Display,
+        CapabilityId.MultipleDisplays,
+        CapabilityId.HapticFeedback,
+        CapabilityId.Animation,
+        CapabilityId.Overlay,
+        CapabilityId.Notification,
+        CapabilityId.Logging,
+        CapabilityId.Encryption,
+        CapabilityId.Pairing,
+        CapabilityId.OfflineMode,
+        CapabilityId.CloudMode,
+        CapabilityId.FirmwareUpdate,
+        CapabilityId.HardwareNode,
+        CapabilityId.DisplayNode,
+        CapabilityId.ContextTransfer,
+        CapabilityId.Simulation,
+        CapabilityId.Testing,
+        CapabilityId.Unknown
+    };
+
+    var expectedCategories = new[]
+    {
+        CapabilityCategory.Input,
+        CapabilityCategory.Display,
+        CapabilityCategory.Communication,
+        CapabilityCategory.Transfer,
+        CapabilityCategory.Security,
+        CapabilityCategory.Hardware,
+        CapabilityCategory.Firmware,
+        CapabilityCategory.Platform,
+        CapabilityCategory.UserExperience,
+        CapabilityCategory.System,
+        CapabilityCategory.Unknown
+    };
+
+    Assert.Equal(expectedIds.Length, Enum.GetValues<CapabilityId>().Length);
+    Assert.Equal(expectedCategories.Length, Enum.GetValues<CapabilityCategory>().Length);
+    Assert.True(expectedIds.All(id => Enum.IsDefined(id)));
+    Assert.True(expectedCategories.All(category => Enum.IsDefined(category)));
+}
+
+static void CapabilityCreatesDefaultCategoryAndMetadata()
+{
+    var capability = Capability.Create(CapabilityId.Touchpad) with
+    {
+        Description = "Trackpad gestures",
+        IsRequired = true,
+        IsExperimental = true,
+        Version = "1.2.3"
+    };
+
+    Assert.Equal(CapabilityId.Touchpad, capability.CapabilityId);
+    Assert.Equal("Touchpad", capability.DisplayName);
+    Assert.Equal(CapabilityCategory.Input, capability.Category);
+    Assert.Equal("Trackpad gestures", capability.Description);
+    Assert.True(capability.IsRequired);
+    Assert.True(capability.IsExperimental);
+    Assert.Equal("1.2.3", capability.Version);
+    Assert.Equal(CapabilityCategory.Display, Capability.GetDefaultCategory(CapabilityId.MultipleDisplays));
+    Assert.Equal(CapabilityCategory.Communication, Capability.GetDefaultCategory(CapabilityId.BLE));
+    Assert.Equal(CapabilityCategory.Transfer, Capability.GetDefaultCategory(CapabilityId.ContextTransfer));
+    Assert.Equal(CapabilityCategory.Security, Capability.GetDefaultCategory(CapabilityId.Encryption));
+    Assert.Equal(CapabilityCategory.Hardware, Capability.GetDefaultCategory(CapabilityId.DisplayNode));
+    Assert.Equal(CapabilityCategory.Firmware, Capability.GetDefaultCategory(CapabilityId.FirmwareUpdate));
+    Assert.Equal(CapabilityCategory.UserExperience, Capability.GetDefaultCategory(CapabilityId.Overlay));
+    Assert.Equal(CapabilityCategory.System, Capability.GetDefaultCategory(CapabilityId.Testing));
+    Assert.Equal(CapabilityCategory.Unknown, Capability.GetDefaultCategory(CapabilityId.Unknown));
+}
+
+static void CapabilitySetAddsCapabilitiesAndPreventsDuplicates()
+{
+    var set = new CapabilitySet();
+
+    set.Add(Capability.Create(CapabilityId.Mouse));
+    set.Add(Capability.Create(CapabilityId.Mouse) with { DisplayName = "Pointer" });
+
+    Assert.Equal(1, set.Count);
+    Assert.True(set.Contains(CapabilityId.Mouse));
+    Assert.Equal("Pointer", set.Capabilities.Single().DisplayName);
+    Assert.ThrowsWithCode(
+        CapabilityErrorCode.InvalidCapabilityId,
+        () => set.Add(Capability.Create(CapabilityId.Unknown)));
+}
+
+static void CapabilitySetRemovesCapabilities()
+{
+    var set = CapabilitySet.FromIds(CapabilityId.Keyboard, CapabilityId.Mouse);
+
+    Assert.True(set.Remove(CapabilityId.Keyboard));
+    Assert.False(set.Contains(CapabilityId.Keyboard));
+    Assert.False(set.Remove(CapabilityId.Keyboard));
+    Assert.Equal(1, set.Count);
+}
+
+static void CapabilitySetChecksAllAndAnyRequirements()
+{
+    var set = CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Notification);
+
+    Assert.True(set.ContainsAll(new[] { CapabilityId.Display, CapabilityId.Notification }));
+    Assert.False(set.ContainsAll(new[] { CapabilityId.Display, CapabilityId.Touch }));
+    Assert.True(set.ContainsAny(new[] { CapabilityId.Touch, CapabilityId.Notification }));
+    Assert.False(set.ContainsAny(new[] { CapabilityId.Touch, CapabilityId.Keyboard }));
+}
+
+static void CapabilitySetIntersectsDiffersAndSnapshots()
+{
+    var left = CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Notification, CapabilityId.Animation);
+    var right = CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Touch);
+
+    var intersection = left.Intersect(right);
+    var difference = left.Difference(right);
+    var snapshot = left.Snapshot();
+
+    left.Remove(CapabilityId.Display);
+
+    Assert.Equal(1, intersection.Count);
+    Assert.True(intersection.Contains(CapabilityId.Display));
+    Assert.Equal(2, difference.Count);
+    Assert.True(difference.Contains(CapabilityId.Notification));
+    Assert.True(difference.Contains(CapabilityId.Animation));
+    Assert.True(snapshot.Contains(CapabilityId.Display));
+}
+
+static void CapabilityRequirementValidatesInvalidIds()
+{
+    CapabilityRequirement.Empty.Validate();
+    CapabilityRequirement.Require(CapabilityId.Pairing).Validate();
+
+    var requirement = new CapabilityRequirement
+    {
+        RequiredCapabilities = new[] { CapabilityId.Unknown }
+    };
+
+    Assert.ThrowsWithCode(CapabilityErrorCode.InvalidRequirement, requirement.Validate);
+}
+
+static void CapabilityManagerMatchesRequirementsPositively()
+{
+    var manager = new CapabilityManager();
+    var capabilities = CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Notification, CapabilityId.Animation);
+    var requirement = new CapabilityRequirement
+    {
+        RequiredCapabilities = new[] { CapabilityId.Display },
+        OptionalCapabilities = new[] { CapabilityId.Notification, CapabilityId.Touch }
+    };
+
+    var result = manager.MatchRequirement(capabilities, requirement);
+
+    Assert.True(result.IsMatch);
+    Assert.Equal(11, result.Score);
+    Assert.Equal(0, result.MissingRequiredCapabilities.Count);
+    Assert.Equal(1, result.PresentOptionalCapabilities.Count);
+    Assert.True(result.PresentOptionalCapabilities.Contains(CapabilityId.Notification));
+    Assert.Equal("Requirement matched.", result.Reason);
+}
+
+static void CapabilityManagerReportsMissingRequiredCapabilities()
+{
+    var manager = new CapabilityManager();
+    var result = manager.MatchRequirement(
+        CapabilitySet.FromIds(CapabilityId.Display),
+        CapabilityRequirement.Require(CapabilityId.Display, CapabilityId.Pairing));
+
+    Assert.False(result.IsMatch);
+    Assert.Equal(0, result.Score);
+    Assert.True(result.MissingRequiredCapabilities.Contains(CapabilityId.Pairing));
+    Assert.True(result.Reason.Contains("Missing required", StringComparison.Ordinal));
+}
+
+static void CapabilityManagerDetectsForbiddenCapabilities()
+{
+    var manager = new CapabilityManager();
+    var requirement = new CapabilityRequirement
+    {
+        RequiredCapabilities = new[] { CapabilityId.Display },
+        ForbiddenCapabilities = new[] { CapabilityId.CloudMode }
+    };
+
+    var result = manager.MatchRequirement(
+        CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.CloudMode),
+        requirement);
+
+    Assert.False(result.IsMatch);
+    Assert.Equal(0, result.Score);
+    Assert.True(result.PresentForbiddenCapabilities.Contains(CapabilityId.CloudMode));
+    Assert.True(result.Reason.Contains("Forbidden present", StringComparison.Ordinal));
+}
+
+static void CapabilityManagerRegistersProviders()
+{
+    var manager = new CapabilityManager();
+    var provider = FakeCapabilityProvider.Create(
+        "provider.display",
+        "Display provider",
+        CapabilityId.Display,
+        CapabilityId.Overlay);
+
+    manager.RegisterProvider(provider);
+
+    Assert.Same(provider, Assert.NotNull(manager.GetProvider(provider.ProviderId)));
+    Assert.Equal(1, manager.GetAllProviders().Count);
+}
+
+static void CapabilityManagerPreventsDuplicateProviders()
+{
+    var manager = new CapabilityManager();
+    var provider = FakeCapabilityProvider.Create("provider.input", "Input provider", CapabilityId.Keyboard);
+    var duplicate = FakeCapabilityProvider.Create("PROVIDER.INPUT", "Duplicate provider", CapabilityId.Mouse);
+
+    manager.RegisterProvider(provider);
+
+    Assert.ThrowsWithCode(
+        CapabilityErrorCode.ProviderAlreadyRegistered,
+        () => manager.RegisterProvider(duplicate));
+}
+
+static void CapabilityManagerUnregistersProviders()
+{
+    var manager = new CapabilityManager();
+    var provider = FakeCapabilityProvider.Create("provider.transfer", "Transfer provider", CapabilityId.Clipboard);
+
+    manager.RegisterProvider(provider);
+    manager.UnregisterProvider(provider.ProviderId);
+
+    Assert.Null(manager.GetProvider(provider.ProviderId));
+    Assert.Equal(0, manager.GetAllProviders().Count);
+    Assert.ThrowsWithCode(
+        CapabilityErrorCode.ProviderNotRegistered,
+        () => manager.UnregisterProvider(provider.ProviderId));
+}
+
+static void CapabilityManagerReturnsProviderCapabilitySnapshots()
+{
+    var manager = new CapabilityManager();
+    var provider = FakeCapabilityProvider.Create("provider.security", "Security provider", CapabilityId.Pairing);
+
+    manager.RegisterProvider(provider);
+    var snapshot = manager.GetCapabilitiesForProvider(provider.ProviderId);
+    provider.SetCapabilities(CapabilitySet.FromIds(CapabilityId.Encryption));
+
+    Assert.True(snapshot.Contains(CapabilityId.Pairing));
+    Assert.False(snapshot.Contains(CapabilityId.Encryption));
+    Assert.ThrowsWithCode(
+        CapabilityErrorCode.ProviderNotRegistered,
+        () => manager.GetCapabilitiesForProvider("missing"));
+}
+
+static void CapabilityManagerCombinesCapabilities()
+{
+    var manager = new CapabilityManager();
+    manager.RegisterProvider(FakeCapabilityProvider.Create(
+        "provider.display",
+        "Display provider",
+        CapabilityId.Display,
+        CapabilityId.Notification));
+    manager.RegisterProvider(FakeCapabilityProvider.Create(
+        "provider.input",
+        "Input provider",
+        CapabilityId.Mouse,
+        CapabilityId.Keyboard));
+
+    var combined = manager.GetCombinedCapabilities();
+
+    Assert.Equal(4, combined.Count);
+    Assert.True(combined.ContainsAll(new[]
+    {
+        CapabilityId.Display,
+        CapabilityId.Notification,
+        CapabilityId.Mouse,
+        CapabilityId.Keyboard
+    }));
+}
+
+static void CapabilityManagerFindsMatchingProviders()
+{
+    var manager = new CapabilityManager();
+    var display = FakeCapabilityProvider.Create("provider.display", "Display provider", CapabilityId.Display);
+    var richDisplay = FakeCapabilityProvider.Create(
+        "provider.rich-display",
+        "Rich display provider",
+        CapabilityId.Display,
+        CapabilityId.Notification);
+    var input = FakeCapabilityProvider.Create("provider.input", "Input provider", CapabilityId.Keyboard);
+    var requirement = new CapabilityRequirement
+    {
+        RequiredCapabilities = new[] { CapabilityId.Display },
+        OptionalCapabilities = new[] { CapabilityId.Notification }
+    };
+
+    manager.RegisterProvider(display);
+    manager.RegisterProvider(richDisplay);
+    manager.RegisterProvider(input);
+
+    var matches = manager.FindProvidersMatching(requirement).ToArray();
+
+    Assert.Equal(2, matches.Length);
+    Assert.Same(richDisplay, matches[0]);
+    Assert.Same(display, matches[1]);
+}
+
+static void CapabilityManagerReportsCapabilityAvailability()
+{
+    var manager = new CapabilityManager();
+    manager.RegisterProvider(FakeCapabilityProvider.Create(
+        "provider.comms",
+        "Communication provider",
+        CapabilityId.BLE,
+        CapabilityId.WiFi));
+
+    Assert.True(manager.IsCapabilityAvailable(CapabilityId.BLE));
+    Assert.True(manager.IsCapabilityAvailable(CapabilityId.WiFi));
+    Assert.False(manager.IsCapabilityAvailable(CapabilityId.LAN));
+    Assert.False(manager.IsCapabilityAvailable(CapabilityId.Unknown));
+}
+
+static void CapabilityManagerThrowsCapabilityErrors()
+{
+    var manager = new CapabilityManager();
+    var missingIdProvider = FakeCapabilityProvider.Create(string.Empty, "Missing id provider", CapabilityId.Testing);
+
+    Assert.ThrowsWithCode(
+        CapabilityErrorCode.MissingProviderId,
+        () => manager.RegisterProvider(missingIdProvider));
+    Assert.ThrowsWithCode(
+        CapabilityErrorCode.MissingProviderId,
+        () => manager.UnregisterProvider(string.Empty));
+    Assert.Null(manager.GetProvider(string.Empty));
+    Assert.True(Enum.IsDefined(CapabilityErrorCode.CapabilityMissing));
+    Assert.True(Enum.IsDefined(CapabilityErrorCode.InvalidOperation));
+}
+
+static void CapabilityCoreAssemblyHasNoPlatformDependencies()
+{
+    var forbiddenFragments = new[]
+    {
+        "Windows",
+        "Presentation",
+        "WinForms",
+        "Wpf",
+        "UIKit",
+        "AppKit",
+        "Android"
+    };
+
+    var references = typeof(CapabilityManager)
+        .Assembly
+        .GetReferencedAssemblies()
+        .Select(reference => reference.Name ?? string.Empty)
+        .Where(name => forbiddenFragments.Any(fragment => name.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        .ToArray();
+
+    Assert.Equal(0, references.Length);
+}
+
 static Workspace TestWorkspace(
     string workspaceId,
     WorkspacePosition position,
@@ -424,6 +814,21 @@ internal static class Assert
         }
 
         Equal(expectedCode, result.Error.Code);
+    }
+
+    public static void ThrowsWithCode(CapabilityErrorCode expectedCode, Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (CapabilityException ex)
+        {
+            Equal(expectedCode, ex.Code);
+            return;
+        }
+
+        throw new InvalidOperationException($"Expected capability exception {expectedCode}.");
     }
 
     public static void StartsWith(string expectedPrefix, string actual)

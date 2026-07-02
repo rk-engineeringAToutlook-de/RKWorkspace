@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.1.0  
+Version: 0.2.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -19,7 +19,7 @@ flowchart LR
 
 ## MA003.01 Plugin Manager
 
-Status: In Umsetzung.
+Status: Abgeschlossen.
 
 Umfang:
 
@@ -43,9 +43,38 @@ Nicht im Umfang:
 - GUI
 - Firmware oder Hardware
 
-## Offene Punkte fuer MA003.02
+## MA003.02 Capability Manager
 
-MA003.02 entwickelt den Capability Manager auf Grundlage der Plugin-Vertraege. Der Capability Manager muss weiterhin ausschliesslich nach Capabilities entscheiden und darf keine Geraetetypen als Entscheidungsgrundlage verwenden.
+Status: Abgeschlossen.
+
+Umfang:
+
+- `CapabilityId`
+- `CapabilityCategory`
+- `Capability`
+- `CapabilitySet`
+- `CapabilityRequirement`
+- `CapabilityMatchResult`
+- `ICapabilityProvider`
+- `ICapabilityManager`
+- `CapabilityManager`
+- `CapabilityException`
+- FakeCapabilityProvider im Testprojekt
+- Unit-Tests fuer Mengenoperationen, Provider-Registry, Matching, Fehlerfaelle und Plattformneutralitaet
+- Dokumentation der semantischen Plugin-Integration ohne harte zyklische Abhaengigkeit
+
+Nicht im Umfang:
+
+- Runtime-Erkennung ueber Betriebssystem-APIs
+- automatische Bindung von Plugins an Capability Provider
+- Policy Engine
+- Netzwerkkommunikation
+- GUI
+- Firmware oder Hardware
+
+## Offene Punkte nach MA003.02
+
+Der Core besitzt nun Plugin- und Capability-Grundbausteine. Spaetere Auftraege muessen Runtime-Erkennung, Policy-Filter, Trust-Integration und konkrete Plattformadapter weiterhin getrennt und auf Basis neuer ADRs bzw. freigegebener Spezifikationen umsetzen.
 
 ## Querverweise
 
@@ -58,4 +87,5 @@ MA003.02 entwickelt den Capability Manager auf Grundlage der Plugin-Vertraege. D
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.2.0 | 2026-07-02 | MA003.01 abgeschlossen und MA003.02 Capability Manager dokumentiert. |
 | 0.1.0 | 2026-07-02 | Fortschrittsdokument fuer MA003 angelegt. |

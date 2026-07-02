@@ -1,7 +1,7 @@
 # RKWS-0370 Capability Model
 
 Dokument-ID: RKWS-SPEC-CAPABILITY-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -28,7 +28,7 @@ RK Workspace arbeitet niemals primaer anhand des Geraetetyps, sondern anhand vor
 | Mouse | Zeiger und Klicks. | Pointer API. | Langklick-Konflikte. | Modifier, Edge-Zones. |
 | Keyboard | Tastatur und Modifier. | Key events. | Fokus und Accessibility. | Shortcuts, Admin-Modus. |
 | BLE | Bluetooth Low Energy. | BLE-Hardware, Permissions. | Discovery-only, keine Payloads. | Pairing-Hints, Presence. |
-| WLAN | Wireless Netzwerk. | WLAN-Adapter, Netzwerkzugang. | Firewall, Roaming. | Transport oder Discovery. |
+| WiFi | Wireless Netzwerk. | WLAN-Adapter, Netzwerkzugang. | Firewall, Roaming. | Transport oder Discovery. |
 | LAN | Kabelnetzwerk. | Ethernet/Adapter. | Nicht auf allen Devices. | Industrie/KVM stabil. |
 | USB | USB-Anbindung. | Port und Treiber. | OS-Rechte, Legacy-Stecker. | Debug, Provisioning. |
 | USB-C | USB-C Versorgung/Service. | USB-C Port/Controller. | PD-Komplexitaet. | Power, Service, Display alt mode nur spaeter. |
@@ -63,6 +63,22 @@ flowchart LR
 
 Ein Feature darf nur aktiviert werden, wenn Capability vorhanden, Policy erlaubt, Trust ausreichend und die relevante Plugin-Abhaengigkeit aktiv ist.
 
+## MA003.02 Implementierungsstatus
+
+MA003.02 fuehrt den plattformneutralen Capability Manager als zweiten produktiven Core-Baustein ein. Die Implementierung liegt in `src/Core/Capabilities/` und stellt folgende Vertraege und Modelle bereit:
+
+- `CapabilityId` als stabile Liste neutraler Faehigkeiten.
+- `CapabilityCategory` als fachliche Gruppierung.
+- `Capability` als einzelner Capability-Descriptor.
+- `CapabilitySet` als duplikatfreie Menge mit Add, Remove, Contains, ContainsAll, ContainsAny, Intersect, Difference und Snapshot.
+- `CapabilityRequirement` fuer required, optional und forbidden Capabilities.
+- `CapabilityMatchResult` fuer Matching-Ergebnis, Score und Diagnosegrund.
+- `ICapabilityProvider` und `ICapabilityManager` als Provider- und Manager-Vertraege.
+- `CapabilityManager` fuer Provider-Registry, kombinierte Capability-Sicht, Requirements Matching und Provider-Suche.
+- `CapabilityException` mit stabilen Fehlercodes.
+
+Der Capability Manager trifft keine Entscheidungen anhand von Geraeteklassen. Geraeteklassen und die Workspace Capability Matrix liefern weiterhin nur Defaults; die produktive Entscheidung erfolgt ueber gemeldete und validierte Capabilities. Plattform-Discovery, OS-APIs, Policy Engine, Netzwerk, Firmware und Hardware werden in diesem Schritt nicht implementiert.
+
 ## Querverweise
 
 - `Spec/WorkspaceCapabilityMatrix.md`
@@ -74,4 +90,5 @@ Ein Feature darf nur aktiviert werden, wenn Capability vorhanden, Policy erlaubt
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.02 Capability Manager Implementierungsstatus ergaenzt. |
 | 1.0.0 | 2026-07-02 | Capability-Modell fuer RKWS-0370 definiert. |

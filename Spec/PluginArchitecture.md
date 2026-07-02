@@ -1,7 +1,7 @@
 # RKWS-0360 Plugin Architecture
 
 Dokument-ID: RKWS-SPEC-PLUGIN-001  
-Version: 1.1.0  
+Version: 1.2.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -39,6 +39,17 @@ Der Plugin Manager verwaltet Registrierung, Capability-Ankuendigung, Lebenszyklu
 MA003.01 fuehrt den ersten produktiven, plattformneutralen Core-Baustein fuer diese Spezifikation ein. Implementiert werden die neutralen Plugin-Vertraege, `PluginDescriptor`, `PluginType`, `PluginState`, `PluginLoadResult`, `PluginException` und `PluginManager`.
 
 Dieser Schritt implementiert noch kein dynamisches Laden aus Dateisystemen, keine Platform Adapter, keine Reflection-basierte Plugin-Erkennung, keine Kommunikation und keine Betriebssystemintegration. Der Plugin Manager verwaltet ausschliesslich bereits uebergebene `IPlugin`-Instanzen und deren Lifecycle.
+
+## MA003.02 Capability-Integration
+
+MA003.02 ergaenzt den plattformneutralen Capability Manager als eigenstaendigen Core-Baustein. Er ist semantisch mit dem Plugin-System verbunden, erzeugt aber keine harte zyklische Abhaengigkeit zwischen `RKWorkspace.Core.Plugins` und `RKWorkspace.Core.Capabilities`.
+
+Die in `PluginDescriptor` vorhandenen Capability-Listen bleiben manifestnah und stringbasiert. Ihre Werte werden fachlich auf stabile `CapabilityId`-Namen abgebildet, ohne dass der Plugin Manager selbst eine Plattform- oder Provider-Entscheidung trifft. Konkrete Plugins oder Adapter koennen spaeter zugleich `IPlugin` und `ICapabilityProvider` erfuellen oder durch einen separaten Adapter als Capability Provider registriert werden.
+
+Damit bleiben zwei Verantwortungen getrennt:
+
+- Der Plugin Manager verwaltet Registrierung, Dependency-Pruefung und Lifecycle.
+- Der Capability Manager verwaltet gemeldete Faehigkeiten, Requirements Matching und Provider-Auswahl.
 
 ## Plugin-Vertraege
 
@@ -97,5 +108,6 @@ stateDiagram-v2
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-02 | MA003.02 Capability Manager Integration ohne zyklische Core-Abhaengigkeit dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA003.01 Plugin Manager Implementierungsstatus ergaenzt. |
 | 1.0.0 | 2026-07-02 | Plugin-Architektur fuer RKWS-0360 definiert. |
