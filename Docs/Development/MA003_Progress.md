@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.4.0
+Version: 0.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -17,6 +17,7 @@ flowchart LR
     MA00301 --> MA00302["MA003.02 Capability Manager"]
     MA00302 --> MA00303["MA003.03 Workspace Registry"]
     MA00303 --> MA00304["MA003.04 Transfer Object Manager"]
+    MA00304 --> MA00305["MA003.05 Core Integration Tests"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -133,9 +134,35 @@ Nicht im Umfang:
 - Cloud
 - Firmware oder Hardware
 
-## Offene Punkte nach MA003.04
+## MA003.05 Core Integration Tests
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Object-Grundbausteine. MA003.05 muss diese vier Komponenten erstmals gemeinsam in einem End-to-End-Core-Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit verwenden.
+Status: Abgeschlossen.
+
+Umfang:
+
+- separates Integration-Test-Projekt `tests/Integration/RKWorkspace.Core.IntegrationTests/`
+- `CoreIntegrationScenarioRunner`
+- `CoreIntegrationScenarioResult`
+- Szenario `CoreIntegrationScenario_TransferText_RightDirection`
+- Szenario `CoreIntegrationScenario_NoMatchingTarget_Fails`
+- Szenario `CoreIntegrationScenario_OnlyOneTarget_AnyDirection`
+- Szenario `CoreIntegrationScenario_ForbiddenCapabilityRejected`
+- Szenario `CoreIntegrationScenario_PriorityBreaksTie`
+- Plattformneutralitaetspruefung fuer das Integration-Test-Assembly
+- `tools/run-tests.ps1` fuehrt Build, Unit Tests, Integration Tests und Simulation getrennt aus
+
+Nicht im Umfang:
+
+- Netzwerkkommunikation
+- Betriebssystem-APIs
+- GUI
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA003.05
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Object-Grundbausteine sowie erste Integrationstests ueber diese Komponenten. MA003.06 kann daraus einen sichtbaren Core Demo Runner ableiten, weiterhin ohne GUI, Netzwerk und OS-Agent.
 
 ## Querverweise
 
@@ -148,6 +175,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Obje
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.5.0 | 2026-07-02 | MA003.05 erster vollstaendiger Core Integration Test dokumentiert. |
 | 0.4.0 | 2026-07-02 | MA003.04 Transfer Object Manager als vierte produktive Core-Komponente dokumentiert. |
 | 0.3.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente dokumentiert. |
 | 0.2.0 | 2026-07-02 | MA003.01 abgeschlossen und MA003.02 Capability Manager dokumentiert. |

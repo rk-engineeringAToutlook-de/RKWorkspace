@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 0.9.0
+Version: 1.0.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -22,8 +22,9 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der Capability Manager ist als zweite produktive Core-Komponente angelegt.
 - Die Workspace Registry ist als dritte produktive Core-Komponente angelegt.
 - Der Transfer Object Manager ist als vierte produktive Core-Komponente angelegt.
+- Ein separates Integration-Test-Projekt prueft erstmals alle vier Core-Komponenten gemeinsam.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
-- Unit-Tests pruefen Core-Regeln, Simulation, Plugin Manager, Capability Manager, Workspace Registry und Transfer Object Manager.
+- Unit-Tests und Integration-Tests pruefen Core-Regeln, Simulation, Plugin Manager, Capability Manager, Workspace Registry und Transfer Object Manager.
 
 ## Einstieg fuer Entwickler
 
@@ -78,6 +79,7 @@ hardware/             Hardware-Anforderungen und Board-Notizen
 PCB/                  Reserviert fuer spaeteres PCB-Layout
 Mechanical/           Reserviert fuer spaetere Mechanik
 tests/                Unit-, Integrations-, Protokoll- und Hardwaretests
+tests/Integration/RKWorkspace.Core.IntegrationTests/ Erster Core-Integrationstest ohne Netzwerk
 tools/                Lokale Simulation und Hilfsskripte
 .github/              CI, Issue-Templates und PR-Template
 ```
@@ -106,7 +108,7 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. Der naechste geplante Schritt ist MA003.05, der erste vollstaendige Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. Der naechste geplante Schritt ist MA003.06, der Core Demo Runner.
 
 ## Querverweise
 
@@ -129,6 +131,7 @@ MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten au
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.0.0 | 2026-07-02 | MA003.05 Core Integration Tests fuer alle vier produktiven Core-Komponenten ergaenzt. |
 | 0.9.0 | 2026-07-02 | MA003.04 Transfer Object Manager als vierte produktive Core-Komponente ergaenzt. |
 | 0.8.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente ergaenzt. |
 | 0.7.0 | 2026-07-02 | MA003.02 Capability Manager als zweite produktive Core-Komponente ergaenzt. |
