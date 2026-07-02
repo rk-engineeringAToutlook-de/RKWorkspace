@@ -26,6 +26,15 @@ using ManagedTransferObjectState = RKWorkspace.Core.TransferObjects.TransferObje
 using ManagedTransferObjectType = RKWorkspace.Core.TransferObjects.TransferObjectType;
 using ManagedITransferObject = RKWorkspace.Core.TransferObjects.ITransferObject;
 using ManagedITransferObjectManager = RKWorkspace.Core.TransferObjects.ITransferObjectManager;
+using CoreITransferEngine = RKWorkspace.Core.Transfers.ITransferEngine;
+using CoreTransferDirection = RKWorkspace.Core.Transfers.TransferDirection;
+using CoreTransferEngine = RKWorkspace.Core.Transfers.TransferEngine;
+using CoreTransferEngineException = RKWorkspace.Core.Transfers.TransferEngineException;
+using CoreTransferFailureReason = RKWorkspace.Core.Transfers.TransferFailureReason;
+using CoreTransferPlan = RKWorkspace.Core.Transfers.TransferPlan;
+using CoreTransferRequest = RKWorkspace.Core.Transfers.TransferRequest;
+using CoreTransferStep = RKWorkspace.Core.Transfers.TransferStep;
+using CoreTransferStepStatus = RKWorkspace.Core.Transfers.TransferStepStatus;
 
 var tests = new (string Name, Action Body)[]
 {
@@ -103,7 +112,25 @@ var tests = new (string Name, Action Body)[]
     ("TransferObjectManager reports missing objects", TransferObjectManagerReportsMissingObjects),
     ("TransferObjectManager rejects invalid metadata and states", TransferObjectManagerRejectsInvalidMetadataAndStates),
     ("FakeTransferObject implements transfer object contract", FakeTransferObjectImplementsTransferObjectContract),
-    ("Transfer object core assembly has no platform dependencies", TransferObjectCoreAssemblyHasNoPlatformDependencies)
+    ("Transfer object core assembly has no platform dependencies", TransferObjectCoreAssemblyHasNoPlatformDependencies),
+    ("TransferRequest creates and validates requests", TransferRequestCreatesAndValidatesRequests),
+    ("TransferPlan creates logical plans", TransferPlanCreatesLogicalPlans),
+    ("TransferEngine validates plans", TransferEngineValidatesPlans),
+    ("TransferEngine resolves right targets", TransferEngineResolvesRightTargets),
+    ("TransferEngine resolves left targets", TransferEngineResolvesLeftTargets),
+    ("TransferEngine resolves Any with one target", TransferEngineResolvesAnyWithOneTarget),
+    ("TransferEngine enforces required capabilities", TransferEngineEnforcesRequiredCapabilities),
+    ("TransferEngine rejects forbidden capabilities", TransferEngineRejectsForbiddenCapabilities),
+    ("TransferEngine prepares transfer objects", TransferEnginePreparesTransferObjects),
+    ("TransferEngine completes transfer objects", TransferEngineCompletesTransferObjects),
+    ("TransferEngine records transfer object history", TransferEngineRecordsTransferObjectHistory),
+    ("TransferEngine reports missing source workspaces", TransferEngineReportsMissingSourceWorkspaces),
+    ("TransferEngine reports missing targets", TransferEngineReportsMissingTargets),
+    ("TransferEngine reports missing transfer objects", TransferEngineReportsMissingTransferObjects),
+    ("TransferEngine cancels transfers", TransferEngineCancelsTransfers),
+    ("TransferEngine fails transfers", TransferEngineFailsTransfers),
+    ("TransferEngine executes logical transfers successfully", TransferEngineExecutesLogicalTransfersSuccessfully),
+    ("Transfer engine core assembly has no platform dependencies", TransferEngineCoreAssemblyHasNoPlatformDependencies)
 };
 
 var failed = 0;
@@ -1545,6 +1572,396 @@ static void TransferObjectCoreAssemblyHasNoPlatformDependencies()
     Assert.Equal(0, references.Length);
 }
 
+static void TransferRequestCreatesAndValidatesRequests()
+{
+    var request = TransferRequest(
+        ManagedTransferObjectId.Create("object-a"),
+        required: CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Clipboard),
+        forbidden: CapabilitySet.FromIds(CapabilityId.CloudMode));
+
+    var snapshot = request.Snapshot();
+    var requirement = snapshot.ToRequirement();
+
+    Assert.Equal("request-a", snapshot.RequestId);
+    Assert.Equal(CoreTransferDirection.Right, snapshot.RequestedDirection);
+    Assert.True(requirement.RequiredCapabilities.Contains(CapabilityId.Display));
+    Assert.True(requirement.ForbiddenCapabilities.Contains(CapabilityId.CloudMode));
+    Assert.ThrowsWithCode(
+        CoreTransferFailureReason.InvalidDirection,
+        () => (request with { RequestedDirection = CoreTransferDirection.Unknown }).Validate());
+}
+
+static void TransferPlanCreatesLogicalPlans()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+
+    var plan = fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id));
+
+    Assert.StartsWith("rkws-plan-", plan.PlanId);
+    Assert.Equal(fixture.Source.WorkspaceId, plan.SourceWorkspace.Id);
+    Assert.Equal("workspace-b", plan.TargetWorkspace.Id.ToString());
+    Assert.Equal(fixture.TransferObject.Id, plan.TransferObject.Id);
+    Assert.True(plan.IsValid);
+    Assert.Equal(6, plan.Steps.Count);
+}
+
+static void TransferEngineValidatesPlans()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+    var plan = fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id));
+
+    var validated = fixture.Engine.ValidatePlan(plan);
+
+    Assert.True(validated.IsValid);
+    Assert.Equal(0, validated.ValidationMessages.Count);
+}
+
+static void TransferEngineResolvesRightTargets()
+{
+    var fixture = TransferEngineFixture(
+        LeftTarget("workspace-left"),
+        RightTarget("workspace-right"));
+
+    var plan = fixture.Engine.CreatePlan(TransferRequest(
+        fixture.TransferObject.Id,
+        direction: CoreTransferDirection.Right));
+
+    Assert.Equal("workspace-right", plan.TargetWorkspace.Id.ToString());
+}
+
+static void TransferEngineResolvesLeftTargets()
+{
+    var fixture = TransferEngineFixture(
+        LeftTarget("workspace-left"),
+        RightTarget("workspace-right"));
+
+    var plan = fixture.Engine.CreatePlan(TransferRequest(
+        fixture.TransferObject.Id,
+        direction: CoreTransferDirection.Left));
+
+    Assert.Equal("workspace-left", plan.TargetWorkspace.Id.ToString());
+}
+
+static void TransferEngineResolvesAnyWithOneTarget()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+
+    var plan = fixture.Engine.CreatePlan(TransferRequest(
+        fixture.TransferObject.Id,
+        direction: CoreTransferDirection.Any));
+
+    Assert.Equal("workspace-b", plan.TargetWorkspace.Id.ToString());
+}
+
+static void TransferEngineEnforcesRequiredCapabilities()
+{
+    var fixture = TransferEngineFixture(TransferTarget(
+        "workspace-b",
+        RegistryWorkspacePosition.Right,
+        5,
+        CapabilityId.Display));
+
+    Assert.ThrowsWithCode(
+        CoreTransferFailureReason.RequiredCapabilitiesMissing,
+        () => fixture.Engine.CreatePlan(TransferRequest(
+            fixture.TransferObject.Id,
+            required: CapabilitySet.FromIds(CapabilityId.Display, CapabilityId.Clipboard))));
+}
+
+static void TransferEngineRejectsForbiddenCapabilities()
+{
+    var fixture = TransferEngineFixture(TransferTarget(
+        "workspace-cloud",
+        RegistryWorkspacePosition.Right,
+        100,
+        CapabilityId.Display,
+        CapabilityId.Clipboard,
+        CapabilityId.Encryption,
+        CapabilityId.Pairing,
+        CapabilityId.CloudMode));
+
+    Assert.ThrowsWithCode(
+        CoreTransferFailureReason.ForbiddenCapabilitiesPresent,
+        () => fixture.Engine.CreatePlan(TransferRequest(
+            fixture.TransferObject.Id,
+            forbidden: CapabilitySet.FromIds(CapabilityId.CloudMode))));
+}
+
+static void TransferEnginePreparesTransferObjects()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+    var plan = fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id));
+
+    var prepared = fixture.Engine.PrepareTransfer(plan);
+    var transferObject = Assert.NotNull(fixture.TransferObjectManager.Get(fixture.TransferObject.Id));
+
+    Assert.Equal(ManagedTransferObjectState.Prepared, transferObject.State);
+    Assert.Equal("workspace-b", transferObject.Metadata.TargetWorkspace);
+    Assert.True(prepared.Steps.Any(step =>
+        step.Name == "PrepareTransfer" &&
+        step.Status == CoreTransferStepStatus.Completed));
+}
+
+static void TransferEngineCompletesTransferObjects()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+    var plan = fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id));
+    var prepared = fixture.Engine.PrepareTransfer(plan);
+
+    var result = fixture.Engine.CompleteTransfer(prepared);
+    var transferObject = Assert.NotNull(fixture.TransferObjectManager.Get(fixture.TransferObject.Id));
+
+    Assert.True(result.IsSuccess);
+    Assert.Equal(ManagedTransferObjectState.Completed, result.FinalState);
+    Assert.Equal(ManagedTransferObjectState.Completed, transferObject.State);
+}
+
+static void TransferEngineRecordsTransferObjectHistory()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+
+    var result = fixture.Engine.ExecuteLogicalTransfer(TransferRequest(fixture.TransferObject.Id));
+    var transferObject = Assert.NotNull(fixture.TransferObjectManager.Get(fixture.TransferObject.Id));
+    var actions = transferObject.History.Select(entry => entry.Action).ToArray();
+
+    Assert.True(result.IsSuccess);
+    Assert.True(actions.Contains("Created"));
+    Assert.True(actions.Contains("State:Validated"));
+    Assert.True(actions.Contains("MetadataUpdated"));
+    Assert.True(actions.Contains("State:Prepared"));
+    Assert.True(actions.Contains("State:Completed"));
+}
+
+static void TransferEngineReportsMissingSourceWorkspaces()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+
+    Assert.ThrowsWithCode(
+        CoreTransferFailureReason.SourceWorkspaceMissing,
+        () => fixture.Engine.CreatePlan(TransferRequest(
+            fixture.TransferObject.Id,
+            sourceWorkspaceId: RegistryWorkspaceId.Create("missing-source"))));
+}
+
+static void TransferEngineReportsMissingTargets()
+{
+    var fixture = TransferEngineFixture();
+
+    Assert.ThrowsWithCode(
+        CoreTransferFailureReason.TargetWorkspaceMissing,
+        () => fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id)));
+}
+
+static void TransferEngineReportsMissingTransferObjects()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+
+    Assert.ThrowsWithCode(
+        CoreTransferFailureReason.TransferObjectMissing,
+        () => fixture.Engine.CreatePlan(TransferRequest(ManagedTransferObjectId.Create("missing-object"))));
+}
+
+static void TransferEngineCancelsTransfers()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+    var plan = fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id));
+
+    var result = fixture.Engine.CancelTransfer(plan);
+    var transferObject = Assert.NotNull(fixture.TransferObjectManager.Get(fixture.TransferObject.Id));
+
+    Assert.False(result.IsSuccess);
+    Assert.Equal(CoreTransferFailureReason.Cancelled, result.FailureReason);
+    Assert.Equal(ManagedTransferObjectState.Cancelled, transferObject.State);
+}
+
+static void TransferEngineFailsTransfers()
+{
+    var fixture = TransferEngineFixture(RightTarget("workspace-b"));
+    var plan = fixture.Engine.CreatePlan(TransferRequest(fixture.TransferObject.Id));
+
+    var result = fixture.Engine.FailTransfer(plan, "Unit failure.");
+    var transferObject = Assert.NotNull(fixture.TransferObjectManager.Get(fixture.TransferObject.Id));
+
+    Assert.False(result.IsSuccess);
+    Assert.Equal(CoreTransferFailureReason.Failed, result.FailureReason);
+    Assert.Equal(ManagedTransferObjectState.Failed, transferObject.State);
+}
+
+static void TransferEngineExecutesLogicalTransfersSuccessfully()
+{
+    var fixture = TransferEngineFixture(
+        TransferTarget(
+            "workspace-low",
+            RegistryWorkspacePosition.Right,
+            1,
+            CapabilityId.Display,
+            CapabilityId.Clipboard,
+            CapabilityId.Encryption,
+            CapabilityId.Pairing),
+        TransferTarget(
+            "workspace-high",
+            RegistryWorkspacePosition.Right,
+            20,
+            CapabilityId.Display,
+            CapabilityId.Clipboard,
+            CapabilityId.Encryption,
+            CapabilityId.Pairing));
+
+    var result = fixture.Engine.ExecuteLogicalTransfer(TransferRequest(fixture.TransferObject.Id));
+
+    Assert.True(result.IsSuccess);
+    Assert.Equal("workspace-high", Assert.NotNull(result.TargetWorkspace).Id.ToString());
+    Assert.Equal(ManagedTransferObjectState.Completed, result.FinalState);
+}
+
+static void TransferEngineCoreAssemblyHasNoPlatformDependencies()
+{
+    var forbiddenFragments = new[]
+    {
+        "Windows",
+        "Presentation",
+        "WinForms",
+        "Wpf",
+        "UIKit",
+        "AppKit",
+        "Android"
+    };
+
+    var references = typeof(CoreTransferEngine)
+        .Assembly
+        .GetReferencedAssemblies()
+        .Select(reference => reference.Name ?? string.Empty)
+        .Where(name => forbiddenFragments.Any(fragment => name.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        .ToArray();
+
+    Assert.Equal(0, references.Length);
+}
+
+static (
+    RegistryWorkspaceRegistry WorkspaceRegistry,
+    CapabilityManager CapabilityManager,
+    ManagedTransferObjectManager TransferObjectManager,
+    CoreITransferEngine Engine,
+    RegistryWorkspaceDescriptor Source,
+    ManagedITransferObject TransferObject) TransferEngineFixture(
+        params RegistryWorkspaceDescriptor[] targets)
+{
+    var workspaceRegistry = new RegistryWorkspaceRegistry();
+    var capabilityManager = new CapabilityManager();
+    var transferObjectManager = new ManagedTransferObjectManager();
+    var engine = new CoreTransferEngine(
+        workspaceRegistry,
+        capabilityManager,
+        transferObjectManager);
+    var source = RegistryDescriptor(
+        "workspace-a",
+        position: RegistryWorkspacePosition.Center,
+        isTrusted: true,
+        priority: 10,
+        capabilityIds: new[]
+        {
+            CapabilityId.Display,
+            CapabilityId.Keyboard,
+            CapabilityId.Clipboard,
+            CapabilityId.Encryption,
+            CapabilityId.Pairing
+        });
+
+    workspaceRegistry.RegisterWorkspace(RegistryWorkspace.FromDescriptor(source));
+    foreach (var target in targets)
+    {
+        workspaceRegistry.RegisterWorkspace(RegistryWorkspace.FromDescriptor(target));
+    }
+
+    var transferObject = transferObjectManager.Create(
+        ManagedTransferObjectType.Text,
+        ManagedMetadata(
+            "object-a",
+            displayName: "Transfer text",
+            mimeType: "text/plain; charset=utf-8",
+            sourceWorkspace: source.WorkspaceId.ToString(),
+            targetWorkspace: string.Empty,
+            owner: "transfer-engine-test"));
+
+    return (
+        workspaceRegistry,
+        capabilityManager,
+        transferObjectManager,
+        engine,
+        source,
+        transferObject);
+}
+
+static CoreTransferRequest TransferRequest(
+    ManagedTransferObjectId transferObjectId,
+    RegistryWorkspaceId? sourceWorkspaceId = null,
+    CoreTransferDirection direction = CoreTransferDirection.Right,
+    CapabilitySet? required = null,
+    CapabilitySet? optional = null,
+    CapabilitySet? forbidden = null,
+    string requestId = "request-a")
+{
+    return new CoreTransferRequest
+    {
+        RequestId = requestId,
+        SourceWorkspaceId = sourceWorkspaceId ?? RegistryWorkspaceId.Create("workspace-a"),
+        RequestedDirection = direction,
+        TransferObjectId = transferObjectId,
+        RequiredCapabilities = required ?? CapabilitySet.FromIds(
+            CapabilityId.Display,
+            CapabilityId.Clipboard,
+            CapabilityId.Encryption,
+            CapabilityId.Pairing),
+        OptionalCapabilities = optional ?? CapabilitySet.Empty,
+        ForbiddenCapabilities = forbidden ?? CapabilitySet.Empty,
+        CreatedAt = new DateTimeOffset(2026, 7, 2, 9, 30, 0, TimeSpan.Zero),
+        RequestedBy = "unit-test",
+        Metadata = new Dictionary<string, string>
+        {
+            ["test"] = "transfer-engine"
+        }
+    };
+}
+
+static RegistryWorkspaceDescriptor RightTarget(string workspaceId)
+{
+    return TransferTarget(
+        workspaceId,
+        RegistryWorkspacePosition.Right,
+        5,
+        CapabilityId.Display,
+        CapabilityId.Clipboard,
+        CapabilityId.Encryption,
+        CapabilityId.Pairing);
+}
+
+static RegistryWorkspaceDescriptor LeftTarget(string workspaceId)
+{
+    return TransferTarget(
+        workspaceId,
+        RegistryWorkspacePosition.Left,
+        5,
+        CapabilityId.Display,
+        CapabilityId.Clipboard,
+        CapabilityId.Encryption,
+        CapabilityId.Pairing);
+}
+
+static RegistryWorkspaceDescriptor TransferTarget(
+    string workspaceId,
+    RegistryWorkspacePosition position,
+    int priority,
+    params CapabilityId[] capabilityIds)
+{
+    return RegistryDescriptor(
+        workspaceId,
+        position: position,
+        isTrusted: true,
+        priority: priority,
+        lastSeen: new DateTimeOffset(2026, 7, 2, 9, 0, 0, TimeSpan.Zero).AddMinutes(priority),
+        capabilityIds: capabilityIds);
+}
+
 static ManagedTransferMetadata ManagedMetadata(
     string objectId,
     string displayName = "Transfer object",
@@ -1745,6 +2162,21 @@ internal static class Assert
         }
 
         throw new InvalidOperationException($"Expected transfer object exception {expectedCode}.");
+    }
+
+    public static void ThrowsWithCode(CoreTransferFailureReason expectedReason, Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (CoreTransferEngineException ex)
+        {
+            Equal(expectedReason, ex.Reason);
+            return;
+        }
+
+        throw new InvalidOperationException($"Expected transfer engine exception {expectedReason}.");
     }
 
     public static void StartsWith(string expectedPrefix, string actual)

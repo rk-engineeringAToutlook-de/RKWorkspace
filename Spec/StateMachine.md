@@ -1,7 +1,7 @@
 # RKWS-0220 Transfer State Machine Specification
 
 Dokument-ID: RKWS-SPEC-STATE-001  
-Version: 1.0.0  
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -103,6 +103,26 @@ stateDiagram-v2
 - `Retry` braucht ein begrenztes Retry-Budget und darf keine Endlosschleife bilden.
 - Jeder Endzustand muss ein Logereignis erzeugen.
 
+## MA003.07 Core Runtime State Mapping
+
+Die Transfer Engine Runtime bildet in MA003.07 den rein logischen Core-Ausschnitt der State Machine ab. Sie startet nach der fachlichen Benutzerabsicht mit einem `TransferRequest`, erzeugt einen `TransferPlan`, sperrt aber noch keine echte Payload und startet keinen Transport.
+
+Der implementierte In-Memory-Pfad ist:
+
+```mermaid
+flowchart LR
+    Request["TransferRequest"] --> Plan["TransferPlan"]
+    Plan --> Target["Target Locked"]
+    Target --> Prepared["TransferObjectState.Prepared"]
+    Prepared --> Completed["TransferObjectState.Completed"]
+    Prepared --> Cancelled["TransferObjectState.Cancelled"]
+    Prepared --> Failed["TransferObjectState.Failed"]
+```
+
+`PrepareTransfer` validiert den Plan, fuehrt den Transfer Object Manager bei neuen Objekten zuerst nach `Validated`, schreibt die Zielarbeitsflaeche in die Transfer-Metadaten und setzt danach `Prepared`. `CompleteTransfer` setzt den logischen Abschluss auf `Completed`. `CancelTransfer` und `FailTransfer` verwenden dieselbe TransferObject-State-Machine und erzeugen History-Eintraege.
+
+Nicht Teil von MA003.07 sind `Transfer Running`, echte Payload-Uebertragung, Retry, Timeout, Rollback, Verschluesselung, OS-Ressourcen, Netzwerkadapter oder Ziel-Rendering.
+
 ## Querverweise
 
 - `Spec/ObjectModel.md`
@@ -114,4 +134,5 @@ stateDiagram-v2
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.07 Core Runtime Mapping fuer Transfer Engine dokumentiert. |
 | 1.0.0 | 2026-07-02 | Vollstaendige Transfer-State-Machine fuer RKWS-0220 definiert. |

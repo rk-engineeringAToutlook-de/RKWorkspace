@@ -1,7 +1,7 @@
 # RKWS-0210 Object Model Specification
 
 Dokument-ID: RKWS-SPEC-OBJECT-001  
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -128,6 +128,23 @@ Der Manager stellt folgende Bausteine bereit:
 
 Dieser Schritt implementiert keine Payload-Uebertragung, keine Persistenz, keine Netzwerkkommunikation, keine OS-Pfade als Betriebssystemoperation, keine GUI und keine Cloud. Integration mit Workspace Registry, Capability Manager und Plugin Manager wird ueber neutrale IDs, Metadaten und spaetere Core-Integrationstests vorbereitet.
 
+## MA003.07 Transfer Engine Runtime
+
+MA003.07 fuehrt die plattformneutrale Transfer Engine Runtime als fuenfte produktive Core-Komponente ein. Die Implementierung liegt in `src/Core/Transfers/` und orchestriert Workspace Registry, Capability Manager und Transfer Object Manager ohne Netzwerk, OS-APIs, GUI, Persistenz, Cloud, Firmware oder Hardware.
+
+Der Runtime-Vertrag besteht aus:
+
+- `TransferDirection` fuer Left, Right, Above, Below, Front, Back, Any und Unknown mit sauberer Abbildung auf `WorkspacePosition`.
+- `TransferRequest` mit RequestId, SourceWorkspaceId, RequestedDirection, TransferObjectId, RequiredCapabilities, OptionalCapabilities, ForbiddenCapabilities, CreatedAt, RequestedBy und Metadata.
+- `TransferPlan` mit PlanId, Request, SourceWorkspace, TargetWorkspace, TransferObject, Steps, CreatedAt, IsValid und ValidationMessages.
+- `TransferStep` mit StepNumber, Name, Description, Status, CreatedAt, CompletedAt und ErrorMessage.
+- `TransferResult` mit RequestId, PlanId, IsSuccess, SourceWorkspace, TargetWorkspace, TransferObject, FinalState, FailureReason, Messages und CompletedAt.
+- `ITransferEngine` fuer CreatePlan, ValidatePlan, PrepareTransfer, CompleteTransfer, CancelTransfer, FailTransfer und ExecuteLogicalTransfer.
+- `TransferEngine` als In-Memory-Runtime fuer Zielauswahl, Capability-Pruefung, State-Uebergang zu Prepared und Completed sowie kontrolliertes Cancel/Fail.
+- `TransferEngineException` mit stabilem `TransferFailureReason`.
+
+Die Runtime erzeugt keine Payload und fuehrt keinen Transport aus. Sie bildet den fachlichen Core-Pfad ab: Anfrage validieren, Quelle und Objekt aufloesen, Ziel anhand Richtung und Capabilities bestimmen, Plan erzeugen, Transferobjekt vorbereiten und logisch abschliessen.
+
 ## Querverweise
 
 - `Spec/StateMachine.md`
@@ -139,6 +156,7 @@ Dieser Schritt implementiert keine Payload-Uebertragung, keine Persistenz, keine
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime und Transfer-Planobjekte dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA003.04 Transfer Object Manager als plattformneutrale Core-Komponente dokumentiert. |
 | 1.0.0 | 2026-07-02 | Vollstaendiges Objektmodell fuer RKWS-0210 definiert. |
 | 0.1.0 | 2026-07-02 | Erste Objektmodell-Skizze angelegt. |

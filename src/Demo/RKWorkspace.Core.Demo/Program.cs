@@ -1,6 +1,7 @@
 using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Plugins;
 using RKWorkspace.Core.TransferObjects;
+using RKWorkspace.Core.Transfers;
 using RKWorkspace.Core.Workspaces;
 
 try
@@ -19,6 +20,12 @@ try
 
     var transferObjectManager = new TransferObjectManager();
     Console.WriteLine("[OK] Transfer Object Manager initialized");
+
+    var transferEngine = new TransferEngine(
+        workspaceRegistry,
+        capabilityManager,
+        transferObjectManager);
+    Console.WriteLine("[OK] Transfer Engine initialized");
 
     var demoPlugin = new DemoPlugin(
         "demo.core-flow",
@@ -81,47 +88,36 @@ try
         Metadata(source.WorkspaceId.ToString()));
     Console.WriteLine("[OK] Transfer object created: Text");
 
-    transferObjectManager.Validate(transferObject.Id);
-    Console.WriteLine("[OK] Transfer object validated");
-
-    var targetRequirement = new CapabilityRequirement
+    var request = new TransferRequest
     {
-        RequiredCapabilities = new[]
-        {
+        RequestId = "rkws-demo-request",
+        SourceWorkspaceId = source.WorkspaceId,
+        RequestedDirection = TransferDirection.Right,
+        TransferObjectId = transferObject.Id,
+        RequiredCapabilities = CapabilitySet.FromIds(
             CapabilityId.Display,
             CapabilityId.Clipboard,
             CapabilityId.Encryption,
-            CapabilityId.Pairing
+            CapabilityId.Pairing),
+        OptionalCapabilities = CapabilitySet.Empty,
+        ForbiddenCapabilities = CapabilitySet.Empty,
+        CreatedAt = new DateTimeOffset(2026, 7, 2, 13, 0, 40, TimeSpan.Zero),
+        RequestedBy = "demo",
+        Metadata = new Dictionary<string, string>
+        {
+            ["demo"] = "core-runner"
         }
     };
-    var selectedTarget = workspaceRegistry.GetBestTarget(new WorkspaceQuery
-    {
-        Position = WorkspacePosition.Right,
-        TrustedOnly = true,
-        AvailableOnly = true,
-        RequiredCapabilities = CapabilitySet.FromIds(targetRequirement.RequiredCapabilities)
-    });
-    var targetMatch = capabilityManager.MatchRequirement(selectedTarget.Capabilities, targetRequirement);
-    Ensure(targetMatch.IsMatch, "Selected target capabilities do not match demo requirements.");
+    Console.WriteLine("[OK] Transfer request created: Right");
+
+    var result = transferEngine.ExecuteLogicalTransfer(request);
+    Ensure(result.IsSuccess, $"Transfer Engine failed: {string.Join(" ", result.Messages)}");
     Ensure(
-        selectedTarget.Descriptor.WorkspaceId == target.WorkspaceId,
-        $"Unexpected target selected: {selectedTarget.Descriptor.WorkspaceId}");
-    Console.WriteLine("[OK] Target resolved: RKWS-Demo-Display-Right");
-
-    transferObjectManager.UpdateMetadata(
-        transferObject.Id,
-        transferObject.Metadata with
-        {
-            TargetWorkspace = selectedTarget.Descriptor.WorkspaceId.ToString(),
-            ModifiedAt = new DateTimeOffset(2026, 7, 2, 13, 1, 0, TimeSpan.Zero)
-        });
-    Console.WriteLine("[OK] Target workspace written to transfer object");
-
-    transferObjectManager.UpdateState(transferObject.Id, TransferObjectState.Prepared);
-    Console.WriteLine("[OK] Transfer prepared");
-
-    transferObjectManager.UpdateState(transferObject.Id, TransferObjectState.Completed);
-    Console.WriteLine("[OK] Transfer completed");
+        result.TargetWorkspace?.Descriptor.WorkspaceId == target.WorkspaceId,
+        $"Unexpected target selected: {result.TargetWorkspace?.Descriptor.WorkspaceId}");
+    Console.WriteLine("[OK] Target resolved by Transfer Engine: RKWS-Demo-Display-Right");
+    Console.WriteLine("[OK] Transfer prepared by Transfer Engine");
+    Console.WriteLine("[OK] Transfer completed by Transfer Engine");
 
     var finalObject = transferObjectManager.Get(transferObject.Id);
     if (finalObject is null)
@@ -141,7 +137,7 @@ try
 
     Console.WriteLine();
     Console.WriteLine($"Source: {source.WorkspaceId}");
-    Console.WriteLine($"Target: {selectedTarget.Descriptor.WorkspaceId}");
+    Console.WriteLine($"Target: {result.TargetWorkspace?.Descriptor.WorkspaceId}");
     Console.WriteLine("Direction: Right");
     Console.WriteLine("ObjectType: Text");
     Console.WriteLine("Text: \"Hallo von RK Workspace\"");

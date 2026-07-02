@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.6.0
+Version: 0.7.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -19,6 +19,7 @@ flowchart LR
     MA00303 --> MA00304["MA003.04 Transfer Object Manager"]
     MA00304 --> MA00305["MA003.05 Core Integration Tests"]
     MA00305 --> MA00306["MA003.06 Core Demo Runner"]
+    MA00306 --> MA00307["MA003.07 Transfer Engine Runtime"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -184,9 +185,42 @@ Nicht im Umfang:
 - Cloud
 - Firmware oder Hardware
 
-## Offene Punkte nach MA003.06
+## MA003.07 Transfer Engine Runtime
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Object-Grundbausteine, Integrationstests und einen sichtbaren Demo Runner. MA003.07 kann daraus die Transfer Engine Runtime ableiten, weiterhin getrennt von Netzwerk, OS-Agenten und GUI.
+Status: Abgeschlossen.
+
+Umfang:
+
+- Namespace `RKWorkspace.Core.Transfers`
+- `TransferDirection`
+- `TransferFailureReason`
+- `TransferRequest`
+- `TransferPlan`
+- `TransferStep`
+- `TransferResult`
+- `ITransferEngine`
+- `TransferEngine`
+- `TransferEngineException`
+- Zielauswahl ueber Workspace Registry und Capability Manager
+- Required-, Optional- und Forbidden-Capability-Pruefung
+- Prepare, Complete, Cancel, Fail und ExecuteLogicalTransfer
+- Integrationstests verwenden die Transfer Engine statt manueller Orchestrierung
+- Demo Runner verwendet die Transfer Engine statt manueller Ziel-/Statuslogik
+- Unit-Tests fuer Request, Plan, Validierung, Zielauswahl, Fehlerfaelle, State-Uebergaenge, History und Plattformneutralitaet
+
+Nicht im Umfang:
+
+- Payload-Uebertragung
+- Netzwerkkommunikation
+- Betriebssystem-APIs
+- GUI
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA003.07
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object- und Transfer-Engine-Grundbausteine, Integrationstests und einen sichtbaren Demo Runner. Der naechste Teilauftrag kann darauf aufbauend weitere Core-Regeln definieren, weiterhin getrennt von Netzwerk, OS-Agenten, GUI, Persistenz, Cloud, Firmware und Hardware.
 
 ## Querverweise
 
@@ -199,6 +233,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Obje
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.7.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime dokumentiert. |
 | 0.6.0 | 2026-07-02 | MA003.06 Core Demo Runner als sichtbaren End-to-End-Core-Ablauf dokumentiert. |
 | 0.5.0 | 2026-07-02 | MA003.05 erster vollstaendiger Core Integration Test dokumentiert. |
 | 0.4.0 | 2026-07-02 | MA003.04 Transfer Object Manager als vierte produktive Core-Komponente dokumentiert. |

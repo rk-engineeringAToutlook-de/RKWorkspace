@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -72,6 +72,20 @@ MA003.06 fuehrt `src/Demo/RKWorkspace.Core.Demo/` und `tools/run-demo.ps1` ein. 
 
 Der Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst, keine Persistenzschicht und kein Plattformadapter.
 
+## MA003.07 Transfer Engine Runtime Tests
+
+MA003.07 erweitert die Unit-Tests um die Transfer Engine Runtime. Geprueft werden TransferRequest, TransferPlan, Planvalidierung, Zielauswahl fuer Right, Left und Any, Required/Forbidden Capabilities, Prepare, Complete, History, fehlende Quelle, fehlendes Ziel, fehlendes Objekt, Cancel, Fail, ExecuteLogicalTransfer und Plattformneutralitaet.
+
+Die Core-Integrationstests verwenden ab MA003.07 die Transfer Engine statt manueller Orchestrierung. Der Szenariosatz bleibt gleich:
+
+- Texttransfer nach rechts.
+- Fehlerfall ohne passendes Ziel.
+- Auswahl bei genau einem Ziel.
+- Ablehnung verbotener Capabilities.
+- Priority-Tie-Break bei mehreren passenden Zielen.
+
+Der Demo Runner nutzt ebenfalls `TransferEngine.ExecuteLogicalTransfer`. Damit laufen Unit-Tests, Integration-Tests und sichtbare Demo ueber denselben logischen Core-Pfad.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -83,6 +97,7 @@ Der Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst, keine Per
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime Tests dokumentiert. |
 | 1.2.0 | 2026-07-02 | MA003.06 Core Demo Runner Test dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA003.05 Core Integration Tests und getrennte Testausgabe dokumentiert. |
 | 1.0.0 | 2026-07-02 | Vollstaendige Teststrategie fuer RKWS-0290 definiert. |

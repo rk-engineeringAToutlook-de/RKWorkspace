@@ -1,6 +1,7 @@
 using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Plugins;
 using RKWorkspace.Core.TransferObjects;
+using RKWorkspace.Core.Transfers;
 using RKWorkspace.Core.Workspaces;
 
 internal sealed class CoreIntegrationScenarioRunner
@@ -10,7 +11,7 @@ internal sealed class CoreIntegrationScenarioRunner
         return RunTransferScenario(new ScenarioOptions
         {
             Name = "CoreIntegrationScenario_TransferText_RightDirection",
-            Direction = WorkspacePosition.Right,
+            Direction = TransferDirection.Right,
             TargetWorkspaces =
             {
                 Workspace(
@@ -30,8 +31,8 @@ internal sealed class CoreIntegrationScenarioRunner
         return RunTransferScenario(new ScenarioOptions
         {
             Name = "CoreIntegrationScenario_NoMatchingTarget_Fails",
-            Direction = WorkspacePosition.Right,
-            CompleteTransfer = false,
+            Direction = TransferDirection.Right,
+            ExpectSuccess = false,
             TargetWorkspaces =
             {
                 Workspace(
@@ -50,7 +51,7 @@ internal sealed class CoreIntegrationScenarioRunner
         return RunTransferScenario(new ScenarioOptions
         {
             Name = "CoreIntegrationScenario_OnlyOneTarget_AnyDirection",
-            Direction = WorkspacePosition.Left,
+            Direction = TransferDirection.Left,
             TargetWorkspaces =
             {
                 Workspace(
@@ -70,7 +71,7 @@ internal sealed class CoreIntegrationScenarioRunner
         return RunTransferScenario(new ScenarioOptions
         {
             Name = "CoreIntegrationScenario_ForbiddenCapabilityRejected",
-            Direction = WorkspacePosition.Right,
+            Direction = TransferDirection.Right,
             ForbiddenCapabilities = CapabilitySet.FromIds(CapabilityId.CloudMode),
             TargetWorkspaces =
             {
@@ -100,7 +101,7 @@ internal sealed class CoreIntegrationScenarioRunner
         return RunTransferScenario(new ScenarioOptions
         {
             Name = "CoreIntegrationScenario_PriorityBreaksTie",
-            Direction = WorkspacePosition.Right,
+            Direction = TransferDirection.Right,
             TargetWorkspaces =
             {
                 Workspace(
@@ -133,7 +134,12 @@ internal sealed class CoreIntegrationScenarioRunner
             var capabilityManager = new CapabilityManager();
             var workspaceRegistry = new WorkspaceRegistry();
             var transferObjectManager = new TransferObjectManager();
+            var transferEngine = new TransferEngine(
+                workspaceRegistry,
+                capabilityManager,
+                transferObjectManager);
             steps.Add("Core managers created.");
+            steps.Add("Transfer Engine created.");
 
             var plugin = new IntegrationPlugin(
                 "integration.transfer",
@@ -198,48 +204,31 @@ internal sealed class CoreIntegrationScenarioRunner
 
             steps.Add("Workspace A capabilities checked.");
 
-            var target = SelectTarget(
-                options,
-                capabilityManager,
-                workspaceRegistry,
-                source.WorkspaceId);
-
-            if (target is null)
-            {
-                return new CoreIntegrationScenarioResult
-                {
-                    ScenarioName = options.Name,
-                    IsSuccess = !options.CompleteTransfer,
-                    Steps = steps.Append("No matching target found.").ToArray(),
-                    ErrorMessage = "No matching target with required capabilities.",
-                    FinalState = null
-                };
-            }
-
-            steps.Add($"Target selected: {target.Descriptor.WorkspaceId}.");
-
             var transferObject = transferObjectManager.Create(
                 TransferObjectType.Text,
                 Metadata(source.WorkspaceId.ToString()));
             steps.Add("Transfer object created.");
 
-            transferObjectManager.Validate(transferObject.Id);
-            steps.Add("Transfer object validated.");
-
-            transferObjectManager.UpdateMetadata(
-                transferObject.Id,
-                transferObject.Metadata with
+            var request = new TransferRequest
+            {
+                RequestId = $"request-{options.Name}",
+                SourceWorkspaceId = source.WorkspaceId,
+                RequestedDirection = options.Direction,
+                TransferObjectId = transferObject.Id,
+                RequiredCapabilities = options.RequiredCapabilities,
+                OptionalCapabilities = options.OptionalCapabilities,
+                ForbiddenCapabilities = options.ForbiddenCapabilities,
+                CreatedAt = new DateTimeOffset(2026, 7, 2, 12, 0, 40, TimeSpan.Zero),
+                RequestedBy = "integration",
+                Metadata = new Dictionary<string, string>
                 {
-                    TargetWorkspace = target.Descriptor.WorkspaceId.ToString(),
-                    ModifiedAt = new DateTimeOffset(2026, 7, 2, 12, 1, 0, TimeSpan.Zero)
-                });
-            steps.Add("Transfer object target metadata updated.");
+                    ["scenario"] = options.Name
+                }
+            };
+            steps.Add("Transfer request created.");
 
-            transferObjectManager.UpdateState(transferObject.Id, TransferObjectState.Prepared);
-            steps.Add("Transfer logically prepared.");
-
-            transferObjectManager.UpdateState(transferObject.Id, TransferObjectState.Completed);
-            steps.Add("Transfer completed.");
+            var result = transferEngine.ExecuteLogicalTransfer(request);
+            steps.Add("Transfer Engine executed logical transfer.");
 
             var finalObject = transferObjectManager.Get(transferObject.Id);
             if (finalObject is null)
@@ -250,6 +239,28 @@ internal sealed class CoreIntegrationScenarioRunner
             var historyActions = finalObject.History
                 .Select(entry => entry.Action)
                 .ToArray();
+
+            if (!options.ExpectSuccess)
+            {
+                return new CoreIntegrationScenarioResult
+                {
+                    ScenarioName = options.Name,
+                    IsSuccess = !result.IsSuccess,
+                    Steps = steps.Append("No matching target found.").ToArray(),
+                    SelectedTarget = result.TargetWorkspace?.Descriptor.WorkspaceId.ToString() ?? string.Empty,
+                    TransferObjectId = string.Empty,
+                    FinalState = finalObject.State,
+                    HistoryActions = historyActions,
+                    ErrorMessage = result.Messages.FirstOrDefault() ?? string.Empty
+                };
+            }
+
+            if (result.TargetWorkspace is not null)
+            {
+                steps.Add($"Target selected: {result.TargetWorkspace.Descriptor.WorkspaceId}.");
+            }
+
+            steps.Add("Transfer completed.");
 
             var hasCoreHistory = new[]
             {
@@ -263,9 +274,11 @@ internal sealed class CoreIntegrationScenarioRunner
             return new CoreIntegrationScenarioResult
             {
                 ScenarioName = options.Name,
-                IsSuccess = finalObject.State == TransferObjectState.Completed && hasCoreHistory,
+                IsSuccess = result.IsSuccess &&
+                    finalObject.State == TransferObjectState.Completed &&
+                    hasCoreHistory,
                 Steps = steps,
-                SelectedTarget = target.Descriptor.WorkspaceId.ToString(),
+                SelectedTarget = result.TargetWorkspace?.Descriptor.WorkspaceId.ToString() ?? string.Empty,
                 TransferObjectId = finalObject.Id.ToString(),
                 FinalState = finalObject.State,
                 HistoryActions = historyActions,
@@ -276,65 +289,6 @@ internal sealed class CoreIntegrationScenarioRunner
         {
             return Failure(options.Name, steps, ex.Message);
         }
-    }
-
-    private static IWorkspace? SelectTarget(
-        ScenarioOptions options,
-        CapabilityManager capabilityManager,
-        WorkspaceRegistry workspaceRegistry,
-        WorkspaceId sourceWorkspaceId)
-    {
-        var baseQuery = new WorkspaceQuery
-        {
-            TrustedOnly = true,
-            AvailableOnly = true,
-            RequiredCapabilities = options.RequiredCapabilities,
-            OptionalCapabilities = options.OptionalCapabilities
-        };
-
-        var capabilityRequirement = new CapabilityRequirement
-        {
-            RequiredCapabilities = options.RequiredCapabilities.Capabilities
-                .Select(capability => capability.CapabilityId)
-                .ToArray(),
-            OptionalCapabilities = options.OptionalCapabilities.Capabilities
-                .Select(capability => capability.CapabilityId)
-                .ToArray(),
-            ForbiddenCapabilities = options.ForbiddenCapabilities.Capabilities
-                .Select(capability => capability.CapabilityId)
-                .ToArray()
-        };
-
-        var candidates = workspaceRegistry.FindMatching(baseQuery)
-            .Select(result => result.Workspace)
-            .Where(workspace => workspace.Descriptor.WorkspaceId != sourceWorkspaceId)
-            .Where(workspace => capabilityManager.MatchRequirement(workspace.Capabilities, capabilityRequirement).IsMatch)
-            .ToArray();
-
-        if (candidates.Length == 0)
-        {
-            return null;
-        }
-
-        if (candidates.Length == 1)
-        {
-            return candidates[0];
-        }
-
-        var targetRegistry = new WorkspaceRegistry();
-        foreach (var candidate in candidates)
-        {
-            targetRegistry.RegisterWorkspace(candidate);
-        }
-
-        return targetRegistry.GetBestTarget(new WorkspaceQuery
-        {
-            Position = options.Direction,
-            TrustedOnly = true,
-            AvailableOnly = true,
-            RequiredCapabilities = options.RequiredCapabilities,
-            OptionalCapabilities = options.OptionalCapabilities
-        });
     }
 
     private static void RegisterWorkspace(
@@ -409,7 +363,7 @@ internal sealed class CoreIntegrationScenarioRunner
     {
         public required string Name { get; init; }
 
-        public WorkspacePosition Direction { get; init; } = WorkspacePosition.Right;
+        public TransferDirection Direction { get; init; } = TransferDirection.Right;
 
         public CapabilitySet RequiredCapabilities { get; init; } =
             CapabilitySet.FromIds(
@@ -422,7 +376,7 @@ internal sealed class CoreIntegrationScenarioRunner
 
         public CapabilitySet ForbiddenCapabilities { get; init; } = CapabilitySet.Empty;
 
-        public bool CompleteTransfer { get; init; } = true;
+        public bool ExpectSuccess { get; init; } = true;
 
         public List<WorkspaceDescriptor> TargetWorkspaces { get; } = new();
     }
