@@ -36,6 +36,7 @@ internal static class Program
         var roundTripSuccess = roundTripWindow.RunRoundTripDemo();
         var illusionWindow = new MultiWindowWorkspaceContext();
         var illusionResult = illusionWindow.RunWorkspaceIllusionDemo();
+        var firstContactResult = RunFirstContactSmokeTest();
         var labResult = RunWorkspaceExperienceLabSmokeTest();
         var edgeLeft = multiWindow.DetectWindowEdge(5, 0, 200, 24);
         var edgeRight = multiWindow.DetectWindowEdge(195, 0, 200, 24);
@@ -83,6 +84,7 @@ internal static class Program
             uxDiagnosticsSuccess &&
             sessionCandidateReady &&
             illusionResult.IsSuccess &&
+            firstContactResult.IsSuccess &&
             labResult.IsSuccess;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
@@ -115,6 +117,12 @@ internal static class Program
         Console.WriteLine($"IllusionCandidateStatus: {illusionResult.Diagnostics.CandidateStatus}");
         Console.WriteLine($"IllusionTransitionMs: {illusionResult.Diagnostics.LastTransitionDurationMs}");
         Console.WriteLine($"IllusionReturnCount: {illusionResult.Diagnostics.ReturnTransferCount}");
+        Console.WriteLine($"FirstContactStarted: {(firstContactResult.StartedSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"FirstContactGrip: {(firstContactResult.GripSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"FirstContactPlace: {(firstContactResult.PlaceSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"FirstContactMetrics: {(firstContactResult.MetricsSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"FirstContactTimeToGripMs: {firstContactResult.TimeToGripMs}");
+        Console.WriteLine($"FirstContactTimeToPlaceMs: {firstContactResult.TimeToPlaceMs}");
         Console.WriteLine($"LabGripVariants: {WorkspaceExperienceLabState.GripVariants.Count}");
         Console.WriteLine($"LabCarryVariants: {WorkspaceExperienceLabState.CarryVariants.Count}");
         Console.WriteLine($"LabEdgeVariants: {WorkspaceExperienceLabState.EdgeVariants.Count}");
@@ -140,6 +148,7 @@ internal static class Program
         Console.WriteLine(returnTransferSuccess ? "RoundTrip: SUCCESS" : "RoundTrip: FAILED");
         Console.WriteLine(uxDiagnosticsSuccess ? "UxDiagnostics: SUCCESS" : "UxDiagnostics: FAILED");
         Console.WriteLine(illusionResult.IsSuccess ? "WorkspaceIllusion: SUCCESS" : "WorkspaceIllusion: FAILED");
+        Console.WriteLine(firstContactResult.IsSuccess ? "FirstContact: SUCCESS" : "FirstContact: FAILED");
         Console.WriteLine(labResult.IsSuccess ? "WorkspaceExperienceLab: SUCCESS" : "WorkspaceExperienceLab: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
@@ -147,6 +156,45 @@ internal static class Program
         fullDemoViewModel.StopDualAgents();
 
         return interactiveSuccess ? 0 : 1;
+    }
+
+    private static FirstContactSmokeResult RunFirstContactSmokeTest()
+    {
+        var session = new FirstContactSession();
+        var started = session.GetSnapshot();
+        var startedSuccess =
+            !started.IsCompleted &&
+            !started.IsGrabbed &&
+            string.Equals(started.Hint, "Nimm dieses Objekt.", StringComparison.Ordinal) &&
+            started.FailedAttempts == 0 &&
+            started.Cancellations == 0 &&
+            started.UnnecessaryClicks == 0;
+
+        session.RecordUnnecessaryClick();
+        var gripSuccess = session.RecordGrip();
+        var afterGrip = session.GetSnapshot();
+        session.RecordHoverTarget(true);
+        var placeSuccess = session.RecordPlace(overTarget: true);
+        var completed = session.GetSnapshot();
+        var metricsSuccess =
+            afterGrip.TimeToGripMs is >= 0 &&
+            completed.TimeToPlaceMs is >= 0 &&
+            completed.IsSuccessWithinThirtySeconds &&
+            completed.UnnecessaryClicks == 1 &&
+            completed.FailedAttempts == 0 &&
+            completed.Cancellations == 0 &&
+            string.Equals(completed.ObjectLocation, "Right", StringComparison.Ordinal) &&
+            string.Equals(completed.Hint, "Es liegt jetzt dort.", StringComparison.Ordinal);
+
+        return new FirstContactSmokeResult
+        {
+            StartedSuccess = startedSuccess,
+            GripSuccess = gripSuccess && afterGrip.IsGrabbed,
+            PlaceSuccess = placeSuccess && completed.IsCompleted,
+            MetricsSuccess = metricsSuccess,
+            TimeToGripMs = afterGrip.TimeToGripMs ?? -1,
+            TimeToPlaceMs = completed.TimeToPlaceMs ?? -1
+        };
     }
 
     private static WorkspaceExperienceLabSmokeResult RunWorkspaceExperienceLabSmokeTest()
@@ -205,5 +253,25 @@ internal static class Program
             RatingSuccess &&
             EvolutionSuccess &&
             MultiWindowAppliedSuccess;
+    }
+
+    private sealed record FirstContactSmokeResult
+    {
+        public required bool StartedSuccess { get; init; }
+
+        public required bool GripSuccess { get; init; }
+
+        public required bool PlaceSuccess { get; init; }
+
+        public required bool MetricsSuccess { get; init; }
+
+        public required long TimeToGripMs { get; init; }
+
+        public required long TimeToPlaceMs { get; init; }
+
+        public bool IsSuccess => StartedSuccess &&
+            GripSuccess &&
+            PlaceSuccess &&
+            MetricsSuccess;
     }
 }

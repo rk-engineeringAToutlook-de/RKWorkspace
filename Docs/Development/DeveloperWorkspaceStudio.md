@@ -1,9 +1,9 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 1.9.0
+Version: 2.0.0
 Status: Accepted
-Datum: 2026-07-02
+Datum: 2026-07-03
 
 ## Zweck
 
@@ -35,7 +35,15 @@ Automatisierter Smoke-Test ohne dauerhaft offene GUI:
 
 ## Layout
 
-Die Oberflaeche ist in Registerkarten gegliedert. Die erste Registerkarte enthaelt das bestehende Developer Studio:
+Die Oberflaeche ist in Registerkarten gegliedert. Die erste Registerkarte heisst `First Contact` und zeigt nur einen reduzierten Erstkontakt-Test:
+
+- ein Ding
+- zwei Arbeitsflaechen
+- kurze Hinweise
+- lokale Messwerte
+- keine Optionen, Menues oder technischen Schaltflaechen innerhalb der Testflaeche
+
+Die zweite Registerkarte enthaelt das bestehende Developer Studio:
 
 - Oben: Interaktiver Workspace-Prototyp mit Workspace A links, Workspace B rechts und einer sichtbaren Textkarte.
 - Mitte links: Workspace-Liste mit Name, Type, Position, State, Trusted und Priority.
@@ -44,12 +52,13 @@ Die Oberflaeche ist in Registerkarten gegliedert. Die erste Registerkarte enthae
 - Unten: Log und Transfer-History.
 - Separat: Multi Window Prototype mit zwei echten Arbeitsflaechen, gemeinsamem Core-Kontext, Objektkarten, Arbeitsflaechenvorschau, Durchgangszonen, Ghost-Kontinuitaet, History, Diagnostics, UX-Diagnose und Log je Fenster.
 
-Die zweite Registerkarte heisst `Digitale Physik`. Sie dient ausschliesslich dem Live-Vergleich von UX-Varianten nach Pick, Carry, Place.
+Die dritte Registerkarte heisst `Digitale Physik`. Sie dient ausschliesslich dem Live-Vergleich von UX-Varianten nach Pick, Carry, Place.
 
 ## Aktionen
 
 Minimal verfuegbare Aktionen:
 
+- First Contact
 - Start Runtime
 - Add Demo Workspaces
 - Create Text Object
@@ -68,6 +77,27 @@ Minimal verfuegbare Aktionen:
 `Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Arbeitsflaechen fuer den linken und rechten Arbeitsplatz. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Arbeitsflaechen, Dinge, Diagnostics, History, Log und die wichtigsten Aktionen.
 
 `Digitale Physik` stellt ab DP-001 generierte Generationen bereit: 24 Greifvarianten, 12 Tragevarianten, 24 Durchgangsvarianten, 24 Kontinuitaetsvarianten, 20 Ablegevarianten und 8 Aufmerksamkeitsvarianten. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante wird lokal mit den drei Gefuehlsbuttons `Gruen - Das fuehlt sich richtig an`, `Gelb - Fast` oder `Rot - Fuehlt sich falsch an` bewertet. Nach einer Bewertung waehlt das Lab automatisch eine nahe Folgegeneration.
+
+## First Contact
+
+`First Contact` ist der reduzierte Owner-Test fuer die erste Begegnung mit RK Workspace. Er misst, ob eine neue Person ohne Erklaerung innerhalb von 30 Sekunden ein Ding nimmt, nach rechts traegt und dort ablegt.
+
+Die Testflaeche zeigt nur:
+
+- `Nimm dieses Objekt.`
+- ein wertig wirkendes Ding
+- eine linke Arbeitsflaeche
+- eine rechte Arbeitsflaeche
+
+Beim Greifen hebt sich das Ding, erhaelt Tiefe, Schatten und die aktuelle Tragephysik aus dem Lab. Beim Tragen wird der Hintergrund ruhiger. Die rechte Arbeitsflaeche zeigt `Hier ablegen`, sobald sie als Ablegeort erreicht wird. Nach Erfolg liegt das Ding sichtbar rechts; es gibt kein Popup und keine technische Transfermeldung in der Testflaeche.
+
+Der Button `First Contact` setzt den Test zurueck und oeffnet die First-Contact-Registerkarte. Die Messwerte bleiben lokal im laufenden Studio:
+
+- Zeit bis Greifen
+- Zeit bis Ablegen
+- Fehlversuche
+- Abbrueche
+- unnoetige Klicks
 
 ## Interaktiver Workspace-Prototyp
 
@@ -126,6 +156,7 @@ Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio.
 - Der Smoke-Test prueft den interaktiven Demo-Ablauf viewmodelbasiert ohne echte UI-Automation.
 - Der Smoke-Test prueft den Multi-Window-Ablauf, `Run Full Demo`, EdgeTarget-Logik, Roundtrip B nach A, UX-Diagnostics, Workspace Illusion und `WorkspaceSessionCandidate` viewmodelbasiert ohne echte UI-Automation.
 - Der Smoke-Test prueft die Digitale Physik viewmodelbasiert: Variantenanzahl inklusive 12 Tragevarianten, Live-Wechsel, Bewertung, automatische Folgegeneration und Anwendung im Multi-Window-Kontext.
+- Der Smoke-Test prueft First Contact viewmodelbasiert: Startzustand, Greifen, Ablegen, lokale Messwerte und 30-Sekunden-Erfolg.
 - Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
@@ -136,12 +167,14 @@ Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio.
 - `WorkspaceSessionCandidate` ist vorbereitet, aber noch keine Live-Workspace-Session.
 - Die Workspace-Illusion ist optisch; echte OS-Hot-Zones, Monitoruebertritt und Live-Sessions sind noch nicht implementiert.
 - Das Workspace Experience Lab ist ein internes Experimentierlabor, kein Produkt und kein Endanwenderwerkzeug.
+- First Contact ist ein Owner-Testmodus, kein Produktmodus und keine echte Studie mit externer Telemetrie.
 - Lab-Bewertungen, Evolutionsschritt und lokale Statistik werden in `%LOCALAPPDATA%\RKWorkspace\workspace-experience-lab.json` gespeichert.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.0.0 | 2026-07-03 | MA005.04 First Contact mit reduzierter Erstkontakt-Testflaeche dokumentiert. |
 | 1.9.0 | 2026-07-03 | DP-001 Digitale Physik mit Tragevarianten und Pick-Carry-Place dokumentiert. |
 | 1.8.0 | 2026-07-02 | UX Evolution Lab Sprint 1 mit Generationen, Gefuehlsbewertung und Statistik dokumentiert. |
 | 1.7.0 | 2026-07-02 | UX-LAB-001 Workspace Experience Lab dokumentiert. |

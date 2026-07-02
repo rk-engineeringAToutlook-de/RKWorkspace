@@ -10,6 +10,7 @@ internal sealed class MainWindow : Form
     private readonly DataGridView _agentGrid = CreateGrid();
     private readonly DataGridView _logGrid = CreateGrid();
     private readonly DataGridView _historyGrid = CreateGrid();
+    private readonly FirstContactSurface _firstContactSurface = new();
     private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
     private readonly WorkspaceExperienceLabState _experienceLab = WorkspaceExperienceLabState.Load();
     private readonly List<WorkspaceWindow> _workspaceWindows = new();
@@ -29,6 +30,7 @@ internal sealed class MainWindow : Form
     private readonly Label _labSpeedLabel = ValueLabel();
     private readonly CheckBox _labAnimationEnabled = new();
     private readonly TrackBar _labSpeed = new();
+    private TabControl? _tabs;
     private MultiWindowWorkspaceContext? _multiWindowContext;
     private bool _syncingLabControls;
 
@@ -59,7 +61,6 @@ internal sealed class MainWindow : Form
             RefreshUi();
             return success;
         };
-
         Controls.Add(BuildLayout());
         _experienceLab.Changed += OnExperienceLabChanged;
         ConfigureToolTips();
@@ -84,13 +85,30 @@ internal sealed class MainWindow : Form
         {
             Dock = DockStyle.Fill
         };
+        _tabs = tabs;
+        var firstContactPage = new TabPage("First Contact");
+        firstContactPage.Controls.Add(BuildFirstContactLayout());
         var studioPage = new TabPage("Developer Studio");
         studioPage.Controls.Add(BuildDeveloperStudioLayout());
         var labPage = new TabPage("Digitale Physik");
         labPage.Controls.Add(BuildExperienceLab());
+        tabs.TabPages.Add(firstContactPage);
         tabs.TabPages.Add(studioPage);
         tabs.TabPages.Add(labPage);
+        tabs.SelectedTab = firstContactPage;
         return tabs;
+    }
+
+    private Control BuildFirstContactLayout()
+    {
+        var root = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(10)
+        };
+        _firstContactSurface.Dock = DockStyle.Fill;
+        root.Controls.Add(_firstContactSurface);
+        return root;
     }
 
     private Control BuildDeveloperStudioLayout()
@@ -124,6 +142,10 @@ internal sealed class MainWindow : Form
             WrapContents = true
         };
 
+        panel.Controls.Add(Button(
+            "First Contact",
+            ResetFirstContactMode,
+            "Oeffnet den reduzierten Erstkontakt-Test und setzt seine lokalen Messwerte zurueck."));
         panel.Controls.Add(Button(
             "Runtime starten",
             _viewModel.StartRuntime,
@@ -170,6 +192,17 @@ internal sealed class MainWindow : Form
             "Oeffnet zwei echte Arbeitsflaechen mit gemeinsamem lokalen Zustand."));
 
         return panel;
+    }
+
+    private bool ResetFirstContactMode()
+    {
+        _firstContactSurface.ResetFirstContact();
+        if (_tabs is not null && _tabs.TabPages.Count > 0)
+        {
+            _tabs.SelectedIndex = 0;
+        }
+
+        return true;
     }
 
     private Control BuildExperienceLab()
@@ -565,6 +598,7 @@ internal sealed class MainWindow : Form
         _agentGrid.DataSource = _viewModel.Agents.ToArray();
         _logGrid.DataSource = _viewModel.LogEntries.ToArray();
         _historyGrid.DataSource = _viewModel.TransferHistory.ToArray();
+        _firstContactSurface.SetExperienceLab(_experienceLab.GetSnapshot());
         _interactiveSurface.SetExperienceLab(_experienceLab.GetSnapshot());
         _interactiveSurface.SetSnapshot(_viewModel.InteractiveWorkspace);
 
@@ -745,6 +779,9 @@ internal sealed class MainWindow : Form
         _toolTip.AutoPopDelay = 12000;
         _toolTip.InitialDelay = 350;
         _toolTip.ReshowDelay = 150;
+        _toolTip.SetToolTip(
+            _firstContactSurface,
+            "First Contact: ein Ding nehmen, nach rechts tragen und dort ablegen. Die Messung bleibt lokal.");
         _toolTip.SetToolTip(
             _interactiveSurface,
             "Ein sichtbarer Bedienprototyp: Textding nehmen, tragen und rechts ablegen.");
