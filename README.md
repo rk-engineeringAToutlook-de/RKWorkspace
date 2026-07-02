@@ -1,0 +1,127 @@
+# RK Workspace
+
+Dokument-ID: RKWS-README-001  
+Version: 0.5.0  
+Status: Accepted  
+Datum: 2026-07-02
+
+RK Workspace (RKWS) ist ein eigenstaendiges Software- und Hardwareprodukt fuer raeumlich gedachte digitale Arbeitsflaechen. Das Projekt ist kein Bestandteil von RKOS und wird mit eigener Roadmap, eigener Dokumentation, eigenen Releases und eigener Architektur gefuehrt.
+
+Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet senden" denken, sondern "dieses Objekt nach rechts verschieben". RK Workspace modelliert deshalb Arbeitsflaechen statt Geraete. Ein Windows-Laptop, ein MacBook, ein iPad, ein Linux-Rechner, ein Monitor mit Dongle, ein KVM-Arbeitsplatz oder ein Industrie-Leitstand koennen alle Arbeitsflaechen sein.
+
+## Status
+
+Dieses Repository befindet sich unmittelbar vor dem Initial Commit der Architecture Baseline v1.0. Der aktuelle Stand bereitet die professionellen Projektgrundlagen vor:
+
+- Produktvision und Architektur sind dokumentiert.
+- Spec-Dokumente fuer Objektmodell, Arbeitsflaechenmodell, Kommunikation, Plugins, Capabilities, UX, Hardware, Firmware und Tests sind angelegt.
+- ADRs und Decision-Log sind eingerichtet.
+- CI/CD-Grundstruktur und GitHub-Templates sind vorbereitet.
+- Der plattformneutrale Core enthaelt erste Modelle und Richtungslogik.
+- Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
+- Unit-Tests pruefen Core-Regeln und Simulation.
+
+## Einstieg fuer Entwickler
+
+Neue Entwickler beginnen mit diesen Dokumenten:
+
+1. `Docs/00_ProductVision.md`
+2. `Docs/Glossary.md`
+3. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+4. `Spec/README.md`
+5. `Docs/ADR/README.md`
+6. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+
+Die Spezifikationen liegen in `Spec/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
+
+## V1 Ziel
+
+V1 soll beweisen, dass RK Workspace als Arbeitsflaechen-Erweiterung tragfaehig ist. Der erste Prototyp muss zwei Arbeitsflaechen lokal modellieren, koppeln, in einer manuellen Raumkarte anordnen, ein neutrales Transferobjekt erzeugen und einen Richtungstransfer planen koennen. Texttransfer ist der erste konkrete Nachweis. Dateien, PDFs, Bilder, Links, Ordner und Clipboard werden im Modell vorbereitet, aber noch nicht als echte plattformweite Agentenfunktion umgesetzt.
+
+## Nicht-Ziele fuer diesen Stand
+
+Dieser Stand baut keine vollstaendigen Plattformanwendungen, keine globale Gestenerkennung, keine plattformuebergreifende Maussteuerung, keine Bildschirmuebertragung, kein PCB-Layout und keine Serienhardware. Bluetooth wird nicht als Datenkanal vorgesehen. UWB wird als spaetere Positionshilfe behandelt, nicht als Transport fuer Payloads.
+
+## Projektstruktur
+
+```mermaid
+flowchart TB
+    Docs["Docs und ADR"] --> Spec["Spec"]
+    Spec --> Core["src/Core"]
+    Spec --> Plugins["Plugin Architecture"]
+    Plugins --> Capabilities["Capability System"]
+    Plugins --> Layers["Layer Model"]
+    Core --> Simulation["tools/LocalSimulation"]
+    Simulation --> Tests["tests"]
+    Spec --> Future["Spaetere Plattformen und Hardware"]
+```
+
+```text
+Docs/                 Produkt-, Architektur-, ADR- und Entscheidungsdokumente
+Spec/                 Spezifikationen fuer Modelle, UX, Kommunikation und Tests
+src/Core/             Plattformneutraler Core
+src/Windows/          Reserviert fuer spaeteren Windows-Agent
+src/macOS/            Reserviert fuer spaeteren macOS-Agent
+src/Linux/            Reserviert fuer spaeteren Linux-Agent
+src/iOS/              Reserviert fuer spaetere iOS-App
+src/Android/          Reserviert fuer spaetere Android-App
+firmware/             Firmware-Vorbereitung fuer spaetere Dongles
+hardware/             Hardware-Anforderungen und Board-Notizen
+PCB/                  Reserviert fuer spaeteres PCB-Layout
+Mechanical/           Reserviert fuer spaetere Mechanik
+tests/                Unit-, Integrations-, Protokoll- und Hardwaretests
+tools/                Lokale Simulation und Hilfsskripte
+.github/              CI, Issue-Templates und PR-Template
+```
+
+Die aelteren Agent/App-Verzeichnisse `src/Agent.Windows`, `src/Agent.macOS`, `src/Agent.Linux`, `src/App.iOS` und `src/App.Android` bleiben als Kompatibilitaetsreservierung fuer die erste Projektstruktur erhalten. Die neue kanonische Plattformstruktur ist `src/Windows`, `src/macOS`, `src/Linux`, `src/iOS` und `src/Android`.
+
+## Ausfuehren
+
+```powershell
+dotnet build .\src\Core\RKWorkspace.Core.csproj
+dotnet run --project .\tests\Unit\RKWorkspace.Core.Tests\RKWorkspace.Core.Tests.csproj
+dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
+```
+
+Oder gesammelt:
+
+```powershell
+.\tools\run-tests.ps1
+```
+
+## Arbeitsregel
+
+Die Entwicklungsreihenfolge ist Vision, Requirements, Architektur, Spezifikation, Simulation, Core, Plattformdienste, Hardware, Firmware, Tests und Produktion. Kein Schritt wird uebersprungen. Architektur, Dokumentation und Tests besitzen denselben Stellenwert wie Quellcode.
+
+Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine Firmware, keine Hardwarelayouts, keine Netzwerkimplementierung und keine Betriebssystemintegration gebaut werden.
+
+## Naechster Entwicklungsschritt
+
+Nach Initial Commit, privatem Remote und erstem Push beginnt MA003. MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0.
+
+## Querverweise
+
+- `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+- `Docs/Architecture/ArchitectureFreeze.md`
+- `Docs/Architecture/ArchitectureBaseline.md`
+- `Docs/Architecture/GitInitialCommitReadiness.md`
+- `Docs/Architecture/GitReleaseReadiness.md`
+- `Docs/Architecture/ArchitectureReview.md`
+- `Docs/Architecture/OpenIssuesBeforeMA003.md`
+- `Docs/Glossary.md`
+- `Spec/PluginArchitecture.md`
+- `Spec/CapabilityModel.md`
+- `Spec/LayerModel.md`
+- `Spec/VersionV0.1.md`
+- `Docs/ADR/README.md`
+
+## Aenderungsverlauf
+
+| Version | Datum | Aenderung |
+| --- | --- | --- |
+| 0.5.0 | 2026-07-02 | Developer-Onboarding, Baseline-v1.0 und Git-Readiness-Verweise fuer RKWS-0530 ergaenzt. |
+| 0.4.0 | 2026-07-02 | Architecture Baseline Completion 002A verlinkt. |
+| 0.3.0 | 2026-07-02 | Dokumentstandard und Architektur-Freeze-Verweise ergaenzt. |
+| 0.2.0 | 2026-07-02 | Master-Arbeitsauftrag 001 Struktur ergaenzt. |
+| 0.1.0 | 2026-07-02 | README angelegt. |
