@@ -35,3 +35,18 @@ Write-Host ''
 Write-Host 'Simulation'
 Write-Host '----------'
 Invoke-Checked 'Simulation' { dotnet run --project (Join-Path $root 'tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj') }
+
+Write-Host ''
+Write-Host 'Demo Test'
+Write-Host '---------'
+$demoOutput = & (Join-Path $root 'tools\run-demo.ps1') 2>&1
+$demoExitCode = $LASTEXITCODE
+$demoOutput | ForEach-Object { Write-Host $_ }
+if ($demoExitCode -ne 0) {
+    throw "Demo Test failed with exit code $demoExitCode."
+}
+
+$demoText = $demoOutput -join [Environment]::NewLine
+if (-not $demoText.Contains('RESULT: SUCCESS')) {
+    throw "Demo Test failed because output did not contain RESULT: SUCCESS."
+}

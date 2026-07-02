@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.5.0
+Version: 0.6.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -18,6 +18,7 @@ flowchart LR
     MA00302 --> MA00303["MA003.03 Workspace Registry"]
     MA00303 --> MA00304["MA003.04 Transfer Object Manager"]
     MA00304 --> MA00305["MA003.05 Core Integration Tests"]
+    MA00305 --> MA00306["MA003.06 Core Demo Runner"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -160,9 +161,32 @@ Nicht im Umfang:
 - Cloud
 - Firmware oder Hardware
 
-## Offene Punkte nach MA003.05
+## MA003.06 Core Demo Runner
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Object-Grundbausteine sowie erste Integrationstests ueber diese Komponenten. MA003.06 kann daraus einen sichtbaren Core Demo Runner ableiten, weiterhin ohne GUI, Netzwerk und OS-Agent.
+Status: Abgeschlossen.
+
+Umfang:
+
+- Demo-Projekt `src/Demo/RKWorkspace.Core.Demo/`
+- Startscript `tools/run-demo.ps1`
+- sichtbarer End-to-End-Core-Ablauf in der Konsole
+- Szenario `RKWS-Demo-Laptop` nach `RKWS-Demo-Display-Right`
+- Demo nutzt Plugin Manager, Capability Manager, Workspace Registry und Transfer Object Manager
+- Demo-Test in `tools/run-tests.ps1` prueft Build, Exitcode 0 und `RESULT: SUCCESS`
+
+Nicht im Umfang:
+
+- Produktagent
+- GUI
+- Netzwerkdienst
+- Betriebssystem-APIs
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA003.06
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Object-Grundbausteine, Integrationstests und einen sichtbaren Demo Runner. MA003.07 kann daraus die Transfer Engine Runtime ableiten, weiterhin getrennt von Netzwerk, OS-Agenten und GUI.
 
 ## Querverweise
 
@@ -175,6 +199,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry- und Transfer-Obje
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.6.0 | 2026-07-02 | MA003.06 Core Demo Runner als sichtbaren End-to-End-Core-Ablauf dokumentiert. |
 | 0.5.0 | 2026-07-02 | MA003.05 erster vollstaendiger Core Integration Test dokumentiert. |
 | 0.4.0 | 2026-07-02 | MA003.04 Transfer Object Manager als vierte produktive Core-Komponente dokumentiert. |
 | 0.3.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente dokumentiert. |

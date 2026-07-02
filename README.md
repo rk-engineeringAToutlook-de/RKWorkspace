@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -23,6 +23,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Die Workspace Registry ist als dritte produktive Core-Komponente angelegt.
 - Der Transfer Object Manager ist als vierte produktive Core-Komponente angelegt.
 - Ein separates Integration-Test-Projekt prueft erstmals alle vier Core-Komponenten gemeinsam.
+- Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
 - Unit-Tests und Integration-Tests pruefen Core-Regeln, Simulation, Plugin Manager, Capability Manager, Workspace Registry und Transfer Object Manager.
 
@@ -69,6 +70,7 @@ src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
 src/Core/Capabilities/ Plattformneutraler Capability Manager und Capability-Vertraege
 src/Core/Workspaces/  Plattformneutrale Workspace Registry und Workspace-Vertraege
 src/Core/TransferObjects/ Plattformneutraler Transfer Object Manager und Objekt-Vertraege
+src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und Netzwerk
 src/Windows/          Reserviert fuer spaeteren Windows-Agent
 src/macOS/            Reserviert fuer spaeteren macOS-Agent
 src/Linux/            Reserviert fuer spaeteren Linux-Agent
@@ -92,6 +94,7 @@ Die aelteren Agent/App-Verzeichnisse `src/Agent.Windows`, `src/Agent.macOS`, `sr
 dotnet build .\src\Core\RKWorkspace.Core.csproj
 dotnet run --project .\tests\Unit\RKWorkspace.Core.Tests\RKWorkspace.Core.Tests.csproj
 dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
+.\tools\run-demo.ps1
 ```
 
 Oder gesammelt:
@@ -108,7 +111,9 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. Der naechste geplante Schritt ist MA003.06, der Core Demo Runner.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. Der naechste geplante Schritt ist MA003.07, die Transfer Engine Runtime.
+
+Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und kein Plattformadapter. Er fuehrt nur den aktuellen Core-Ablauf sichtbar aus.
 
 ## Querverweise
 
@@ -131,6 +136,7 @@ MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten au
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.06 Core Demo Runner und Startscript dokumentiert. |
 | 1.0.0 | 2026-07-02 | MA003.05 Core Integration Tests fuer alle vier produktiven Core-Komponenten ergaenzt. |
 | 0.9.0 | 2026-07-02 | MA003.04 Transfer Object Manager als vierte produktive Core-Komponente ergaenzt. |
 | 0.8.0 | 2026-07-02 | MA003.03 Workspace Registry als dritte produktive Core-Komponente ergaenzt. |
