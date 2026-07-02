@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.8.0
+Version: 0.9.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -21,7 +21,8 @@ flowchart LR
     MA00305 --> MA00306["MA003.06 Core Demo Runner"]
     MA00306 --> MA00307["MA003.07 Transfer Engine Runtime"]
     MA00307 --> MA00307R["MA003.07 Core Runtime Orchestrator"]
-    MA00307R --> MA00308["MA003.08 Core Event System"]
+    MA00307R --> MA00308["MA003.08 Developer Workspace Studio"]
+    MA00308 --> MA00309["MA003.09 Core Event System"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -250,15 +251,45 @@ Nicht im Umfang:
 - Cloud
 - Firmware oder Hardware
 
-## Offene Punkte nach Core Runtime Orchestrator
+## MA003.08 Developer Workspace Studio
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests und einen sichtbaren Demo Runner. Der naechste Teilauftrag ist MA003.08 Core Event System. Danach kann MA004 Discovery und Kommunikationsschicht beginnen.
+Status: Abgeschlossen.
+
+Umfang:
+
+- Developer-GUI-Projekt `src/Tools/RKWorkspace.DeveloperStudio/`
+- Windows Forms auf .NET 8 als einfache Developer-Desktop-Technologie
+- Startscript `tools/run-studio.ps1`
+- Smoke-Test-Modus `tools/run-studio.ps1 -SmokeTest`
+- Workspace-Liste
+- Transfer-Object-Liste
+- Runtime-/Core-Diagnostics
+- Log-Ausgabe
+- Buttons fuer Start Runtime, Add Demo Workspaces, Create Text Object, Transfer Right, Reset und Run Full Demo
+- Demo-Szenario `RKWS-Demo-Laptop` nach `RKWS-Demo-Display-Right`
+- Core-Anbindung ueber RuntimeEngine, WorkspaceRegistry, CapabilityManager, TransferObjectManager und TransferEngine
+- Dokumentation `Docs/Development/DeveloperWorkspaceStudio.md`
+
+Nicht im Umfang:
+
+- Endanwender-GUI
+- Netzwerkkommunikation
+- Betriebssystemintegration
+- Firmware
+- Hardware
+- Cloud
+- UI-Automation-Tests
+
+## Offene Punkte nach MA003.08
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner und eine Developer-Testoberflaeche. Der naechste Teilauftrag ist MA003.09 Core Event System. Danach kann MA004 Discovery und Kommunikationsschicht beginnen.
 
 ## Querverweise
 
 - `Spec/PluginArchitecture.md`
 - `Spec/CapabilityModel.md`
 - `Spec/RuntimeArchitecture.md`
+- `Docs/Development/DeveloperWorkspaceStudio.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `README.md`
 
@@ -266,6 +297,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.9.0 | 2026-07-02 | MA003.08 Developer Workspace Studio dokumentiert. |
 | 0.8.0 | 2026-07-02 | Core Runtime Orchestrator dokumentiert. |
 | 0.7.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime dokumentiert. |
 | 0.6.0 | 2026-07-02 | MA003.06 Core Demo Runner als sichtbaren End-to-End-Core-Ablauf dokumentiert. |

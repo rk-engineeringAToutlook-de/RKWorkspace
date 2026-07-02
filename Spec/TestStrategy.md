@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -98,6 +98,17 @@ Die Integrationstests verwenden die Runtime Engine fuer alle bisherigen Core-Sze
 
 Der Demo Runner startet ab diesem Stand zuerst `RuntimeEngine.Start()` und verwendet danach nur die von der Runtime bereitgestellten Manager.
 
+## MA003.08 Developer Workspace Studio Tests
+
+MA003.08 fuehrt `src/Tools/RKWorkspace.DeveloperStudio/` und `tools/run-studio.ps1` ein. Das Studio ist ein Developer-Werkzeug fuer Diagnose, Tests, Demonstration und Core-Visualisierung, keine Endanwender-GUI.
+
+Da stabile UI-Automation zu diesem Zeitpunkt nicht erzwungen wird, gilt fuer MA003.08:
+
+- Das Studio-Projekt muss mit 0 Warnungen und 0 Fehlern bauen.
+- `tools/run-studio.ps1 -SmokeTest` muss den vollstaendigen Demo-Pfad ausfuehren und `RESULT: SUCCESS` liefern.
+- Bestehende Unit Tests, Integration Tests, Simulation und Demo Runner bleiben gruen.
+- Der Core bleibt plattformneutral; die Windows-Desktop-Abhaengigkeit liegt ausschliesslich im separaten Developer-Tool.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -109,6 +120,7 @@ Der Demo Runner startet ab diesem Stand zuerst `RuntimeEngine.Start()` und verwe
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-02 | MA003.08 Developer Workspace Studio Tests dokumentiert. |
 | 1.4.0 | 2026-07-02 | Core Runtime Orchestrator Tests dokumentiert. |
 | 1.3.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime Tests dokumentiert. |
 | 1.2.0 | 2026-07-02 | MA003.06 Core Demo Runner Test dokumentiert. |

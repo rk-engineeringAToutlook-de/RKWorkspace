@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -24,6 +24,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der Transfer Object Manager ist als vierte produktive Core-Komponente angelegt.
 - Die Transfer Engine Runtime ist als fuenfte produktive Core-Komponente angelegt.
 - Der Core Runtime Orchestrator ist als zentrale Lebenszyklussteuerung angelegt.
+- Das Developer Workspace Studio ist als erste sichtbare Core-Testoberflaeche angelegt.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -61,6 +62,7 @@ flowchart TB
     Spec --> Plugins["Plugin Architecture"]
     Plugins --> Capabilities["Capability System"]
     Plugins --> Layers["Layer Model"]
+    Core --> Studio["Developer Studio"]
     Core --> Simulation["tools/LocalSimulation"]
     Simulation --> Tests["tests"]
     Spec --> Future["Spaetere Plattformen und Hardware"]
@@ -77,6 +79,7 @@ src/Core/TransferObjects/ Plattformneutraler Transfer Object Manager und Objekt-
 src/Core/Transfers/   Plattformneutrale Transfer Engine Runtime und Transfer-Vertraege
 src/Core/Runtime/     Plattformneutraler Core Runtime Orchestrator
 src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und Netzwerk
+src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche fuer Core-Visualisierung
 src/Windows/          Reserviert fuer spaeteren Windows-Agent
 src/macOS/            Reserviert fuer spaeteren macOS-Agent
 src/Linux/            Reserviert fuer spaeteren Linux-Agent
@@ -101,6 +104,7 @@ dotnet build .\src\Core\RKWorkspace.Core.csproj
 dotnet run --project .\tests\Unit\RKWorkspace.Core.Tests\RKWorkspace.Core.Tests.csproj
 dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-demo.ps1
+.\tools\run-studio.ps1
 ```
 
 Oder gesammelt:
@@ -117,9 +121,11 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 wird das Core Event System.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA003.09 wird das Core Event System.
 
 Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und kein Plattformadapter. Er startet die plattformneutrale Runtime Engine und fuehrt danach nur den aktuellen Core-Ablauf sichtbar ueber die Transfer Engine aus.
+
+Das Developer Workspace Studio ist ebenfalls kein Produktagent und keine Endanwender-GUI. Es ist ein separates Developer-Tool fuer Diagnose, Tests, Demonstration und Core-Visualisierung.
 
 ## Querverweise
 
@@ -136,6 +142,7 @@ Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und k
 - `Spec/LayerModel.md`
 - `Spec/RuntimeArchitecture.md`
 - `Spec/VersionV0.1.md`
+- `Docs/Development/DeveloperWorkspaceStudio.md`
 - `Docs/Development/MA003_Progress.md`
 - `Docs/ADR/README.md`
 
@@ -143,6 +150,7 @@ Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und k
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-02 | Developer Workspace Studio und Startscript dokumentiert. |
 | 1.3.0 | 2026-07-02 | Core Runtime Orchestrator und Runtime-Dokumentation ergaenzt. |
 | 1.2.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA003.06 Core Demo Runner und Startscript dokumentiert. |
