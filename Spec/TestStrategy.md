@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -44,6 +44,8 @@ flowchart TB
 ## Foundation-Check
 
 `tools/run-tests.ps1` bleibt der Mindestcheck vor Commit und Push. Er baut den Core, fuehrt Unit-Tests aus, fuehrt Integration-Tests aus, startet die lokale Simulation und prueft den Core Demo Runner. Die Ausgabe ist in Build, Unit Tests, Integration Tests, Simulation und Demo Test getrennt.
+
+Ab MA004.01 prueft `tools/run-tests.ps1` zusaetzlich den Agent Smoke-Test mit `tools/run-agent.ps1 -Once`.
 
 ## MA003.05 Core Integration Tests
 
@@ -109,6 +111,25 @@ Da stabile UI-Automation zu diesem Zeitpunkt nicht erzwungen wird, gilt fuer MA0
 - Bestehende Unit Tests, Integration Tests, Simulation und Demo Runner bleiben gruen.
 - Der Core bleibt plattformneutral; die Windows-Desktop-Abhaengigkeit liegt ausschliesslich im separaten Developer-Tool.
 
+## MA004.01 Workspace Agent Runtime Tests
+
+MA004.01 fuehrt `src/Agents/RKWorkspace.Agent/` und `tools/run-agent.ps1` ein. Der Agent ist ein LocalOnly-Konsolenprozess und kein Betriebssystemdienst.
+
+Der Agent Smoke-Test in `tools/run-tests.ps1` fuehrt aus:
+
+```powershell
+.\tools\run-agent.ps1 -Once
+```
+
+Der Smoke-Test erwartet:
+
+- Exitcode 0.
+- Ausgabe enthaelt `RK Workspace Agent`.
+- Ausgabe enthaelt `State: Running`.
+- Ausgabe enthaelt `stopped cleanly`.
+
+Zusaetzlich bleiben `tools/run-demo.ps1` und `tools/run-studio.ps1 -SmokeTest` als separate Abschlusspruefungen erhalten.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -120,6 +141,7 @@ Da stabile UI-Automation zu diesem Zeitpunkt nicht erzwungen wird, gilt fuer MA0
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime Smoke-Test dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA003.08 Developer Workspace Studio Tests dokumentiert. |
 | 1.4.0 | 2026-07-02 | Core Runtime Orchestrator Tests dokumentiert. |
 | 1.3.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime Tests dokumentiert. |

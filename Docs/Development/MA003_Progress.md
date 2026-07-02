@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.9.0
+Version: 0.10.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -22,7 +22,8 @@ flowchart LR
     MA00306 --> MA00307["MA003.07 Transfer Engine Runtime"]
     MA00307 --> MA00307R["MA003.07 Core Runtime Orchestrator"]
     MA00307R --> MA00308["MA003.08 Developer Workspace Studio"]
-    MA00308 --> MA00309["MA003.09 Core Event System"]
+    MA00308 --> MA00401["MA004.01 Workspace Agent Runtime"]
+    MA00401 --> MA00402["MA004.02 Dual Local Agent Simulation"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -280,9 +281,43 @@ Nicht im Umfang:
 - Cloud
 - UI-Automation-Tests
 
-## Offene Punkte nach MA003.08
+## MA004.01 Workspace Agent Runtime
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner und eine Developer-Testoberflaeche. Der naechste Teilauftrag ist MA003.09 Core Event System. Danach kann MA004 Discovery und Kommunikationsschicht beginnen.
+Status: Abgeschlossen.
+
+Umfang:
+
+- Agent-Projekt `src/Agents/RKWorkspace.Agent/`
+- `AgentRuntime`
+- `AgentConfiguration`
+- `AgentState`
+- `AgentDiagnostics`
+- `AgentException`
+- LocalOnly-Konsolenprozess
+- Startscript `tools/run-agent.ps1`
+- CLI-Optionen `--once`, `--status`, `--demo`, `--no-demo`, `--help`
+- PowerShell-Optionen `-Once`, `-Status`, `-Demo`, `-NoDemo`
+- Registrierung einer lokalen Workspace ueber echte RuntimeEngine
+- Capabilities Display, Keyboard, Mouse, Clipboard, Encryption, Pairing, OfflineMode und Logging
+- sauberer Stop und Ctrl+C-Behandlung
+- Agent Smoke-Test in `tools/run-tests.ps1`
+- Dokumentation `Docs/Development/WorkspaceAgentRuntime.md`
+
+Nicht im Umfang:
+
+- Windows-Service
+- macOS-Daemon
+- Linux-Systemdienst
+- Netzwerkkommunikation
+- echte Discovery
+- GUI
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA004.01
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche und den ersten LocalOnly-Agent-Prozess. Der naechste Teilauftrag ist MA004.02 Dual Local Agent Simulation.
 
 ## Querverweise
 
@@ -290,6 +325,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 - `Spec/CapabilityModel.md`
 - `Spec/RuntimeArchitecture.md`
 - `Docs/Development/DeveloperWorkspaceStudio.md`
+- `Docs/Development/WorkspaceAgentRuntime.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `README.md`
 
@@ -297,6 +333,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.10.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime dokumentiert. |
 | 0.9.0 | 2026-07-02 | MA003.08 Developer Workspace Studio dokumentiert. |
 | 0.8.0 | 2026-07-02 | Core Runtime Orchestrator dokumentiert. |
 | 0.7.0 | 2026-07-02 | MA003.07 Transfer Engine Runtime dokumentiert. |

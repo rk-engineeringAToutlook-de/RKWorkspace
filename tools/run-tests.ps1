@@ -50,3 +50,26 @@ $demoText = $demoOutput -join [Environment]::NewLine
 if (-not $demoText.Contains('RESULT: SUCCESS')) {
     throw "Demo Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Agent Smoke Test'
+Write-Host '----------------'
+$agentOutput = & (Join-Path $root 'tools\run-agent.ps1') -Once 2>&1
+$agentExitCode = $LASTEXITCODE
+$agentOutput | ForEach-Object { Write-Host $_ }
+if ($agentExitCode -ne 0) {
+    throw "Agent Smoke Test failed with exit code $agentExitCode."
+}
+
+$agentText = $agentOutput -join [Environment]::NewLine
+if (-not $agentText.Contains('RK Workspace Agent')) {
+    throw "Agent Smoke Test failed because output did not contain RK Workspace Agent."
+}
+
+if (-not $agentText.Contains('State: Running')) {
+    throw "Agent Smoke Test failed because output did not contain State: Running."
+}
+
+if (-not $agentText.Contains('stopped cleanly')) {
+    throw "Agent Smoke Test failed because output did not contain stopped cleanly."
+}
