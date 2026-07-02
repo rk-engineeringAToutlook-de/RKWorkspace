@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 0.5.0  
+Version: 0.6.0  
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -11,15 +11,16 @@ Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet s
 
 ## Status
 
-Dieses Repository befindet sich unmittelbar vor dem Initial Commit der Architecture Baseline v1.0. Der aktuelle Stand bereitet die professionellen Projektgrundlagen vor:
+Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung hat mit MA003.01 begonnen. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und den ersten plattformneutralen Core-Baustein:
 
 - Produktvision und Architektur sind dokumentiert.
 - Spec-Dokumente fuer Objektmodell, Arbeitsflaechenmodell, Kommunikation, Plugins, Capabilities, UX, Hardware, Firmware und Tests sind angelegt.
 - ADRs und Decision-Log sind eingerichtet.
 - CI/CD-Grundstruktur und GitHub-Templates sind vorbereitet.
 - Der plattformneutrale Core enthaelt erste Modelle und Richtungslogik.
+- Der Plugin Manager ist als erste produktive Core-Komponente angelegt.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
-- Unit-Tests pruefen Core-Regeln und Simulation.
+- Unit-Tests pruefen Core-Regeln, Simulation und Plugin Manager.
 
 ## Einstieg fuer Entwickler
 
@@ -60,6 +61,7 @@ flowchart TB
 Docs/                 Produkt-, Architektur-, ADR- und Entscheidungsdokumente
 Spec/                 Spezifikationen fuer Modelle, UX, Kommunikation und Tests
 src/Core/             Plattformneutraler Core
+src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
 src/Windows/          Reserviert fuer spaeteren Windows-Agent
 src/macOS/            Reserviert fuer spaeteren macOS-Agent
 src/Linux/            Reserviert fuer spaeteren Linux-Agent
@@ -98,7 +100,7 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-Nach Initial Commit, privatem Remote und erstem Push beginnt MA003. MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. Der naechste geplante Auftrag ist MA003.02, der Capability Manager.
 
 ## Querverweise
 
@@ -114,12 +116,14 @@ Nach Initial Commit, privatem Remote und erstem Push beginnt MA003. MA003 entwic
 - `Spec/CapabilityModel.md`
 - `Spec/LayerModel.md`
 - `Spec/VersionV0.1.md`
+- `Docs/Development/MA003_Progress.md`
 - `Docs/ADR/README.md`
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.6.0 | 2026-07-02 | MA003.01 Plugin Manager als erste produktive Core-Komponente ergaenzt. |
 | 0.5.0 | 2026-07-02 | Developer-Onboarding, Baseline-v1.0 und Git-Readiness-Verweise fuer RKWS-0530 ergaenzt. |
 | 0.4.0 | 2026-07-02 | Architecture Baseline Completion 002A verlinkt. |
 | 0.3.0 | 2026-07-02 | Dokumentstandard und Architektur-Freeze-Verweise ergaenzt. |

@@ -1,7 +1,7 @@
 # RKWS-0360 Plugin Architecture
 
 Dokument-ID: RKWS-SPEC-PLUGIN-001  
-Version: 1.0.0  
+Version: 1.1.0  
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -33,6 +33,12 @@ flowchart TB
 ```
 
 Der Plugin Manager verwaltet Registrierung, Capability-Ankuendigung, Lebenszyklus, Versionierung, Aktivierung, Deaktivierung und Dependency-Validierung. Plugins duerfen den Core nicht ersetzen und duerfen keine zyklischen Abhaengigkeiten erzeugen.
+
+## MA003.01 Implementierungsstatus
+
+MA003.01 fuehrt den ersten produktiven, plattformneutralen Core-Baustein fuer diese Spezifikation ein. Implementiert werden die neutralen Plugin-Vertraege, `PluginDescriptor`, `PluginType`, `PluginState`, `PluginLoadResult`, `PluginException` und `PluginManager`.
+
+Dieser Schritt implementiert noch kein dynamisches Laden aus Dateisystemen, keine Platform Adapter, keine Reflection-basierte Plugin-Erkennung, keine Kommunikation und keine Betriebssystemintegration. Der Plugin Manager verwaltet ausschliesslich bereits uebergebene `IPlugin`-Instanzen und deren Lifecycle.
 
 ## Plugin-Vertraege
 
@@ -91,4 +97,5 @@ stateDiagram-v2
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA003.01 Plugin Manager Implementierungsstatus ergaenzt. |
 | 1.0.0 | 2026-07-02 | Plugin-Architektur fuer RKWS-0360 definiert. |

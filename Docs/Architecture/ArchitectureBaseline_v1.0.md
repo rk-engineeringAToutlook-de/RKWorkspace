@@ -1,7 +1,7 @@
 # RKWS-0540 Architecture Baseline v1.0
 
 Dokument-ID: RKWS-ARCH-BASELINE-V1  
-Version: 1.0.0  
+Version: 1.0.1  
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -110,16 +110,22 @@ chore: establish RK Workspace architecture baseline v1.0
 
 MA003 darf nach Initial Commit, privatem Remote und erstem Push beginnen. MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage dieser Baseline.
 
+## Post-Baseline Addendum
+
+MA003.01 baut auf Architecture Baseline v1.0 auf und fuehrt den Plugin Manager als erste produktive Core-Komponente ein. Diese Ergaenzung aendert die Baseline nicht inhaltlich; sie dokumentiert nur den Beginn der Entwicklung nach der freigegebenen Baseline.
+
 ## Querverweise
 
 - `Docs/Architecture/GitInitialCommitReadiness.md`
 - `Docs/Architecture/OpenIssuesBeforeMA003.md`
 - `Docs/Architecture/EngineeringReadinessCheck.md`
 - `Spec/VersionV0.1.md`
+- `Docs/Development/MA003_Progress.md`
 - `tools/run-tests.ps1`
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.0.1 | 2026-07-02 | Post-Baseline-Hinweis fuer MA003.01 ergaenzt. |
 | 1.0.0 | 2026-07-02 | Architecture Baseline v1.0 fuer Initial Commit freigegeben. |

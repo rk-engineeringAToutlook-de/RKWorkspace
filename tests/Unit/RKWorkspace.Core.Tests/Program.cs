@@ -1,4 +1,5 @@
 using RKWorkspace.Core.Models;
+using RKWorkspace.Core.Plugins;
 using RKWorkspace.Core.Services;
 using RKWorkspace.Core.Simulation;
 
@@ -9,7 +10,19 @@ var tests = new (string Name, Action Body)[]
     ("TransferPlanner creates a text transfer from A to B", TransferPlannerCreatesTextTransfer),
     ("TransferPlanner rejects untrusted targets", TransferPlannerRejectsUntrustedTarget),
     ("DeviceIdentity creates required identity fields", DeviceIdentityCreatesRequiredFields),
-    ("Local simulation logs a complete text transfer from A to B", LocalSimulationLogsCompleteTextTransfer)
+    ("Local simulation logs a complete text transfer from A to B", LocalSimulationLogsCompleteTextTransfer),
+    ("PluginManager registers and initializes plugins", PluginManagerRegistersAndInitializesPlugins),
+    ("PluginManager prevents duplicate plugin ids", PluginManagerPreventsDuplicatePluginIds),
+    ("PluginManager gets plugins and returns null for unknown ids", PluginManagerGetsPluginsAndUnknownPluginReturnsNull),
+    ("PluginManager filters plugins by type", PluginManagerFiltersPluginsByType),
+    ("PluginManager activates and deactivates plugins", PluginManagerActivatesAndDeactivatesPlugins),
+    ("PluginManager unloads plugins", PluginManagerUnloadsPlugins),
+    ("PluginManager unregisters plugins", PluginManagerUnregistersPlugins),
+    ("PluginManager rejects missing plugin ids", PluginManagerRejectsMissingPluginIds),
+    ("PluginManager reports missing dependencies", PluginManagerReportsMissingDependencies),
+    ("PluginManager rejects invalid lifecycle transitions", PluginManagerRejectsInvalidLifecycleTransitions),
+    ("PluginManager preserves lifecycle exception details", PluginManagerPreservesLifecycleExceptionDetails),
+    ("Plugin core assembly has no platform dependencies", PluginCoreAssemblyHasNoPlatformDependencies)
 };
 
 var failed = 0;
@@ -139,6 +152,183 @@ static void LocalSimulationLogsCompleteTextTransfer()
     }
 }
 
+static void PluginManagerRegistersAndInitializesPlugins()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.workspace", PluginType.Workspace, "Workspace plugin");
+
+    var result = manager.RegisterPlugin(plugin);
+
+    Assert.Success(result);
+    Assert.Equal(PluginState.Loaded, plugin.State);
+    Assert.Equal(1, plugin.InitializeCount);
+    Assert.True(manager.IsRegistered(plugin.PluginId));
+    Assert.Same(plugin, Assert.NotNull(manager.GetPlugin(plugin.PluginId)));
+}
+
+static void PluginManagerPreventsDuplicatePluginIds()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.workspace", PluginType.Workspace, "Workspace plugin");
+    var duplicate = FakePlugin.Create("plugin.workspace", PluginType.Transfer, "Duplicate plugin");
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+    var result = manager.RegisterPlugin(duplicate);
+
+    Assert.Failure(result, PluginErrorCode.PluginAlreadyRegistered);
+}
+
+static void PluginManagerGetsPluginsAndUnknownPluginReturnsNull()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+
+    Assert.Same(plugin, Assert.NotNull(manager.GetPlugin(plugin.PluginId)));
+    Assert.NotNull(manager.GetDescriptor(plugin.PluginId));
+    Assert.Null(manager.GetPlugin("missing"));
+    Assert.Null(manager.GetDescriptor("missing"));
+    Assert.False(manager.IsRegistered("missing"));
+}
+
+static void PluginManagerFiltersPluginsByType()
+{
+    var manager = new PluginManager();
+    var workspacePlugin = FakePlugin.Create("plugin.workspace", PluginType.Workspace, "Workspace plugin");
+    var transferPlugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+
+    Assert.Success(manager.RegisterPlugin(workspacePlugin));
+    Assert.Success(manager.RegisterPlugin(transferPlugin));
+
+    var workspacePlugins = manager.GetPluginsByType(PluginType.Workspace);
+
+    Assert.Equal(1, workspacePlugins.Count);
+    Assert.Same(workspacePlugin, workspacePlugins.Single());
+    Assert.Equal(2, manager.GetPlugins().Count);
+}
+
+static void PluginManagerActivatesAndDeactivatesPlugins()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+    Assert.Success(manager.ActivatePlugin(plugin.PluginId));
+    Assert.Equal(PluginState.Activated, plugin.State);
+    Assert.Equal(1, plugin.ActivateCount);
+
+    Assert.Success(manager.DeactivatePlugin(plugin.PluginId));
+    Assert.Equal(PluginState.Deactivated, plugin.State);
+    Assert.Equal(1, plugin.DeactivateCount);
+}
+
+static void PluginManagerUnloadsPlugins()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+    Assert.Success(manager.UnloadPlugin(plugin.PluginId));
+
+    Assert.Equal(PluginState.Unloaded, plugin.State);
+    Assert.Equal(1, plugin.ShutdownCount);
+    Assert.True(manager.IsRegistered(plugin.PluginId));
+}
+
+static void PluginManagerUnregistersPlugins()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+    Assert.Success(manager.ActivatePlugin(plugin.PluginId));
+    Assert.Success(manager.UnregisterPlugin(plugin.PluginId));
+
+    Assert.False(manager.IsRegistered(plugin.PluginId));
+    Assert.Equal(PluginState.Unloaded, plugin.State);
+    Assert.Equal(1, plugin.DeactivateCount);
+    Assert.Equal(1, plugin.ShutdownCount);
+}
+
+static void PluginManagerRejectsMissingPluginIds()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create(string.Empty, PluginType.Workspace, "Missing id plugin");
+
+    var result = manager.RegisterPlugin(plugin);
+
+    Assert.Failure(result, PluginErrorCode.MissingPluginId);
+}
+
+static void PluginManagerReportsMissingDependencies()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.dependent", PluginType.Transfer, "Dependent plugin");
+    var descriptor = new PluginDescriptor
+    {
+        PluginId = plugin.PluginId,
+        Name = plugin.Name,
+        Version = plugin.Version,
+        Type = plugin.Type,
+        Dependencies = new[] { "plugin.missing" }
+    };
+
+    var result = manager.RegisterPlugin(plugin, descriptor);
+
+    Assert.Failure(result, PluginErrorCode.DependencyMissing);
+    Assert.False(manager.IsRegistered(plugin.PluginId));
+}
+
+static void PluginManagerRejectsInvalidLifecycleTransitions()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+    Assert.Failure(manager.DeactivatePlugin(plugin.PluginId), PluginErrorCode.InvalidState);
+    Assert.Success(manager.ActivatePlugin(plugin.PluginId));
+    Assert.Failure(manager.UnloadPlugin(plugin.PluginId), PluginErrorCode.InvalidState);
+}
+
+static void PluginManagerPreservesLifecycleExceptionDetails()
+{
+    var manager = new PluginManager();
+    var plugin = FakePlugin.Create("plugin.transfer", PluginType.Transfer, "Transfer plugin");
+    plugin.ThrowOnActivate = true;
+
+    Assert.Success(manager.RegisterPlugin(plugin));
+
+    var result = manager.ActivatePlugin(plugin.PluginId);
+
+    Assert.Failure(result, PluginErrorCode.ActivationFailed);
+    Assert.NotNull(result.Error?.InnerException);
+    Assert.Equal(PluginState.Failed, plugin.State);
+}
+
+static void PluginCoreAssemblyHasNoPlatformDependencies()
+{
+    var forbiddenFragments = new[]
+    {
+        "Windows",
+        "Presentation",
+        "WinForms",
+        "Wpf",
+        "UIKit",
+        "AppKit",
+        "Android"
+    };
+
+    var references = typeof(PluginManager)
+        .Assembly
+        .GetReferencedAssemblies()
+        .Select(reference => reference.Name ?? string.Empty)
+        .Where(name => forbiddenFragments.Any(fragment => name.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        .ToArray();
+
+    Assert.Equal(0, references.Length);
+}
+
 static Workspace TestWorkspace(
     string workspaceId,
     WorkspacePosition position,
@@ -184,6 +374,56 @@ internal static class Assert
         {
             throw new InvalidOperationException("Expected false, got true.");
         }
+    }
+
+    public static void Null(object? value)
+    {
+        if (value is not null)
+        {
+            throw new InvalidOperationException($"Expected null, got {value}.");
+        }
+    }
+
+    public static T NotNull<T>(T? value)
+        where T : class
+    {
+        if (value is null)
+        {
+            throw new InvalidOperationException("Expected non-null value, got null.");
+        }
+
+        return value;
+    }
+
+    public static void Same(object expected, object actual)
+    {
+        if (!ReferenceEquals(expected, actual))
+        {
+            throw new InvalidOperationException("Expected references to be the same instance.");
+        }
+    }
+
+    public static void Success(PluginLoadResult result)
+    {
+        if (!result.Success)
+        {
+            throw new InvalidOperationException($"Expected success, got {result.Error?.Code}: {result.Error?.Message}");
+        }
+    }
+
+    public static void Failure(PluginLoadResult result, PluginErrorCode expectedCode)
+    {
+        if (result.Success)
+        {
+            throw new InvalidOperationException("Expected failure, got success.");
+        }
+
+        if (result.Error is null)
+        {
+            throw new InvalidOperationException("Expected plugin error, got null.");
+        }
+
+        Equal(expectedCode, result.Error.Code);
     }
 
     public static void StartsWith(string expectedPrefix, string actual)
