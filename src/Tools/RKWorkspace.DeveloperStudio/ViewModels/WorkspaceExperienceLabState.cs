@@ -24,6 +24,8 @@ internal sealed class WorkspaceExperienceLabState
 
     public string GripVariantId { get; private set; } = "grip-generation-04";
 
+    public string CarryVariantId { get; private set; } = "carry-generation-04";
+
     public string EdgeVariantId { get; private set; } = "edge-generation-02";
 
     public string TransitionVariantId { get; private set; } = "transition-generation-03";
@@ -51,7 +53,7 @@ internal sealed class WorkspaceExperienceLabState
         "Greifen",
         new[]
         {
-            "ruhiges Drag mit neutraler Groesse und wenig Schatten",
+            "ruhiges Greifen mit neutraler Groesse und wenig Schatten",
             "leichtes Schweben mit mehr Schatten und hellerem Objekt",
             "kleineres Objekt mit aufgenommenem, kompaktem Gefuehl",
             "angehobenes Objekt mit klarerem Rahmen und mehr Tiefe",
@@ -77,9 +79,28 @@ internal sealed class WorkspaceExperienceLabState
             "maximale Kombination aus Nehmen, Tragen und Ablegen"
         });
 
+    public static IReadOnlyList<WorkspaceExperienceLabOption> CarryVariants { get; } = BuildGeneratedVariants(
+        "carry",
+        "Tragen",
+        new[]
+        {
+            "fast direktes Tragen mit kaum Verzoegerung",
+            "leichte Verzoegerung, Objekt haengt minimal hinterher",
+            "sanfte Traegheit mit ruhigem Nachlaufen",
+            "kleine Feder, Objekt findet weich zum Cursor zurueck",
+            "mehr Gewicht mit langsamerem Ansprechen",
+            "ruhige Handfuehrung ohne harte Richtungswechsel",
+            "kurzer Nachlauf mit kleiner Gegenbewegung",
+            "weicher Schwebezustand mit stabiler Mitte",
+            "magnetisches Mitgehen mit spuerbarer Masse",
+            "langsames, schwereres Tragen fuer praezises Ablegen",
+            "leichter Grip mit schneller Aufnahme und weichem Nachfedern",
+            "kombinierte Tragphysik aus Gewicht, Feder und Ruhe"
+        });
+
     public static IReadOnlyList<WorkspaceExperienceLabOption> EdgeVariants { get; } = BuildGeneratedVariants(
         "edge",
-        "Rand",
+        "Durchgang",
         new[]
         {
             "konstantes Licht am Rand",
@@ -110,7 +131,7 @@ internal sealed class WorkspaceExperienceLabState
 
     public static IReadOnlyList<WorkspaceExperienceLabOption> TransitionVariants { get; } = BuildGeneratedVariants(
         "transition",
-        "Uebergang",
+        "Kontinuitaet",
         new[]
         {
             "Objekt verschwindet schnell aus der Quelle",
@@ -155,20 +176,20 @@ internal sealed class WorkspaceExperienceLabState
             "leichtes Schweben vor dem finalen Kontakt",
             "magnetisches Setzen mit schneller Stabilisierung",
             "langsames Aufsetzen mit mehr Gewicht",
-            "heller Zielimpuls direkt nach dem Drop",
+            "heller Zielimpuls direkt nach dem Ablegen",
             "kleines Nachfedern mit geringer Rotation",
             "kompakter Snap ohne sichtbaren Bounce",
             "Objekt wird erst gross, dann ruhig",
             "weiches Ausrichten mit Zielglow",
             "schwebender Abschluss mit sehr sanftem Ende",
-            "schneller Drop mit magnetischem Stop",
+            "schnelles Ablegen mit magnetischem Stop",
             "tiefer Schatten beim Aufsetzen",
             "voller Ablegemix aus Snap, Glow und Nachfedern"
         });
 
     public static IReadOnlyList<WorkspaceExperienceLabOption> PreviewVariants { get; } = BuildGeneratedVariants(
         "preview",
-        "Vorschau",
+        "Aufmerksamkeit",
         new[]
         {
             "keine Vorschau, nur Rand und Status",
@@ -199,6 +220,7 @@ internal sealed class WorkspaceExperienceLabState
             }
 
             state.GripVariantId = ValidOrDefault(GripVariants, persisted.GripVariantId, state.GripVariantId);
+            state.CarryVariantId = ValidOrDefault(CarryVariants, persisted.CarryVariantId, state.CarryVariantId);
             state.EdgeVariantId = ValidOrDefault(EdgeVariants, persisted.EdgeVariantId, state.EdgeVariantId);
             state.TransitionVariantId = ValidOrDefault(TransitionVariants, persisted.TransitionVariantId, state.TransitionVariantId);
             state.DropVariantId = ValidOrDefault(DropVariants, persisted.DropVariantId, state.DropVariantId);
@@ -238,6 +260,7 @@ internal sealed class WorkspaceExperienceLabState
         return new WorkspaceExperienceLabSnapshot
         {
             GripVariantId = GripVariantId,
+            CarryVariantId = CarryVariantId,
             EdgeVariantId = EdgeVariantId,
             TransitionVariantId = TransitionVariantId,
             DropVariantId = DropVariantId,
@@ -301,6 +324,7 @@ internal sealed class WorkspaceExperienceLabState
     public void Restore(WorkspaceExperienceLabSnapshot snapshot)
     {
         GripVariantId = ValidOrDefault(GripVariants, snapshot.GripVariantId, GripVariantId);
+        CarryVariantId = ValidOrDefault(CarryVariants, snapshot.CarryVariantId, CarryVariantId);
         EdgeVariantId = ValidOrDefault(EdgeVariants, snapshot.EdgeVariantId, EdgeVariantId);
         TransitionVariantId = ValidOrDefault(TransitionVariants, snapshot.TransitionVariantId, TransitionVariantId);
         DropVariantId = ValidOrDefault(DropVariants, snapshot.DropVariantId, DropVariantId);
@@ -332,11 +356,13 @@ internal sealed class WorkspaceExperienceLabState
     public bool SmokeCheck()
     {
         return GripVariants.Count >= 20 &&
+            CarryVariants.Count >= 10 &&
             EdgeVariants.Count >= 20 &&
             TransitionVariants.Count >= 20 &&
             DropVariants.Count >= 20 &&
             PreviewVariants.Count >= 5 &&
             !string.IsNullOrWhiteSpace(GripVariantId) &&
+            !string.IsNullOrWhiteSpace(CarryVariantId) &&
             !string.IsNullOrWhiteSpace(EdgeVariantId) &&
             !string.IsNullOrWhiteSpace(TransitionVariantId) &&
             !string.IsNullOrWhiteSpace(DropVariantId) &&
@@ -345,7 +371,7 @@ internal sealed class WorkspaceExperienceLabState
 
     public string GetSelectedSummary()
     {
-        return $"Greifen={Find(GripVariants, GripVariantId).DisplayName}; Rand={Find(EdgeVariants, EdgeVariantId).DisplayName}; Uebergang={Find(TransitionVariants, TransitionVariantId).DisplayName}; Ablegen={Find(DropVariants, DropVariantId).DisplayName}; Vorschau={Find(PreviewVariants, PreviewVariantId).DisplayName}; Speed={Speed}; Animation={(AnimationEnabled ? "An" : "Aus")}";
+        return $"Greifen={Find(GripVariants, GripVariantId).DisplayName}; Tragen={Find(CarryVariants, CarryVariantId).DisplayName}; Durchgang={Find(EdgeVariants, EdgeVariantId).DisplayName}; Kontinuitaet={Find(TransitionVariants, TransitionVariantId).DisplayName}; Ablegen={Find(DropVariants, DropVariantId).DisplayName}; Aufmerksamkeit={Find(PreviewVariants, PreviewVariantId).DisplayName}; Speed={Speed}; Animation={(AnimationEnabled ? "An" : "Aus")}";
     }
 
     public string GetEvolutionSummary()
@@ -413,6 +439,9 @@ internal sealed class WorkspaceExperienceLabState
         {
             case "grip":
                 GripVariantId = ValidOrDefault(GripVariants, variantId, GripVariantId);
+                return true;
+            case "carry":
+                CarryVariantId = ValidOrDefault(CarryVariants, variantId, CarryVariantId);
                 return true;
             case "edge":
                 EdgeVariantId = ValidOrDefault(EdgeVariants, variantId, EdgeVariantId);
@@ -512,6 +541,7 @@ internal sealed class WorkspaceExperienceLabState
         return category switch
         {
             "grip" => GripVariants,
+            "carry" => CarryVariants,
             "edge" => EdgeVariants,
             "transition" => TransitionVariants,
             "drop" => DropVariants,
@@ -540,6 +570,7 @@ internal sealed class WorkspaceExperienceLabState
                 new PersistedLabState
                 {
                     GripVariantId = GripVariantId,
+                    CarryVariantId = CarryVariantId,
                     EdgeVariantId = EdgeVariantId,
                     TransitionVariantId = TransitionVariantId,
                     DropVariantId = DropVariantId,
@@ -570,6 +601,8 @@ internal sealed class WorkspaceExperienceLabState
     private sealed class PersistedLabState
     {
         public string? GripVariantId { get; set; }
+
+        public string? CarryVariantId { get; set; }
 
         public string? EdgeVariantId { get; set; }
 

@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 1.8.0
+Version: 1.9.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -42,9 +42,9 @@ Die Oberflaeche ist in Registerkarten gegliedert. Die erste Registerkarte enthae
 - Mitte: Transfer Objects mit Object Type, Display Name, State, Source und Target.
 - Mitte rechts: Agents und Diagnostics mit Runtime State, Plugin Count, Workspace Count, Transfer Object Count, Capabilities, Last Result und Last Error.
 - Unten: Log und Transfer-History.
-- Separat: Multi Window Prototype mit zwei echten Workspace-Fenstern, gemeinsamem Core-Kontext, Objektkarten, Workspace Preview, Edge-Hot-Zones, Ghost-Uebergang, History, Diagnostics, UX-Diagnose und Log je Fenster.
+- Separat: Multi Window Prototype mit zwei echten Arbeitsflaechen, gemeinsamem Core-Kontext, Objektkarten, Arbeitsflaechenvorschau, Durchgangszonen, Ghost-Kontinuitaet, History, Diagnostics, UX-Diagnose und Log je Fenster.
 
-Die zweite Registerkarte heisst `Workspace Experience Lab`. Sie dient ausschliesslich dem Live-Vergleich von UX-Varianten.
+Die zweite Registerkarte heisst `Digitale Physik`. Sie dient ausschliesslich dem Live-Vergleich von UX-Varianten nach Pick, Carry, Place.
 
 ## Aktionen
 
@@ -59,15 +59,15 @@ Minimal verfuegbare Aktionen:
 - Reset Interactive Demo
 - Run Full Interactive Demo
 - Open Multi Window Prototype
-- Workspace Experience Lab: Greifen, Rand, Uebergang, Ablegen, Preview, Animation und Geschwindigkeit live umschalten
+- Digitale Physik: Greifen, Tragen, Durchgang, Kontinuitaet, Ablegen, Aufmerksamkeit, Animation und Geschwindigkeit live umschalten
 
 `Run Full Demo` startet die Runtime, erzeugt `RKWS-Demo-Laptop` und `RKWS-Demo-Display-Right`, erzeugt ein Textobjekt `Hallo von RK Workspace`, fuehrt einen Transfer nach rechts aus und erwartet `SUCCESS`.
 
-`Run Full Interactive Demo` initialisiert denselben interaktiven Zustand, simuliert Drag, Target Highlight und Drop auf Workspace B und erwartet `InteractiveDemo: SUCCESS`.
+`Run Full Interactive Demo` initialisiert denselben interaktiven Zustand, simuliert Greifen, Reaktion der rechten Arbeitsflaeche und Ablegen und erwartet `InteractiveDemo: SUCCESS`.
 
-`Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Fenster fuer `Window A / Laptop` und `Window B / Display Right`. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Workspaces, Transferobjekte, Diagnostics, History, Log und die wichtigsten Aktionen.
+`Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Arbeitsflaechen fuer den linken und rechten Arbeitsplatz. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Arbeitsflaechen, Dinge, Diagnostics, History, Log und die wichtigsten Aktionen.
 
-`Workspace Experience Lab` stellt ab UX Evolution Lab Sprint 1 generierte Generationen bereit: 24 Greifvarianten, 24 Randvarianten, 24 Uebergangsvarianten, 20 Ablegevarianten und 8 Vorschauvarianten. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante wird lokal mit den drei Gefuehlsbuttons `Gruen - Das fuehlt sich richtig an`, `Gelb - Fast` oder `Rot - Fuehlt sich falsch an` bewertet. Nach einer Bewertung waehlt das Lab automatisch eine nahe Folgegeneration.
+`Digitale Physik` stellt ab DP-001 generierte Generationen bereit: 24 Greifvarianten, 12 Tragevarianten, 24 Durchgangsvarianten, 24 Kontinuitaetsvarianten, 20 Ablegevarianten und 8 Aufmerksamkeitsvarianten. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante wird lokal mit den drei Gefuehlsbuttons `Gruen - Das fuehlt sich richtig an`, `Gelb - Fast` oder `Rot - Fuehlt sich falsch an` bewertet. Nach einer Bewertung waehlt das Lab automatisch eine nahe Folgegeneration.
 
 ## Interaktiver Workspace-Prototyp
 
@@ -86,9 +86,9 @@ Der Multi Window Prototype zeigt zwei echte OS-Fenster:
 - `Window A / Laptop`
 - `Window B / Display Right`
 
-Beide Fenster verwenden denselben laufenden Core-Kontext mit `RuntimeEngine`, `WorkspaceRegistry`, `CapabilityManager`, `TransferObjectManager` und `TransferEngine`. Window A enthaelt mehrere Transferobjekte: zwei Texte, ein PDF, ein Bild und einen Link. Window B ist das logische Ziel rechts.
+Beide Fenster verwenden denselben laufenden Core-Kontext mit `RuntimeEngine`, `WorkspaceRegistry`, `CapabilityManager`, `TransferObjectManager` und `TransferEngine`. Die linke Arbeitsflaeche enthaelt mehrere Dinge: zwei Texte, ein PDF, ein Bild und einen Link. Die rechte Arbeitsflaeche ist der logische Ort zum Ablegen.
 
-Die Objektkarten koennen per Maus zwischen Window A und Window B bewegt werden. Beim Greifen wechselt die Karte in den Zustand `Objekt gefasst`: sie wird leicht groesser, bekommt Glow/Rahmen und pulsiert. Die Statusleiste meldet nicht nur Drag, sondern den Greifzustand. Die gekapselte EdgeTarget-Logik schlaegt am rechten Fensterrand die rechte Arbeitsflaeche und am linken Fensterrand die linke Arbeitsflaeche vor. Bei einem Randvorschlag erscheint eine Workspace Preview mit Zielname, Status und Objektanzahl. Die Randzone pulsiert, zeigt `Nach rechts schieben` oder `Nach links schieben`, und ein Ghost-Objekt sitzt halb im Rand. Das Zielfenster reagiert vor dem Drop mit Eintrittsbereich, Highlight und `uebernimmt`-Hinweis. Beim ersten Transfer wird `TransferEngine.ExecuteLogicalTransfer()` verwendet. Ruecktransfer bereits abgeschlossener Demo-Objekte wird im Studio als logische Positionsaktualisierung dargestellt, ohne den Core-Terminalzustand aufzubrechen. Nach Erfolg wird das Objekt im Ziel angezeigt, beide Fenster schreiben Logeintraege, die History zeigt den Core-Ablauf, Diagnostics nennen den letzten Transfer, UX-Diagnostics messen Greifen, Edge-Lock, Uebergang und Drop, und eine einfache Animation visualisiert den eingehenden Transfer.
+Die Objektkarten koennen per Maus zwischen zwei Arbeitsflaechen bewegt werden. Beim Greifen wechselt die Karte in den Zustand `Genommen`: sie loest sich sichtbar, bekommt Tiefe, Gewicht oder Grip. Die Trage-Generation bestimmt, ob das Objekt direkt, mit Nachlauf, Feder oder spuerbarer Masse reagiert. Der Bildschirmrand wird als Durchgang behandelt: er wird weicher, die andere Arbeitsflaeche nimmt das Objekt an, und ein Ghost-Objekt zeigt Kontinuitaet. Beim Ablegen setzt das Objekt ruhig auf der anderen Arbeitsflaeche auf. Intern nutzt der erste erfolgreiche Ablauf weiterhin `TransferEngine.ExecuteLogicalTransfer()`, aber die sichtbare Sprache beschreibt nehmen, tragen und ablegen.
 
 ## Core-Anbindung
 
@@ -107,7 +107,7 @@ Der Ablauf wird nicht als separate Studio-Logik dupliziert. Das Studio ruft den 
 
 Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktiven Workspace-Prototyp und den Multi Window Workspace Prototype. Die interaktiven Demos verwenden keinen Local-IPC-Kanal und keine Netzwerkfunktion.
 
-Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing im Studio. Es veraendert keine Core-Komponenten und keinen Transport. Die Evolutionslogik arbeitet nur auf Studio-Varianten, lokaler Bewertung und lokaler Statistik.
+Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio. Sie veraendert keine Core-Komponenten und keinen Transport. Die Evolutionslogik arbeitet nur auf Studio-Varianten, lokaler Bewertung und lokaler Statistik.
 
 ## Nicht-Ziele
 
@@ -125,14 +125,14 @@ Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing i
 - Der Smoke-Test prueft den Core-Ablauf ohne sichtbares Fenster.
 - Der Smoke-Test prueft den interaktiven Demo-Ablauf viewmodelbasiert ohne echte UI-Automation.
 - Der Smoke-Test prueft den Multi-Window-Ablauf, `Run Full Demo`, EdgeTarget-Logik, Roundtrip B nach A, UX-Diagnostics, Workspace Illusion und `WorkspaceSessionCandidate` viewmodelbasiert ohne echte UI-Automation.
-- Der Smoke-Test prueft das Workspace Experience Lab viewmodelbasiert: Variantenanzahl, Live-Wechsel, Bewertung, automatische Folgegeneration und Anwendung im Multi-Window-Kontext.
+- Der Smoke-Test prueft die Digitale Physik viewmodelbasiert: Variantenanzahl inklusive 12 Tragevarianten, Live-Wechsel, Bewertung, automatische Folgegeneration und Anwendung im Multi-Window-Kontext.
 - Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
 - Das Studio nutzt Demo-Daten und keine automatische Discovery.
 - Das Studio spricht weiterhin nicht selbst mit dem Local-IPC-Kanal.
-- Drag-and-Drop im Single-Window-Prototyp ist nur fuer das Textobjekt von Workspace A nach Workspace B vorgesehen.
-- Drag-and-Drop im Multi-Window-Prototyp ist fuer Demo-Transferobjekte zwischen Window A und Window B vorgesehen.
+- Pick-Carry-Place im Single-Window-Prototyp ist nur fuer das Textding von links nach rechts vorgesehen.
+- Pick-Carry-Place im Multi-Window-Prototyp ist fuer Demo-Dinge zwischen linker und rechter Arbeitsflaeche vorgesehen.
 - `WorkspaceSessionCandidate` ist vorbereitet, aber noch keine Live-Workspace-Session.
 - Die Workspace-Illusion ist optisch; echte OS-Hot-Zones, Monitoruebertritt und Live-Sessions sind noch nicht implementiert.
 - Das Workspace Experience Lab ist ein internes Experimentierlabor, kein Produkt und kein Endanwenderwerkzeug.
@@ -142,6 +142,7 @@ Das Workspace Experience Lab veraendert ausschliesslich Darstellung und Timing i
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.9.0 | 2026-07-03 | DP-001 Digitale Physik mit Tragevarianten und Pick-Carry-Place dokumentiert. |
 | 1.8.0 | 2026-07-02 | UX Evolution Lab Sprint 1 mit Generationen, Gefuehlsbewertung und Statistik dokumentiert. |
 | 1.7.0 | 2026-07-02 | UX-LAB-001 Workspace Experience Lab dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA005.03 Workspace Illusion, Edge-Hot-Zones und Candidate-Zustaende dokumentiert. |

@@ -4,6 +4,8 @@ internal sealed record WorkspaceExperienceLabSnapshot
 {
     public required string GripVariantId { get; init; }
 
+    public required string CarryVariantId { get; init; }
+
     public required string EdgeVariantId { get; init; }
 
     public required string TransitionVariantId { get; init; }
@@ -35,6 +37,7 @@ internal sealed record WorkspaceExperienceLabSnapshot
     public static WorkspaceExperienceLabSnapshot Default { get; } = new()
     {
         GripVariantId = "grip-generation-04",
+        CarryVariantId = "carry-generation-04",
         EdgeVariantId = "edge-generation-02",
         TransitionVariantId = "transition-generation-03",
         DropVariantId = "drop-generation-02",

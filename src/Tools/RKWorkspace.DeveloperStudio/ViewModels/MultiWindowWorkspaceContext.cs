@@ -136,7 +136,7 @@ internal sealed class MultiWindowWorkspaceContext
         BeginDrag(objectId, WorkspaceAId.ToString());
         var gripSnapshot = GetSnapshot(WorkspaceAId.ToString());
         var gripStateSet = gripSnapshot.IsObjectGrabbed &&
-            gripSnapshot.StatusHint.Contains("Objekt gefasst", StringComparison.OrdinalIgnoreCase);
+            gripSnapshot.StatusHint.Contains("Objekt genommen", StringComparison.OrdinalIgnoreCase);
 
         UpdateEdgeSuggestion(WorkspaceAId.ToString(), MultiWindowEdge.Right);
         var candidateSnapshot = GetSnapshot(WorkspaceAId.ToString());
@@ -335,9 +335,9 @@ internal sealed class MultiWindowWorkspaceContext
         _candidateStatus = WorkspaceSessionCandidateStatus.None;
         _dragStartCount++;
         _sessionCandidate = WorkspaceSessionCandidate.Empty;
-        _lastStatusHint = "Objekt gefasst. Zum Rand bewegen.";
+        _lastStatusHint = "Objekt genommen. Es gehoert dir fuer diesen Moment.";
         var displayName = GetTransferObject(objectId)?.Metadata.DisplayName ?? objectId;
-        AddLog(workspaceId, "Objekt gefasst", displayName, "Greifzustand aktiv.");
+        AddLog(workspaceId, "Objekt genommen", displayName, "Greifen aktiv.");
         NotifyChanged();
     }
 
@@ -364,24 +364,24 @@ internal sealed class MultiWindowWorkspaceContext
                 GetCurrentDragSourceWorkspaceId(),
                 workspaceId,
                 WorkspaceSessionCandidateStatus.EdgeLocked,
-                "Zielarbeitsflaeche uebernimmt",
+                "Arbeitsflaeche nimmt das Objekt an",
                 _edgeLockedAt,
                 null);
-            _lastStatusHint = $"{GetWorkspaceShortName(workspaceId)} uebernimmt. Loslassen zum Ablegen.";
-            AddLog(workspaceId, "Edge Locked", GetWorkspaceShortName(workspaceId), "Workspace uebernimmt.");
+            _lastStatusHint = $"{GetWorkspaceShortName(workspaceId)} nimmt an. Ablegen, wenn es sich richtig anfuehlt.";
+            AddLog(workspaceId, "Durchgang aktiv", GetWorkspaceShortName(workspaceId), "Arbeitsflaeche nimmt an.");
         }
         else if (wasHighlighted && string.Equals(_suggestedWorkspaceId, workspaceId, StringComparison.OrdinalIgnoreCase))
         {
             _suggestedWorkspaceId = string.Empty;
             _lastStatusHint = string.IsNullOrWhiteSpace(_activeDragObjectId)
                 ? "Bereit."
-                : "Objekt gefasst. Weiter zum Rand bewegen.";
+                : "Objekt genommen. Weiter durch den Rand tragen.";
         }
         else if (string.IsNullOrWhiteSpace(nextValue) && string.IsNullOrWhiteSpace(_suggestedWorkspaceId))
         {
             _lastStatusHint = string.IsNullOrWhiteSpace(_activeDragObjectId)
                 ? "Bereit."
-                : "Objekt gefasst. Kein Ziel unter dem Cursor.";
+                : "Objekt genommen. Noch kein Durchgang unter dem Cursor.";
         }
 
         NotifyChanged();
@@ -416,7 +416,7 @@ internal sealed class MultiWindowWorkspaceContext
                 suggestion.Hint,
                 null,
                 null);
-            AddLog(workspaceId, "Edge Candidate", suggestion.WorkspaceName, suggestion.Hint);
+            AddLog(workspaceId, "Durchgang erkannt", suggestion.WorkspaceName, suggestion.Hint);
         }
         else
         {
@@ -460,14 +460,14 @@ internal sealed class MultiWindowWorkspaceContext
                 Edge = edge,
                 WorkspaceId = WorkspaceBId.ToString(),
                 WorkspaceName = GetWorkspaceName(WorkspaceBId.ToString()),
-                Hint = "Rechter Rand erkennt: Arbeitsflaeche rechts. Weiter nach rechts ziehen."
+                Hint = "Rechts wird der Raum weich. Weiter nach rechts tragen."
             },
             MultiWindowEdge.Left => new MultiWindowEdgeTargetSuggestion
             {
                 Edge = edge,
                 WorkspaceId = WorkspaceAId.ToString(),
                 WorkspaceName = GetWorkspaceName(WorkspaceAId.ToString()),
-                Hint = "Linker Rand erkennt: Arbeitsflaeche links. Weiter nach links ziehen."
+                Hint = "Links wird der Raum weich. Weiter nach links tragen."
             },
             _ => new MultiWindowEdgeTargetSuggestion
             {
@@ -476,7 +476,7 @@ internal sealed class MultiWindowWorkspaceContext
                 WorkspaceName = string.Empty,
                 Hint = string.IsNullOrWhiteSpace(_activeDragObjectId)
                     ? "Bereit."
-                    : "Objekt gefasst. Kein Randziel erkannt."
+                    : "Objekt genommen. Noch kein Durchgang erkannt."
             }
         };
     }
@@ -509,8 +509,8 @@ internal sealed class MultiWindowWorkspaceContext
         _lastTransitionDurationMs = CalculateTransitionDurationMs(DateTimeOffset.UtcNow);
         _grabbedAt = null;
         _edgeLockedAt = null;
-        _lastStatusHint = "Kein gueltiges Ziel. Das Objekt bleibt in der Ausgangsarbeitsflaeche.";
-        AddLog(workspaceId, "Kein gueltiges Ziel", displayName, "Objekt springt zurueck.");
+        _lastStatusHint = "Kein gueltiger Platz. Das Objekt bleibt auf seiner Arbeitsflaeche.";
+        AddLog(workspaceId, "Kein gueltiger Platz", displayName, "Objekt bleibt auf seiner Arbeitsflaeche.");
         NotifyChanged();
     }
 
@@ -539,8 +539,8 @@ internal sealed class MultiWindowWorkspaceContext
                 _lastTransitionDurationMs = CalculateTransitionDurationMs(DateTimeOffset.UtcNow);
                 _grabbedAt = null;
                 _edgeLockedAt = null;
-                _lastStatusHint = "Kein gueltiges Ziel. Das Objekt bleibt in der Ausgangsarbeitsflaeche.";
-                AddLog(workspaceId, "Kein gueltiges Ziel", GetObjectDisplayName(objectId), "Objekt springt zurueck.");
+                _lastStatusHint = "Kein gueltiger Platz. Das Objekt bleibt auf seiner Arbeitsflaeche.";
+                AddLog(workspaceId, "Kein gueltiger Platz", GetObjectDisplayName(objectId), "Objekt bleibt auf seiner Arbeitsflaeche.");
                 _lastResult = "FAILED";
                 _lastError = "Kein gueltiges Ziel.";
                 NotifyChanged();
@@ -559,10 +559,10 @@ internal sealed class MultiWindowWorkspaceContext
                 sourceWorkspaceId.ToString(),
                 targetWorkspaceId.ToString(),
                 WorkspaceSessionCandidateStatus.EdgeLocked,
-                "Objekt laeuft durch den Rand",
+                "Objekt bleibt im Durchgang sichtbar",
                 _edgeLockedAt,
                 null);
-            AddLog(workspaceId, "Objekt tritt ein", transferObject.Metadata.DisplayName, "Workspace uebernimmt.");
+            AddLog(workspaceId, "Objekt kommt an", transferObject.Metadata.DisplayName, "Arbeitsflaeche nimmt an.");
             var stopwatch = Stopwatch.StartNew();
             var result = ExecuteWorkspaceExperienceTransfer(
                 transferObject,
@@ -591,7 +591,7 @@ internal sealed class MultiWindowWorkspaceContext
                     sourceWorkspaceId.ToString(),
                     targetWorkspaceId.ToString(),
                     WorkspaceSessionCandidateStatus.Completed,
-                    "Transfer abgeschlossen",
+                    "Objekt abgelegt",
                     _edgeLockedAt,
                     DateTimeOffset.UtcNow);
                 _lastTransferDisplayName = transferObject.Metadata.DisplayName;
@@ -599,10 +599,10 @@ internal sealed class MultiWindowWorkspaceContext
                 _successPulseUntil = DateTimeOffset.UtcNow.AddSeconds(2);
                 _grabbedAt = null;
                 _edgeLockedAt = null;
-                _successHint = "Transfer abgeschlossen. Objekt liegt in der Zielarbeitsflaeche.";
+                _successHint = "Abgelegt. Das Objekt liegt ruhig auf der Arbeitsflaeche.";
                 _lastStatusHint = _successHint;
-                AddLog(sourceWorkspaceId.ToString(), "Transfer erfolgreich abgeschlossen", transferObject.Metadata.DisplayName, string.Empty);
-                AddLog(workspaceId, "Transfer erfolgreich abgeschlossen", transferObject.Metadata.DisplayName, string.Empty);
+                AddLog(sourceWorkspaceId.ToString(), "Objekt abgelegt", transferObject.Metadata.DisplayName, string.Empty);
+                AddLog(workspaceId, "Objekt abgelegt", transferObject.Metadata.DisplayName, string.Empty);
             }
             else
             {
@@ -613,14 +613,14 @@ internal sealed class MultiWindowWorkspaceContext
                     sourceWorkspaceId.ToString(),
                     targetWorkspaceId.ToString(),
                     WorkspaceSessionCandidateStatus.Cancelled,
-                    "Transfer fehlgeschlagen",
+                    "Ablegen fehlgeschlagen",
                     _edgeLockedAt,
                     DateTimeOffset.UtcNow);
                 _successHint = string.Empty;
                 _grabbedAt = null;
                 _edgeLockedAt = null;
-                _lastStatusHint = "Transfer fehlgeschlagen.";
-                AddLog(workspaceId, "Transfer failed", _lastResult, _lastError);
+                _lastStatusHint = "Ablegen fehlgeschlagen.";
+                AddLog(workspaceId, "Ablegen fehlgeschlagen", _lastResult, _lastError);
             }
 
             NotifyChanged();
@@ -641,13 +641,13 @@ internal sealed class MultiWindowWorkspaceContext
                 GetCurrentDragSourceWorkspaceId(),
                 workspaceId,
                 WorkspaceSessionCandidateStatus.Cancelled,
-                "Transfer fehlgeschlagen",
+                "Ablegen fehlgeschlagen",
                 _edgeLockedAt,
                 DateTimeOffset.UtcNow);
             _grabbedAt = null;
             _edgeLockedAt = null;
-            _lastStatusHint = "Transfer fehlgeschlagen.";
-            AddLog(workspaceId, "Transfer failed", objectId, ex.Message);
+            _lastStatusHint = "Ablegen fehlgeschlagen.";
+            AddLog(workspaceId, "Ablegen fehlgeschlagen", objectId, ex.Message);
             NotifyChanged();
             return false;
         }
@@ -669,8 +669,8 @@ internal sealed class MultiWindowWorkspaceContext
 
     private void InitializeWorkspaces()
     {
-        RegisterWorkspace(WorkspaceAId, "Arbeitsflaeche links / Laptop", WorkspacePosition.Center, priority: 10);
-        RegisterWorkspace(WorkspaceBId, "Arbeitsflaeche rechts / Display rechts", WorkspacePosition.Right, priority: 5);
+        RegisterWorkspace(WorkspaceAId, "Mein Arbeitsplatz links", WorkspacePosition.Center, priority: 10);
+        RegisterWorkspace(WorkspaceBId, "Mein Arbeitsplatz rechts", WorkspacePosition.Right, priority: 5);
     }
 
     private void RegisterWorkspace(
@@ -803,7 +803,7 @@ internal sealed class MultiWindowWorkspaceContext
         var transferText = string.IsNullOrWhiteSpace(_lastTransferDisplayName)
             ? "keiner"
             : _lastTransferDisplayName;
-        return $"Runtime={StudioUiText.Display(diagnostics.RuntimeState.ToString())}; Arbeitsflaechen={diagnostics.WorkspaceCount}; Objekte={diagnostics.TransferObjectCount}; Ergebnis={StudioUiText.Display(_lastResult)}; Letzter Transfer={transferText}; Candidate={_candidateStatus}";
+        return $"Zustand={StudioUiText.Display(diagnostics.RuntimeState.ToString())}; Arbeitsflaechen={diagnostics.WorkspaceCount}; Dinge={diagnostics.TransferObjectCount}; Ergebnis={StudioUiText.Display(_lastResult)}; Zuletzt abgelegt={transferText}; Durchgang={StudioUiText.Display(_candidateStatus.ToString())}";
     }
 
     private MultiWindowUxDiagnosticsSnapshot BuildUxDiagnostics()
@@ -992,11 +992,11 @@ internal sealed class MultiWindowWorkspaceContext
         if (string.Equals(workspaceId, activeDragSourceWorkspaceId, StringComparison.OrdinalIgnoreCase))
         {
             return edge == MultiWindowEdge.Right
-                ? "Nach rechts schieben"
-                : "Nach links schieben";
+                ? "Weiter nach rechts tragen"
+                : "Weiter nach links tragen";
         }
 
-        return $"{GetWorkspaceShortName(workspaceId)} uebernimmt";
+        return $"{GetWorkspaceShortName(workspaceId)} nimmt an";
     }
 
     private string BuildEdgeTransitionHint(
@@ -1011,15 +1011,15 @@ internal sealed class MultiWindowWorkspaceContext
         if (string.Equals(workspaceId, activeDragSourceWorkspaceId, StringComparison.OrdinalIgnoreCase))
         {
             return string.Equals(workspaceId, WorkspaceAId.ToString(), StringComparison.OrdinalIgnoreCase)
-                ? "Das Objekt gleitet aus der rechten Kante."
-                : "Das Objekt gleitet aus der linken Kante.";
+                ? "Das Objekt bleibt sichtbar und tritt rechts durch."
+                : "Das Objekt bleibt sichtbar und tritt links durch.";
         }
 
         if (string.Equals(workspaceId, _suggestedWorkspaceId, StringComparison.OrdinalIgnoreCase))
         {
             return string.Equals(workspaceId, WorkspaceBId.ToString(), StringComparison.OrdinalIgnoreCase)
-                ? "Eintritt links: Objekt kommt von der linken Arbeitsflaeche."
-                : "Eintritt rechts: Objekt kommt von der rechten Arbeitsflaeche.";
+                ? "Eintritt links: Das Objekt wird weitergetragen."
+                : "Eintritt rechts: Das Objekt wird weitergetragen.";
         }
 
         return string.Empty;
@@ -1047,14 +1047,14 @@ internal sealed class MultiWindowWorkspaceContext
     {
         if (string.Equals(_highlightWorkspaceId, workspaceId, StringComparison.OrdinalIgnoreCase))
         {
-            return $"{GetWorkspaceShortName(workspaceId)} uebernimmt. Loslassen zum Ablegen.";
+            return $"{GetWorkspaceShortName(workspaceId)} nimmt an. Sanft ablegen.";
         }
 
         if (string.Equals(_suggestedWorkspaceId, workspaceId, StringComparison.OrdinalIgnoreCase))
         {
             return workspaceId == WorkspaceBId.ToString()
-                ? "Eintritt links aktiv. Arbeitsflaeche rechts erkennt das Objekt."
-                : "Eintritt rechts aktiv. Arbeitsflaeche links erkennt das Objekt.";
+                ? "Durchgang links aktiv. Rechts geht der Raum weiter."
+                : "Durchgang rechts aktiv. Links geht der Raum weiter.";
         }
 
         return _lastStatusHint;
@@ -1099,7 +1099,7 @@ internal sealed class MultiWindowWorkspaceContext
                 GetObjectLocation(item.Id),
                 workspaceId,
                 StringComparison.OrdinalIgnoreCase));
-        return $"{workspace.Descriptor.DisplayName} | {objectCount} Objekte | {StudioUiText.Display(workspace.Descriptor.WorkspaceState.ToString())}";
+        return $"{workspace.Descriptor.DisplayName} | {objectCount} Dinge | {StudioUiText.Display(workspace.Descriptor.WorkspaceState.ToString())}";
     }
 
     private static bool IsKnownWorkspace(string workspaceId)

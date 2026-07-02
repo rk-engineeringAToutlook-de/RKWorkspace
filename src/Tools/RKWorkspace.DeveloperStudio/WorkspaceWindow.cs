@@ -42,8 +42,8 @@ internal sealed class WorkspaceWindow : Form
         _context = context;
         _workspaceId = workspaceId;
         Text = workspaceId.EndsWith("-A", StringComparison.OrdinalIgnoreCase)
-            ? "RK Arbeitsflaeche A"
-            : "RK Arbeitsflaeche B";
+            ? "Mein Arbeitsplatz links"
+            : "Mein Arbeitsplatz rechts";
         Width = 620;
         Height = 744;
         MinimumSize = new Size(520, 660);
@@ -96,7 +96,7 @@ internal sealed class WorkspaceWindow : Form
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
         root.Controls.Add(BuildHeader(), 0, 0);
         root.Controls.Add(BuildAnimationLayer(), 0, 1);
-        root.Controls.Add(Panel("Transferobjekte", BuildObjectPanel()), 0, 2);
+        root.Controls.Add(Panel("Dinge auf dieser Arbeitsflaeche", BuildObjectPanel()), 0, 2);
         root.Controls.Add(BuildHistoryLogPanel(), 0, 3);
         root.Controls.Add(Panel("Diagnose", BuildDiagnostics()), 0, 4);
         root.Controls.Add(Panel("UX-Diagnose", BuildUxDiagnostics()), 0, 5);
@@ -128,9 +128,9 @@ internal sealed class WorkspaceWindow : Form
         details.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
         details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         AddInfoRow(details, 0, "Name", _name);
-        AddInfoRow(details, 1, "Typ", _type);
-        AddInfoRow(details, 2, "Position", _position);
-        AddInfoRow(details, 3, "Status", _status);
+        AddInfoRow(details, 1, "Art", _type);
+        AddInfoRow(details, 2, "Lage", _position);
+        AddInfoRow(details, 3, "Zustand", _status);
         header.Controls.Add(details, 1, 0);
         return header;
     }
@@ -147,7 +147,7 @@ internal sealed class WorkspaceWindow : Form
         var screen = new Label
         {
             Dock = DockStyle.Fill,
-            Text = "WORKSPACE\r\nSCREEN",
+            Text = "ARBEITS-\r\nFLAECHE",
             TextAlign = ContentAlignment.MiddleCenter,
             ForeColor = Color.White,
             BackColor = Color.FromArgb(47, 65, 88),
@@ -274,7 +274,7 @@ internal sealed class WorkspaceWindow : Form
         };
         diagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110));
         diagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddInfoRow(diagnostics, 0, "Core", _diagnostics);
+        AddInfoRow(diagnostics, 0, "Zustand", _diagnostics);
         AddInfoRow(diagnostics, 1, "Ergebnis", _lastResult);
         AddInfoRow(diagnostics, 2, "Fehler", _lastError);
         return diagnostics;
@@ -305,19 +305,25 @@ internal sealed class WorkspaceWindow : Form
         _statusHint.BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(198, 239, 219)
             : string.IsNullOrWhiteSpace(_snapshot.SuccessHint)
-                ? Color.FromArgb(246, 248, 251)
+                ? _snapshot.IsObjectGrabbed
+                    ? Color.FromArgb(238, 241, 246)
+                    : Color.FromArgb(246, 248, 251)
                 : Color.FromArgb(216, 242, 225);
         _statusHint.ForeColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(20, 94, 58)
             : Color.FromArgb(48, 62, 78);
         BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(224, 244, 234)
+            : _snapshot.IsObjectGrabbed
+                ? Color.FromArgb(234, 237, 242)
             : SystemColors.Control;
         _objectPanel.BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(229, 246, 237)
             : _snapshot.IsSuccessPulseActive
                 ? Color.FromArgb(223, 247, 232)
-                : Color.FromArgb(245, 247, 250);
+                : _snapshot.IsObjectGrabbed
+                    ? Color.FromArgb(236, 239, 244)
+                    : Color.FromArgb(245, 247, 250);
         _historyGrid.DataSource = _snapshot.History.ToArray();
         _logGrid.DataSource = _snapshot.Log.ToArray();
 
@@ -342,7 +348,7 @@ internal sealed class WorkspaceWindow : Form
         {
             _objectPanel.Controls.Add(new Label
             {
-                Text = "Leere Arbeitsflaeche: keine Transferobjekte.",
+                Text = "Hier liegt gerade nichts.",
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Width = Math.Max(420, _objectPanel.ClientSize.Width - 28),
@@ -361,15 +367,15 @@ internal sealed class WorkspaceWindow : Form
         var lab = _snapshot?.ExperienceLab ?? WorkspaceExperienceLabSnapshot.Default;
         var pulse = lab.AnimationEnabled && item.IsBeingDragged && (_pulseStep % 6) < 3;
         var grabbedBackColor = GetGrabbedBackColor(lab.GripVariantId, pulse);
-        var grabbedHeight = GetGrabbedHeight(lab.GripVariantId);
+        var grabbedHeight = GetGrabbedHeight(lab.GripVariantId) + GetCarryHeightOffset(lab.CarryVariantId);
         var card = new Panel
         {
-            Width = Math.Max(460, _objectPanel.ClientSize.Width - (item.IsBeingDragged ? 34 : 42)),
+            Width = Math.Max(460, _objectPanel.ClientSize.Width - (item.IsBeingDragged ? GetCarryWidthInset(lab.CarryVariantId) : 42)),
             Height = item.IsBeingDragged ? grabbedHeight : 98,
             BackColor = item.IsBeingDragged ? grabbedBackColor : Color.White,
             BorderStyle = item.IsBeingDragged ? BorderStyle.Fixed3D : BorderStyle.FixedSingle,
             Margin = item.IsBeingDragged
-                ? GetGrabbedMargin(lab.GripVariantId, pulse)
+                ? GetCarriedMargin(lab.GripVariantId, lab.CarryVariantId, pulse)
                 : new Padding(8),
             Tag = item.ObjectId,
             Cursor = canDrag
@@ -399,7 +405,7 @@ internal sealed class WorkspaceWindow : Form
         };
         var title = new Label
         {
-            Text = item.IsBeingDragged ? $"Gefasst: {item.DisplayName}" : item.DisplayName,
+            Text = item.IsBeingDragged ? $"Genommen: {item.DisplayName}" : item.DisplayName,
             Dock = DockStyle.Fill,
             Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold),
             AutoEllipsis = true
@@ -414,8 +420,8 @@ internal sealed class WorkspaceWindow : Form
         var detail = new Label
         {
             Text = item.IsBeingDragged
-                ? $"{StudioUiText.Display(item.ObjectType)} | {GetGripDetail(lab.GripVariantId)} | {item.MimeType}"
-                : $"{StudioUiText.Display(item.ObjectType)} | Status: {StudioUiText.Display(item.State)} | {item.MimeType}",
+                ? $"{StudioUiText.Display(item.ObjectType)} | {GetGripDetail(lab.GripVariantId)} | {GetCarryDetail(lab.CarryVariantId)}"
+                : $"{StudioUiText.Display(item.ObjectType)} | Zustand: {StudioUiText.Display(item.State)}",
             Dock = DockStyle.Fill,
             ForeColor = Color.FromArgb(87, 98, 112),
             AutoEllipsis = true
@@ -436,8 +442,8 @@ internal sealed class WorkspaceWindow : Form
             ? "Arbeitsflaeche rechts"
             : "Arbeitsflaeche links";
         var tooltip = canDrag
-            ? $"Dieses Objekt greifen, an den Rand schieben und nach {targetName} fuehren."
-            : "Dieses Objekt liegt nicht in dieser Arbeitsflaeche und kann hier nicht gegriffen werden.";
+            ? $"Dieses Ding nehmen, ruhig tragen und am Durchgang zu {targetName} ablegen."
+            : "Dieses Ding liegt nicht hier und kann in dieser Arbeitsflaeche nicht genommen werden.";
         _toolTip.SetToolTip(card, tooltip);
         _toolTip.SetToolTip(grid, tooltip);
         _toolTip.SetToolTip(symbol, tooltip);
@@ -576,13 +582,13 @@ internal sealed class WorkspaceWindow : Form
             4 => snapshot.SuggestedWorkspaceId.EndsWith("-B", StringComparison.OrdinalIgnoreCase)
                 ? "->"
                 : "<-",
-            3 => $"Miniatur\r\n{snapshot.SuggestedWorkspaceName}",
-            5 => $"Ziel\r\n{snapshot.SuggestedWorkspaceName}",
+            3 => $"Ablage\r\n{snapshot.SuggestedWorkspaceName}",
+            5 => $"Dorthin\r\n{snapshot.SuggestedWorkspaceName}",
             6 => snapshot.SuggestedWorkspaceId.EndsWith("-B", StringComparison.OrdinalIgnoreCase)
                 ? $"-> {snapshot.SuggestedWorkspaceName}"
                 : $"<- {snapshot.SuggestedWorkspaceName}",
-            7 => $"Rand\r\n{snapshot.SuggestedWorkspaceName}",
-            _ => $"Vorschau\r\n{snapshot.SuggestedWorkspacePreview}"
+            7 => $"Durchgang\r\n{snapshot.SuggestedWorkspaceName}",
+            _ => $"Weitertragen\r\n{snapshot.SuggestedWorkspacePreview}"
         };
     }
 
@@ -646,6 +652,39 @@ internal sealed class WorkspaceWindow : Form
         };
     }
 
+    private static Padding GetCarriedMargin(string gripVariantId, string carryVariantId, bool pulse)
+    {
+        var baseMargin = GetGrabbedMargin(gripVariantId, pulse);
+        return GetCarryStyle(carryVariantId) switch
+        {
+            2 or 4 or 9 => new Padding(baseMargin.Left + 2, baseMargin.Top + 1, Math.Max(2, baseMargin.Right - 4), baseMargin.Bottom + 2),
+            3 or 6 => new Padding(baseMargin.Left + (pulse ? 4 : 1), baseMargin.Top, baseMargin.Right + 2, baseMargin.Bottom),
+            7 => new Padding(baseMargin.Left + 1, Math.Max(2, baseMargin.Top - 2), baseMargin.Right + 1, baseMargin.Bottom + 3),
+            _ => baseMargin
+        };
+    }
+
+    private static int GetCarryHeightOffset(string carryVariantId)
+    {
+        return GetCarryStyle(carryVariantId) switch
+        {
+            2 or 4 or 9 => 6,
+            3 or 6 or 11 => 4,
+            7 => 8,
+            _ => 0
+        };
+    }
+
+    private static int GetCarryWidthInset(string carryVariantId)
+    {
+        return GetCarryStyle(carryVariantId) switch
+        {
+            4 or 9 => 24,
+            2 or 7 or 11 => 28,
+            _ => 34
+        };
+    }
+
     private static string GetGripDetail(string gripVariantId)
     {
         return GetGripStyle(gripVariantId) switch
@@ -658,6 +697,25 @@ internal sealed class WorkspaceWindow : Form
             6 => "eingesammelt",
             7 => "genommen und getragen",
             _ => "hebt sich"
+        };
+    }
+
+    private static string GetCarryDetail(string carryVariantId)
+    {
+        return GetCarryStyle(carryVariantId) switch
+        {
+            0 => "direkt getragen",
+            1 => "leichter Nachlauf",
+            2 => "traegt Gewicht",
+            3 => "weiche Feder",
+            4 => "spuerbare Masse",
+            5 => "ruhige Hand",
+            6 => "kleine Gegenbewegung",
+            7 => "schwebt getragen",
+            8 => "magnetisch gehalten",
+            9 => "schwer und praezise",
+            10 => "leichter Grip",
+            _ => "natuerliche Tragphysik"
         };
     }
 
@@ -711,7 +769,7 @@ internal sealed class WorkspaceWindow : Form
 
         if (edgeStyle == 4)
         {
-            return $"MAGNET\r\n{hint.Replace(" ", "\r\n", StringComparison.Ordinal)}";
+            return $"SOG\r\n{hint.Replace(" ", "\r\n", StringComparison.Ordinal)}";
         }
 
         return hint.Replace(" ", "\r\n", StringComparison.Ordinal);
@@ -727,13 +785,13 @@ internal sealed class WorkspaceWindow : Form
     {
         return GetTransitionStyle(transitionVariantId) switch
         {
-            4 => $"{objectName}\r\nwird uebernommen",
+            4 => $"{objectName}\r\nwird angenommen",
             5 => $"{objectName}\r\ntraegt weiter",
             6 => $"{objectName}\r\nsoft fade",
-            3 => $"{objectName}\r\nhalb im Rand",
+            3 => $"{objectName}\r\nhalb im Durchgang",
             1 => $"{objectName}\r\ngleitet",
-            7 => $"{objectName}\r\nUebergang",
-            _ => $"{objectName}\r\nim Rand"
+            7 => $"{objectName}\r\nkontinuierlich",
+            _ => $"{objectName}\r\nim Durchgang"
         };
     }
 
@@ -821,6 +879,14 @@ internal sealed class WorkspaceWindow : Form
             "edge-large" => 6,
             "edge-combo" => 7,
             _ => GetGenerationStyle(variantId, 8)
+        };
+    }
+
+    private static int GetCarryStyle(string variantId)
+    {
+        return variantId switch
+        {
+            _ => GetGenerationStyle(variantId, 12)
         };
     }
 
@@ -1144,14 +1210,14 @@ internal sealed class WorkspaceWindow : Form
     {
         var candidate = diagnostics.SessionCandidate;
         var candidateText = string.IsNullOrWhiteSpace(candidate.TargetWorkspaceId)
-            ? "kein Kandidat"
-            : $"{candidate.SourceWorkspaceId} -> {candidate.TargetWorkspaceId}";
+            ? "kein Durchgang aktiv"
+            : $"{StudioUiText.Display(candidate.SourceWorkspaceId)} -> {StudioUiText.Display(candidate.TargetWorkspaceId)}";
         var grabbedAt = diagnostics.LastGrabbedAt?.ToLocalTime().ToString("HH:mm:ss") ?? "-";
         var edgeLockedAt = diagnostics.LastEdgeLockedAt?.ToLocalTime().ToString("HH:mm:ss") ?? "-";
-        return $"Greifen: {diagnostics.DragStartCount} um {grabbedAt} | Edge-Lock: {edgeLockedAt} | Richtung: {diagnostics.ActiveDirection}\r\n" +
-            $"Candidate: {diagnostics.CandidateStatus} | Ziel erkannt: {diagnostics.TargetDetectedCount} | Drop: {diagnostics.DropCount}\r\n" +
-            $"Uebergang: {diagnostics.LastTransitionDurationMs} ms | Transfer: {diagnostics.LastTransferDurationMs} ms | Erfolg: {diagnostics.SuccessRatePercent}%\r\n" +
-            $"Ruecktransfer: {diagnostics.ReturnTransferCount} | Fehlversuche: {diagnostics.FailedAttempts} | {candidateText}";
+        return $"Greifen: {diagnostics.DragStartCount} um {grabbedAt} | Durchgang: {edgeLockedAt} | Richtung: {StudioUiText.Display(diagnostics.ActiveDirection)}\r\n" +
+            $"Weitertragen: {StudioUiText.Display(diagnostics.CandidateStatus.ToString())} | Durchgang erkannt: {diagnostics.TargetDetectedCount} | Ablegen: {diagnostics.DropCount}\r\n" +
+            $"Kontinuitaet: {diagnostics.LastTransitionDurationMs} ms | Absetzen: {diagnostics.LastTransferDurationMs} ms | Erfolg: {diagnostics.SuccessRatePercent}%\r\n" +
+            $"Zurueckgetragen: {diagnostics.ReturnTransferCount} | Fehlversuche: {diagnostics.FailedAttempts} | {candidateText}";
     }
 
     private void ConfigureToolTips()
@@ -1161,7 +1227,7 @@ internal sealed class WorkspaceWindow : Form
         _toolTip.ReshowDelay = 150;
         _toolTip.SetToolTip(
             _objectPanel,
-            "Transferobjekte in dieser Arbeitsflaeche. Karten greifen und ueber den Rand zur naechsten Arbeitsflaeche schieben.");
+            "Dinge auf dieser Arbeitsflaeche. Karte nehmen, tragen und an anderer Stelle ablegen.");
         _toolTip.SetToolTip(
             _historyGrid,
             "Core-Verlauf der Objekte, die in dieser Arbeitsflaeche liegen.");
@@ -1170,24 +1236,24 @@ internal sealed class WorkspaceWindow : Form
             "Lokale Ereignisse dieses Fensters und globale Multi-Window-Ereignisse.");
         _toolTip.SetToolTip(
             _diagnostics,
-            "Diagnose des gemeinsamen Core-Kontexts fuer beide Fenster.");
+            "Lokaler Zustand der beiden Arbeitsflaechen.");
         _toolTip.SetToolTip(
             _statusHint,
-            "Statushinweis: zeigt Drag-Zustand, Randvorschlag, Drop-Ziel oder Transferergebnis.");
+            "Statushinweis: zeigt Greifen, Tragen, Durchgang und Ablegen.");
         _toolTip.SetToolTip(
             _workspacePreview,
-            "Workspace Preview: zeigt Zielname, Objektanzahl und Status beim magnetischen Randvorschlag.");
+            "Vorschau der Arbeitsflaeche, auf der das Ding abgelegt werden kann.");
         _toolTip.SetToolTip(
             _leftEdgeZone,
-            "Linke Randzone: zeigt, ob ein Objekt nach links hinaus- oder von links hineingeschoben wird.");
+            "Linker Durchgang: hier kann das Objekt nach links weitergetragen werden.");
         _toolTip.SetToolTip(
             _rightEdgeZone,
-            "Rechte Randzone: zeigt, ob ein Objekt nach rechts hinaus- oder von rechts hineingeschoben wird.");
+            "Rechter Durchgang: hier kann das Objekt nach rechts weitergetragen werden.");
         _toolTip.SetToolTip(
             _transitionGhost,
-            "Ghost-Objekt: zeigt den visuellen Uebergang durch den Arbeitsflaechenrand.");
+            "Kontinuitaet: zeigt, dass das Objekt nicht verschwindet, sondern durch den Rand getragen wird.");
         _toolTip.SetToolTip(
             _uxDiagnostics,
-            "Lokale UX-Diagnose fuer Greifen, Edge-Lock, Uebergang, Transferzeit und Erfolgsquote.");
+            "Lokaler Gefuehlstest fuer Greifen, Tragen, Durchgang und Ablegen.");
     }
 }

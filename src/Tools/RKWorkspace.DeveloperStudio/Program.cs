@@ -116,6 +116,7 @@ internal static class Program
         Console.WriteLine($"IllusionTransitionMs: {illusionResult.Diagnostics.LastTransitionDurationMs}");
         Console.WriteLine($"IllusionReturnCount: {illusionResult.Diagnostics.ReturnTransferCount}");
         Console.WriteLine($"LabGripVariants: {WorkspaceExperienceLabState.GripVariants.Count}");
+        Console.WriteLine($"LabCarryVariants: {WorkspaceExperienceLabState.CarryVariants.Count}");
         Console.WriteLine($"LabEdgeVariants: {WorkspaceExperienceLabState.EdgeVariants.Count}");
         Console.WriteLine($"LabTransitionVariants: {WorkspaceExperienceLabState.TransitionVariants.Count}");
         Console.WriteLine($"LabDropVariants: {WorkspaceExperienceLabState.DropVariants.Count}");
@@ -158,11 +159,13 @@ internal static class Program
             lab.SetVariant("grip", "grip-generation-06");
             var firstSwitch = string.Equals(lab.GripVariantId, "grip-generation-06", StringComparison.Ordinal);
             lab.SetVariant("grip", "grip-generation-03");
+            lab.SetVariant("carry", "carry-generation-04");
             var secondSwitch = string.Equals(lab.GripVariantId, "grip-generation-03", StringComparison.Ordinal);
             lab.SetRating("grip", "grip-generation-03", WorkspaceExperienceLabRating.Like);
             var ratingSuccess = lab.GetRating("grip", "grip-generation-03") == WorkspaceExperienceLabRating.Like;
             var evolutionSuccess = lab.EvolutionStep == initial.EvolutionStep + 1 &&
-                string.Equals(lab.GripVariantId, "grip-generation-04", StringComparison.Ordinal);
+                string.Equals(lab.GripVariantId, "grip-generation-04", StringComparison.Ordinal) &&
+                string.Equals(lab.CarryVariantId, "carry-generation-04", StringComparison.Ordinal);
             var context = new MultiWindowWorkspaceContext(lab);
             var snapshot = context.GetSnapshot(context.SourceWorkspaceId.ToString());
             var multiWindowApplied = string.Equals(

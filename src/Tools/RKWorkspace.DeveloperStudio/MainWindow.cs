@@ -86,7 +86,7 @@ internal sealed class MainWindow : Form
         };
         var studioPage = new TabPage("Developer Studio");
         studioPage.Controls.Add(BuildDeveloperStudioLayout());
-        var labPage = new TabPage("Workspace Experience Lab");
+        var labPage = new TabPage("Digitale Physik");
         labPage.Controls.Add(BuildExperienceLab());
         tabs.TabPages.Add(studioPage);
         tabs.TabPages.Add(labPage);
@@ -131,43 +131,43 @@ internal sealed class MainWindow : Form
         panel.Controls.Add(Button(
             "Demo-Arbeitsflaechen",
             _viewModel.AddDemoWorkspaces,
-            "Legt Workspace A und Workspace B fuer den lokalen Demo-Transfer an."));
+            "Legt eine linke und eine rechte Arbeitsflaeche fuer den lokalen Versuch an."));
         panel.Controls.Add(Button(
-            "Textobjekt erstellen",
+            "Textding hinlegen",
             _viewModel.CreateTextObject,
-            "Erzeugt ein logisches Text-Transferobjekt im Core."));
+            "Legt ein Textding auf die linke Arbeitsflaeche."));
         panel.Controls.Add(Button(
-            "Nach rechts uebertragen",
+            "Rechts ablegen",
             _viewModel.TransferRight,
-            "Fuehrt den Transfer von Workspace A nach Workspace B ueber die Transfer Engine aus."));
+            "Legt das Textding auf der rechten Arbeitsflaeche ab."));
         panel.Controls.Add(Button(
-            "Zwei Agenten starten",
+            "Zwei lokale Flaechen starten",
             _viewModel.StartDualAgents,
-            "Startet zwei lokale Agent-Runtimes fuer Diagnose und Vergleich."));
+            "Startet zwei lokale Arbeitsflaechen fuer Diagnose und Vergleich."));
         panel.Controls.Add(Button(
-            "Zwei Agenten stoppen",
+            "Zwei lokale Flaechen stoppen",
             _viewModel.StopDualAgents,
-            "Stoppt die beiden lokalen Agent-Runtimes sauber."));
+            "Stoppt die beiden lokalen Arbeitsflaechen sauber."));
         panel.Controls.Add(Button(
             "Zuruecksetzen",
             _viewModel.Reset,
-            "Setzt Runtime, Objekte, Agenten, Log und Diagnoseansicht zurueck."));
+            "Setzt Runtime, Dinge, lokale Flaechen, Log und Diagnoseansicht zurueck."));
         panel.Controls.Add(Button(
             "Voll-Demo ausfuehren",
             _viewModel.RunFullDemo,
-            "Fuehrt Runtime-Start, Workspaces, Textobjekt, Transfer und Agentenstart in einem Ablauf aus."));
+            "Fuehrt Runtime-Start, Arbeitsflaechen, Textding, Ablegen und lokale Flaechen in einem Ablauf aus."));
         panel.Controls.Add(Button(
             "Interaktive Demo zuruecksetzen",
             _viewModel.ResetInteractiveDemo,
-            "Initialisiert den Drag-and-Drop-Prototyp neu."));
+            "Initialisiert den Pick-Carry-Place-Prototyp neu."));
         panel.Controls.Add(Button(
             "Interaktive Demo ausfuehren",
             _viewModel.RunFullInteractiveDemo,
-            "Simuliert Drag, Zielmarkierung und Drop ueber den Core-Pfad."));
+            "Simuliert Greifen, Tragen und Ablegen ueber den Core-Pfad."));
         panel.Controls.Add(Button(
             "Multi-Window-Prototyp oeffnen",
             OpenMultiWindowPrototype,
-            "Oeffnet zwei echte Fenster fuer Window A und Window B mit gemeinsamem Core-Kontext."));
+            "Oeffnet zwei echte Arbeitsflaechen mit gemeinsamem lokalen Zustand."));
 
         return panel;
     }
@@ -188,19 +188,21 @@ internal sealed class MainWindow : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 5,
+            RowCount = 6,
             AutoScroll = true
         };
-        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
-        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
-        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
-        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
-        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 16.7F));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 16.7F));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 16.7F));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 16.7F));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 16.6F));
+        variants.RowStyles.Add(new RowStyle(SizeType.Percent, 16.6F));
         variants.Controls.Add(BuildLabVariantGroup("grip", "Greifen", WorkspaceExperienceLabState.GripVariants), 0, 0);
-        variants.Controls.Add(BuildLabVariantGroup("edge", "Rand", WorkspaceExperienceLabState.EdgeVariants), 0, 1);
-        variants.Controls.Add(BuildLabVariantGroup("transition", "Uebergang", WorkspaceExperienceLabState.TransitionVariants), 0, 2);
-        variants.Controls.Add(BuildLabVariantGroup("drop", "Ablegen", WorkspaceExperienceLabState.DropVariants), 0, 3);
-        variants.Controls.Add(BuildLabVariantGroup("preview", "Preview", WorkspaceExperienceLabState.PreviewVariants), 0, 4);
+        variants.Controls.Add(BuildLabVariantGroup("carry", "Tragen", WorkspaceExperienceLabState.CarryVariants), 0, 1);
+        variants.Controls.Add(BuildLabVariantGroup("edge", "Durchgang", WorkspaceExperienceLabState.EdgeVariants), 0, 2);
+        variants.Controls.Add(BuildLabVariantGroup("transition", "Kontinuitaet", WorkspaceExperienceLabState.TransitionVariants), 0, 3);
+        variants.Controls.Add(BuildLabVariantGroup("drop", "Ablegen", WorkspaceExperienceLabState.DropVariants), 0, 4);
+        variants.Controls.Add(BuildLabVariantGroup("preview", "Aufmerksamkeit", WorkspaceExperienceLabState.PreviewVariants), 0, 5);
 
         root.Controls.Add(variants, 0, 0);
         root.Controls.Add(BuildLabDashboard(), 1, 0);
@@ -364,7 +366,7 @@ internal sealed class MainWindow : Form
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.TopLeft,
             ForeColor = Color.FromArgb(74, 84, 96),
-            Text = "Leitsatz: Nehmen. Tragen. Ablegen.\r\nBewertungen erzeugen automatisch eine nahe Folgegeneration.\r\nVarianten duerfen nur die Darstellung veraendern, nie den Core."
+            Text = "Leitsatz: Nehmen. Tragen. Ablegen.\r\nOwner-Test: Habe ich gegriffen? Habe ich die Test-App vergessen? Fuehlte es sich getragen an?\r\nBewertungen erzeugen automatisch eine nahe Folgegeneration. Der Core bleibt unveraendert."
         };
 
         panel.Controls.Add(Panel("Live-Auswahl", _labSummary), 0, 0);
@@ -437,7 +439,7 @@ internal sealed class MainWindow : Form
 
     private Control BuildInteractivePanel()
     {
-        return Panel("Interaktiver Workspace-Prototyp", _interactiveSurface);
+        return Panel("Nehmen. Tragen. Ablegen.", _interactiveSurface);
     }
 
     private Control BuildMainGrid()
@@ -454,8 +456,8 @@ internal sealed class MainWindow : Form
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 22));
 
         grid.Controls.Add(Panel("Arbeitsflaechen", _workspaceGrid), 0, 0);
-        grid.Controls.Add(Panel("Transferobjekte", _transferGrid), 1, 0);
-        grid.Controls.Add(Panel("Agenten", _agentGrid), 2, 0);
+        grid.Controls.Add(Panel("Dinge", _transferGrid), 1, 0);
+        grid.Controls.Add(Panel("Lokale Flaechen", _agentGrid), 2, 0);
         grid.Controls.Add(Panel("Diagnose", BuildDiagnostics()), 3, 0);
 
         return grid;
@@ -476,7 +478,7 @@ internal sealed class MainWindow : Form
         AddDiagnosticRow(diagnostics, 0, "Runtime-Status", _runtimeState);
         AddDiagnosticRow(diagnostics, 1, "Plugins", _pluginCount);
         AddDiagnosticRow(diagnostics, 2, "Arbeitsflaechen", _workspaceCount);
-        AddDiagnosticRow(diagnostics, 3, "Transferobjekte", _transferObjectCount);
+        AddDiagnosticRow(diagnostics, 3, "Dinge", _transferObjectCount);
         AddDiagnosticRow(diagnostics, 4, "Faehigkeiten", _capabilities);
         AddDiagnosticRow(diagnostics, 5, "Letztes Ergebnis", _lastResult);
         AddDiagnosticRow(diagnostics, 6, "Letzter Fehler", _lastError);
@@ -563,6 +565,7 @@ internal sealed class MainWindow : Form
         _agentGrid.DataSource = _viewModel.Agents.ToArray();
         _logGrid.DataSource = _viewModel.LogEntries.ToArray();
         _historyGrid.DataSource = _viewModel.TransferHistory.ToArray();
+        _interactiveSurface.SetExperienceLab(_experienceLab.GetSnapshot());
         _interactiveSurface.SetSnapshot(_viewModel.InteractiveWorkspace);
 
         var diagnostics = _viewModel.Diagnostics;
@@ -595,11 +598,16 @@ internal sealed class MainWindow : Form
 
         if (InvokeRequired)
         {
-            BeginInvoke(RefreshLabControls);
+            BeginInvoke(() =>
+            {
+                RefreshLabControls();
+                RefreshUi();
+            });
             return;
         }
 
         RefreshLabControls();
+        RefreshUi();
     }
 
     private void RefreshLabControls()
@@ -608,6 +616,7 @@ internal sealed class MainWindow : Form
         try
         {
             SelectLabOption("grip", _experienceLab.GripVariantId);
+            SelectLabOption("carry", _experienceLab.CarryVariantId);
             SelectLabOption("edge", _experienceLab.EdgeVariantId);
             SelectLabOption("transition", _experienceLab.TransitionVariantId);
             SelectLabOption("drop", _experienceLab.DropVariantId);
@@ -738,22 +747,22 @@ internal sealed class MainWindow : Form
         _toolTip.ReshowDelay = 150;
         _toolTip.SetToolTip(
             _interactiveSurface,
-            "Ein sichtbarer Bedienprototyp: Textkarte mit der Maus von links nach rechts ziehen und loslassen.");
+            "Ein sichtbarer Bedienprototyp: Textding nehmen, tragen und rechts ablegen.");
         _toolTip.SetToolTip(
             _workspaceGrid,
-            "Zeigt die im Core registrierten Arbeitsflaechen mit Typ, Position und Vertrauensstatus.");
+            "Zeigt die lokal registrierten Arbeitsflaechen mit Art, Lage und Zustand.");
         _toolTip.SetToolTip(
             _transferGrid,
-            "Zeigt logische Transferobjekte aus dem Core, keine echten Dateien.");
+            "Zeigt logische Dinge im lokalen Modell, keine echten Dateien.");
         _toolTip.SetToolTip(
             _agentGrid,
-            "Zeigt lokale Agent-Runtimes, wenn die Dual-Agent-Demo gestartet wurde.");
+            "Zeigt lokale Flaechenlaeufe, wenn die Zwei-Flaechen-Demo gestartet wurde.");
         _toolTip.SetToolTip(
             _logGrid,
             "Zeigt die zuletzt ausgefuehrten Studio-Aktionen und ihre Ergebnisse.");
         _toolTip.SetToolTip(
             _historyGrid,
-            "Zeigt den Core-Verlauf des aktuellen Transferobjekts.");
+            "Zeigt den lokalen Verlauf des aktuellen Dings.");
         _toolTip.SetToolTip(
             _capabilities,
             "Faehigkeiten sind die vom Core erkannten Moeglichkeiten der aktuellen Arbeitsflaechen.");

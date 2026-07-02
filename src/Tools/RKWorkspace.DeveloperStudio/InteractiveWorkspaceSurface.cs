@@ -6,11 +6,15 @@ internal sealed class InteractiveWorkspaceSurface : Control
 {
     private const string TargetLocation = "Workspace B";
     private static readonly Size CardSize = new(220, 84);
+    private readonly System.Windows.Forms.Timer _carryTimer = new();
     private InteractiveWorkspaceSnapshot _snapshot = EmptySnapshot();
+    private WorkspaceExperienceLabSnapshot _experienceLab = WorkspaceExperienceLabSnapshot.Default;
     private bool _dragging;
     private bool _dragOverTarget;
     private Point _dragOffset;
     private Point _dragLocation;
+    private Point _targetDragLocation;
+    private PointF _carryVelocity;
 
     public InteractiveWorkspaceSurface()
     {
@@ -18,6 +22,19 @@ internal sealed class InteractiveWorkspaceSurface : Control
         BackColor = Color.FromArgb(246, 248, 251);
         MinimumSize = new Size(680, 250);
         Cursor = Cursors.Default;
+        _carryTimer.Interval = 16;
+        _carryTimer.Tick += (_, _) =>
+        {
+            if (!_dragging)
+            {
+                _carryTimer.Stop();
+                return;
+            }
+
+            AdvanceCarryPhysics();
+            UpdateDragTargetState();
+            Invalidate();
+        };
     }
 
     public Func<bool>? DragStarted { get; set; }
@@ -33,9 +50,26 @@ internal sealed class InteractiveWorkspaceSurface : Control
         {
             _dragging = false;
             _dragOverTarget = false;
+            _carryTimer.Stop();
         }
 
         Invalidate();
+    }
+
+    public void SetExperienceLab(WorkspaceExperienceLabSnapshot snapshot)
+    {
+        _experienceLab = snapshot;
+        Invalidate();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _carryTimer.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 
     protected override void OnMouseDown(MouseEventArgs e)
@@ -62,8 +96,11 @@ internal sealed class InteractiveWorkspaceSurface : Control
         _dragging = true;
         _dragOverTarget = false;
         _dragLocation = objectBounds.Location;
+        _targetDragLocation = objectBounds.Location;
+        _carryVelocity = PointF.Empty;
         _dragOffset = new Point(e.X - objectBounds.Left, e.Y - objectBounds.Top);
         Capture = true;
+        _carryTimer.Start();
         Invalidate();
     }
 
@@ -75,22 +112,11 @@ internal sealed class InteractiveWorkspaceSurface : Control
             return;
         }
 
-        var layout = CalculateLayout();
-        _dragLocation = new Point(
+        _targetDragLocation = new Point(
             e.X - _dragOffset.X,
             e.Y - _dragOffset.Y);
-
-        var cardBounds = new Rectangle(_dragLocation, CardSize);
-        var cardCenter = new Point(
-            cardBounds.Left + cardBounds.Width / 2,
-            cardBounds.Top + cardBounds.Height / 2);
-        var overTarget = layout.TargetWorkspace.Contains(cardCenter);
-        if (overTarget != _dragOverTarget)
-        {
-            _dragOverTarget = overTarget;
-            TargetHighlightChanged?.Invoke(overTarget);
-        }
-
+        AdvanceCarryPhysics();
+        UpdateDragTargetState();
         Invalidate();
     }
 
@@ -103,6 +129,9 @@ internal sealed class InteractiveWorkspaceSurface : Control
         }
 
         Capture = false;
+        _carryTimer.Stop();
+        _dragLocation = _targetDragLocation;
+        UpdateDragTargetState();
         _dragging = false;
         var overTarget = _dragOverTarget;
         _dragOverTarget = false;
@@ -123,14 +152,16 @@ internal sealed class InteractiveWorkspaceSurface : Control
             _snapshot.SourceName,
             _snapshot.SourcePosition,
             _snapshot.SourceState,
-            highlighted: false);
+            highlighted: false,
+            carrying: _dragging || _snapshot.IsDragging);
         DrawWorkspace(
             graphics,
             layout.TargetWorkspace,
             _snapshot.TargetName,
             _snapshot.TargetPosition,
             _snapshot.TargetState,
-            highlighted: _snapshot.IsTargetHighlighted || _dragOverTarget);
+            highlighted: _snapshot.IsTargetHighlighted || _dragOverTarget,
+            carrying: _dragging || _snapshot.IsDragging);
         DrawObject(graphics, GetObjectBounds(layout), _dragging || _snapshot.IsDragging);
     }
 
@@ -154,7 +185,7 @@ internal sealed class InteractiveWorkspaceSurface : Control
     {
         if (_dragging)
         {
-            return new Rectangle(_dragLocation, CardSize);
+            return new Rectangle(_dragLocation, GetActiveCardSize());
         }
 
         var workspace = string.Equals(_snapshot.ObjectLocation, TargetLocation, StringComparison.Ordinal)
@@ -168,17 +199,62 @@ internal sealed class InteractiveWorkspaceSurface : Control
             CardSize.Height);
     }
 
+    private void AdvanceCarryPhysics()
+    {
+        var style = GetCarryStyle(_experienceLab.CarryVariantId);
+        var response = GetCarryResponse(style);
+        var damping = GetCarryDamping(style);
+        var dx = _targetDragLocation.X - _dragLocation.X;
+        var dy = _targetDragLocation.Y - _dragLocation.Y;
+        _carryVelocity = new PointF(
+            (float)((_carryVelocity.X + dx * response) * damping),
+            (float)((_carryVelocity.Y + dy * response) * damping));
+        if (Math.Abs(dx) < 1 && Math.Abs(dy) < 1 && Math.Abs(_carryVelocity.X) < 0.5F && Math.Abs(_carryVelocity.Y) < 0.5F)
+        {
+            _dragLocation = _targetDragLocation;
+            _carryVelocity = PointF.Empty;
+            return;
+        }
+
+        _dragLocation = new Point(
+            _dragLocation.X + (int)Math.Round(_carryVelocity.X),
+            _dragLocation.Y + (int)Math.Round(_carryVelocity.Y));
+    }
+
+    private void UpdateDragTargetState()
+    {
+        if (!_dragging)
+        {
+            return;
+        }
+
+        var layout = CalculateLayout();
+        var cardBounds = new Rectangle(_dragLocation, GetActiveCardSize());
+        var cardCenter = new Point(
+            cardBounds.Left + cardBounds.Width / 2,
+            cardBounds.Top + cardBounds.Height / 2);
+        var overTarget = layout.TargetWorkspace.Contains(cardCenter);
+        if (overTarget != _dragOverTarget)
+        {
+            _dragOverTarget = overTarget;
+            TargetHighlightChanged?.Invoke(overTarget);
+        }
+    }
+
     private static void DrawWorkspace(
         Graphics graphics,
         Rectangle bounds,
         string title,
         string position,
         string state,
-        bool highlighted)
+        bool highlighted,
+        bool carrying)
     {
         using var fill = new SolidBrush(highlighted
             ? Color.FromArgb(229, 246, 237)
-            : Color.FromArgb(239, 243, 248));
+            : carrying
+                ? Color.FromArgb(236, 239, 244)
+                : Color.FromArgb(239, 243, 248));
         using var border = new Pen(highlighted
             ? Color.FromArgb(32, 142, 88)
             : Color.FromArgb(96, 113, 133), highlighted ? 3 : 1);
@@ -193,14 +269,14 @@ internal sealed class InteractiveWorkspaceSurface : Control
             title,
             titleFont,
             titleBounds,
-            Color.FromArgb(28, 36, 48),
+            carrying && !highlighted ? Color.FromArgb(57, 67, 80) : Color.FromArgb(28, 36, 48),
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         TextRenderer.DrawText(
             graphics,
-            $"Position: {StudioUiText.Display(position)}\r\nStatus: {StudioUiText.Display(state)}",
+            $"Lage: {StudioUiText.Display(position)}\r\nZustand: {StudioUiText.Display(state)}",
             SystemFonts.DefaultFont,
             detailBounds,
-            Color.FromArgb(52, 65, 82),
+            carrying && !highlighted ? Color.FromArgb(93, 103, 116) : Color.FromArgb(52, 65, 82),
             TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis);
     }
 
@@ -214,10 +290,11 @@ internal sealed class InteractiveWorkspaceSurface : Control
         if (active)
         {
             using var shadow = new SolidBrush(Color.FromArgb(55, 0, 0, 0));
-            graphics.FillRectangle(shadow, new Rectangle(bounds.Left + 6, bounds.Top + 7, bounds.Width, bounds.Height));
+            var shadowOffset = GetCarryShadowOffset(GetCarryStyle(_experienceLab.CarryVariantId));
+            graphics.FillRectangle(shadow, new Rectangle(bounds.Left + shadowOffset.Width, bounds.Top + shadowOffset.Height, bounds.Width, bounds.Height));
         }
 
-        using var fill = new SolidBrush(Color.White);
+        using var fill = new SolidBrush(active ? GetActiveObjectColor() : Color.White);
         using var border = new Pen(active
             ? Color.FromArgb(17, 94, 168)
             : Color.FromArgb(68, 80, 96), active ? 3 : 1);
@@ -230,7 +307,7 @@ internal sealed class InteractiveWorkspaceSurface : Control
         using var titleFont = new Font(SystemFonts.DefaultFont.FontFamily, 10, FontStyle.Bold);
         TextRenderer.DrawText(
             graphics,
-            StudioUiText.Display(_snapshot.ObjectTitle),
+            active ? $"Genommen: {StudioUiText.Display(_snapshot.ObjectTitle)}" : StudioUiText.Display(_snapshot.ObjectTitle),
             titleFont,
             titleBounds,
             Color.FromArgb(23, 31, 42),
@@ -244,11 +321,124 @@ internal sealed class InteractiveWorkspaceSurface : Control
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         TextRenderer.DrawText(
             graphics,
-            $"Status: {StudioUiText.Display(_snapshot.ObjectState)}",
+            active ? GetCarrySentence() : $"Zustand: {StudioUiText.Display(_snapshot.ObjectState)}",
             SystemFonts.DefaultFont,
             stateBounds,
             Color.FromArgb(88, 101, 116),
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+    }
+
+    private Size GetActiveCardSize()
+    {
+        return GetGripStyle(_experienceLab.GripVariantId) switch
+        {
+            2 or 6 => new Size(210, 78),
+            4 or 7 => new Size(234, 90),
+            _ => CardSize
+        };
+    }
+
+    private Color GetActiveObjectColor()
+    {
+        return GetGripStyle(_experienceLab.GripVariantId) switch
+        {
+            1 => Color.FromArgb(246, 251, 255),
+            2 => Color.FromArgb(247, 249, 252),
+            4 => Color.FromArgb(242, 240, 255),
+            6 => Color.FromArgb(255, 249, 235),
+            _ => Color.White
+        };
+    }
+
+    private string GetCarrySentence()
+    {
+        return GetCarryStyle(_experienceLab.CarryVariantId) switch
+        {
+            0 => "folgt ruhig",
+            1 => "leichter Nachlauf",
+            2 => "traegt Gewicht",
+            3 => "weiche Feder",
+            4 => "spuerbare Masse",
+            5 => "ruhige Hand",
+            6 => "kleine Gegenbewegung",
+            7 => "schwebt getragen",
+            8 => "magnetisch gehalten",
+            9 => "schwer und praezise",
+            10 => "leichter Grip",
+            _ => "getragen, nicht gezogen"
+        };
+    }
+
+    private static int GetGripStyle(string variantId)
+    {
+        return GetGenerationStyle(variantId, 8);
+    }
+
+    private static int GetCarryStyle(string variantId)
+    {
+        return GetGenerationStyle(variantId, 12);
+    }
+
+    private static int GetGenerationStyle(string variantId, int styleCount)
+    {
+        var lastDash = variantId.LastIndexOf('-');
+        if (lastDash >= 0 &&
+            lastDash < variantId.Length - 1 &&
+            int.TryParse(variantId[(lastDash + 1)..], out var generation))
+        {
+            return (Math.Max(1, generation) - 1) % styleCount;
+        }
+
+        return 0;
+    }
+
+    private static double GetCarryResponse(int style)
+    {
+        return style switch
+        {
+            0 => 0.58,
+            1 => 0.34,
+            2 => 0.24,
+            3 => 0.30,
+            4 => 0.18,
+            5 => 0.28,
+            6 => 0.36,
+            7 => 0.26,
+            8 => 0.40,
+            9 => 0.16,
+            10 => 0.46,
+            _ => 0.24
+        };
+    }
+
+    private static double GetCarryDamping(int style)
+    {
+        return style switch
+        {
+            0 => 0.62,
+            1 => 0.72,
+            2 => 0.80,
+            3 => 0.76,
+            4 => 0.84,
+            5 => 0.70,
+            6 => 0.78,
+            7 => 0.74,
+            8 => 0.68,
+            9 => 0.86,
+            10 => 0.66,
+            _ => 0.78
+        };
+    }
+
+    private static Size GetCarryShadowOffset(int style)
+    {
+        return style switch
+        {
+            2 or 4 or 9 => new Size(9, 11),
+            3 or 6 => new Size(7, 9),
+            7 => new Size(5, 10),
+            _ => new Size(6, 7)
+        };
     }
 
     private static InteractiveWorkspaceSnapshot EmptySnapshot()
