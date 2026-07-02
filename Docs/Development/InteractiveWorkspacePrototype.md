@@ -1,7 +1,7 @@
 # Interactive Workspace Prototype
 
 Dokument-ID: RKWS-DEV-INTERACTIVE-WORKSPACE-PROTOTYPE
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -47,6 +47,8 @@ Beim manuellen Ziehen und beim automatischen Full-Interactive-Demo-Lauf werden d
 
 Nach Erfolg liegt die Textkarte sichtbar in Workspace B. Diagnostics melden `Last Result: SUCCESS`. Die History enthaelt unter anderem `Created`, `State:Validated`, `MetadataUpdated`, `State:Prepared` und `State:Completed`.
 
+Der Single-Window-Prototyp bleibt bewusst einfach. Der UX-Feinschliff fuer Fensterrand-Vorschlaege, `Hier ablegen`-Hinweise und Cross-Window-Feedback liegt im Multi Window Workspace Prototype.
+
 ## Grenzen
 
 Der Prototyp fuehrt nicht ein:
@@ -60,6 +62,7 @@ Der Prototyp fuehrt nicht ein:
 - keine Endanwender-GUI
 - keine echte Payload-Uebertragung
 - keine stabile UI-Automation
+- keine Fensterrand- oder Monitorerkennung im Single-Window-Prototyp
 
 ## Smoke-Test
 
@@ -77,9 +80,11 @@ Er prueft:
 - Der Objektstatus ist `Completed`.
 - Die History enthaelt `State:Completed`.
 - Ergebnis ist `InteractiveDemo: SUCCESS` und `RESULT: SUCCESS`.
+- Ab MA005.01 prueft derselbe Studio-Smoke zusaetzlich `Run Full Demo`, Multi-Window und EdgeTarget-Logik.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA005.01 Abgrenzung zum Multi-Window-UX-Feinschliff ergaenzt. |
 | 1.0.0 | 2026-07-02 | Interactive Workspace Prototype dokumentiert. |

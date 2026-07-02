@@ -1,7 +1,7 @@
 # Multi Window Workspace Prototype
 
 Dokument-ID: RKWS-DEV-MULTI-WINDOW-WORKSPACE-PROTOTYPE
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -69,21 +69,25 @@ Alle Objekte sind reine Core-Objekte. Es gibt keine echte Datei-, PDF-, Bild- od
 7. Der Drop loest `TransferEngine.ExecuteLogicalTransfer()` aus.
 8. Nach Erfolg erscheint das Objekt in Fenster B.
 
+Beim Ziehen zeigt das Quellfenster einen aktiven Kartenrahmen, eine Statusmeldung und Randziel-Vorschlaege. Der rechte Fensterrand schlaegt Workspace B vor, der linke Fensterrand Workspace A. Diese Logik ist in `MultiWindowWorkspaceContext` gekapselt, damit spaeter echte Monitor- und Bildschirmrand-Erkennung angebunden werden kann.
+
 ## Feedback
 
 Fenster B zeigt beim Drag:
 
 - Zielhervorhebung
 - Statusanzeige
-- Logeintrag `Target highlighted`
+- Text `Hier ablegen`
+- Logeintrag `Zielarbeitsflaeche erkannt`
 
 Nach Drop:
 
-- Fenster A loggt `Transfer started` und `Transfer completed`
-- Fenster B loggt `Transfer received` und `Transfer completed`
+- Fenster A loggt `Objekt wird gezogen` und `Transfer erfolgreich abgeschlossen`
+- Fenster B loggt `Transfer received` und `Transfer erfolgreich abgeschlossen`
 - Fenster B zeigt eine kurze Transferanimation
 - History enthaelt `State:Completed`
-- Diagnostics melden `Last=SUCCESS`
+- Diagnostics melden `Ergebnis=ERFOLG` und den letzten Transfer
+- ungueltige Drops loggen `Kein gueltiges Ziel` und lassen das Objekt im Quellfenster
 
 ## Grenzen
 
@@ -99,6 +103,8 @@ Der Prototyp fuehrt nicht ein:
 - keine Cloud
 - keine Persistenz
 - keine Prozesskommunikation
+- keine echte Monitorerkennung
+- keine Betriebssystem-Hot-Zones ausserhalb der Fenster
 
 Beide Fenster laufen im selben Prozess und verwenden denselben Core-Kontext.
 
@@ -110,6 +116,7 @@ Erste beobachtbare UX-Fragen:
 - Objektkarten muessen knapp, aber eindeutig beschriftet sein.
 - Die Transferanimation reicht als technischer Nachweis, sollte spaeter weicher und raeumlicher werden.
 - Der Benutzer braucht sichtbare Rueckmeldung in beiden Fenstern, nicht nur im Zielfenster.
+- Randziel-Vorschlaege helfen beim mentalen Modell, ersetzen aber noch keine echte Monitorerkennung.
 
 ## Verbesserungen
 
@@ -117,7 +124,7 @@ Moegliche naechste GUI-Verbesserungen:
 
 - groessere Objektkarten mit Icon pro Objekttyp
 - bessere Drag-Schatten ueber Fenstergrenzen hinweg
-- klareres "Drop accepted"-Feedback
+- echte Monitor- und Bildschirmrand-Erkennung
 - Undo oder Reset pro Objekt
 - ergonomischere Fensterpositionierung
 - optionaler Beobachtungsmodus fuer Transfer-History
@@ -137,10 +144,13 @@ Er prueft:
 - ein Objekt wird von Workspace A nach Workspace B transferiert.
 - Source-Fenster sieht danach vier Objekte.
 - Target-Fenster sieht danach ein Objekt.
+- `Run Full Demo` wird erfolgreich ausgefuehrt.
+- EdgeTarget-Logik liefert links Workspace A, rechts Workspace B und in der Mitte kein Ziel.
 - `MultiWindow: SUCCESS` und `RESULT: SUCCESS` werden ausgegeben.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA005.01 Drag-Feedback, Randziel-Logik und Erfolgs-/Fehlerfeedback dokumentiert. |
 | 1.0.0 | 2026-07-02 | Multi Window Workspace Prototype dokumentiert. |

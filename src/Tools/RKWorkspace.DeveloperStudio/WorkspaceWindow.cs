@@ -5,6 +5,7 @@ namespace RKWorkspace.DeveloperStudio;
 internal sealed class WorkspaceWindow : Form
 {
     private const string DragFormat = "RKWorkspace.TransferObjectId";
+    private const int EdgeThresholdPixels = 44;
     private readonly MultiWindowWorkspaceContext _context;
     private readonly string _workspaceId;
     private readonly Label _name = ValueLabel();
@@ -19,6 +20,7 @@ internal sealed class WorkspaceWindow : Form
     private readonly DataGridView _logGrid = CreateGrid();
     private readonly ToolTip _toolTip = new();
     private readonly Panel _animationLayer = new();
+    private readonly Label _statusHint = new();
     private readonly Label _animationCard = new();
     private readonly System.Windows.Forms.Timer _animationTimer = new();
     private MultiWindowWorkspaceSnapshot? _snapshot;
@@ -106,7 +108,14 @@ internal sealed class WorkspaceWindow : Form
     {
         _animationLayer.Dock = DockStyle.Fill;
         _animationLayer.BackColor = Color.FromArgb(246, 248, 251);
-        _animationLayer.Visible = false;
+        _animationLayer.Visible = true;
+
+        _statusHint.Dock = DockStyle.Fill;
+        _statusHint.TextAlign = ContentAlignment.MiddleLeft;
+        _statusHint.Padding = new Padding(10, 0, 10, 0);
+        _statusHint.AutoEllipsis = true;
+        _statusHint.ForeColor = Color.FromArgb(48, 62, 78);
+        _animationLayer.Controls.Add(_statusHint);
 
         _animationCard.AutoSize = false;
         _animationCard.TextAlign = ContentAlignment.MiddleCenter;
@@ -114,6 +123,7 @@ internal sealed class WorkspaceWindow : Form
         _animationCard.BackColor = Color.White;
         _animationCard.BorderStyle = BorderStyle.FixedSingle;
         _animationCard.Size = new Size(190, 30);
+        _animationCard.Visible = false;
         _animationLayer.Controls.Add(_animationCard);
 
         return _animationLayer;
@@ -178,6 +188,15 @@ internal sealed class WorkspaceWindow : Form
         _diagnostics.Text = StudioUiText.Display(_snapshot.Diagnostics);
         _lastResult.Text = StudioUiText.Display(_snapshot.LastResult);
         _lastError.Text = StudioUiText.Display(_snapshot.LastError);
+        _statusHint.Text = StudioUiText.Display(_snapshot.StatusHint);
+        _statusHint.BackColor = _snapshot.IsDropTargetHighlighted
+            ? Color.FromArgb(198, 239, 219)
+            : string.IsNullOrWhiteSpace(_snapshot.SuccessHint)
+                ? Color.FromArgb(246, 248, 251)
+                : Color.FromArgb(216, 242, 225);
+        _statusHint.ForeColor = _snapshot.IsDropTargetHighlighted
+            ? Color.FromArgb(20, 94, 58)
+            : Color.FromArgb(48, 62, 78);
         BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(224, 244, 234)
             : SystemColors.Control;
@@ -222,15 +241,16 @@ internal sealed class WorkspaceWindow : Form
 
     private Control CreateObjectCard(MultiWindowTransferObjectRow item)
     {
+        var canDrag = _context.CanDrag(item.ObjectId, _workspaceId);
         var card = new Panel
         {
             Width = Math.Max(460, _objectPanel.ClientSize.Width - 42),
-            Height = 78,
-            BackColor = Color.White,
-            BorderStyle = BorderStyle.FixedSingle,
-            Margin = new Padding(8),
+            Height = item.IsBeingDragged ? 84 : 78,
+            BackColor = item.IsBeingDragged ? Color.FromArgb(226, 238, 255) : Color.White,
+            BorderStyle = item.IsBeingDragged ? BorderStyle.Fixed3D : BorderStyle.FixedSingle,
+            Margin = item.IsBeingDragged ? new Padding(10, 8, 6, 10) : new Padding(8),
             Tag = item.ObjectId,
-            Cursor = _context.CanDrag(item.ObjectId, _workspaceId)
+            Cursor = canDrag
                 ? Cursors.Hand
                 : Cursors.Default
         };
@@ -255,7 +275,7 @@ internal sealed class WorkspaceWindow : Form
         WireDragSource(card, item.ObjectId);
         WireDragSource(title, item.ObjectId);
         WireDragSource(detail, item.ObjectId);
-        var tooltip = _context.CanDrag(item.ObjectId, _workspaceId)
+        var tooltip = canDrag
             ? "Dieses Objekt kann in Window B gezogen werden. Beim Loslassen wird der Core-Transfer ausgefuehrt."
             : "Dieses Objekt liegt in dieser Arbeitsflaeche. Bereits uebertragene Objekte sind hier nur sichtbar.";
         _toolTip.SetToolTip(card, tooltip);
@@ -276,8 +296,27 @@ internal sealed class WorkspaceWindow : Form
             _context.BeginDrag(objectId, _workspaceId);
             var data = new DataObject();
             data.SetData(DragFormat, objectId);
-            DoDragDrop(data, DragDropEffects.Move);
+            var effect = control.DoDragDrop(data, DragDropEffects.Move);
+            if (effect == DragDropEffects.None)
+            {
+                _context.CancelDrag(objectId, _workspaceId);
+            }
+
             _context.SetTargetHighlighted(_context.TargetWorkspaceId.ToString(), highlighted: false);
+        };
+        control.GiveFeedback += (_, args) =>
+        {
+            if (!_context.CanDrag(objectId, _workspaceId))
+            {
+                return;
+            }
+
+            var edge = DetectCurrentEdge();
+            _context.UpdateEdgeSuggestion(_workspaceId, edge);
+            args.UseDefaultCursors = false;
+            Cursor.Current = edge == MultiWindowEdge.Right
+                ? Cursors.Hand
+                : Cursors.SizeAll;
         };
     }
 
@@ -296,6 +335,7 @@ internal sealed class WorkspaceWindow : Form
         {
             args.Effect = DragDropEffects.Move;
             _context.SetTargetHighlighted(_workspaceId, highlighted: true);
+            Cursor.Current = Cursors.Hand;
             return;
         }
 
@@ -332,6 +372,7 @@ internal sealed class WorkspaceWindow : Form
         _animationCard.Left = 8;
         _animationCard.Top = 7;
         _animationLayer.Visible = true;
+        _animationCard.Visible = true;
         _animationCard.BringToFront();
         _animationTimer.Stop();
         _animationTimer.Start();
@@ -347,8 +388,17 @@ internal sealed class WorkspaceWindow : Form
         if (_animationStep >= 18)
         {
             _animationTimer.Stop();
-            _animationLayer.Visible = false;
+            _animationCard.Visible = false;
         }
+    }
+
+    private MultiWindowEdge DetectCurrentEdge()
+    {
+        return _context.DetectWindowEdge(
+            Cursor.Position.X,
+            Bounds.Left,
+            Bounds.Right,
+            EdgeThresholdPixels);
     }
 
     private void OnContextChanged(object? sender, EventArgs args)
@@ -473,5 +523,8 @@ internal sealed class WorkspaceWindow : Form
         _toolTip.SetToolTip(
             _diagnostics,
             "Diagnose des gemeinsamen Core-Kontexts fuer beide Fenster.");
+        _toolTip.SetToolTip(
+            _statusHint,
+            "Statushinweis: zeigt Drag-Zustand, Randvorschlag, Drop-Ziel oder Transferergebnis.");
     }
 }

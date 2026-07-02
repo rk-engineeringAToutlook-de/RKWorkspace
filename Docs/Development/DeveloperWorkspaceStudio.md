@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -62,7 +62,7 @@ Minimal verfuegbare Aktionen:
 
 `Run Full Interactive Demo` initialisiert denselben interaktiven Zustand, simuliert Drag, Target Highlight und Drop auf Workspace B und erwartet `InteractiveDemo: SUCCESS`.
 
-`Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Fenster fuer `Window A / Laptop` und `Window B / Display Right`. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig.
+`Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Fenster fuer `Window A / Laptop` und `Window B / Display Right`. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Workspaces, Transferobjekte, Diagnostics, History, Log und die wichtigsten Aktionen.
 
 ## Interaktiver Workspace-Prototyp
 
@@ -83,7 +83,7 @@ Der Multi Window Prototype zeigt zwei echte OS-Fenster:
 
 Beide Fenster verwenden denselben laufenden Core-Kontext mit `RuntimeEngine`, `WorkspaceRegistry`, `CapabilityManager`, `TransferObjectManager` und `TransferEngine`. Window A enthaelt mehrere Transferobjekte: zwei Texte, ein PDF, ein Bild und einen Link. Window B ist das logische Ziel rechts.
 
-Die Objektkarten in Window A koennen per Maus aus dem Fenster herausgezogen und ueber Window B losgelassen werden. Window B zeigt waehrend des Drag-Vorgangs eine Ziel-Hervorhebung. Beim Drop wird kein Studio-Sonderpfad verwendet, sondern `TransferEngine.ExecuteLogicalTransfer()`. Nach Erfolg wird das Objekt in Window B angezeigt, beide Fenster schreiben Logeintraege, die History zeigt den Core-Ablauf, und eine einfache Animation visualisiert den eingehenden Transfer.
+Die Objektkarten in Window A koennen per Maus aus dem Fenster herausgezogen und ueber Window B losgelassen werden. Die gezogene Karte wird hervorgehoben, die Statusleiste meldet den Drag-Zustand, und die gekapselte EdgeTarget-Logik schlaegt am rechten Fensterrand Workspace B und am linken Fensterrand Workspace A vor. Window B zeigt waehrend des Drag-Vorgangs eine deutliche Ziel-Hervorhebung und den Hinweis `Hier ablegen`. Beim Drop wird kein Studio-Sonderpfad verwendet, sondern `TransferEngine.ExecuteLogicalTransfer()`. Nach Erfolg wird das Objekt in Window B angezeigt, beide Fenster schreiben Logeintraege, die History zeigt den Core-Ablauf, Diagnostics nennen den letzten Transfer, und eine einfache Animation visualisiert den eingehenden Transfer.
 
 ## Core-Anbindung
 
@@ -117,7 +117,8 @@ Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktive
 - Das Studio ist ein Windows-Desktop-Tool.
 - Der Smoke-Test prueft den Core-Ablauf ohne sichtbares Fenster.
 - Der Smoke-Test prueft den interaktiven Demo-Ablauf viewmodelbasiert ohne echte UI-Automation.
-- Der Smoke-Test prueft den Multi-Window-Ablauf viewmodelbasiert ohne echte UI-Automation.
+- Der Smoke-Test prueft den Multi-Window-Ablauf, `Run Full Demo` und die EdgeTarget-Logik viewmodelbasiert ohne echte UI-Automation.
+- Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
 - Das Studio nutzt Demo-Daten und keine automatische Discovery.
@@ -129,6 +130,7 @@ Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktive
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-02 | MA005.01 UX-Feinschliff, EdgeTarget-Logik und Feedback dokumentiert. |
 | 1.3.0 | 2026-07-02 | Multi Window Workspace Prototype im Developer Studio dokumentiert. |
 | 1.2.0 | 2026-07-02 | Interactive Workspace Prototype, Drag-and-Drop und erweiterten Smoke-Test dokumentiert. |
 | 1.1.0 | 2026-07-02 | Hinweis zur spaeteren IPC-Anbindung ergaenzt. |

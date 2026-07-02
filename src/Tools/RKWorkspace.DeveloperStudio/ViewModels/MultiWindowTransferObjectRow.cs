@@ -17,4 +17,6 @@ internal sealed record MultiWindowTransferObjectRow
     public required string Location { get; init; }
 
     public required string MimeType { get; init; }
+
+    public required bool IsBeingDragged { get; init; }
 }
