@@ -32,9 +32,17 @@ internal static class Program
         Console.WriteLine($"PluginCount: {diagnostics.PluginCount}");
         Console.WriteLine($"WorkspaceCount: {diagnostics.WorkspaceCount}");
         Console.WriteLine($"TransferObjectCount: {diagnostics.TransferObjectCount}");
+        Console.WriteLine($"AgentCount: {viewModel.Agents.Count}");
+        foreach (var agent in viewModel.Agents)
+        {
+            Console.WriteLine($"Agent: {agent.AgentId} Runtime={agent.Runtime} Workspace={agent.Workspace} Status={agent.Status}");
+        }
+
         Console.WriteLine($"LastResult: {diagnostics.LastResult}");
         Console.WriteLine($"LastError: {diagnostics.LastError}");
         Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
+
+        viewModel.StopDualAgents();
 
         return success ? 0 : 1;
     }

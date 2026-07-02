@@ -1,6 +1,6 @@
 namespace RKWorkspace.Agent;
 
-internal enum AgentState
+public enum AgentState
 {
     Created,
     Starting,

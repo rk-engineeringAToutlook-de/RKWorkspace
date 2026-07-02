@@ -2,7 +2,7 @@ using RKWorkspace.Core.Runtime;
 
 namespace RKWorkspace.Agent;
 
-internal sealed record AgentDiagnostics
+public sealed record AgentDiagnostics
 {
     public required string AgentId { get; init; }
 

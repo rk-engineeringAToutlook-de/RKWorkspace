@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -26,6 +26,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der Core Runtime Orchestrator ist als zentrale Lebenszyklussteuerung angelegt.
 - Das Developer Workspace Studio ist als erste sichtbare Core-Testoberflaeche angelegt.
 - Die Workspace Agent Runtime ist als erster echter RK Workspace Konsolenprozess angelegt.
+- Die Dual Local Agent Simulation startet zwei unabhaengige LocalOnly-Agenten und simuliert einen logischen Transfer ueber einen Harness.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -64,6 +65,8 @@ flowchart TB
     Plugins --> Capabilities["Capability System"]
     Plugins --> Layers["Layer Model"]
     Core --> Studio["Developer Studio"]
+    Core --> Agents["Local Agents"]
+    Agents --> Harness["Dual Agent Harness"]
     Core --> Simulation["tools/LocalSimulation"]
     Simulation --> Tests["tests"]
     Spec --> Future["Spaetere Plattformen und Hardware"]
@@ -82,6 +85,7 @@ src/Core/Runtime/     Plattformneutraler Core Runtime Orchestrator
 src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und Netzwerk
 src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche fuer Core-Visualisierung
 src/Agents/RKWorkspace.Agent/ LocalOnly Workspace Agent Runtime als Konsolenprozess
+tools/DualAgentHarness/ Dual Local Agent Simulation ohne Netzwerk und IPC
 src/Windows/          Reserviert fuer spaeteren Windows-Agent
 src/macOS/            Reserviert fuer spaeteren macOS-Agent
 src/Linux/            Reserviert fuer spaeteren Linux-Agent
@@ -108,6 +112,7 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-demo.ps1
 .\tools\run-studio.ps1
 .\tools\run-agent.ps1 -Once
+.\tools\run-dual-agent.ps1
 ```
 
 Oder gesammelt:
@@ -124,13 +129,15 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 wird die Dual Local Agent Simulation.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation.
 
 Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und kein Plattformadapter. Er startet die plattformneutrale Runtime Engine und fuehrt danach nur den aktuellen Core-Ablauf sichtbar ueber die Transfer Engine aus.
 
 Das Developer Workspace Studio ist ebenfalls kein Produktagent und keine Endanwender-GUI. Es ist ein separates Developer-Tool fuer Diagnose, Tests, Demonstration und Core-Visualisierung.
 
 Die Workspace Agent Runtime ist noch kein Betriebssystemdienst. Sie ist ein LocalOnly-Konsolenprozess ohne Netzwerk, Discovery, GUI, Persistenz, Firmware, Hardware oder Cloud.
+
+Die Dual Local Agent Simulation ist noch keine Prozesskommunikation. Zwei AgentRuntime-Instanzen laufen parallel im selben Harness, behalten getrennte Runtime- und Manager-Instanzen und simulieren den Transfer logisch ohne Netzwerk, Discovery oder IPC.
 
 ## Querverweise
 
@@ -149,6 +156,7 @@ Die Workspace Agent Runtime ist noch kein Betriebssystemdienst. Sie ist ein Loca
 - `Spec/VersionV0.1.md`
 - `Docs/Development/DeveloperWorkspaceStudio.md`
 - `Docs/Development/WorkspaceAgentRuntime.md`
+- `Docs/Development/DualAgentSimulation.md`
 - `Docs/Development/MA003_Progress.md`
 - `Docs/ADR/README.md`
 
@@ -156,6 +164,7 @@ Die Workspace Agent Runtime ist noch kein Betriebssystemdienst. Sie ist ein Loca
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation und Harness dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime und Startscript dokumentiert. |
 | 1.4.0 | 2026-07-02 | Developer Workspace Studio und Startscript dokumentiert. |
 | 1.3.0 | 2026-07-02 | Core Runtime Orchestrator und Runtime-Dokumentation ergaenzt. |

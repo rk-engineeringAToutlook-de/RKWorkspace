@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.10.0
+Version: 0.11.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -317,7 +317,40 @@ Nicht im Umfang:
 
 ## Offene Punkte nach MA004.01
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche und den ersten LocalOnly-Agent-Prozess. Der naechste Teilauftrag ist MA004.02 Dual Local Agent Simulation.
+## MA004.02 Dual Local Agent Simulation
+
+Status: Abgeschlossen.
+
+Umfang:
+
+- Dual-Agent-Harness `tools/DualAgentHarness/`
+- Startscript `tools/run-dual-agent.ps1`
+- zwei Konfigurationsprofile fuer `rkws-agent-a` und `rkws-agent-b`
+- Agent A registriert `Workspace-A` an Position `Left`
+- Agent B registriert `Workspace-B` an Position `Right`
+- beide Agenten besitzen eigene RuntimeEngine-, WorkspaceRegistry-, CapabilityManager- und TransferObjectManager-Instanzen
+- paralleler Start und paralleler Stop
+- logische TransferRequest-Erzeugung in Agent A
+- Harness-Transfer von Agent A zu Agent B ohne Netzwerk, IPC oder Discovery
+- TransferObject bleibt nur im TransferObjectManager von Agent A
+- TransferResult, Source, Target, FinalState und History werden validiert
+- Developer Studio zeigt zwei Agenten mit Runtime, Workspace und Status an
+- Dual-Agent-Harness-Test in `tools/run-tests.ps1`
+- Dokumentation `Docs/Development/DualAgentSimulation.md`
+
+Nicht im Umfang:
+
+- echte Prozesskommunikation
+- Netzwerkkommunikation
+- automatische Discovery
+- Betriebssystemdienste
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA004.02
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche, den ersten LocalOnly-Agent-Prozess und eine Dual-Agent-Simulation ueber einen lokalen Harness. Der naechste Teilauftrag ist MA004.03 Local IPC.
 
 ## Querverweise
 
@@ -326,6 +359,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 - `Spec/RuntimeArchitecture.md`
 - `Docs/Development/DeveloperWorkspaceStudio.md`
 - `Docs/Development/WorkspaceAgentRuntime.md`
+- `Docs/Development/DualAgentSimulation.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `README.md`
 
@@ -333,6 +367,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.11.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation dokumentiert. |
 | 0.10.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime dokumentiert. |
 | 0.9.0 | 2026-07-02 | MA003.08 Developer Workspace Studio dokumentiert. |
 | 0.8.0 | 2026-07-02 | Core Runtime Orchestrator dokumentiert. |

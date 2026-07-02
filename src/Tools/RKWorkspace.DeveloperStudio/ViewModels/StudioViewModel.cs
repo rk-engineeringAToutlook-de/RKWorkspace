@@ -1,3 +1,4 @@
+using RKWorkspace.Agent;
 using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Runtime;
 using RKWorkspace.Core.TransferObjects;
@@ -13,6 +14,8 @@ internal sealed class StudioViewModel
     private readonly List<StudioLogEntry> _logEntries = new();
     private RuntimeEngine _runtime;
     private TransferEngine? _transferEngine;
+    private AgentRuntime? _agentA;
+    private AgentRuntime? _agentB;
     private TransferObjectId? _demoObjectId;
     private TransferResult? _lastTransferResult;
     private string _lastError = string.Empty;
@@ -29,6 +32,8 @@ internal sealed class StudioViewModel
 
     public IReadOnlyCollection<StudioTransferObjectRow> TransferObjects { get; private set; } =
         Array.Empty<StudioTransferObjectRow>();
+
+    public IReadOnlyCollection<StudioAgentRow> Agents { get; private set; } = Array.Empty<StudioAgentRow>();
 
     public IReadOnlyCollection<StudioLogEntry> LogEntries => _logEntries.ToArray();
 
@@ -138,10 +143,52 @@ internal sealed class StudioViewModel
         });
     }
 
+    public bool StartDualAgents()
+    {
+        return Execute("Start Dual Agents", () =>
+        {
+            _agentA ??= CreateAgent(AgentConfiguration.CreateLocalAgentA());
+            _agentB ??= CreateAgent(AgentConfiguration.CreateLocalAgentB());
+
+            if (_agentA.State == AgentState.Running && _agentB.State == AgentState.Running)
+            {
+                return "Dual agents already running";
+            }
+
+            Task.WaitAll(
+                Task.Run(() => StartAgentIfNeeded(_agentA)),
+                Task.Run(() => StartAgentIfNeeded(_agentB)));
+
+            return "Dual agents running";
+        });
+    }
+
+    public bool StopDualAgents()
+    {
+        return Execute("Stop Dual Agents", () =>
+        {
+            if (_agentA is null && _agentB is null)
+            {
+                return "No dual agents running";
+            }
+
+            Task.WaitAll(
+                Task.Run(() => StopAgentIfNeeded(_agentA)),
+                Task.Run(() => StopAgentIfNeeded(_agentB)));
+
+            return "Dual agents stopped";
+        });
+    }
+
     public bool Reset()
     {
         try
         {
+            StopAgentIfNeeded(_agentA);
+            StopAgentIfNeeded(_agentB);
+            _agentA = null;
+            _agentB = null;
+
             if (_runtime.GetStatus() is RuntimeState.Running or RuntimeState.Paused)
             {
                 _runtime.Shutdown();
@@ -173,8 +220,9 @@ internal sealed class StudioViewModel
         var workspaces = AddDemoWorkspaces();
         var textObject = CreateTextObject();
         var transfer = TransferRight();
+        var dualAgents = StartDualAgents();
 
-        return started && workspaces && textObject && transfer;
+        return started && workspaces && textObject && transfer && dualAgents;
     }
 
     private bool Execute(string action, Func<string> operation)
@@ -209,6 +257,46 @@ internal sealed class StudioViewModel
         {
             _runtime.CapabilityManager.RegisterProvider(provider);
         }
+    }
+
+    private static AgentRuntime CreateAgent(AgentConfiguration configuration)
+    {
+        return new AgentRuntime(
+            configuration with { EnableConsoleStatus = false },
+            TextWriter.Null);
+    }
+
+    private static void StartAgentIfNeeded(AgentRuntime agent)
+    {
+        if (agent.State != AgentState.Running)
+        {
+            agent.Start();
+        }
+    }
+
+    private static void StopAgentIfNeeded(AgentRuntime? agent)
+    {
+        if (agent?.State == AgentState.Running)
+        {
+            agent.Stop();
+        }
+    }
+
+    private IReadOnlyCollection<StudioAgentRow> GetAgentRows()
+    {
+        return new[] { _agentA, _agentB }
+            .Where(agent => agent is not null)
+            .Select(agent => agent!.GetDiagnostics())
+            .Select(diagnostics => new StudioAgentRow
+            {
+                AgentId = diagnostics.AgentId,
+                DisplayName = diagnostics.DisplayName,
+                Runtime = diagnostics.RuntimeState.ToString(),
+                Workspace = diagnostics.WorkspaceName,
+                WorkspaceId = diagnostics.WorkspaceId,
+                Status = diagnostics.State.ToString()
+            })
+            .ToArray();
     }
 
     private void EnsureRuntime()
@@ -266,6 +354,8 @@ internal sealed class StudioViewModel
                 })
                 .ToArray()
             : Array.Empty<StudioTransferObjectRow>();
+
+        Agents = GetAgentRows();
 
         var diagnostics = _runtime.GetDiagnostics();
         Diagnostics = new StudioDiagnosticsSnapshot

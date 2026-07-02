@@ -73,3 +73,34 @@ if (-not $agentText.Contains('State: Running')) {
 if (-not $agentText.Contains('stopped cleanly')) {
     throw "Agent Smoke Test failed because output did not contain stopped cleanly."
 }
+
+Write-Host ''
+Write-Host 'Dual Agent Harness Test'
+Write-Host '-----------------------'
+$dualAgentOutput = & (Join-Path $root 'tools\run-dual-agent.ps1') 2>&1
+$dualAgentExitCode = $LASTEXITCODE
+$dualAgentOutput | ForEach-Object { Write-Host $_ }
+if ($dualAgentExitCode -ne 0) {
+    throw "Dual Agent Harness Test failed with exit code $dualAgentExitCode."
+}
+
+$dualAgentText = $dualAgentOutput -join [Environment]::NewLine
+if (-not $dualAgentText.Contains('RK Workspace Dual Agent Harness')) {
+    throw "Dual Agent Harness Test failed because output did not contain RK Workspace Dual Agent Harness."
+}
+
+if (-not $dualAgentText.Contains('Agent A: rkws-agent-a')) {
+    throw "Dual Agent Harness Test failed because output did not contain Agent A."
+}
+
+if (-not $dualAgentText.Contains('Agent B: rkws-agent-b')) {
+    throw "Dual Agent Harness Test failed because output did not contain Agent B."
+}
+
+if (-not $dualAgentText.Contains('Transfer Result: SUCCESS')) {
+    throw "Dual Agent Harness Test failed because output did not contain Transfer Result: SUCCESS."
+}
+
+if (-not $dualAgentText.Contains('RESULT: SUCCESS')) {
+    throw "Dual Agent Harness Test failed because output did not contain RESULT: SUCCESS."
+}

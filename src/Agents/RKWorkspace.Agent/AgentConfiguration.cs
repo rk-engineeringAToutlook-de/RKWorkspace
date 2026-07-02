@@ -2,12 +2,12 @@ using RKWorkspace.Core.Workspaces;
 
 namespace RKWorkspace.Agent;
 
-internal enum AgentRunMode
+public enum AgentRunMode
 {
     LocalOnly
 }
 
-internal sealed record AgentConfiguration
+public sealed record AgentConfiguration
 {
     public string AgentId { get; init; } = "rkws-agent-local";
 
@@ -26,6 +26,28 @@ internal sealed record AgentConfiguration
     public bool EnableConsoleStatus { get; init; } = true;
 
     public int HeartbeatIntervalSeconds { get; init; } = 5;
+
+    public static AgentConfiguration CreateLocalAgentA()
+    {
+        return new AgentConfiguration
+        {
+            AgentId = "rkws-agent-a",
+            DisplayName = "RKWS Agent A",
+            WorkspaceName = "Workspace-A",
+            WorkspacePosition = WorkspacePosition.Left
+        };
+    }
+
+    public static AgentConfiguration CreateLocalAgentB()
+    {
+        return new AgentConfiguration
+        {
+            AgentId = "rkws-agent-b",
+            DisplayName = "RKWS Agent B",
+            WorkspaceName = "Workspace-B",
+            WorkspacePosition = WorkspacePosition.Right
+        };
+    }
 
     public AgentConfiguration Validate()
     {

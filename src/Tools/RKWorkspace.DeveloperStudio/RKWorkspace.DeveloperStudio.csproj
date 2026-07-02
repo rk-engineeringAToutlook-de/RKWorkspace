@@ -8,6 +8,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Agents\RKWorkspace.Agent\RKWorkspace.Agent.csproj" />
     <ProjectReference Include="..\..\Core\RKWorkspace.Core.csproj" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 # Workspace Agent Runtime
 
 Dokument-ID: RKWS-DEV-WORKSPACE-AGENT-RUNTIME
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -43,6 +43,17 @@ Direkte Agent-Optionen:
 | EnableConsoleStatus | `true` |
 | HeartbeatIntervalSeconds | `5` |
 
+## Dual-Agent-Konfigurationen
+
+MA004.02 ergaenzt zwei vordefinierte LocalOnly-Konfigurationen:
+
+| Agent | AgentId | Workspace | Position |
+| --- | --- | --- | --- |
+| Agent A | `rkws-agent-a` | `Workspace-A` | `Left` |
+| Agent B | `rkws-agent-b` | `Workspace-B` | `Right` |
+
+Beide Konfigurationen verwenden eigene `AgentRuntime`-Instanzen und erzeugen eigene `RuntimeEngine`-Instanzen. Es gibt keinen gemeinsamen Singleton-Zustand zwischen den Agenten.
+
 ## Lokale Workspace
 
 Bei aktivierter Demo-Workspace registriert der Agent:
@@ -83,12 +94,13 @@ Der Agent verwendet echte Core-Komponenten:
 
 - Der Agent ist LocalOnly.
 - Es gibt keine Konfigurationsdatei; Defaults liegen im Code.
-- Es wird genau eine lokale Workspace registriert.
-- Es gibt noch keinen Transfer zwischen Agent-Instanzen.
+- Pro Agent wird genau eine lokale Workspace registriert.
+- Transfers zwischen zwei AgentRuntime-Instanzen werden in MA004.02 nur logisch ueber den lokalen Dual-Agent-Harness simuliert.
 - Ctrl+C wird sauber behandelt, aber noch nicht durch Systemdienst-Lifecycle ersetzt.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | Dual-Agent-Konfigurationen und Harness-Einschraenkung ergaenzt. |
 | 1.0.0 | 2026-07-02 | Workspace Agent Runtime fuer MA004.01 dokumentiert. |

@@ -4,7 +4,7 @@ using RKWorkspace.Core.Workspaces;
 
 namespace RKWorkspace.Agent;
 
-internal sealed class AgentRuntime
+public sealed class AgentRuntime
 {
     private readonly AgentConfiguration _configuration;
     private readonly TextWriter _output;
@@ -19,7 +19,23 @@ internal sealed class AgentRuntime
         _output = output ?? Console.Out;
     }
 
+    public AgentConfiguration Configuration => _configuration;
+
     public AgentState State => _state;
+
+    public RuntimeEngine Runtime => _runtime ?? throw new AgentException("Runtime is not initialized.");
+
+    public WorkspaceId? LocalWorkspaceId => _workspaceId;
+
+    public WorkspaceDescriptor? GetLocalWorkspaceDescriptor()
+    {
+        if (_runtime is null || _workspaceId is null)
+        {
+            return null;
+        }
+
+        return _runtime.WorkspaceRegistry.GetWorkspace(_workspaceId)?.Descriptor;
+    }
 
     public void Start()
     {

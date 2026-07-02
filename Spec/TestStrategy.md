@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -46,6 +46,8 @@ flowchart TB
 `tools/run-tests.ps1` bleibt der Mindestcheck vor Commit und Push. Er baut den Core, fuehrt Unit-Tests aus, fuehrt Integration-Tests aus, startet die lokale Simulation und prueft den Core Demo Runner. Die Ausgabe ist in Build, Unit Tests, Integration Tests, Simulation und Demo Test getrennt.
 
 Ab MA004.01 prueft `tools/run-tests.ps1` zusaetzlich den Agent Smoke-Test mit `tools/run-agent.ps1 -Once`.
+
+Ab MA004.02 prueft `tools/run-tests.ps1` zusaetzlich den Dual-Agent-Harness mit `tools/run-dual-agent.ps1`.
 
 ## MA003.05 Core Integration Tests
 
@@ -130,6 +132,34 @@ Der Smoke-Test erwartet:
 
 Zusaetzlich bleiben `tools/run-demo.ps1` und `tools/run-studio.ps1 -SmokeTest` als separate Abschlusspruefungen erhalten.
 
+## MA004.02 Dual Local Agent Simulation Tests
+
+MA004.02 fuehrt `tools/DualAgentHarness/` und `tools/run-dual-agent.ps1` ein. Der Harness startet zwei LocalOnly-Agenten im selben Testprozess, ohne Netzwerk, IPC, Discovery oder Betriebssystemdienst.
+
+Der Dual-Agent-Harness prueft:
+
+- paralleler Start von Agent A und Agent B.
+- paralleler Stop von Agent A und Agent B.
+- unterschiedliche AgentIds.
+- unterschiedliche WorkspaceIds.
+- getrennte RuntimeEngine-Instanzen.
+- getrennte WorkspaceRegistry-, CapabilityManager- und TransferObjectManager-Instanzen.
+- TransferRequest-Erzeugung in Agent A.
+- logischer Transfer zu Agent B ueber den Harness.
+- TransferResult mit erfolgreichem Source/Target-Abschluss.
+- TransferObject existiert nur im TransferObjectManager von Agent A.
+- History enthaelt Created, Validated, MetadataUpdated, Prepared und Completed.
+- beide Agent-Runtimes bleiben waehrend des Transfers stabil.
+
+`tools/run-tests.ps1` prueft fuer den Harness:
+
+- Exitcode 0.
+- Ausgabe enthaelt `RK Workspace Dual Agent Harness`.
+- Ausgabe enthaelt `Agent A: rkws-agent-a`.
+- Ausgabe enthaelt `Agent B: rkws-agent-b`.
+- Ausgabe enthaelt `Transfer Result: SUCCESS`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -141,6 +171,7 @@ Zusaetzlich bleiben `tools/run-demo.ps1` und `tools/run-studio.ps1 -SmokeTest` a
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation Tests dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime Smoke-Test dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA003.08 Developer Workspace Studio Tests dokumentiert. |
 | 1.4.0 | 2026-07-02 | Core Runtime Orchestrator Tests dokumentiert. |

@@ -7,6 +7,7 @@ internal sealed class MainWindow : Form
     private readonly StudioViewModel _viewModel = new();
     private readonly DataGridView _workspaceGrid = CreateGrid();
     private readonly DataGridView _transferGrid = CreateGrid();
+    private readonly DataGridView _agentGrid = CreateGrid();
     private readonly DataGridView _logGrid = CreateGrid();
     private readonly Label _runtimeState = ValueLabel();
     private readonly Label _pluginCount = ValueLabel();
@@ -37,7 +38,7 @@ internal sealed class MainWindow : Form
             RowCount = 3,
             Padding = new Padding(10)
         };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 86));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 66));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 34));
 
@@ -54,13 +55,15 @@ internal sealed class MainWindow : Form
         {
             Dock = DockStyle.Fill,
             FlowDirection = FlowDirection.LeftToRight,
-            WrapContents = false
+            WrapContents = true
         };
 
         panel.Controls.Add(Button("Start Runtime", _viewModel.StartRuntime));
         panel.Controls.Add(Button("Add Demo Workspaces", _viewModel.AddDemoWorkspaces));
         panel.Controls.Add(Button("Create Text Object", _viewModel.CreateTextObject));
         panel.Controls.Add(Button("Transfer Right", _viewModel.TransferRight));
+        panel.Controls.Add(Button("Start Dual Agents", _viewModel.StartDualAgents));
+        panel.Controls.Add(Button("Stop Dual Agents", _viewModel.StopDualAgents));
         panel.Controls.Add(Button("Reset", _viewModel.Reset));
         panel.Controls.Add(Button("Run Full Demo", _viewModel.RunFullDemo));
 
@@ -72,16 +75,18 @@ internal sealed class MainWindow : Form
         var grid = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 3,
+            ColumnCount = 4,
             RowCount = 1
         };
-        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
-        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34));
-        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32));
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27));
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27));
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 24));
+        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 22));
 
         grid.Controls.Add(Panel("Workspaces", _workspaceGrid), 0, 0);
         grid.Controls.Add(Panel("Transfer Objects", _transferGrid), 1, 0);
-        grid.Controls.Add(Panel("Diagnostics", BuildDiagnostics()), 2, 0);
+        grid.Controls.Add(Panel("Agents", _agentGrid), 2, 0);
+        grid.Controls.Add(Panel("Diagnostics", BuildDiagnostics()), 3, 0);
 
         return grid;
     }
@@ -172,6 +177,7 @@ internal sealed class MainWindow : Form
     {
         _workspaceGrid.DataSource = _viewModel.Workspaces.ToArray();
         _transferGrid.DataSource = _viewModel.TransferObjects.ToArray();
+        _agentGrid.DataSource = _viewModel.Agents.ToArray();
         _logGrid.DataSource = _viewModel.LogEntries.ToArray();
 
         var diagnostics = _viewModel.Diagnostics;
@@ -185,6 +191,7 @@ internal sealed class MainWindow : Form
 
         ResizeColumns(_workspaceGrid);
         ResizeColumns(_transferGrid);
+        ResizeColumns(_agentGrid);
         ResizeColumns(_logGrid);
     }
 
