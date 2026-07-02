@@ -1,4 +1,5 @@
-using System.IO.Pipes;
+using RKWorkspace.Transport;
+using RKWorkspace.Transport.NamedPipes;
 
 namespace RKWorkspace.LocalIpc;
 
@@ -18,25 +19,15 @@ public sealed class LocalIpcServer
     {
         ArgumentNullException.ThrowIfNull(handler);
 
+        var server = new NamedPipeTransportServer(TransportEndpoint.NamedPipe(PipeName));
+        await server.StartAsync(cancellationToken).ConfigureAwait(false);
         while (!cancellationToken.IsCancellationRequested)
         {
-            await using var pipe = new NamedPipeServerStream(
-                PipeName,
-                PipeDirection.InOut,
-                maxNumberOfServerInstances: 1,
-                PipeTransmissionMode.Byte,
-                PipeOptions.Asynchronous);
-
-            await pipe.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-            using var reader = new StreamReader(pipe, leaveOpen: true);
-            await using var writer = new StreamWriter(pipe, leaveOpen: true)
-            {
-                AutoFlush = true
-            };
-
-            var response = await HandleMessageAsync(reader, handler, cancellationToken).ConfigureAwait(false);
-            await writer.WriteLineAsync(response.ToJson().AsMemory(), cancellationToken).ConfigureAwait(false);
+            var request = await server.WaitForMessageAsync(cancellationToken).ConfigureAwait(false);
+            var response = await HandleMessageAsync(request, handler, cancellationToken).ConfigureAwait(false);
+            await server.SendResponseAsync(
+                LocalIpcTransportMapper.ToTransport(response),
+                cancellationToken).ConfigureAwait(false);
 
             if (stopAfterResponse?.Invoke(response) == true)
             {
@@ -46,19 +37,18 @@ public sealed class LocalIpcServer
     }
 
     private static async Task<LocalIpcMessage> HandleMessageAsync(
-        TextReader reader,
+        TransportResult request,
         Func<LocalIpcMessage, CancellationToken, Task<LocalIpcMessage>> handler,
         CancellationToken cancellationToken)
     {
         try
         {
-            var rawMessage = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(rawMessage))
+            if (!request.Success || request.Message is null)
             {
-                return Error("local-ipc-server", "unknown", "IPC message was empty.");
+                return Error("local-ipc-server", "unknown", request.Error);
             }
 
-            var message = LocalIpcMessage.FromJson(rawMessage);
+            var message = LocalIpcTransportMapper.ToLocal(request.Message);
             return await handler(message, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is LocalIpcException or InvalidOperationException)

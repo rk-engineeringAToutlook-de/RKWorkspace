@@ -1,4 +1,5 @@
-using System.IO.Pipes;
+using RKWorkspace.Transport;
+using RKWorkspace.Transport.NamedPipes;
 
 namespace RKWorkspace.LocalIpc;
 
@@ -18,7 +19,12 @@ public sealed class LocalIpcClient
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
     {
-        return SendRawAsync(message.ToJson(), timeout, cancellationToken);
+        var client = CreateClient();
+        return SendTransportAsync(
+            client,
+            LocalIpcTransportMapper.ToTransport(message),
+            timeout,
+            cancellationToken);
     }
 
     public async Task<LocalIpcResult> SendRawAsync(
@@ -26,42 +32,30 @@ public sealed class LocalIpcClient
         TimeSpan? timeout = null,
         CancellationToken cancellationToken = default)
     {
-        using var timeoutSource = new CancellationTokenSource(timeout ?? DefaultTimeout);
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
-            timeoutSource.Token,
-            cancellationToken);
+        var client = CreateClient();
+        return LocalIpcResult.FromTransport(await client
+            .SendRawAsync(rawMessage, timeout ?? DefaultTimeout, cancellationToken)
+            .ConfigureAwait(false));
+    }
 
-        try
-        {
-            await using var pipe = new NamedPipeClientStream(
-                ".",
-                PipeName,
-                PipeDirection.InOut,
-                PipeOptions.Asynchronous);
-            await pipe.ConnectAsync(linked.Token).ConfigureAwait(false);
-
-            using var reader = new StreamReader(pipe, leaveOpen: true);
-            await using var writer = new StreamWriter(pipe, leaveOpen: true)
+    private NamedPipeTransportClient CreateClient()
+    {
+        return new NamedPipeTransportClient(
+            TransportEndpoint.NamedPipe(PipeName),
+            new NamedPipeTransportOptions
             {
-                AutoFlush = true
-            };
+                DefaultTimeout = DefaultTimeout
+            });
+    }
 
-            await writer.WriteLineAsync(rawMessage.AsMemory(), linked.Token).ConfigureAwait(false);
-            var responseJson = await reader.ReadLineAsync(linked.Token).ConfigureAwait(false);
-            if (string.IsNullOrWhiteSpace(responseJson))
-            {
-                return LocalIpcResult.Failed("IPC server did not return a response.");
-            }
-
-            return LocalIpcResult.FromResponse(LocalIpcMessage.FromJson(responseJson));
-        }
-        catch (OperationCanceledException) when (timeoutSource.IsCancellationRequested)
-        {
-            return LocalIpcResult.Failed($"IPC request to '{PipeName}' timed out.", timedOut: true);
-        }
-        catch (Exception ex) when (ex is IOException or TimeoutException or LocalIpcException)
-        {
-            return LocalIpcResult.Failed(ex.Message);
-        }
+    private static async Task<LocalIpcResult> SendTransportAsync(
+        ITransportClient client,
+        TransportMessage message,
+        TimeSpan? timeout,
+        CancellationToken cancellationToken)
+    {
+        return LocalIpcResult.FromTransport(await client
+            .RequestAsync(message, timeout ?? DefaultTimeout, cancellationToken)
+            .ConfigureAwait(false));
     }
 }

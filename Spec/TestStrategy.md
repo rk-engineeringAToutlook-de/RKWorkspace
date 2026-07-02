@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 1.8.0
+Version: 1.9.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -50,6 +50,8 @@ Ab MA004.01 prueft `tools/run-tests.ps1` zusaetzlich den Agent Smoke-Test mit `t
 Ab MA004.02 prueft `tools/run-tests.ps1` zusaetzlich den Dual-Agent-Harness mit `tools/run-dual-agent.ps1`.
 
 Ab MA004.03 prueft `tools/run-tests.ps1` zusaetzlich den Local-IPC-Zwei-Prozess-Test mit `tools/run-local-ipc.ps1`. Dieser Teil ist durch einen aeusseren 30-Sekunden-Timeout gegen Haenger abgesichert.
+
+Ab MA004.04 pruefen die Unit-Tests zusaetzlich die Transport Abstraction Layer und die NamedPipeTransport-Implementierung. Der Local-IPC-Zwei-Prozess-Test bleibt im Foundation-Check und laeuft intern ueber die TAL.
 
 ## MA003.05 Core Integration Tests
 
@@ -193,6 +195,27 @@ Der Local-IPC-Harness prueft:
 - Ausgabe enthaelt `RESULT: SUCCESS`.
 - externer Timeout maximal 30 Sekunden.
 
+## MA004.04 Transport Abstraction Layer Tests
+
+MA004.04 fuehrt `src/Communication/RKWorkspace.Transport/` und `src/Communication/RKWorkspace.Transport.NamedPipes/` ein. Die Tests pruefen die neutrale Transportschicht ohne TCP, UDP, Discovery, Pairing, Hardware, Firmware oder Cloud.
+
+Die Unit-Tests pruefen:
+
+- `TransportMessage`-Erstellung mit den Live-Workspace-Nachrichtentypen.
+- `CorrelationId` fuer Request/Response-Beziehungen.
+- `TransportEndpoint`-Validierung fuer Named-Pipe-Endpunkte.
+- NamedPipeTransport Client/Server Roundtrip.
+- Request/Response ueber `ITransportClient.RequestAsync`.
+- Timeout-Verhalten.
+- Fehlerantwort bei falscher `TargetId`.
+
+Der Local-IPC-Harness prueft weiterhin den vollstaendigen Zwei-Prozess-Pfad:
+
+- Agent und Harness sprechen ueber `ITransport`, `ITransportClient`, `ITransportServer` und `TransportMessage`.
+- `NamedPipeTransport` ist nur die lokale Implementierung.
+- Die alte LocalIpc-Schicht bleibt als Kompatibilitaetsschicht erhalten und mappt intern auf `TransportResult`.
+- Bestehende CLI-Optionen `--ipc-server`, `--ipc-client`, `--target-agent-id` und `--ipc-stop-after-transfer` bleiben kompatibel.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -204,6 +227,7 @@ Der Local-IPC-Harness prueft:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.9.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer Tests dokumentiert. |
 | 1.8.0 | 2026-07-02 | MA004.03 Local IPC Two Process Tests dokumentiert. |
 | 1.7.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation Tests dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime Smoke-Test dokumentiert. |

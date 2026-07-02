@@ -1,5 +1,6 @@
 using RKWorkspace.Core.TransferObjects;
-using RKWorkspace.LocalIpc;
+using RKWorkspace.Transport;
+using RKWorkspace.Transport.NamedPipes;
 
 namespace RKWorkspace.Agent;
 
@@ -37,11 +38,15 @@ internal sealed class AgentIpcSession
             _agent.Start();
             _output.WriteLine($"IPC server ready: {pipeName}");
 
-            var server = new LocalIpcServer(pipeName);
-            await server.RunAsync(
+            ITransport transport = CreateLocalTransport();
+            await transport.StartAsync(linked.Token).ConfigureAwait(false);
+            ITransportServer server = transport.CreateServer(TransportEndpoint.NamedPipe(pipeName));
+            await RunServerLoopAsync(
+                server,
                 HandleMessageAsync,
                 response => ShouldStopServer(response, stopAfterTransfer),
                 linked.Token).ConfigureAwait(false);
+            await transport.StopAsync(CancellationToken.None).ConfigureAwait(false);
             _agent.Stop();
             return 0;
         }
@@ -73,12 +78,14 @@ internal sealed class AgentIpcSession
             var target = string.IsNullOrWhiteSpace(targetAgentId)
                 ? DefaultTargetAgentId
                 : targetAgentId;
-            var client = new LocalIpcClient(pipeName);
+            ITransport transport = CreateLocalTransport();
+            await transport.StartAsync(cancellationToken).ConfigureAwait(false);
+            ITransportClient client = transport.CreateClient(TransportEndpoint.NamedPipe(pipeName));
 
             var hello = await SendAsync(
                 client,
-                LocalIpcMessage.Create(
-                    LocalIpcMessageType.AgentHello,
+                TransportMessage.Create(
+                    TransportMessageType.AgentHello,
                     _agent.Configuration.AgentId,
                     target,
                     BasePayload()),
@@ -87,8 +94,8 @@ internal sealed class AgentIpcSession
 
             var status = await SendAsync(
                 client,
-                LocalIpcMessage.Create(
-                    LocalIpcMessageType.AgentStatusRequest,
+                TransportMessage.Create(
+                    TransportMessageType.AgentStatusRequest,
                     _agent.Configuration.AgentId,
                     target,
                     BasePayload()),
@@ -98,8 +105,8 @@ internal sealed class AgentIpcSession
             var transferObject = CreateTransferObject();
             var transfer = await SendAsync(
                 client,
-                LocalIpcMessage.Create(
-                    LocalIpcMessageType.TransferRequest,
+                TransportMessage.Create(
+                    TransportMessageType.TransferRequest,
                     _agent.Configuration.AgentId,
                     target,
                     TransferPayload(transferObject)),
@@ -112,9 +119,10 @@ internal sealed class AgentIpcSession
                 return 1;
             }
 
-            var transferSucceeded = transfer.Response?.Payload.TryGetValue("success", out var successText) == true &&
+            var transferSucceeded = transfer.Message?.Payload.TryGetValue("success", out var successText) == true &&
                 string.Equals(successText, "true", StringComparison.OrdinalIgnoreCase);
             _output.WriteLine($"TransferResponse: {(transferSucceeded ? "SUCCESS" : "FAILED")}");
+            await transport.StopAsync(CancellationToken.None).ConfigureAwait(false);
             _agent.Stop();
             return transferSucceeded ? 0 : 1;
         }
@@ -126,41 +134,75 @@ internal sealed class AgentIpcSession
         }
     }
 
-    private Task<LocalIpcMessage> HandleMessageAsync(
-        LocalIpcMessage message,
+    private async Task RunServerLoopAsync(
+        ITransportServer server,
+        Func<TransportMessage, CancellationToken, Task<TransportMessage>> handler,
+        Func<TransportMessage, bool>? stopAfterResponse,
+        CancellationToken cancellationToken)
+    {
+        await server.StartAsync(cancellationToken).ConfigureAwait(false);
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var request = await server.WaitForMessageAsync(cancellationToken).ConfigureAwait(false);
+            var response = await HandleTransportRequestAsync(request, handler, cancellationToken).ConfigureAwait(false);
+            await server.SendResponseAsync(response, cancellationToken).ConfigureAwait(false);
+
+            if (stopAfterResponse?.Invoke(response) == true)
+            {
+                await server.StopAsync(CancellationToken.None).ConfigureAwait(false);
+                return;
+            }
+        }
+    }
+
+    private static async Task<TransportMessage> HandleTransportRequestAsync(
+        TransportResult request,
+        Func<TransportMessage, CancellationToken, Task<TransportMessage>> handler,
+        CancellationToken cancellationToken)
+    {
+        if (!request.Success || request.Message is null)
+        {
+            return Error("local-ipc-server", "unknown", request.Error);
+        }
+
+        return await handler(request.Message, cancellationToken).ConfigureAwait(false);
+    }
+
+    private Task<TransportMessage> HandleMessageAsync(
+        TransportMessage message,
         CancellationToken cancellationToken)
     {
         if (!IsMessageForThisAgent(message))
         {
             return Task.FromResult(ErrorToSource(
                 message,
-                $"TargetAgentId '{message.TargetAgentId}' does not match '{_agent.Configuration.AgentId}'."));
+                $"TargetId '{message.TargetId}' does not match '{_agent.Configuration.AgentId}'."));
         }
 
         return Task.FromResult(message.MessageType switch
         {
-            LocalIpcMessageType.AgentHello => Response(
-                LocalIpcMessageType.AgentHello,
+            TransportMessageType.AgentHello => Response(
+                TransportMessageType.AgentHello,
                 message,
                 StatusPayload("OK")),
-            LocalIpcMessageType.AgentStatusRequest => Response(
-                LocalIpcMessageType.AgentStatusResponse,
+            TransportMessageType.AgentStatusRequest => Response(
+                TransportMessageType.AgentStatusResponse,
                 message,
                 StatusPayload("OK")),
-            LocalIpcMessageType.WorkspaceAdvertisement => Response(
-                LocalIpcMessageType.WorkspaceAdvertisement,
+            TransportMessageType.WorkspaceAdvertisement => Response(
+                TransportMessageType.WorkspaceAdvertisement,
                 message,
                 StatusPayload("OK")),
-            LocalIpcMessageType.TransferRequest => HandleTransferRequest(message),
-            LocalIpcMessageType.ShutdownRequest => Response(
-                LocalIpcMessageType.AgentStatusResponse,
+            TransportMessageType.TransferRequest => HandleTransferRequest(message),
+            TransportMessageType.ShutdownRequest => Response(
+                TransportMessageType.AgentStatusResponse,
                 message,
                 ShutdownPayload()),
             _ => ErrorToSource(message, $"Unsupported IPC message type '{message.MessageType}'.")
         });
     }
 
-    private LocalIpcMessage HandleTransferRequest(LocalIpcMessage message)
+    private TransportMessage HandleTransferRequest(TransportMessage message)
     {
         var required = new[] { "requestId", "transferObjectId", "sourceWorkspaceId" };
         var missing = required
@@ -173,7 +215,7 @@ internal sealed class AgentIpcSession
 
         var targetWorkspace = _agent.LocalWorkspaceId?.ToString() ?? string.Empty;
         return Response(
-            LocalIpcMessageType.TransferResponse,
+            TransportMessageType.TransferResponse,
             message,
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -187,13 +229,13 @@ internal sealed class AgentIpcSession
             });
     }
 
-    private async Task<LocalIpcResult> SendAsync(
-        LocalIpcClient client,
-        LocalIpcMessage message,
+    private async Task<TransportResult> SendAsync(
+        ITransportClient client,
+        TransportMessage message,
         string label,
         CancellationToken cancellationToken)
     {
-        var result = await client.SendAsync(
+        var result = await client.RequestAsync(
             message,
             TimeSpan.FromSeconds(5),
             cancellationToken).ConfigureAwait(false);
@@ -276,33 +318,34 @@ internal sealed class AgentIpcSession
         return payload;
     }
 
-    private LocalIpcMessage Response(
-        LocalIpcMessageType type,
-        LocalIpcMessage request,
+    private TransportMessage Response(
+        TransportMessageType type,
+        TransportMessage request,
         IReadOnlyDictionary<string, string> payload)
     {
-        return LocalIpcMessage.Create(
+        return TransportMessage.Create(
             type,
             _agent.Configuration.AgentId,
-            request.SourceAgentId,
-            payload);
+            request.SourceId,
+            payload,
+            correlationId: request.MessageId);
     }
 
-    private LocalIpcMessage ErrorToSource(LocalIpcMessage request, string error)
+    private TransportMessage ErrorToSource(TransportMessage request, string error)
     {
-        return LocalIpcServer.Error(
+        return Error(
             _agent.Configuration.AgentId,
-            request.SourceAgentId,
+            request.SourceId,
             error);
     }
 
-    private bool IsMessageForThisAgent(LocalIpcMessage message)
+    private bool IsMessageForThisAgent(TransportMessage message)
     {
-        return string.Equals(message.TargetAgentId, _agent.Configuration.AgentId, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(message.TargetAgentId, "*", StringComparison.Ordinal);
+        return string.Equals(message.TargetId, _agent.Configuration.AgentId, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(message.TargetId, "*", StringComparison.Ordinal);
     }
 
-    private static bool ShouldStopServer(LocalIpcMessage response, bool stopAfterTransfer)
+    private static bool ShouldStopServer(TransportMessage response, bool stopAfterTransfer)
     {
         if (response.Payload.TryGetValue("shutdown", out var shutdown) &&
             string.Equals(shutdown, "true", StringComparison.OrdinalIgnoreCase))
@@ -311,9 +354,21 @@ internal sealed class AgentIpcSession
         }
 
         return stopAfterTransfer &&
-            response.MessageType == LocalIpcMessageType.TransferResponse &&
+            response.MessageType == TransportMessageType.TransferResponse &&
             response.Payload.TryGetValue("success", out var success) &&
             string.Equals(success, "true", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static TransportMessage Error(string sourceId, string targetId, string message)
+    {
+        return TransportMessage.Create(
+            TransportMessageType.ErrorResponse,
+            sourceId,
+            targetId,
+            new Dictionary<string, string>
+            {
+                ["error"] = string.IsNullOrWhiteSpace(message) ? "Transport error." : message
+            });
     }
 
     private void TryStopAgent()
@@ -326,5 +381,10 @@ internal sealed class AgentIpcSession
         {
             // Best-effort cleanup after an already reported failure.
         }
+    }
+
+    private static ITransport CreateLocalTransport()
+    {
+        return new NamedPipeTransport();
     }
 }

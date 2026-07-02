@@ -1,7 +1,7 @@
 # Local IPC Two Process Test
 
 Dokument-ID: RKWS-DEV-LOCAL-IPC-TWO-PROCESS
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -9,23 +9,27 @@ Datum: 2026-07-02
 
 Der Local IPC Two Process Test ist der erste Nachweis, dass zwei echte RK Workspace Agent-Prozesse auf demselben Rechner miteinander kommunizieren koennen.
 
-Der Test ersetzt den MA004.02-Harness nicht. MA004.02 prueft zwei AgentRuntime-Instanzen im selben Prozess. MA004.03 prueft zwei getrennte Prozesse mit lokaler IPC.
+Der Test ersetzt den MA004.02-Harness nicht. MA004.02 prueft zwei AgentRuntime-Instanzen im selben Prozess. MA004.03 prueft zwei getrennte Prozesse mit lokaler IPC. Ab MA004.04 laeuft diese IPC ueber die Transport Abstraction Layer (TAL).
 
 ## Architektur
 
 ```text
 Agent Process A
   |
-  | Named Pipe
+  | ITransportClient / TransportMessage
+  v
+Transport Abstraction Layer
+  |
+  | NamedPipeTransport
   v
 Agent Process B
 ```
 
-Agent B startet als IPC-Server. Agent A startet als IPC-Client. Beide Prozesse starten ihre eigene `RuntimeEngine` und registrieren jeweils ihre eigene lokale Workspace.
+Agent B startet als IPC-Server. Agent A startet als IPC-Client. Beide Prozesse starten ihre eigene `RuntimeEngine` und registrieren jeweils ihre eigene lokale Workspace. Agent und Harness sprechen gegen `ITransport`, `ITransportClient`, `ITransportServer` und `TransportMessage`. `NamedPipeTransport` ist nur die aktuelle lokale Implementierung.
 
 ## IPC-Entscheidung
 
-MA004.03 verwendet Named Pipes.
+MA004.03 verwendet Named Pipes direkt. MA004.04 legt diese Logik unter die TAL.
 
 Gruende:
 
@@ -34,18 +38,21 @@ Gruende:
 - keine Firewall-Themen
 - klare Client-/Server-Rollen
 - geeignet fuer den naechsten Schritt zu echten Agent-Prozessen
+- austauschbar gegen spaetere Transportarten, ohne den Agent-Ablauf umzubauen
 
 ## Nachrichtenformat
 
-Die IPC nutzt einfache JSON-Nachrichten mit diesen Feldern:
+Die IPC nutzt ab MA004.04 neutrale Transport-JSON-Nachrichten mit diesen Feldern:
 
 ```text
 MessageId
 MessageType
-SourceAgentId
-TargetAgentId
+SourceId
+TargetId
 Timestamp
 Payload
+CorrelationId
+Headers
 ```
 
 Unterstuetzte MessageTypes:
@@ -58,6 +65,12 @@ Unterstuetzte MessageTypes:
 - TransferResponse
 - ShutdownRequest
 - ErrorResponse
+- LiveSessionEvent
+- WorkspaceWindowFrame
+- WorkspaceObjectUpdate
+- InputEvent
+
+Die Live-Workspace-Typen sind nur vorbereitet. MA004.04 implementiert noch keine Live-Sitzung, kein Streaming und keine Eingabeweiterleitung.
 
 ## Startbefehle
 
@@ -105,7 +118,7 @@ Der Harness prueft:
 - TransferRequest ohne Payload
 - Timeout
 
-Fehler werden als `ErrorResponse` oder als fehlgeschlagenes `LocalIpcResult` gemeldet. Der Test besitzt zusaetzlich einen aeusseren 30-Sekunden-Timeout in `tools/run-tests.ps1`.
+Fehler werden als `ErrorResponse` oder als fehlgeschlagenes `TransportResult` gemeldet. Die alte `LocalIpcResult`-Schicht bleibt fuer Kompatibilitaet erhalten und mappt intern auf `TransportResult`. Der Test besitzt zusaetzlich einen aeusseren 30-Sekunden-Timeout in `tools/run-tests.ps1`.
 
 ## Grenzen
 
@@ -120,10 +133,11 @@ Fehler werden als `ErrorResponse` oder als fehlgeschlagenes `LocalIpcResult` gem
 
 ## Naechster Schritt
 
-MA004.04 fuehrt eine lokale Discovery-Simulation ein. Agenten sollen sich dann nicht mehr fest ueber Pipe-Namen kennen muessen, sondern ueber lokale Agent-Announcement- und Lookup-Mechanismen gefunden werden.
+MA004.05 fuehrt eine lokale Discovery-Simulation ein. Agenten sollen sich dann nicht mehr fest ueber Pipe-Namen kennen muessen, sondern ueber lokale Agent-Announcement- und Lookup-Mechanismen gefunden werden.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA004.04 TAL-Anbindung und neutrales TransportMessage-Format dokumentiert. |
 | 1.0.0 | 2026-07-02 | Local IPC Two Process Test fuer MA004.03 dokumentiert. |

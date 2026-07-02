@@ -1,7 +1,7 @@
 # RKWS Communication Specification
 
 Dokument-ID: RKWS-SPEC-COMM-001  
-Version: 0.2.0  
+Version: 0.3.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -43,17 +43,25 @@ flowchart TB
 
 ## Implementation Status
 
-Noch keine echte Kommunikation ist implementiert. Der aktuelle Stand simuliert Transferplanung lokal.
+Der produktive Payload-Transport ist noch nicht implementiert. Seit MA004.03 existiert jedoch lokale Agent-zu-Agent-Prozesskommunikation auf demselben Rechner. Seit MA004.04 laeuft diese lokale IPC ueber die Transport Abstraction Layer:
+
+- `RKWorkspace.Transport` definiert neutrale Transport-Vertraege.
+- `RKWorkspace.Transport.NamedPipes` ist die aktuelle lokale Implementierung.
+- `RKWorkspace.LocalIpc` bleibt als Kompatibilitaetsschicht erhalten.
+
+Es gibt weiterhin keine Netzwerkkommunikation, kein TCP, kein UDP, keine Discovery, kein Pairing, keine Remote-Kommunikation und keinen echten Payload-Transfer ueber Rechnergrenzen.
 
 ## Querverweise
 
 - `Spec/Protocol.md`
 - `Spec/SecurityModel.md`
 - `Docs/ADR/ADR-0004-separate-discovery-and-data-transfer.md`
+- `Docs/Development/TransportAbstractionLayer.md`
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.3.0 | 2026-07-02 | MA004.04 lokale IPC ueber TAL als Implementierungsstand dokumentiert. |
 | 0.2.0 | 2026-07-02 | Auf RKWS-0240 und `Spec/Protocol.md` erweitert. |
 | 0.1.0 | 2026-07-02 | Erste Kommunikationsspezifikation angelegt. |

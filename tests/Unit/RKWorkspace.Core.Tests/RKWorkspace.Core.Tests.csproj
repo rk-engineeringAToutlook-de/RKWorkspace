@@ -7,6 +7,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Communication\RKWorkspace.Transport.NamedPipes\RKWorkspace.Transport.NamedPipes.csproj" />
+    <ProjectReference Include="..\..\..\src\Communication\RKWorkspace.Transport\RKWorkspace.Transport.csproj" />
     <ProjectReference Include="..\..\..\src\Core\RKWorkspace.Core.csproj" />
   </ItemGroup>
 </Project>

@@ -7,7 +7,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Communication\RKWorkspace.LocalIpc\RKWorkspace.LocalIpc.csproj" />
+    <ProjectReference Include="..\..\Communication\RKWorkspace.Transport.NamedPipes\RKWorkspace.Transport.NamedPipes.csproj" />
+    <ProjectReference Include="..\..\Communication\RKWorkspace.Transport\RKWorkspace.Transport.csproj" />
     <ProjectReference Include="..\..\Core\RKWorkspace.Core.csproj" />
   </ItemGroup>
 </Project>

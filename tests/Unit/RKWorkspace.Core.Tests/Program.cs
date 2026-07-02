@@ -39,6 +39,12 @@ using CoreRuntimeConfiguration = RKWorkspace.Core.Runtime.RuntimeConfiguration;
 using CoreRuntimeEngine = RKWorkspace.Core.Runtime.RuntimeEngine;
 using CoreRuntimeException = RKWorkspace.Core.Runtime.RuntimeException;
 using CoreRuntimeState = RKWorkspace.Core.Runtime.RuntimeState;
+using TalNamedPipeTransport = RKWorkspace.Transport.NamedPipes.NamedPipeTransport;
+using TalNamedPipeTransportOptions = RKWorkspace.Transport.NamedPipes.NamedPipeTransportOptions;
+using TalTransportEndpoint = RKWorkspace.Transport.TransportEndpoint;
+using TalTransportException = RKWorkspace.Transport.TransportException;
+using TalTransportMessage = RKWorkspace.Transport.TransportMessage;
+using TalTransportMessageType = RKWorkspace.Transport.TransportMessageType;
 
 var tests = new (string Name, Action Body)[]
 {
@@ -144,7 +150,14 @@ var tests = new (string Name, Action Body)[]
     ("RuntimeEngine reports diagnostics", RuntimeEngineReportsDiagnostics),
     ("RuntimeEngine rejects invalid transitions", RuntimeEngineRejectsInvalidTransitions),
     ("RuntimeEngine records initialization failures", RuntimeEngineRecordsInitializationFailures),
-    ("Runtime engine core assembly has no platform dependencies", RuntimeEngineCoreAssemblyHasNoPlatformDependencies)
+    ("Runtime engine core assembly has no platform dependencies", RuntimeEngineCoreAssemblyHasNoPlatformDependencies),
+    ("TransportMessage creates live-ready messages", TransportMessageCreatesLiveReadyMessages),
+    ("TransportMessage preserves CorrelationId", TransportMessagePreservesCorrelationId),
+    ("TransportEndpoint validates named pipe endpoints", TransportEndpointValidatesNamedPipeEndpoints),
+    ("NamedPipeTransport client/server roundtrip", () => NamedPipeTransportClientServerRoundtrip().GetAwaiter().GetResult()),
+    ("NamedPipeTransport request response", () => NamedPipeTransportRequestResponse().GetAwaiter().GetResult()),
+    ("NamedPipeTransport timeout returns failure", () => NamedPipeTransportTimeoutReturnsFailure().GetAwaiter().GetResult()),
+    ("NamedPipeTransport reports wrong target", () => NamedPipeTransportReportsWrongTarget().GetAwaiter().GetResult())
 };
 
 var failed = 0;
@@ -2024,6 +2037,241 @@ static void RuntimeEngineCoreAssemblyHasNoPlatformDependencies()
         .ToArray();
 
     Assert.Equal(0, references.Length);
+}
+
+static void TransportMessageCreatesLiveReadyMessages()
+{
+    var message = TalTransportMessage.Create(
+        TalTransportMessageType.WorkspaceWindowFrame,
+        "workspace-a",
+        "workspace-b",
+        new Dictionary<string, string>
+        {
+            ["frameId"] = "frame-001"
+        },
+        headers: new Dictionary<string, string>
+        {
+            ["contentType"] = "application/rkws-window-frame"
+        });
+
+    Assert.StartsWith("rkws-transport-", message.MessageId);
+    Assert.Equal(TalTransportMessageType.WorkspaceWindowFrame, message.MessageType);
+    Assert.Equal("workspace-a", message.SourceId);
+    Assert.Equal("workspace-b", message.TargetId);
+    Assert.Equal("frame-001", message.Payload["frameId"]);
+    Assert.Equal("application/rkws-window-frame", message.Headers["contentType"]);
+    Assert.True(Enum.IsDefined(TalTransportMessageType.LiveSessionEvent));
+    Assert.True(Enum.IsDefined(TalTransportMessageType.WorkspaceObjectUpdate));
+    Assert.True(Enum.IsDefined(TalTransportMessageType.InputEvent));
+}
+
+static void TransportMessagePreservesCorrelationId()
+{
+    var request = TalTransportMessage.Create(
+        TalTransportMessageType.AgentStatusRequest,
+        "agent-a",
+        "agent-b");
+    var response = TalTransportMessage.Create(
+        TalTransportMessageType.AgentStatusResponse,
+        "agent-b",
+        "agent-a",
+        correlationId: request.MessageId);
+
+    Assert.Equal(request.MessageId, response.CorrelationId);
+}
+
+static void TransportEndpointValidatesNamedPipeEndpoints()
+{
+    var endpoint = TalTransportEndpoint.NamedPipe("rkws-test-pipe");
+
+    Assert.Equal("named-pipe:rkws-test-pipe", endpoint.EndpointId);
+    Assert.Equal("rkws-test-pipe", endpoint.Address);
+    Assert.Equal("NamedPipe", endpoint.TransportKind);
+    Assert.Throws<TalTransportException>(() => TalTransportEndpoint.NamedPipe("bad/name"));
+}
+
+static async Task NamedPipeTransportClientServerRoundtrip()
+{
+    var transport = TestNamedPipeTransport();
+    var endpoint = TalTransportEndpoint.NamedPipe(UniquePipeName());
+    var server = transport.CreateServer(endpoint);
+    await server.StartAsync();
+
+    var serverTask = Task.Run(async () =>
+    {
+        var inbound = await server.WaitForMessageAsync();
+        Assert.True(inbound.Success);
+        var request = Assert.NotNull(inbound.Message);
+        Assert.Equal(TalTransportMessageType.AgentHello, request.MessageType);
+        var response = TalTransportMessage.Create(
+            TalTransportMessageType.AgentStatusResponse,
+            "agent-b",
+            request.SourceId,
+            new Dictionary<string, string>
+            {
+                ["status"] = "OK"
+            },
+            correlationId: request.MessageId);
+        var sent = await server.SendResponseAsync(response);
+        Assert.True(sent.Success);
+        await server.StopAsync();
+    });
+
+    var client = transport.CreateClient(endpoint);
+    var message = TalTransportMessage.Create(
+        TalTransportMessageType.AgentHello,
+        "agent-a",
+        "agent-b");
+    var result = await client.RequestAsync(message, TimeSpan.FromSeconds(2));
+
+    Assert.True(result.Success);
+    var responseMessage = Assert.NotNull(result.Message);
+    Assert.Equal(message.MessageId, responseMessage.CorrelationId);
+    Assert.Equal("OK", responseMessage.Payload["status"]);
+    await serverTask;
+}
+
+static async Task NamedPipeTransportRequestResponse()
+{
+    var transport = TestNamedPipeTransport();
+    var endpoint = TalTransportEndpoint.NamedPipe(UniquePipeName());
+    var server = transport.CreateServer(endpoint);
+    await server.StartAsync();
+
+    var serverTask = Task.Run(async () =>
+    {
+        var inbound = await server.WaitForMessageAsync();
+        Assert.True(inbound.Success);
+        var request = Assert.NotNull(inbound.Message);
+        var response = TalTransportMessage.Create(
+            TalTransportMessageType.TransferResponse,
+            "agent-b",
+            request.SourceId,
+            new Dictionary<string, string>
+            {
+                ["success"] = "true"
+            },
+            correlationId: request.MessageId);
+        var sent = await server.SendResponseAsync(response);
+        Assert.True(sent.Success);
+        await server.StopAsync();
+    });
+
+    var client = transport.CreateClient(endpoint);
+    var result = await client.RequestAsync(
+        TalTransportMessage.Create(
+            TalTransportMessageType.TransferRequest,
+            "agent-a",
+            "agent-b",
+            new Dictionary<string, string>
+            {
+                ["requestId"] = "request-transport"
+            }),
+        TimeSpan.FromSeconds(2));
+
+    Assert.True(result.Success);
+    Assert.Equal("true", Assert.NotNull(result.Message).Payload["success"]);
+    await serverTask;
+}
+
+static async Task NamedPipeTransportTimeoutReturnsFailure()
+{
+    var transport = TestNamedPipeTransport();
+    var endpoint = TalTransportEndpoint.NamedPipe(UniquePipeName());
+    var server = transport.CreateServer(endpoint);
+    await server.StartAsync();
+
+    var serverTask = Task.Run(async () =>
+    {
+        var inbound = await server.WaitForMessageAsync();
+        Assert.True(inbound.Success);
+        await Task.Delay(500);
+        if (inbound.Message is not null)
+        {
+            try
+            {
+                await server.SendResponseAsync(TalTransportMessage.Create(
+                    TalTransportMessageType.AgentStatusResponse,
+                    "agent-b",
+                    inbound.Message.SourceId,
+                    correlationId: inbound.Message.MessageId));
+            }
+            catch (IOException)
+            {
+            }
+        }
+    });
+
+    var client = transport.CreateClient(endpoint);
+    var result = await client.RequestAsync(
+        TalTransportMessage.Create(
+            TalTransportMessageType.AgentStatusRequest,
+            "agent-a",
+            "agent-b"),
+        TimeSpan.FromMilliseconds(100));
+
+    Assert.False(result.Success);
+    Assert.True(result.TimedOut);
+    await serverTask;
+    await server.StopAsync();
+}
+
+static async Task NamedPipeTransportReportsWrongTarget()
+{
+    var transport = TestNamedPipeTransport();
+    var endpoint = TalTransportEndpoint.NamedPipe(UniquePipeName());
+    var server = transport.CreateServer(endpoint);
+    await server.StartAsync();
+
+    var serverTask = Task.Run(async () =>
+    {
+        var inbound = await server.WaitForMessageAsync();
+        Assert.True(inbound.Success);
+        var request = Assert.NotNull(inbound.Message);
+        var response = request.TargetId == "agent-b"
+            ? TalTransportMessage.Create(
+                TalTransportMessageType.AgentStatusResponse,
+                "agent-b",
+                request.SourceId,
+                correlationId: request.MessageId)
+            : TalTransportMessage.Create(
+                TalTransportMessageType.ErrorResponse,
+                "agent-b",
+                request.SourceId,
+                new Dictionary<string, string>
+                {
+                    ["error"] = "Wrong target."
+                },
+                correlationId: request.MessageId);
+        var sent = await server.SendResponseAsync(response);
+        Assert.NotNull(sent.Message);
+        await server.StopAsync();
+    });
+
+    var client = transport.CreateClient(endpoint);
+    var result = await client.RequestAsync(
+        TalTransportMessage.Create(
+            TalTransportMessageType.AgentStatusRequest,
+            "agent-a",
+            "agent-c"),
+        TimeSpan.FromSeconds(2));
+
+    Assert.False(result.Success);
+    Assert.True(result.Error.Contains("Wrong target.", StringComparison.Ordinal));
+    await serverTask;
+}
+
+static TalNamedPipeTransport TestNamedPipeTransport()
+{
+    return new TalNamedPipeTransport(new TalNamedPipeTransportOptions
+    {
+        DefaultTimeout = TimeSpan.FromSeconds(2)
+    });
+}
+
+static string UniquePipeName()
+{
+    return $"rkws-transport-test-{Guid.NewGuid():N}";
 }
 
 static (

@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using System.IO.Pipes;
-using RKWorkspace.LocalIpc;
+using RKWorkspace.Transport;
+using RKWorkspace.Transport.NamedPipes;
 
 namespace RKWorkspace.LocalIpcHarness;
 
@@ -108,10 +108,10 @@ internal static class Program
 
     private static async Task VerifyServerNotReachableAsync()
     {
-        var client = new LocalIpcClient($"rkws-missing-{Guid.NewGuid():N}");
-        var result = await client.SendAsync(
-            LocalIpcMessage.Create(
-                LocalIpcMessageType.AgentStatusRequest,
+        var client = CreateClient($"rkws-missing-{Guid.NewGuid():N}");
+        var result = await client.RequestAsync(
+            TransportMessage.Create(
+                TransportMessageType.AgentStatusRequest,
                 "harness",
                 "rkws-agent-b"),
             TimeSpan.FromMilliseconds(300)).ConfigureAwait(false);
@@ -121,7 +121,7 @@ internal static class Program
 
     private static async Task VerifyInvalidMessageAsync(string pipeName)
     {
-        var result = await new LocalIpcClient(pipeName)
+        var result = await CreateRawClient(pipeName)
             .SendRawAsync("not-json", IpcTimeout)
             .ConfigureAwait(false);
         Ensure(!result.Success, "Invalid-message check unexpectedly succeeded.");
@@ -131,9 +131,9 @@ internal static class Program
     private static async Task VerifyUnknownMessageTypeAsync(string pipeName)
     {
         var raw = """
-            {"messageId":"unknown-type","messageType":"DoesNotExist","sourceAgentId":"harness","targetAgentId":"rkws-agent-b","timestamp":"2026-07-02T00:00:00+00:00","payload":{}}
+            {"messageId":"unknown-type","messageType":"DoesNotExist","sourceId":"harness","targetId":"rkws-agent-b","timestamp":"2026-07-02T00:00:00+00:00","payload":{}}
             """;
-        var result = await new LocalIpcClient(pipeName)
+        var result = await CreateRawClient(pipeName)
             .SendRawAsync(raw, IpcTimeout)
             .ConfigureAwait(false);
         Ensure(!result.Success, "Unknown-message-type check unexpectedly succeeded.");
@@ -142,10 +142,10 @@ internal static class Program
 
     private static async Task VerifyWrongTargetAsync(string pipeName)
     {
-        var result = await new LocalIpcClient(pipeName)
-            .SendAsync(
-                LocalIpcMessage.Create(
-                    LocalIpcMessageType.AgentStatusRequest,
+        var result = await CreateClient(pipeName)
+            .RequestAsync(
+                TransportMessage.Create(
+                    TransportMessageType.AgentStatusRequest,
                     "harness",
                     "wrong-agent"),
                 IpcTimeout)
@@ -156,10 +156,10 @@ internal static class Program
 
     private static async Task VerifyTransferWithoutPayloadAsync(string pipeName)
     {
-        var result = await new LocalIpcClient(pipeName)
-            .SendAsync(
-                LocalIpcMessage.Create(
-                    LocalIpcMessageType.TransferRequest,
+        var result = await CreateClient(pipeName)
+            .RequestAsync(
+                TransportMessage.Create(
+                    TransportMessageType.TransferRequest,
                     "harness",
                     "rkws-agent-b"),
                 IpcTimeout)
@@ -171,26 +171,30 @@ internal static class Program
     private static async Task VerifyTimeoutAsync()
     {
         var pipeName = $"rkws-timeout-{Guid.NewGuid():N}";
-        using var serverReady = new ManualResetEventSlim(initialState: false);
         using var serverCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        ITransport transport = CreateLocalTransport();
+        ITransportServer server = transport.CreateServer(TransportEndpoint.NamedPipe(pipeName));
+        await server.StartAsync(serverCancellation.Token).ConfigureAwait(false);
         var serverTask = Task.Run(async () =>
         {
-            await using var server = new NamedPipeServerStream(
-                pipeName,
-                PipeDirection.InOut,
-                maxNumberOfServerInstances: 1,
-                PipeTransmissionMode.Byte,
-                PipeOptions.Asynchronous);
-            serverReady.Set();
-            await server.WaitForConnectionAsync(serverCancellation.Token).ConfigureAwait(false);
+            var request = await server.WaitForMessageAsync(serverCancellation.Token).ConfigureAwait(false);
             await Task.Delay(TimeSpan.FromSeconds(2), serverCancellation.Token).ConfigureAwait(false);
+            if (request.Message is not null)
+            {
+                await server.SendResponseAsync(
+                    TransportMessage.Create(
+                        TransportMessageType.AgentStatusResponse,
+                        "timeout-server",
+                        request.Message.SourceId,
+                        correlationId: request.Message.MessageId),
+                    serverCancellation.Token).ConfigureAwait(false);
+            }
         }, serverCancellation.Token);
 
-        serverReady.Wait(TimeSpan.FromSeconds(1));
-        var result = await new LocalIpcClient(pipeName)
-            .SendAsync(
-                LocalIpcMessage.Create(
-                    LocalIpcMessageType.AgentStatusRequest,
+        var result = await CreateClient(pipeName)
+            .RequestAsync(
+                TransportMessage.Create(
+                    TransportMessageType.AgentStatusRequest,
                     "harness",
                     "rkws-agent-b"),
                 TimeSpan.FromMilliseconds(200))
@@ -204,11 +208,32 @@ internal static class Program
         catch (OperationCanceledException)
         {
         }
-        catch (IOException)
+        catch (TransportException)
         {
         }
 
+        await server.StopAsync(CancellationToken.None).ConfigureAwait(false);
         Console.WriteLine("[OK] Timeout handled");
+    }
+
+    private static ITransportClient CreateClient(string pipeName)
+    {
+        return CreateLocalTransport().CreateClient(TransportEndpoint.NamedPipe(pipeName));
+    }
+
+    private static NamedPipeTransportClient CreateRawClient(string pipeName)
+    {
+        return (NamedPipeTransportClient)CreateLocalTransport()
+            .CreateClient(TransportEndpoint.NamedPipe(pipeName));
+    }
+
+    private static ITransport CreateLocalTransport()
+    {
+        return new NamedPipeTransport(
+            new NamedPipeTransportOptions
+            {
+                DefaultTimeout = IpcTimeout
+            });
     }
 
     private static void EnsureOutput(ManagedProcess process, string expected)

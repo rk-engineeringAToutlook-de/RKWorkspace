@@ -1,7 +1,7 @@
 # Workspace Agent Runtime
 
 Dokument-ID: RKWS-DEV-WORKSPACE-AGENT-RUNTIME
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -77,12 +77,13 @@ Beide Konfigurationen verwenden eigene `AgentRuntime`-Instanzen und erzeugen eig
 
 ## Local IPC
 
-MA004.03 ergaenzt einen lokalen IPC-Modus ueber Named Pipes:
+MA004.03 ergaenzt einen lokalen IPC-Modus ueber Named Pipes. MA004.04 legt diesen Modus unter die Transport Abstraction Layer:
 
 - Agent B kann als IPC-Server gestartet werden.
 - Agent A kann als IPC-Client gestartet werden.
-- Nachrichten werden als einfache JSON-Nachrichten ueber lokale Named Pipes uebertragen.
-- Unterstuetzt werden AgentHello, AgentStatusRequest, AgentStatusResponse, WorkspaceAdvertisement, TransferRequest, TransferResponse, ShutdownRequest und ErrorResponse.
+- Nachrichten werden als `TransportMessage` ueber `ITransportClient` und `ITransportServer` uebertragen.
+- `NamedPipeTransport` ist die aktuelle lokale Implementierung.
+- Unterstuetzt werden AgentHello, AgentStatusRequest, AgentStatusResponse, WorkspaceAdvertisement, TransferRequest, TransferResponse, ShutdownRequest, ErrorResponse sowie vorbereitete Live-Workspace-Typen.
 - Der IPC-Test startet zwei echte Agent-Prozesse ueber `tools/run-local-ipc.ps1`.
 
 Die IPC bleibt lokal. Es werden keine TCP-/UDP-Ports, keine Firewall-Freigaben und keine Netzwerkkommunikation verwendet.
@@ -129,13 +130,14 @@ Der Agent verwendet echte Core-Komponenten:
 - Es gibt keine Konfigurationsdatei; Defaults liegen im Code.
 - Pro Agent wird genau eine lokale Workspace registriert.
 - Transfers zwischen zwei AgentRuntime-Instanzen werden in MA004.02 nur logisch ueber den lokalen Dual-Agent-Harness simuliert.
-- Transfers zwischen zwei echten Agent-Prozessen werden in MA004.03 nur lokal ueber Named Pipes simuliert.
+- Transfers zwischen zwei echten Agent-Prozessen werden seit MA004.04 lokal ueber die TAL und aktuell per NamedPipeTransport simuliert.
 - Ctrl+C wird sauber behandelt, aber noch nicht durch Systemdienst-Lifecycle ersetzt.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-02 | MA004.04 TAL-Anbindung fuer Agent-IPC dokumentiert. |
 | 1.2.0 | 2026-07-02 | Local-IPC-CLI und Named-Pipe-Zwei-Prozess-Modus dokumentiert. |
 | 1.1.0 | 2026-07-02 | Dual-Agent-Konfigurationen und Harness-Einschraenkung ergaenzt. |
 | 1.0.0 | 2026-07-02 | Workspace Agent Runtime fuer MA004.01 dokumentiert. |

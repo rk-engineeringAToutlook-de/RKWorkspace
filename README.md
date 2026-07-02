@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -27,7 +27,8 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Das Developer Workspace Studio ist als erste sichtbare Core-Testoberflaeche angelegt.
 - Die Workspace Agent Runtime ist als erster echter RK Workspace Konsolenprozess angelegt.
 - Die Dual Local Agent Simulation startet zwei unabhaengige LocalOnly-Agenten und simuliert einen logischen Transfer ueber einen Harness.
-- Der Local IPC Two Process Test startet zwei echte Agent-Prozesse und verbindet sie lokal ueber Named Pipes.
+- Der Local IPC Two Process Test startet zwei echte Agent-Prozesse und verbindet sie lokal ueber die Transport Abstraction Layer.
+- Named Pipes sind ab MA004.04 nur noch eine Transport-Implementierung hinter neutralen Transport-Schnittstellen.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -68,7 +69,8 @@ flowchart TB
     Core --> Studio["Developer Studio"]
     Core --> Agents["Local Agents"]
     Agents --> Harness["Dual Agent Harness"]
-    Agents --> Ipc["Local IPC"]
+    Agents --> Transport["Transport Abstraction Layer"]
+    Transport --> Ipc["Named Pipe Transport"]
     Core --> Simulation["tools/LocalSimulation"]
     Simulation --> Tests["tests"]
     Spec --> Future["Spaetere Plattformen und Hardware"]
@@ -84,7 +86,9 @@ src/Core/Workspaces/  Plattformneutrale Workspace Registry und Workspace-Vertrae
 src/Core/TransferObjects/ Plattformneutraler Transfer Object Manager und Objekt-Vertraege
 src/Core/Transfers/   Plattformneutrale Transfer Engine Runtime und Transfer-Vertraege
 src/Core/Runtime/     Plattformneutraler Core Runtime Orchestrator
-src/Communication/RKWorkspace.LocalIpc/ Lokale Named-Pipe-IPC fuer Zwei-Prozess-Tests
+src/Communication/RKWorkspace.Transport/ Neutrale Transport-Schnittstellen und Transport-Nachrichten
+src/Communication/RKWorkspace.Transport.NamedPipes/ Lokale Named-Pipe-Transportimplementierung
+src/Communication/RKWorkspace.LocalIpc/ Kompatibilitaetsschicht fuer lokale IPC auf Basis der TAL
 src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und Netzwerk
 src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche fuer Core-Visualisierung
 src/Agents/RKWorkspace.Agent/ LocalOnly Workspace Agent Runtime als Konsolenprozess
@@ -134,7 +138,7 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation. MA004.03 liefert den Local IPC Two Process Test.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation. MA004.03 liefert den Local IPC Two Process Test. MA004.04 liefert die Transport Abstraction Layer.
 
 Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und kein Plattformadapter. Er startet die plattformneutrale Runtime Engine und fuehrt danach nur den aktuellen Core-Ablauf sichtbar ueber die Transfer Engine aus.
 
@@ -144,7 +148,9 @@ Die Workspace Agent Runtime ist noch kein Betriebssystemdienst. Sie ist ein Loca
 
 Die Dual Local Agent Simulation ist noch keine Prozesskommunikation. Zwei AgentRuntime-Instanzen laufen parallel im selben Harness, behalten getrennte Runtime- und Manager-Instanzen und simulieren den Transfer logisch ohne Netzwerk, Discovery oder IPC.
 
-Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Er verwendet Named Pipes lokal auf demselben Rechner, keine TCP-/UDP-Ports, keine Discovery, keine Dienste und keine Netzwerkkommunikation ueber Rechnergrenzen.
+Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Seit MA004.04 laeuft er ueber die Transport Abstraction Layer. Die aktuelle Implementierung verwendet Named Pipes lokal auf demselben Rechner, aber Agent und Harness kommunizieren ueber `ITransport`, `ITransportClient`, `ITransportServer` und `TransportMessage`. Es gibt weiterhin keine TCP-/UDP-Ports, keine Discovery, keine Dienste und keine Netzwerkkommunikation ueber Rechnergrenzen.
+
+MA004.05 fuehrt als naechsten Schritt eine lokale Discovery-Simulation ein. Discovery kommt bewusst nach der TAL, damit Agenten spaeter einen Transport auswaehlen koennen, ohne an Named Pipes, TCP, WebSocket, USB, BLE oder Cloud Relay gekoppelt zu sein.
 
 ## Querverweise
 
@@ -165,6 +171,7 @@ Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Er verw
 - `Docs/Development/WorkspaceAgentRuntime.md`
 - `Docs/Development/DualAgentSimulation.md`
 - `Docs/Development/LocalIpcTwoProcessTest.md`
+- `Docs/Development/TransportAbstractionLayer.md`
 - `Docs/Development/MA003_Progress.md`
 - `Docs/ADR/README.md`
 
@@ -172,6 +179,7 @@ Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Er verw
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer dokumentiert. |
 | 1.7.0 | 2026-07-02 | MA004.03 Local IPC Two Process Test dokumentiert. |
 | 1.6.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation und Harness dokumentiert. |
 | 1.5.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime und Startscript dokumentiert. |

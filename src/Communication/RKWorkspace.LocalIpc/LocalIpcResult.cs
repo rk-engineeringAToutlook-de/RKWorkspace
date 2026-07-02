@@ -1,3 +1,5 @@
+using RKWorkspace.Transport;
+
 namespace RKWorkspace.LocalIpc;
 
 public sealed record LocalIpcResult
@@ -30,6 +32,19 @@ public sealed record LocalIpcResult
             Success = false,
             Error = error,
             TimedOut = timedOut
+        };
+    }
+
+    public static LocalIpcResult FromTransport(TransportResult result)
+    {
+        return new LocalIpcResult
+        {
+            Success = result.Success,
+            Response = result.Message is null
+                ? null
+                : LocalIpcTransportMapper.ToLocal(result.Message),
+            Error = result.Error,
+            TimedOut = result.TimedOut
         };
     }
 }

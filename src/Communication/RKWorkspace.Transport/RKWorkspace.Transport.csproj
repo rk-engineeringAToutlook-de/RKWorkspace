@@ -5,8 +5,4 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RKWorkspace.Transport.NamedPipes\RKWorkspace.Transport.NamedPipes.csproj" />
-    <ProjectReference Include="..\RKWorkspace.Transport\RKWorkspace.Transport.csproj" />
-  </ItemGroup>
 </Project>

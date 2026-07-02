@@ -1,7 +1,7 @@
 # MA003 Progress
 
 Dokument-ID: RKWS-DEV-MA003-PROGRESS  
-Version: 0.12.0
+Version: 0.13.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -25,6 +25,7 @@ flowchart LR
     MA00308 --> MA00401["MA004.01 Workspace Agent Runtime"]
     MA00401 --> MA00402["MA004.02 Dual Local Agent Simulation"]
     MA00402 --> MA00403["MA004.03 Local IPC Two Process Test"]
+    MA00403 --> MA00404["MA004.04 Transport Abstraction Layer"]
 ```
 
 ## MA003.01 Plugin Manager
@@ -382,7 +383,38 @@ Nicht im Umfang:
 
 ## Offene Punkte nach MA004.03
 
-Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation und den ersten lokalen Zwei-Prozess-IPC-Test ueber Named Pipes. Der naechste Teilauftrag ist MA004.04 Local Discovery Simulation.
+## MA004.04 Transport Abstraction Layer
+
+Status: Abgeschlossen.
+
+Umfang:
+
+- neutrales Projekt `src/Communication/RKWorkspace.Transport/`
+- Transport-Vertraege `ITransport`, `ITransportClient`, `ITransportServer` und `ITransportMessage`
+- `TransportMessage` mit `MessageId`, `MessageType`, `SourceId`, `TargetId`, `Timestamp`, `Payload`, `CorrelationId` und `Headers`
+- vorbereitete Live-Workspace-Nachrichtentypen `LiveSessionEvent`, `WorkspaceWindowFrame`, `WorkspaceObjectUpdate` und `InputEvent`
+- Named-Pipe-Implementierung `src/Communication/RKWorkspace.Transport.NamedPipes/`
+- LocalIpc-Kompatibilitaetsschicht auf Basis von `NamedPipeTransport`
+- Agent-IPC ueber TAL statt direkter LocalIpc-Anbindung
+- Local-IPC-Harness ueber TAL mit Fehlerfaellen fuer Roundtrip, falsches Ziel und Timeout
+- Unit-Tests fuer Message-Erstellung, CorrelationId, Endpoints und NamedPipeTransport
+- Dokumentation `Docs/Development/TransportAbstractionLayer.md`
+
+Nicht im Umfang:
+
+- TCP, UDP oder WebSocket
+- echte Discovery
+- Pairing
+- Remote-Kommunikation
+- Betriebssystemdienst-Installation
+- GUI-Kommunikationspartner
+- Persistenz
+- Cloud
+- Firmware oder Hardware
+
+## Offene Punkte nach MA004.04
+
+Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-, Transfer-Engine- und Runtime-Grundbausteine, Integrationstests, einen sichtbaren Demo Runner, eine Developer-Testoberflaeche, den ersten LocalOnly-Agent-Prozess, eine Dual-Agent-Simulation, den lokalen Zwei-Prozess-IPC-Test und eine neutrale Transport Abstraction Layer. Der naechste Teilauftrag ist MA004.05 Local Discovery Simulation.
 
 ## Querverweise
 
@@ -393,6 +425,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 - `Docs/Development/WorkspaceAgentRuntime.md`
 - `Docs/Development/DualAgentSimulation.md`
 - `Docs/Development/LocalIpcTwoProcessTest.md`
+- `Docs/Development/TransportAbstractionLayer.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `README.md`
 
@@ -400,6 +433,7 @@ Der Core besitzt nun Plugin-, Capability-, Workspace-Registry-, Transfer-Object-
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.13.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer dokumentiert. |
 | 0.12.0 | 2026-07-02 | MA004.03 Local IPC Two Process Test dokumentiert. |
 | 0.11.0 | 2026-07-02 | MA004.02 Dual Local Agent Simulation dokumentiert. |
 | 0.10.0 | 2026-07-02 | MA004.01 Workspace Agent Runtime dokumentiert. |

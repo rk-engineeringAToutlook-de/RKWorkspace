@@ -1,13 +1,13 @@
 # 04 Communication Protocol
 
 Dokument-ID: RKWS-DOC-04  
-Version: 0.2.0  
+Version: 0.3.0
 Status: Accepted  
 Datum: 2026-07-02
 
 ## Status
 
-Dieses Dokument beschreibt das Kommunikationsmodell, aber noch keine Transportimplementierung. RKWS-0010 verlangt ausdruecklich Dokumentation vor Implementierung. Die aktuelle Codebasis plant Transfers lokal und simuliert den Ablauf, versendet aber noch keine Nutzdaten ueber Netzwerk.
+Dieses Dokument beschreibt das Kommunikationsmodell und grenzt die aktuelle lokale IPC von spaeterem Payload-Transport ab. RKWS-0010 verlangt ausdruecklich Dokumentation vor Implementierung. Die aktuelle Codebasis plant Transfers lokal, besitzt seit MA004.03 lokale Agent-zu-Agent-IPC und entkoppelt diese seit MA004.04 ueber die Transport Abstraction Layer. Sie versendet weiterhin keine Nutzdaten ueber Netzwerk.
 
 ## Trennung der Verantwortungen
 
@@ -28,6 +28,16 @@ flowchart TB
 ## Phasenmodell
 
 Ein spaeterer Transfer besteht aus Discovery, Pairing, Session-Aufbau, Transfer-Ankuendigung, Payload-Uebertragung, Abschluss und Protokollierung. V1 simuliert bisher nur die Entscheidungsschritte ab Arbeitsflaechenmodell und Raumkarte.
+
+## Aktuelle lokale Transportebene
+
+MA004.04 fuehrt eine lokale Transport Abstraction Layer ein:
+
+- `RKWorkspace.Transport` enthaelt die neutralen Schnittstellen.
+- `RKWorkspace.Transport.NamedPipes` enthaelt die aktuelle lokale Implementierung.
+- `RKWorkspace.LocalIpc` bleibt als Kompatibilitaetsschicht fuer den Zwei-Prozess-Test erhalten.
+
+Diese Ebene ist keine Discovery, kein Pairing und kein Payload-Transport ueber Rechnergrenzen. Sie dient als technische Grundlage, damit spaetere Transporte wie TCP/LAN, WebSocket, USB, BLE, Cloud Relay oder Loopback/Test ergaenzt werden koennen, ohne den Agent-Ablauf direkt an diese Technik zu koppeln.
 
 ## Vorlaeufige Nachrichten
 
@@ -63,10 +73,12 @@ mDNS, BLE-Advertising, UDP-Broadcast oder eine Kombination muessen fuer Discover
 - `Spec/Communication.md`
 - `Spec/Protocol.md`
 - `Docs/ADR/ADR-0004-separate-discovery-and-data-transfer.md`
+- `Docs/Development/TransportAbstractionLayer.md`
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.3.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer als lokale Transportebene dokumentiert. |
 | 0.2.0 | 2026-07-02 | Normative Protokollspezifikation verlinkt. |
 | 0.1.0 | 2026-07-02 | Kommunikationsdokument angelegt. |
