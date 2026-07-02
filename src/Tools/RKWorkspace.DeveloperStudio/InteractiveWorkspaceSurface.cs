@@ -197,7 +197,7 @@ internal sealed class InteractiveWorkspaceSurface : Control
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         TextRenderer.DrawText(
             graphics,
-            $"Position: {position}\r\nStatus: {state}",
+            $"Position: {StudioUiText.Display(position)}\r\nStatus: {StudioUiText.Display(state)}",
             SystemFonts.DefaultFont,
             detailBounds,
             Color.FromArgb(52, 65, 82),
@@ -230,7 +230,7 @@ internal sealed class InteractiveWorkspaceSurface : Control
         using var titleFont = new Font(SystemFonts.DefaultFont.FontFamily, 10, FontStyle.Bold);
         TextRenderer.DrawText(
             graphics,
-            _snapshot.ObjectTitle,
+            StudioUiText.Display(_snapshot.ObjectTitle),
             titleFont,
             titleBounds,
             Color.FromArgb(23, 31, 42),
@@ -244,7 +244,7 @@ internal sealed class InteractiveWorkspaceSurface : Control
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         TextRenderer.DrawText(
             graphics,
-            $"State: {_snapshot.ObjectState}",
+            $"Status: {StudioUiText.Display(_snapshot.ObjectState)}",
             SystemFonts.DefaultFont,
             stateBounds,
             Color.FromArgb(88, 101, 116),
@@ -256,10 +256,10 @@ internal sealed class InteractiveWorkspaceSurface : Control
         return new InteractiveWorkspaceSnapshot
         {
             IsInitialized = false,
-            SourceName = "Workspace A / Laptop",
+            SourceName = "Arbeitsflaeche A / Laptop",
             SourcePosition = "Center",
             SourceState = "Missing",
-            TargetName = "Workspace B / Display Right",
+            TargetName = "Arbeitsflaeche B / Anzeige rechts",
             TargetPosition = "Right",
             TargetState = "Missing",
             ObjectTitle = "Text Object",

@@ -12,6 +12,7 @@ internal sealed class MainWindow : Form
     private readonly DataGridView _historyGrid = CreateGrid();
     private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
     private readonly List<WorkspaceWindow> _workspaceWindows = new();
+    private readonly ToolTip _toolTip = new();
     private readonly Label _runtimeState = ValueLabel();
     private readonly Label _pluginCount = ValueLabel();
     private readonly Label _workspaceCount = ValueLabel();
@@ -23,7 +24,7 @@ internal sealed class MainWindow : Form
 
     public MainWindow()
     {
-        Text = "RK Workspace Developer Studio";
+        Text = "RK Workspace Entwickler-Studio";
         MinimumSize = new Size(1120, 720);
         Width = 1280;
         Height = 800;
@@ -50,7 +51,18 @@ internal sealed class MainWindow : Form
         };
 
         Controls.Add(BuildLayout());
+        ConfigureToolTips();
         RefreshUi();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _toolTip.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 
     private Control BuildLayout()
@@ -84,17 +96,50 @@ internal sealed class MainWindow : Form
             WrapContents = true
         };
 
-        panel.Controls.Add(Button("Start Runtime", _viewModel.StartRuntime));
-        panel.Controls.Add(Button("Add Demo Workspaces", _viewModel.AddDemoWorkspaces));
-        panel.Controls.Add(Button("Create Text Object", _viewModel.CreateTextObject));
-        panel.Controls.Add(Button("Transfer Right", _viewModel.TransferRight));
-        panel.Controls.Add(Button("Start Dual Agents", _viewModel.StartDualAgents));
-        panel.Controls.Add(Button("Stop Dual Agents", _viewModel.StopDualAgents));
-        panel.Controls.Add(Button("Reset", _viewModel.Reset));
-        panel.Controls.Add(Button("Run Full Demo", _viewModel.RunFullDemo));
-        panel.Controls.Add(Button("Reset Interactive Demo", _viewModel.ResetInteractiveDemo));
-        panel.Controls.Add(Button("Run Full Interactive Demo", _viewModel.RunFullInteractiveDemo));
-        panel.Controls.Add(Button("Open Multi Window Prototype", OpenMultiWindowPrototype));
+        panel.Controls.Add(Button(
+            "Runtime starten",
+            _viewModel.StartRuntime,
+            "Startet die zentrale Core Runtime Engine und bereitet die Manager vor."));
+        panel.Controls.Add(Button(
+            "Demo-Arbeitsflaechen",
+            _viewModel.AddDemoWorkspaces,
+            "Legt Workspace A und Workspace B fuer den lokalen Demo-Transfer an."));
+        panel.Controls.Add(Button(
+            "Textobjekt erstellen",
+            _viewModel.CreateTextObject,
+            "Erzeugt ein logisches Text-Transferobjekt im Core."));
+        panel.Controls.Add(Button(
+            "Nach rechts uebertragen",
+            _viewModel.TransferRight,
+            "Fuehrt den Transfer von Workspace A nach Workspace B ueber die Transfer Engine aus."));
+        panel.Controls.Add(Button(
+            "Zwei Agenten starten",
+            _viewModel.StartDualAgents,
+            "Startet zwei lokale Agent-Runtimes fuer Diagnose und Vergleich."));
+        panel.Controls.Add(Button(
+            "Zwei Agenten stoppen",
+            _viewModel.StopDualAgents,
+            "Stoppt die beiden lokalen Agent-Runtimes sauber."));
+        panel.Controls.Add(Button(
+            "Zuruecksetzen",
+            _viewModel.Reset,
+            "Setzt Runtime, Objekte, Agenten, Log und Diagnoseansicht zurueck."));
+        panel.Controls.Add(Button(
+            "Voll-Demo ausfuehren",
+            _viewModel.RunFullDemo,
+            "Fuehrt Runtime-Start, Workspaces, Textobjekt, Transfer und Agentenstart in einem Ablauf aus."));
+        panel.Controls.Add(Button(
+            "Interaktive Demo zuruecksetzen",
+            _viewModel.ResetInteractiveDemo,
+            "Initialisiert den Drag-and-Drop-Prototyp neu."));
+        panel.Controls.Add(Button(
+            "Interaktive Demo ausfuehren",
+            _viewModel.RunFullInteractiveDemo,
+            "Simuliert Drag, Zielmarkierung und Drop ueber den Core-Pfad."));
+        panel.Controls.Add(Button(
+            "Multi-Window-Prototyp oeffnen",
+            OpenMultiWindowPrototype,
+            "Oeffnet zwei echte Fenster fuer Window A und Window B mit gemeinsamem Core-Kontext."));
 
         return panel;
     }
@@ -145,7 +190,7 @@ internal sealed class MainWindow : Form
 
     private Control BuildInteractivePanel()
     {
-        return Panel("Interactive Workspace Prototype", _interactiveSurface);
+        return Panel("Interaktiver Workspace-Prototyp", _interactiveSurface);
     }
 
     private Control BuildMainGrid()
@@ -161,10 +206,10 @@ internal sealed class MainWindow : Form
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 24));
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 22));
 
-        grid.Controls.Add(Panel("Workspaces", _workspaceGrid), 0, 0);
-        grid.Controls.Add(Panel("Transfer Objects", _transferGrid), 1, 0);
-        grid.Controls.Add(Panel("Agents", _agentGrid), 2, 0);
-        grid.Controls.Add(Panel("Diagnostics", BuildDiagnostics()), 3, 0);
+        grid.Controls.Add(Panel("Arbeitsflaechen", _workspaceGrid), 0, 0);
+        grid.Controls.Add(Panel("Transferobjekte", _transferGrid), 1, 0);
+        grid.Controls.Add(Panel("Agenten", _agentGrid), 2, 0);
+        grid.Controls.Add(Panel("Diagnose", BuildDiagnostics()), 3, 0);
 
         return grid;
     }
@@ -181,13 +226,13 @@ internal sealed class MainWindow : Form
         diagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
         diagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        AddDiagnosticRow(diagnostics, 0, "Runtime State", _runtimeState);
-        AddDiagnosticRow(diagnostics, 1, "Plugin Count", _pluginCount);
-        AddDiagnosticRow(diagnostics, 2, "Workspace Count", _workspaceCount);
-        AddDiagnosticRow(diagnostics, 3, "Transfer Objects", _transferObjectCount);
-        AddDiagnosticRow(diagnostics, 4, "Capabilities", _capabilities);
-        AddDiagnosticRow(diagnostics, 5, "Last Result", _lastResult);
-        AddDiagnosticRow(diagnostics, 6, "Last Error", _lastError);
+        AddDiagnosticRow(diagnostics, 0, "Runtime-Status", _runtimeState);
+        AddDiagnosticRow(diagnostics, 1, "Plugins", _pluginCount);
+        AddDiagnosticRow(diagnostics, 2, "Arbeitsflaechen", _workspaceCount);
+        AddDiagnosticRow(diagnostics, 3, "Transferobjekte", _transferObjectCount);
+        AddDiagnosticRow(diagnostics, 4, "Faehigkeiten", _capabilities);
+        AddDiagnosticRow(diagnostics, 5, "Letztes Ergebnis", _lastResult);
+        AddDiagnosticRow(diagnostics, 6, "Letzter Fehler", _lastError);
 
         return diagnostics;
     }
@@ -203,7 +248,7 @@ internal sealed class MainWindow : Form
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 58));
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42));
         grid.Controls.Add(Panel("Log", _logGrid), 0, 0);
-        grid.Controls.Add(Panel("History", _historyGrid), 1, 0);
+        grid.Controls.Add(Panel("Verlauf", _historyGrid), 1, 0);
 
         return grid;
     }
@@ -221,7 +266,7 @@ internal sealed class MainWindow : Form
         panel.Controls.Add(value, 1, row);
     }
 
-    private Button Button(string text, Func<bool> action)
+    private Button Button(string text, Func<bool> action, string tooltip)
     {
         var preferredWidth = Math.Max(150, TextRenderer.MeasureText(text, SystemFonts.DefaultFont).Width + 28);
         var button = new Button
@@ -231,6 +276,7 @@ internal sealed class MainWindow : Form
             Height = 32,
             Margin = new Padding(4, 6, 4, 4)
         };
+        _toolTip.SetToolTip(button, tooltip);
         button.Click += (_, _) =>
         {
             action();
@@ -273,24 +319,29 @@ internal sealed class MainWindow : Form
         _interactiveSurface.SetSnapshot(_viewModel.InteractiveWorkspace);
 
         var diagnostics = _viewModel.Diagnostics;
-        _runtimeState.Text = diagnostics.RuntimeState.ToString();
+        _runtimeState.Text = StudioUiText.Display(diagnostics.RuntimeState.ToString());
         _pluginCount.Text = diagnostics.PluginCount.ToString();
         _workspaceCount.Text = diagnostics.WorkspaceCount.ToString();
         _transferObjectCount.Text = diagnostics.TransferObjectCount.ToString();
-        _capabilities.Text = diagnostics.Capabilities;
-        _lastResult.Text = diagnostics.LastResult;
-        _lastError.Text = diagnostics.LastError;
+        _capabilities.Text = StudioUiText.Display(diagnostics.Capabilities);
+        _lastResult.Text = StudioUiText.Display(diagnostics.LastResult);
+        _lastError.Text = StudioUiText.Display(diagnostics.LastError);
 
         ResizeColumns(_workspaceGrid);
         ResizeColumns(_transferGrid);
         ResizeColumns(_agentGrid);
         ResizeColumns(_logGrid);
         ResizeColumns(_historyGrid);
+        ApplyColumnHeaders(_workspaceGrid);
+        ApplyColumnHeaders(_transferGrid);
+        ApplyColumnHeaders(_agentGrid);
+        ApplyColumnHeaders(_logGrid);
+        ApplyColumnHeaders(_historyGrid);
     }
 
     private static DataGridView CreateGrid()
     {
-        return new DataGridView
+        var grid = new DataGridView
         {
             Dock = DockStyle.Fill,
             ReadOnly = true,
@@ -304,6 +355,16 @@ internal sealed class MainWindow : Form
             SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             MultiSelect = false
         };
+        grid.CellFormatting += (_, args) =>
+        {
+            if (args.Value is string value)
+            {
+                args.Value = StudioUiText.Display(value);
+                args.FormattingApplied = true;
+            }
+        };
+
+        return grid;
     }
 
     private static Label ValueLabel()
@@ -322,5 +383,41 @@ internal sealed class MainWindow : Form
         {
             column.MinimumWidth = 80;
         }
+    }
+
+    private static void ApplyColumnHeaders(DataGridView grid)
+    {
+        foreach (DataGridViewColumn column in grid.Columns)
+        {
+            column.HeaderText = StudioUiText.Header(column.DataPropertyName);
+        }
+    }
+
+    private void ConfigureToolTips()
+    {
+        _toolTip.AutoPopDelay = 12000;
+        _toolTip.InitialDelay = 350;
+        _toolTip.ReshowDelay = 150;
+        _toolTip.SetToolTip(
+            _interactiveSurface,
+            "Ein sichtbarer Bedienprototyp: Textkarte mit der Maus von links nach rechts ziehen und loslassen.");
+        _toolTip.SetToolTip(
+            _workspaceGrid,
+            "Zeigt die im Core registrierten Arbeitsflaechen mit Typ, Position und Vertrauensstatus.");
+        _toolTip.SetToolTip(
+            _transferGrid,
+            "Zeigt logische Transferobjekte aus dem Core, keine echten Dateien.");
+        _toolTip.SetToolTip(
+            _agentGrid,
+            "Zeigt lokale Agent-Runtimes, wenn die Dual-Agent-Demo gestartet wurde.");
+        _toolTip.SetToolTip(
+            _logGrid,
+            "Zeigt die zuletzt ausgefuehrten Studio-Aktionen und ihre Ergebnisse.");
+        _toolTip.SetToolTip(
+            _historyGrid,
+            "Zeigt den Core-Verlauf des aktuellen Transferobjekts.");
+        _toolTip.SetToolTip(
+            _capabilities,
+            "Faehigkeiten sind die vom Core erkannten Moeglichkeiten der aktuellen Arbeitsflaechen.");
     }
 }

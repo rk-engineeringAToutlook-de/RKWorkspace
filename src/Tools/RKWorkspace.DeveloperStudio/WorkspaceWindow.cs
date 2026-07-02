@@ -17,6 +17,7 @@ internal sealed class WorkspaceWindow : Form
     private readonly FlowLayoutPanel _objectPanel = new();
     private readonly DataGridView _historyGrid = CreateGrid();
     private readonly DataGridView _logGrid = CreateGrid();
+    private readonly ToolTip _toolTip = new();
     private readonly Panel _animationLayer = new();
     private readonly Label _animationCard = new();
     private readonly System.Windows.Forms.Timer _animationTimer = new();
@@ -30,8 +31,8 @@ internal sealed class WorkspaceWindow : Form
         _context = context;
         _workspaceId = workspaceId;
         Text = workspaceId.EndsWith("-A", StringComparison.OrdinalIgnoreCase)
-            ? "RK Workspace A"
-            : "RK Workspace B";
+            ? "RK Arbeitsflaeche A"
+            : "RK Arbeitsflaeche B";
         Width = 620;
         Height = 720;
         MinimumSize = new Size(520, 620);
@@ -43,6 +44,7 @@ internal sealed class WorkspaceWindow : Form
         _animationTimer.Tick += (_, _) => AdvanceAnimation();
 
         Controls.Add(BuildLayout());
+        ConfigureToolTips();
         WireDropTarget(this);
         RefreshFromContext();
     }
@@ -53,6 +55,7 @@ internal sealed class WorkspaceWindow : Form
         {
             _context.Changed -= OnContextChanged;
             _animationTimer.Dispose();
+            _toolTip.Dispose();
         }
 
         base.Dispose(disposing);
@@ -74,9 +77,9 @@ internal sealed class WorkspaceWindow : Form
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         root.Controls.Add(BuildHeader(), 0, 0);
         root.Controls.Add(BuildAnimationLayer(), 0, 1);
-        root.Controls.Add(Panel("Transfer Objects", BuildObjectPanel()), 0, 2);
+        root.Controls.Add(Panel("Transferobjekte", BuildObjectPanel()), 0, 2);
         root.Controls.Add(BuildHistoryLogPanel(), 0, 3);
-        root.Controls.Add(Panel("Diagnostics", BuildDiagnostics()), 0, 4);
+        root.Controls.Add(Panel("Diagnose", BuildDiagnostics()), 0, 4);
 
         return root;
     }
@@ -92,8 +95,8 @@ internal sealed class WorkspaceWindow : Form
         };
         header.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
         header.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        AddInfoRow(header, 0, "Workspace Name", _name);
-        AddInfoRow(header, 1, "Workspace Type", _type);
+        AddInfoRow(header, 0, "Name", _name);
+        AddInfoRow(header, 1, "Typ", _type);
         AddInfoRow(header, 2, "Position", _position);
         AddInfoRow(header, 3, "Status", _status);
         return header;
@@ -137,7 +140,7 @@ internal sealed class WorkspaceWindow : Form
         };
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-        grid.Controls.Add(Panel("History", _historyGrid), 0, 0);
+        grid.Controls.Add(Panel("Verlauf", _historyGrid), 0, 0);
         grid.Controls.Add(Panel("Log", _logGrid), 1, 0);
         return grid;
     }
@@ -154,8 +157,8 @@ internal sealed class WorkspaceWindow : Form
         diagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110));
         diagnostics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         AddInfoRow(diagnostics, 0, "Core", _diagnostics);
-        AddInfoRow(diagnostics, 1, "Last Result", _lastResult);
-        AddInfoRow(diagnostics, 2, "Last Error", _lastError);
+        AddInfoRow(diagnostics, 1, "Ergebnis", _lastResult);
+        AddInfoRow(diagnostics, 2, "Fehler", _lastError);
         return diagnostics;
     }
 
@@ -169,12 +172,12 @@ internal sealed class WorkspaceWindow : Form
         _snapshot = _context.GetSnapshot(_workspaceId);
         Text = _snapshot.WorkspaceName;
         _name.Text = _snapshot.WorkspaceName;
-        _type.Text = _snapshot.WorkspaceType;
-        _position.Text = _snapshot.WorkspacePosition;
-        _status.Text = _snapshot.WorkspaceStatus;
-        _diagnostics.Text = _snapshot.Diagnostics;
-        _lastResult.Text = _snapshot.LastResult;
-        _lastError.Text = _snapshot.LastError;
+        _type.Text = StudioUiText.Display(_snapshot.WorkspaceType);
+        _position.Text = StudioUiText.Display(_snapshot.WorkspacePosition);
+        _status.Text = StudioUiText.Display(_snapshot.WorkspaceStatus);
+        _diagnostics.Text = StudioUiText.Display(_snapshot.Diagnostics);
+        _lastResult.Text = StudioUiText.Display(_snapshot.LastResult);
+        _lastError.Text = StudioUiText.Display(_snapshot.LastError);
         BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(224, 244, 234)
             : SystemColors.Control;
@@ -187,6 +190,8 @@ internal sealed class WorkspaceWindow : Form
         RebuildObjectCards(_snapshot.TransferObjects);
         ResizeColumns(_historyGrid);
         ResizeColumns(_logGrid);
+        ApplyColumnHeaders(_historyGrid);
+        ApplyColumnHeaders(_logGrid);
     }
 
     private void RebuildObjectCards(IReadOnlyCollection<MultiWindowTransferObjectRow> objects)
@@ -202,7 +207,7 @@ internal sealed class WorkspaceWindow : Form
         {
             _objectPanel.Controls.Add(new Label
             {
-                Text = "No transfer objects in this workspace.",
+                Text = "Keine Transferobjekte in dieser Arbeitsflaeche.",
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Width = Math.Max(420, _objectPanel.ClientSize.Width - 28),
@@ -231,7 +236,7 @@ internal sealed class WorkspaceWindow : Form
         };
         var title = new Label
         {
-            Text = $"{item.ObjectType}: {item.DisplayName}",
+            Text = $"{StudioUiText.Display(item.ObjectType)}: {item.DisplayName}",
             Dock = DockStyle.Top,
             Height = 28,
             Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold),
@@ -240,7 +245,7 @@ internal sealed class WorkspaceWindow : Form
         };
         var detail = new Label
         {
-            Text = $"State: {item.State} | MIME: {item.MimeType}",
+            Text = $"Status: {StudioUiText.Display(item.State)} | MIME: {item.MimeType}",
             Dock = DockStyle.Fill,
             Padding = new Padding(8, 0, 8, 4),
             AutoEllipsis = true
@@ -250,6 +255,12 @@ internal sealed class WorkspaceWindow : Form
         WireDragSource(card, item.ObjectId);
         WireDragSource(title, item.ObjectId);
         WireDragSource(detail, item.ObjectId);
+        var tooltip = _context.CanDrag(item.ObjectId, _workspaceId)
+            ? "Dieses Objekt kann in Window B gezogen werden. Beim Loslassen wird der Core-Transfer ausgefuehrt."
+            : "Dieses Objekt liegt in dieser Arbeitsflaeche. Bereits uebertragene Objekte sind hier nur sichtbar.";
+        _toolTip.SetToolTip(card, tooltip);
+        _toolTip.SetToolTip(title, tooltip);
+        _toolTip.SetToolTip(detail, tooltip);
         return card;
     }
 
@@ -403,7 +414,7 @@ internal sealed class WorkspaceWindow : Form
 
     private static DataGridView CreateGrid()
     {
-        return new DataGridView
+        var grid = new DataGridView
         {
             Dock = DockStyle.Fill,
             ReadOnly = true,
@@ -417,6 +428,16 @@ internal sealed class WorkspaceWindow : Form
             SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             MultiSelect = false
         };
+        grid.CellFormatting += (_, args) =>
+        {
+            if (args.Value is string value)
+            {
+                args.Value = StudioUiText.Display(value);
+                args.FormattingApplied = true;
+            }
+        };
+
+        return grid;
     }
 
     private static void ResizeColumns(DataGridView grid)
@@ -425,5 +446,32 @@ internal sealed class WorkspaceWindow : Form
         {
             column.MinimumWidth = 70;
         }
+    }
+
+    private static void ApplyColumnHeaders(DataGridView grid)
+    {
+        foreach (DataGridViewColumn column in grid.Columns)
+        {
+            column.HeaderText = StudioUiText.Header(column.DataPropertyName);
+        }
+    }
+
+    private void ConfigureToolTips()
+    {
+        _toolTip.AutoPopDelay = 12000;
+        _toolTip.InitialDelay = 350;
+        _toolTip.ReshowDelay = 150;
+        _toolTip.SetToolTip(
+            _objectPanel,
+            "Transferobjekte in dieser Arbeitsflaeche. In Window A koennen Karten nach Window B gezogen werden.");
+        _toolTip.SetToolTip(
+            _historyGrid,
+            "Core-Verlauf der Objekte, die in dieser Arbeitsflaeche liegen.");
+        _toolTip.SetToolTip(
+            _logGrid,
+            "Lokale Ereignisse dieses Fensters und globale Multi-Window-Ereignisse.");
+        _toolTip.SetToolTip(
+            _diagnostics,
+            "Diagnose des gemeinsamen Core-Kontexts fuer beide Fenster.");
     }
 }

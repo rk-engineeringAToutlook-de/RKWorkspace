@@ -600,10 +600,10 @@ internal sealed class StudioViewModel
         return new InteractiveWorkspaceSnapshot
         {
             IsInitialized = source is not null && target is not null && transferObject is not null,
-            SourceName = source?.DisplayName ?? "Workspace A / Laptop",
+            SourceName = source?.DisplayName ?? "Arbeitsflaeche A / Laptop",
             SourcePosition = source?.Position.ToString() ?? "Center",
             SourceState = source?.WorkspaceState.ToString() ?? "Missing",
-            TargetName = target?.DisplayName ?? "Workspace B / Display Right",
+            TargetName = target?.DisplayName ?? "Arbeitsflaeche B / Anzeige rechts",
             TargetPosition = target?.Position.ToString() ?? "Right",
             TargetState = target?.WorkspaceState.ToString() ?? "Missing",
             ObjectTitle = transferObject is null ? "Text Object" : $"{transferObject.ObjectType} Object",
@@ -688,8 +688,8 @@ internal sealed class StudioViewModel
         {
             WorkspaceId = workspaceId,
             DisplayName = workspaceId == SourceWorkspaceId
-                ? "Workspace A / Laptop"
-                : "Workspace B / Display Right",
+                ? "Arbeitsflaeche A / Laptop"
+                : "Arbeitsflaeche B / Anzeige rechts",
             WorkspaceType = WorkspaceType.SmartDevice,
             WorkspaceState = WorkspaceState.Available,
             Position = position,
@@ -744,10 +744,10 @@ internal sealed class StudioViewModel
         return new InteractiveWorkspaceSnapshot
         {
             IsInitialized = false,
-            SourceName = "Workspace A / Laptop",
+            SourceName = "Arbeitsflaeche A / Laptop",
             SourcePosition = WorkspacePosition.Center.ToString(),
             SourceState = "Missing",
-            TargetName = "Workspace B / Display Right",
+            TargetName = "Arbeitsflaeche B / Anzeige rechts",
             TargetPosition = WorkspacePosition.Right.ToString(),
             TargetState = "Missing",
             ObjectTitle = "Text Object",

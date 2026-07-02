@@ -1,3 +1,4 @@
+using RKWorkspace.DeveloperStudio;
 using RKWorkspace.Core.Capabilities;
 using RKWorkspace.Core.Runtime;
 using RKWorkspace.Core.TransferObjects;
@@ -251,8 +252,8 @@ internal sealed class MultiWindowWorkspaceContext
 
     private void InitializeWorkspaces()
     {
-        RegisterWorkspace(WorkspaceAId, "Workspace A / Laptop", WorkspacePosition.Center, priority: 10);
-        RegisterWorkspace(WorkspaceBId, "Workspace B / Display Right", WorkspacePosition.Right, priority: 5);
+        RegisterWorkspace(WorkspaceAId, "Arbeitsflaeche A / Laptop", WorkspacePosition.Center, priority: 10);
+        RegisterWorkspace(WorkspaceBId, "Arbeitsflaeche B / Anzeige rechts", WorkspacePosition.Right, priority: 5);
     }
 
     private void RegisterWorkspace(
@@ -298,11 +299,11 @@ internal sealed class MultiWindowWorkspaceContext
 
     private void InitializeObjects()
     {
-        CreateObject(TransferObjectType.Text, "Text Object 1", "text/plain; charset=utf-8", 18, "text-one");
-        CreateObject(TransferObjectType.Text, "Text Object 2", "text/plain; charset=utf-8", 22, "text-two");
-        CreateObject(TransferObjectType.PDF, "PDF Briefing", "application/pdf", 4096, "pdf");
-        CreateObject(TransferObjectType.Image, "Workspace Sketch", "image/png", 8192, "image");
-        CreateObject(TransferObjectType.Link, "Project Link", "text/uri-list", 128, "link");
+        CreateObject(TransferObjectType.Text, "Textobjekt 1", "text/plain; charset=utf-8", 18, "text-one");
+        CreateObject(TransferObjectType.Text, "Textobjekt 2", "text/plain; charset=utf-8", 22, "text-two");
+        CreateObject(TransferObjectType.PDF, "PDF-Kurzinfo", "application/pdf", 4096, "pdf");
+        CreateObject(TransferObjectType.Image, "Workspace-Skizze", "image/png", 8192, "image");
+        CreateObject(TransferObjectType.Link, "Projekt-Link", "text/uri-list", 128, "link");
     }
 
     private void CreateObject(
@@ -376,7 +377,7 @@ internal sealed class MultiWindowWorkspaceContext
     private string BuildDiagnostics()
     {
         var diagnostics = _runtime.GetDiagnostics();
-        return $"Runtime={diagnostics.RuntimeState}; Workspaces={diagnostics.WorkspaceCount}; Objects={diagnostics.TransferObjectCount}; Last={_lastResult}";
+        return $"Runtime={StudioUiText.Display(diagnostics.RuntimeState.ToString())}; Arbeitsflaechen={diagnostics.WorkspaceCount}; Objekte={diagnostics.TransferObjectCount}; Ergebnis={StudioUiText.Display(_lastResult)}";
     }
 
     private void AddLog(string workspaceId, string action, string result, string error)
