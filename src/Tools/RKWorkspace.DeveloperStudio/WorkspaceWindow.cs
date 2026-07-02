@@ -22,11 +22,18 @@ internal sealed class WorkspaceWindow : Form
     private readonly Panel _animationLayer = new();
     private readonly Label _statusHint = new();
     private readonly Label _workspacePreview = new();
+    private readonly Panel _leftEdgeZone = new();
+    private readonly Panel _rightEdgeZone = new();
+    private readonly Label _leftEdgeLabel = new();
+    private readonly Label _rightEdgeLabel = new();
+    private readonly Label _transitionGhost = new();
     private readonly Label _animationCard = new();
     private readonly Label _uxDiagnostics = ValueLabel();
     private readonly System.Windows.Forms.Timer _animationTimer = new();
+    private readonly System.Windows.Forms.Timer _pulseTimer = new();
     private MultiWindowWorkspaceSnapshot? _snapshot;
     private int _animationStep;
+    private int _pulseStep;
 
     public WorkspaceWindow(
         MultiWindowWorkspaceContext context,
@@ -38,14 +45,20 @@ internal sealed class WorkspaceWindow : Form
             ? "RK Arbeitsflaeche A"
             : "RK Arbeitsflaeche B";
         Width = 620;
-        Height = 720;
-        MinimumSize = new Size(520, 620);
+        Height = 744;
+        MinimumSize = new Size(520, 660);
         StartPosition = FormStartPosition.Manual;
         AllowDrop = true;
 
         _context.Changed += OnContextChanged;
         _animationTimer.Interval = 28;
         _animationTimer.Tick += (_, _) => AdvanceAnimation();
+        _pulseTimer.Interval = 120;
+        _pulseTimer.Tick += (_, _) =>
+        {
+            _pulseStep++;
+            RefreshFromContext();
+        };
 
         Controls.Add(BuildLayout());
         ConfigureToolTips();
@@ -59,6 +72,7 @@ internal sealed class WorkspaceWindow : Form
         {
             _context.Changed -= OnContextChanged;
             _animationTimer.Dispose();
+            _pulseTimer.Dispose();
             _toolTip.Dispose();
         }
 
@@ -79,7 +93,7 @@ internal sealed class WorkspaceWindow : Form
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 32));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 38));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 96));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
         root.Controls.Add(BuildHeader(), 0, 0);
         root.Controls.Add(BuildAnimationLayer(), 0, 1);
         root.Controls.Add(Panel("Transferobjekte", BuildObjectPanel()), 0, 2);
@@ -171,6 +185,21 @@ internal sealed class WorkspaceWindow : Form
         _statusHint.ForeColor = Color.FromArgb(48, 62, 78);
         _animationLayer.Controls.Add(_statusHint);
 
+        ConfigureEdgeZone(_leftEdgeZone, _leftEdgeLabel);
+        ConfigureEdgeZone(_rightEdgeZone, _rightEdgeLabel);
+        _animationLayer.Controls.Add(_leftEdgeZone);
+        _animationLayer.Controls.Add(_rightEdgeZone);
+
+        _transitionGhost.AutoSize = false;
+        _transitionGhost.TextAlign = ContentAlignment.MiddleCenter;
+        _transitionGhost.Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold);
+        _transitionGhost.BackColor = Color.FromArgb(255, 252, 240);
+        _transitionGhost.ForeColor = Color.FromArgb(68, 54, 20);
+        _transitionGhost.BorderStyle = BorderStyle.FixedSingle;
+        _transitionGhost.Size = new Size(192, 32);
+        _transitionGhost.Visible = false;
+        _animationLayer.Controls.Add(_transitionGhost);
+
         _workspacePreview.AutoSize = false;
         _workspacePreview.TextAlign = ContentAlignment.MiddleLeft;
         _workspacePreview.Padding = new Padding(8, 0, 8, 0);
@@ -180,7 +209,7 @@ internal sealed class WorkspaceWindow : Form
         _workspacePreview.Size = new Size(248, 54);
         _workspacePreview.Visible = false;
         _animationLayer.Controls.Add(_workspacePreview);
-        _animationLayer.Resize += (_, _) => UpdatePreviewCardLayout();
+        _animationLayer.Resize += (_, _) => UpdateIllusionLayerLayout();
 
         _animationCard.AutoSize = false;
         _animationCard.TextAlign = ContentAlignment.MiddleCenter;
@@ -192,6 +221,20 @@ internal sealed class WorkspaceWindow : Form
         _animationLayer.Controls.Add(_animationCard);
 
         return _animationLayer;
+    }
+
+    private static void ConfigureEdgeZone(Panel panel, Label label)
+    {
+        panel.AutoSize = false;
+        panel.Width = 96;
+        panel.Visible = false;
+        panel.BorderStyle = BorderStyle.FixedSingle;
+        label.Dock = DockStyle.Fill;
+        label.TextAlign = ContentAlignment.MiddleCenter;
+        label.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Bold);
+        label.Padding = new Padding(4);
+        label.AutoEllipsis = true;
+        panel.Controls.Add(label);
     }
 
     private Control BuildObjectPanel()
@@ -258,7 +301,7 @@ internal sealed class WorkspaceWindow : Form
             ? string.Empty
             : $"Vorschau\r\n{_snapshot.SuggestedWorkspacePreview}";
         _workspacePreview.Visible = !string.IsNullOrWhiteSpace(_snapshot.SuggestedWorkspacePreview);
-        UpdatePreviewCardLayout();
+        UpdateIllusionLayer();
         _uxDiagnostics.Text = FormatUxDiagnostics(_snapshot.UxDiagnostics);
         _statusHint.BackColor = _snapshot.IsDropTargetHighlighted
             ? Color.FromArgb(198, 239, 219)
@@ -284,6 +327,7 @@ internal sealed class WorkspaceWindow : Form
         ResizeColumns(_logGrid);
         ApplyColumnHeaders(_historyGrid);
         ApplyColumnHeaders(_logGrid);
+        UpdatePulseTimer();
     }
 
     private void RebuildObjectCards(IReadOnlyCollection<MultiWindowTransferObjectRow> objects)
@@ -315,13 +359,19 @@ internal sealed class WorkspaceWindow : Form
     private Control CreateObjectCard(MultiWindowTransferObjectRow item)
     {
         var canDrag = _context.CanDrag(item.ObjectId, _workspaceId);
+        var pulse = item.IsBeingDragged && (_pulseStep % 6) < 3;
+        var grabbedBackColor = pulse
+            ? Color.FromArgb(218, 235, 255)
+            : Color.FromArgb(232, 243, 255);
         var card = new Panel
         {
-            Width = Math.Max(460, _objectPanel.ClientSize.Width - 42),
-            Height = item.IsBeingDragged ? 104 : 98,
-            BackColor = item.IsBeingDragged ? Color.FromArgb(226, 238, 255) : Color.White,
+            Width = Math.Max(460, _objectPanel.ClientSize.Width - (item.IsBeingDragged ? 34 : 42)),
+            Height = item.IsBeingDragged ? 112 : 98,
+            BackColor = item.IsBeingDragged ? grabbedBackColor : Color.White,
             BorderStyle = item.IsBeingDragged ? BorderStyle.Fixed3D : BorderStyle.FixedSingle,
-            Margin = item.IsBeingDragged ? new Padding(10, 8, 6, 10) : new Padding(8),
+            Margin = item.IsBeingDragged
+                ? new Padding(pulse ? 12 : 10, 7, 5, 11)
+                : new Padding(8),
             Tag = item.ObjectId,
             Cursor = canDrag
                 ? Cursors.Hand
@@ -350,7 +400,7 @@ internal sealed class WorkspaceWindow : Form
         };
         var title = new Label
         {
-            Text = item.DisplayName,
+            Text = item.IsBeingDragged ? $"Gefasst: {item.DisplayName}" : item.DisplayName,
             Dock = DockStyle.Fill,
             Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold),
             AutoEllipsis = true
@@ -364,7 +414,9 @@ internal sealed class WorkspaceWindow : Form
         };
         var detail = new Label
         {
-            Text = $"{StudioUiText.Display(item.ObjectType)} | Status: {StudioUiText.Display(item.State)} | {item.MimeType}",
+            Text = item.IsBeingDragged
+                ? $"{StudioUiText.Display(item.ObjectType)} | Objekt lebt am Cursor | {item.MimeType}"
+                : $"{StudioUiText.Display(item.ObjectType)} | Status: {StudioUiText.Display(item.State)} | {item.MimeType}",
             Dock = DockStyle.Fill,
             ForeColor = Color.FromArgb(87, 98, 112),
             AutoEllipsis = true
@@ -382,10 +434,10 @@ internal sealed class WorkspaceWindow : Form
         WireDragSource(preview, item.ObjectId);
         WireDragSource(detail, item.ObjectId);
         var targetName = _workspaceId == _context.SourceWorkspaceId.ToString()
-            ? "Arbeitsflaeche B"
-            : "Arbeitsflaeche A";
+            ? "Arbeitsflaeche rechts"
+            : "Arbeitsflaeche links";
         var tooltip = canDrag
-            ? $"Dieses Objekt kann nach {targetName} gezogen werden. Beim Loslassen wird der Core-Transfer ausgefuehrt."
+            ? $"Dieses Objekt greifen, an den Rand schieben und nach {targetName} fuehren."
             : "Dieses Objekt liegt nicht in dieser Arbeitsflaeche und kann hier nicht gegriffen werden.";
         _toolTip.SetToolTip(card, tooltip);
         _toolTip.SetToolTip(grid, tooltip);
@@ -427,7 +479,7 @@ internal sealed class WorkspaceWindow : Form
             var edge = DetectCurrentEdge();
             _context.UpdateEdgeSuggestion(_workspaceId, edge);
             args.UseDefaultCursors = false;
-            Cursor.Current = edge == MultiWindowEdge.Right
+            Cursor.Current = edge == MultiWindowEdge.Right || edge == MultiWindowEdge.Left
                 ? Cursors.Hand
                 : Cursors.SizeAll;
         };
@@ -491,10 +543,115 @@ internal sealed class WorkspaceWindow : Form
         _animationTimer.Start();
     }
 
-    private void UpdatePreviewCardLayout()
+    private void UpdateIllusionLayer()
+    {
+        if (_snapshot is null)
+        {
+            return;
+        }
+
+        var isActive = _snapshot.IsObjectGrabbed || _snapshot.IsEdgeCandidateActive || _snapshot.IsEdgeLocked;
+        var pulse = (_pulseStep % 6) < 3;
+        var activeBackColor = _snapshot.IsEdgeLocked
+            ? (pulse ? Color.FromArgb(176, 236, 205) : Color.FromArgb(201, 246, 223))
+            : (pulse ? Color.FromArgb(213, 232, 255) : Color.FromArgb(230, 241, 255));
+        var inactiveBackColor = Color.FromArgb(239, 244, 249);
+        ConfigureEdgeZoneState(
+            _leftEdgeZone,
+            _leftEdgeLabel,
+            _snapshot.ActiveEdge == MultiWindowEdge.Left,
+            isActive,
+            _snapshot.EdgeHotZoneHint,
+            activeBackColor,
+            inactiveBackColor);
+        ConfigureEdgeZoneState(
+            _rightEdgeZone,
+            _rightEdgeLabel,
+            _snapshot.ActiveEdge == MultiWindowEdge.Right,
+            isActive,
+            _snapshot.EdgeHotZoneHint,
+            activeBackColor,
+            inactiveBackColor);
+
+        _transitionGhost.Text = string.IsNullOrWhiteSpace(_snapshot.EdgeGhostObjectName)
+            ? string.Empty
+            : $"{_snapshot.EdgeGhostObjectName}\r\nim Rand";
+        _transitionGhost.Visible = !string.IsNullOrWhiteSpace(_snapshot.EdgeGhostObjectName) &&
+            _snapshot.ActiveEdge != MultiWindowEdge.None;
+        _transitionGhost.BackColor = _snapshot.IsEdgeLocked
+            ? Color.FromArgb(232, 255, 241)
+            : Color.FromArgb(255, 252, 234);
+        _transitionGhost.ForeColor = _snapshot.IsEdgeLocked
+            ? Color.FromArgb(21, 91, 56)
+            : Color.FromArgb(94, 71, 18);
+        UpdateIllusionLayerLayout();
+    }
+
+    private static void ConfigureEdgeZoneState(
+        Panel panel,
+        Label label,
+        bool activeEdge,
+        bool visible,
+        string hint,
+        Color activeBackColor,
+        Color inactiveBackColor)
+    {
+        panel.Visible = visible && activeEdge;
+        panel.BackColor = activeEdge ? activeBackColor : inactiveBackColor;
+        label.BackColor = panel.BackColor;
+        label.ForeColor = activeEdge
+            ? Color.FromArgb(20, 75, 118)
+            : Color.FromArgb(74, 90, 108);
+        label.Text = string.IsNullOrWhiteSpace(hint)
+            ? string.Empty
+            : hint.Replace(" ", "\r\n", StringComparison.Ordinal);
+    }
+
+    private void UpdateIllusionLayerLayout()
     {
         _workspacePreview.Left = Math.Max(8, _animationLayer.ClientSize.Width - _workspacePreview.Width - 10);
         _workspacePreview.Top = 9;
+        var height = Math.Max(1, _animationLayer.ClientSize.Height);
+        _leftEdgeZone.Bounds = new Rectangle(0, 0, _leftEdgeZone.Width, height);
+        _rightEdgeZone.Bounds = new Rectangle(
+            Math.Max(0, _animationLayer.ClientSize.Width - _rightEdgeZone.Width),
+            0,
+            _rightEdgeZone.Width,
+            height);
+
+        if (_snapshot is null)
+        {
+            return;
+        }
+
+        _transitionGhost.Top = Math.Max(8, (height - _transitionGhost.Height) / 2);
+        _transitionGhost.Left = _snapshot.ActiveEdge switch
+        {
+            MultiWindowEdge.Left => -(_transitionGhost.Width / 2),
+            MultiWindowEdge.Right => Math.Max(0, _animationLayer.ClientSize.Width - (_transitionGhost.Width / 2)),
+            _ => 8
+        };
+        _transitionGhost.BringToFront();
+        _workspacePreview.BringToFront();
+        _animationCard.BringToFront();
+    }
+
+    private void UpdatePulseTimer()
+    {
+        var shouldPulse = _snapshot is not null &&
+            (_snapshot.IsObjectGrabbed ||
+                _snapshot.IsEdgeCandidateActive ||
+                _snapshot.IsEdgeLocked ||
+                _snapshot.IsSuccessPulseActive);
+        if (shouldPulse && !_pulseTimer.Enabled)
+        {
+            _pulseTimer.Start();
+        }
+        else if (!shouldPulse && _pulseTimer.Enabled)
+        {
+            _pulseTimer.Stop();
+            _pulseStep = 0;
+        }
     }
 
     private void AdvanceAnimation()
@@ -631,9 +788,12 @@ internal sealed class WorkspaceWindow : Form
         var candidateText = string.IsNullOrWhiteSpace(candidate.TargetWorkspaceId)
             ? "kein Kandidat"
             : $"{candidate.SourceWorkspaceId} -> {candidate.TargetWorkspaceId}";
-        return $"Drag Start: {diagnostics.DragStartCount} | Ziel erkannt: {diagnostics.TargetDetectedCount} | Drop: {diagnostics.DropCount}\r\n" +
-            $"Drag Dauer: {diagnostics.LastDragDurationMs} ms | Transferzeit: {diagnostics.LastTransferDurationMs} ms | Erfolgsquote: {diagnostics.SuccessRatePercent}%\r\n" +
-            $"Erfolgreich: {diagnostics.SuccessfulTransfers} | Fehler: {diagnostics.FailedTransfers} | SessionCandidate: {candidateText}";
+        var grabbedAt = diagnostics.LastGrabbedAt?.ToLocalTime().ToString("HH:mm:ss") ?? "-";
+        var edgeLockedAt = diagnostics.LastEdgeLockedAt?.ToLocalTime().ToString("HH:mm:ss") ?? "-";
+        return $"Greifen: {diagnostics.DragStartCount} um {grabbedAt} | Edge-Lock: {edgeLockedAt} | Richtung: {diagnostics.ActiveDirection}\r\n" +
+            $"Candidate: {diagnostics.CandidateStatus} | Ziel erkannt: {diagnostics.TargetDetectedCount} | Drop: {diagnostics.DropCount}\r\n" +
+            $"Uebergang: {diagnostics.LastTransitionDurationMs} ms | Transfer: {diagnostics.LastTransferDurationMs} ms | Erfolg: {diagnostics.SuccessRatePercent}%\r\n" +
+            $"Ruecktransfer: {diagnostics.ReturnTransferCount} | Fehlversuche: {diagnostics.FailedAttempts} | {candidateText}";
     }
 
     private void ConfigureToolTips()
@@ -643,7 +803,7 @@ internal sealed class WorkspaceWindow : Form
         _toolTip.ReshowDelay = 150;
         _toolTip.SetToolTip(
             _objectPanel,
-            "Transferobjekte in dieser Arbeitsflaeche. In Window A koennen Karten nach Window B gezogen werden.");
+            "Transferobjekte in dieser Arbeitsflaeche. Karten greifen und ueber den Rand zur naechsten Arbeitsflaeche schieben.");
         _toolTip.SetToolTip(
             _historyGrid,
             "Core-Verlauf der Objekte, die in dieser Arbeitsflaeche liegen.");
@@ -660,7 +820,16 @@ internal sealed class WorkspaceWindow : Form
             _workspacePreview,
             "Workspace Preview: zeigt Zielname, Objektanzahl und Status beim magnetischen Randvorschlag.");
         _toolTip.SetToolTip(
+            _leftEdgeZone,
+            "Linke Randzone: zeigt, ob ein Objekt nach links hinaus- oder von links hineingeschoben wird.");
+        _toolTip.SetToolTip(
+            _rightEdgeZone,
+            "Rechte Randzone: zeigt, ob ein Objekt nach rechts hinaus- oder von rechts hineingeschoben wird.");
+        _toolTip.SetToolTip(
+            _transitionGhost,
+            "Ghost-Objekt: zeigt den visuellen Uebergang durch den Arbeitsflaechenrand.");
+        _toolTip.SetToolTip(
             _uxDiagnostics,
-            "Lokale UX-Diagnose fuer Drag-Start, Zielerkennung, Drop, Transferzeit und Erfolgsquote.");
+            "Lokale UX-Diagnose fuer Greifen, Edge-Lock, Uebergang, Transferzeit und Erfolgsquote.");
     }
 }

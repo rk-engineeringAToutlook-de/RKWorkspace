@@ -34,6 +34,8 @@ internal static class Program
             multiWindow.HasTransferredObjectInTarget();
         var roundTripWindow = new MultiWindowWorkspaceContext();
         var roundTripSuccess = roundTripWindow.RunRoundTripDemo();
+        var illusionWindow = new MultiWindowWorkspaceContext();
+        var illusionResult = illusionWindow.RunWorkspaceIllusionDemo();
         var edgeLeft = multiWindow.DetectWindowEdge(5, 0, 200, 24);
         var edgeRight = multiWindow.DetectWindowEdge(195, 0, 200, 24);
         var edgeMiddle = multiWindow.DetectWindowEdge(100, 0, 200, 24);
@@ -78,7 +80,8 @@ internal static class Program
             edgeLogicSuccess &&
             returnTransferSuccess &&
             uxDiagnosticsSuccess &&
-            sessionCandidateReady;
+            sessionCandidateReady &&
+            illusionResult.IsSuccess;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -101,6 +104,15 @@ internal static class Program
         Console.WriteLine($"UxDrop: {uxDiagnostics.DropCount}");
         Console.WriteLine($"UxSuccessRate: {uxDiagnostics.SuccessRatePercent}");
         Console.WriteLine($"WorkspaceSessionCandidate: {(sessionCandidateReady ? "READY" : "FAILED")}");
+        Console.WriteLine($"IllusionGripState: {(illusionResult.GripStateSet ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"IllusionEdgeCandidate: {(illusionResult.EdgeCandidateCreated ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"IllusionEdgeLocked: {(illusionResult.EdgeLockedReached ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"IllusionForwardTransfer: {(illusionResult.ForwardTransferSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"IllusionReturnTransfer: {(illusionResult.ReturnTransferSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"IllusionCandidateCompleted: {(illusionResult.CandidateCompleted ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"IllusionCandidateStatus: {illusionResult.Diagnostics.CandidateStatus}");
+        Console.WriteLine($"IllusionTransitionMs: {illusionResult.Diagnostics.LastTransitionDurationMs}");
+        Console.WriteLine($"IllusionReturnCount: {illusionResult.Diagnostics.ReturnTransferCount}");
         Console.WriteLine($"EdgeTargetLeft: {edgeLeftSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetRight: {edgeRightSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetLogic: {(edgeLogicSuccess ? "SUCCESS" : "FAILED")}");
@@ -115,6 +127,7 @@ internal static class Program
         Console.WriteLine(multiWindowSuccess ? "MultiWindow: SUCCESS" : "MultiWindow: FAILED");
         Console.WriteLine(returnTransferSuccess ? "RoundTrip: SUCCESS" : "RoundTrip: FAILED");
         Console.WriteLine(uxDiagnosticsSuccess ? "UxDiagnostics: SUCCESS" : "UxDiagnostics: FAILED");
+        Console.WriteLine(illusionResult.IsSuccess ? "WorkspaceIllusion: SUCCESS" : "WorkspaceIllusion: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();

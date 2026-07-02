@@ -14,9 +14,15 @@ internal sealed record WorkspaceSessionCandidate
 
     public required TransferDirection Direction { get; init; }
 
+    public required WorkspaceSessionCandidateStatus Status { get; init; }
+
     public required string Reason { get; init; }
 
     public required DateTimeOffset CreatedAt { get; init; }
+
+    public required DateTimeOffset? EdgeLockedAt { get; init; }
+
+    public required DateTimeOffset? CompletedAt { get; init; }
 
     public required bool IsLiveWorkspacePrepared { get; init; }
 
@@ -27,8 +33,11 @@ internal sealed record WorkspaceSessionCandidate
         SourceWorkspaceId = string.Empty,
         TargetWorkspaceId = string.Empty,
         Direction = TransferDirection.Unknown,
+        Status = WorkspaceSessionCandidateStatus.None,
         Reason = string.Empty,
         CreatedAt = DateTimeOffset.MinValue,
+        EdgeLockedAt = null,
+        CompletedAt = null,
         IsLiveWorkspacePrepared = false
     };
 }

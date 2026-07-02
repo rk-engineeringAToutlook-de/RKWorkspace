@@ -1,7 +1,7 @@
 # Multi Window Workspace Prototype
 
 Dokument-ID: RKWS-DEV-MULTI-WINDOW-WORKSPACE-PROTOTYPE
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -33,16 +33,16 @@ Beide Fenster sind echte `Form`-Instanzen. Sie verwenden denselben Runtime-Konte
 
 ## Workspaces
 
-Fenster A:
+Fenster links:
 
-- Workspace Name: `Workspace A / Laptop`
+- Workspace Name: `Arbeitsflaeche links / Laptop`
 - Workspace Type: `SmartDevice`
 - Position: `Center`
 - Status: `Available`
 
-Fenster B:
+Fenster rechts:
 
-- Workspace Name: `Workspace B / Display Right`
+- Workspace Name: `Arbeitsflaeche rechts / Display rechts`
 - Workspace Type: `DisplayNode`
 - Position: `Right`
 - Status: `Available`
@@ -70,26 +70,29 @@ Alle Objekte sind reine Core-Objekte. Es gibt keine echte Datei-, PDF-, Bild- od
 8. Nach Erfolg erscheint das Objekt in Fenster B.
 9. Dasselbe Objekt kann in Fenster B erneut gegriffen und nach Fenster A zurueckgezogen werden.
 
-Beim Ziehen zeigt das Quellfenster einen aktiven Kartenrahmen, eine Statusmeldung und Randziel-Vorschlaege. Der rechte Fensterrand schlaegt Workspace B vor, der linke Fensterrand Workspace A. Eine Workspace Preview zeigt Zielname, Objektanzahl und Status. Diese Logik ist in `MultiWindowWorkspaceContext` gekapselt, damit spaeter echte Monitor- und Bildschirmrand-Erkennung angebunden werden kann.
+Beim Greifen zeigt das Quellfenster einen aktiven Kartenrahmen, Glow, leichte Groessenaenderung, Puls und die Meldung `Objekt gefasst`. Der rechte Fensterrand schlaegt die rechte Arbeitsflaeche vor, der linke Fensterrand die linke Arbeitsflaeche. Eine Workspace Preview zeigt Zielname, Objektanzahl und Status. Die Randzone wird als Uebergang sichtbar: Quelle zeigt `Nach rechts schieben` oder `Nach links schieben`, das Ziel zeigt vor dem Drop einen Eintrittsbereich und ein halb im Rand liegendes Ghost-Objekt. Diese Logik ist in `MultiWindowWorkspaceContext` gekapselt, damit spaeter echte Monitor- und Bildschirmrand-Erkennung angebunden werden kann.
 
 ## Feedback
 
-Fenster B zeigt beim Drag:
+Das Ziel zeigt beim Greifen und Randkontakt:
 
 - Zielhervorhebung
 - Statusanzeige
-- Text `Hier ablegen`
-- Logeintrag `Zielarbeitsflaeche erkannt`
+- Text `uebernimmt`
+- pulsierende Randzone
+- Ghost-Objekt im Rand
+- Logeintrag `Edge Locked`
 
 Nach Drop:
 
-- Fenster A loggt `Objekt wird gezogen` und `Transfer erfolgreich abgeschlossen`
-- Fenster B loggt `Transfer received` und `Transfer erfolgreich abgeschlossen`
+- Quelle loggt `Objekt gefasst` und `Transfer erfolgreich abgeschlossen`
+- Ziel loggt `Objekt tritt ein` und `Transfer erfolgreich abgeschlossen`
 - Fenster B zeigt eine kurze Transferanimation
 - das Ziel leuchtet kurz als Success-Pulse auf
 - History enthaelt `State:Completed`
 - Diagnostics melden `Ergebnis=ERFOLG` und den letzten Transfer
 - UX-Diagnostics zeigen Drag Starts, Zielerkennung, Drops, Transferzeit und Erfolgsquote
+- UX-Diagnostics zeigen Greifzeitpunkt, Edge-Lock, aktive Richtung, Candidate-Status, Uebergangsdauer, Ruecktransfer und Fehlversuche
 - ungueltige Drops loggen `Kein gueltiges Ziel` und lassen das Objekt im Quellfenster
 
 ## Grenzen
@@ -113,7 +116,7 @@ Der Prototyp fuehrt nicht ein:
 
 Beide Fenster laufen im selben Prozess und verwenden denselben Core-Kontext.
 
-`WorkspaceSessionCandidate` ist als interne Vorbereitung vorhanden. Er beschreibt Objekt, Quelle, Ziel und Richtung, wird aber noch nicht fuer Live-Workspace-Funktionen verwendet.
+`WorkspaceSessionCandidate` ist als interne Vorbereitung vorhanden. Er beschreibt Objekt, Quelle, Ziel, Richtung und Status, wird aber noch nicht fuer Live-Workspace-Funktionen verwendet. Sichtbare Statuswerte sind `None`, `Candidate`, `EdgeLocked`, `Completed` und `Cancelled`.
 
 ## Erkenntnisse
 
@@ -158,12 +161,15 @@ Er prueft:
 - UX-Diagnostics melden Drag-Start, Zielerkennung, Drop und 100 Prozent Erfolgsquote.
 - `WorkspaceSessionCandidate` ist vorbereitet.
 - `RoundTrip: SUCCESS`, `UxDiagnostics: SUCCESS`, `WorkspaceSessionCandidate: READY`
+- Workspace Illusion prueft Greifzustand, Edge Candidate, Edge Locked, Transfer A -> B, Transfer B -> A und Candidate Completed.
+- `WorkspaceIllusion: SUCCESS`
 - `MultiWindow: SUCCESS` und `RESULT: SUCCESS` werden ausgegeben.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-02 | MA005.03 Workspace Illusion, Edge-Hot-Zones und Candidate-Status dokumentiert. |
 | 1.2.0 | 2026-07-02 | MA005.02 Workspace Experience Sprint, Ruecktransfer, Preview und UX-Diagnostics dokumentiert. |
 | 1.1.0 | 2026-07-02 | MA005.01 Drag-Feedback, Randziel-Logik und Erfolgs-/Fehlerfeedback dokumentiert. |
 | 1.0.0 | 2026-07-02 | Multi Window Workspace Prototype dokumentiert. |

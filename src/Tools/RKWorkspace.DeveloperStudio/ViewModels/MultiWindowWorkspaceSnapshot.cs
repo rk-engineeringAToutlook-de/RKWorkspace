@@ -14,13 +14,29 @@ internal sealed record MultiWindowWorkspaceSnapshot
 
     public required bool IsDropTargetHighlighted { get; init; }
 
+    public required bool IsObjectGrabbed { get; init; }
+
+    public required bool IsEdgeCandidateActive { get; init; }
+
+    public required bool IsEdgeLocked { get; init; }
+
     public required string ActiveDragObjectId { get; init; }
+
+    public required string ActiveDragSourceWorkspaceId { get; init; }
 
     public required string SuggestedWorkspaceId { get; init; }
 
     public required string SuggestedWorkspaceName { get; init; }
 
     public required string SuggestedWorkspacePreview { get; init; }
+
+    public required MultiWindowEdge ActiveEdge { get; init; }
+
+    public required string EdgeHotZoneHint { get; init; }
+
+    public required string EdgeTransitionHint { get; init; }
+
+    public required string EdgeGhostObjectName { get; init; }
 
     public required string StatusHint { get; init; }
 

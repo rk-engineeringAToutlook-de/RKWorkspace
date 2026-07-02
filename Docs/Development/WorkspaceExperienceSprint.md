@@ -1,7 +1,7 @@
 # Workspace Experience Sprint
 
 Dokument-ID: RKWS-DEV-WORKSPACE-EXPERIENCE-SPRINT
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-02
 
@@ -27,6 +27,8 @@ Die Workspace-Fenster erhalten eine einfache Monitor-Optik mit Rahmen, Titel, Ty
 Transferobjekte werden als Karten dargestellt. Jede Karte zeigt Symbol, Titel, Vorschau und Status. Die Demo-Daten enthalten Text, PDF, Bild und Link. Es werden weiterhin keine echten Payloads uebertragen.
 
 Beim Drag wird die aktive Karte visuell hervorgehoben. Der Kontext schreibt `Objekt wird gezogen`, misst die Drag-Dauer und legt intern einen `WorkspaceSessionCandidate` an. Dieser Kandidat ist nur vorbereitet und besitzt noch keine Live-Funktion.
+
+MA005.03 verfeinert diesen Ablauf: Der erste Zustand heisst sichtbar `Objekt gefasst`, Randkontakt erzeugt erst dann einen `WorkspaceSessionCandidate`, und `EdgeLocked` beschreibt den Moment, in dem die Zielarbeitsflaeche visuell uebernimmt.
 
 Die Randlogik bleibt bewusst GUI-intern:
 
@@ -62,6 +64,7 @@ Der Multi-Window-Prototyp zeigt eine lokale UX-Diagnose mit:
 - erfolgreicher Transferanzahl
 - Fehleranzahl
 - aktuellem `WorkspaceSessionCandidate`
+- ab MA005.03 Greifzeitpunkt, Edge-Lock, aktive Richtung, Kandidatenstatus, Uebergangsdauer und Ruecktransfer-Zaehler
 
 Diese Werte sind keine Telemetrie. Sie dienen nur der lokalen Entwicklung und der manuellen Bewertung des Bediengefuehls.
 
@@ -103,6 +106,7 @@ Erwartet:
 RoundTrip: SUCCESS
 UxDiagnostics: SUCCESS
 WorkspaceSessionCandidate: READY
+WorkspaceIllusion: SUCCESS
 RESULT: SUCCESS
 ```
 
@@ -114,9 +118,11 @@ RESULT: SUCCESS
 - Keine persistierten Workspace-Layouts.
 - Keine echten Dateien, Bilder, PDFs oder Links als Payload.
 - Ruecktransfer nach Abschluss eines Core-Transfers wird im Studio als logische Positionsaktualisierung dargestellt, ohne den Core-Terminalzustand aufzubrechen.
+- Workspace Illusion ist optisch vorbereitet, aber noch kein echter OS- oder Monitoruebertritt.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-02 | MA005.03 Workspace Illusion als Weiterentwicklung dokumentiert. |
 | 1.0.0 | 2026-07-02 | MA005.02 Workspace Experience Sprint dokumentiert. |
