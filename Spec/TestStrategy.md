@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.6.0
+Version: 2.7.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -63,7 +63,7 @@ Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke
 
 Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte, simuliert Pick/Release/Cancel/Place und prueft ab MA006.03-A digitale Hand, freies Ablegen, Ablage-Bubbles und weiche Bewegungsparameter.
 
-Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel.
+Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel. Die verfeinerte Fassung prueft zusaetzlich mindestens fuenf vorbereitete Ablagen, Distanz-Lesbarkeit, `OpeningAblage`, aktive Ablage-Linse und sichtbare menschliche Sprache ohne Transport- oder Geraetejargon.
 
 ## MA003.05 Core Integration Tests
 
@@ -349,10 +349,13 @@ Health: OK
 Handy surface: OK
 Monitor surface: OK
 Room ablagen: OK
+Prepared ablagen: OK
 Initial thing: OK
 Pick removes source: OK
 Source trace: OK
 Monitor preview: OK
+Opening ablage: OK
+Active bubble: OK
 Place on monitor: OK
 Pick from monitor: OK
 Handy preview: OK
@@ -360,6 +363,7 @@ Place on handy: OK
 Free place: OK
 Cancel return: OK
 Human words: OK
+Bubble distance: OK
 Surface bubbles: OK
 RESULT: SUCCESS
 ```
@@ -371,11 +375,16 @@ Der Test prueft:
 - `/surface/handy` ist erreichbar.
 - `/surface/monitor` ist erreichbar.
 - mindestens zwei Ablagen existieren: Handy und Monitor.
+- mindestens fuenf Ablagen sind vorbereitet.
 - das Ding liegt initial auf Ablage Handy.
 - `/api/pick` setzt `carryState` auf `Picked`.
 - Pick entfernt das Ding aus der Ursprungslage.
 - eine Carry Session ist aktiv.
 - Annaherung an Monitor erzeugt Preview auf Monitor.
+- Annaherung an Monitor setzt `OpeningAblage`.
+- die aktive Ablage oeffnet sich als Ablage-Linse.
+- die aktive Ablage zeigt `Hier ablegen`.
+- Monitor zeigt `Rechnung.pdf kommt an`.
 - Place legt das Ding auf Monitor ab.
 - das Ding liegt danach nicht mehr auf Handy.
 - das Ding kann vom Monitor wieder genommen werden.
@@ -383,6 +392,8 @@ Der Test prueft:
 - Place legt das Ding zurueck auf Handy.
 - freies Ablegen ohne aktive Ablage bleibt an aktueller Position.
 - Cancel bringt das Ding zur Quelle zurueck.
+- entfernte Bubbles haben keinen lesbaren Namen.
+- nahe Bubbles haben einen lesbaren Namen.
 - sichtbare Oberflaechen vermeiden technische Sprache.
 - Bubbles existieren auf der Surface.
 
@@ -408,6 +419,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.7.0 | 2026-07-03 | MA006.04 Smoke-Test um fuenf Ablagen, OpeningAblage, Ablage-Linse und Distanz-Lesbarkeit erweitert. |
 | 2.6.0 | 2026-07-03 | MA006.04 Spatial Room Session Smoke-Test dokumentiert. |
 | 2.5.0 | 2026-07-03 | MA006.03-A Smoke-Test fuer digitale Hand, freie Ablage, Ablage-Bubbles und weiche Motion-Parameter dokumentiert. |
 | 2.4.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Smoke-Test dokumentiert. |

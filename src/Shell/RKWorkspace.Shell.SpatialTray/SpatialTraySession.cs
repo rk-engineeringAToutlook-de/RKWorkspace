@@ -15,6 +15,7 @@ public sealed class SpatialTraySession
         _room = new SpatialRoomState
         {
             RoomId = RoomId,
+            Version = "1",
             Ablagen = CreateAblagen(now),
             Things =
             [
@@ -26,6 +27,11 @@ public sealed class SpatialTraySession
                     CurrentState = SpatialThingState.RestingOnAblage,
                     CurrentAblageId = "handy",
                     PositionOnAblage = new SpatialPoint(0.5, 0.46),
+                    Metadata = new Dictionary<string, string>
+                    {
+                        ["humanRole"] = "work-object",
+                        ["sourceExperience"] = "HX-001"
+                    },
                     UpdatedAt = now
                 }
             ],
@@ -80,6 +86,7 @@ public sealed class SpatialTraySession
             return new
             {
                 roomId = _room.RoomId,
+                version = _room.Version,
                 updatedAt = _room.UpdatedAt,
                 state = CurrentState.ToString(),
                 carryState = CarryStateText(),
@@ -220,7 +227,7 @@ public sealed class SpatialTraySession
             {
                 CarrierAblageId = carrier.AblageId,
                 TargetCandidateAblageId = target.AblageId,
-                State = SpatialCarrySessionState.PreviewingOnAblage,
+                State = SpatialCarrySessionState.OpeningAblage,
                 UpdatedAt = now
             };
             ReplaceThing(MainThing() with
@@ -349,7 +356,12 @@ public sealed class SpatialTraySession
                 RelativePosition = "bei mir",
                 Distance = SpatialAblageDistance.VeryNear,
                 LastSeen = now,
-                Position = new SpatialPoint(0.23, 0.68)
+                Position = new SpatialPoint(0.23, 0.68),
+                Metadata = new Dictionary<string, string>
+                {
+                    ["shortName"] = "Handy",
+                    ["roomRole"] = "near-surface"
+                }
             },
             new SpatialAblage
             {
@@ -359,7 +371,12 @@ public sealed class SpatialTraySession
                 RelativePosition = "rechts",
                 Distance = SpatialAblageDistance.Near,
                 LastSeen = now,
-                Position = new SpatialPoint(0.78, 0.42)
+                Position = new SpatialPoint(0.78, 0.42),
+                Metadata = new Dictionary<string, string>
+                {
+                    ["shortName"] = "Monitor",
+                    ["roomRole"] = "wide-surface"
+                }
             },
             new SpatialAblage
             {
@@ -369,7 +386,12 @@ public sealed class SpatialTraySession
                 RelativePosition = "vorne",
                 Distance = SpatialAblageDistance.Medium,
                 LastSeen = now,
-                Position = new SpatialPoint(0.52, 0.20)
+                Position = new SpatialPoint(0.52, 0.20),
+                Metadata = new Dictionary<string, string>
+                {
+                    ["shortName"] = "Tablet",
+                    ["roomRole"] = "mobile-surface"
+                }
             },
             new SpatialAblage
             {
@@ -379,7 +401,12 @@ public sealed class SpatialTraySession
                 RelativePosition = "links",
                 Distance = SpatialAblageDistance.Far,
                 LastSeen = now,
-                Position = new SpatialPoint(0.18, 0.44)
+                Position = new SpatialPoint(0.18, 0.44),
+                Metadata = new Dictionary<string, string>
+                {
+                    ["shortName"] = "Tisch",
+                    ["roomRole"] = "side-surface"
+                }
             },
             new SpatialAblage
             {
@@ -389,7 +416,12 @@ public sealed class SpatialTraySession
                 RelativePosition = "hinten",
                 Distance = SpatialAblageDistance.VeryFar,
                 LastSeen = now,
-                Position = new SpatialPoint(0.55, 0.10)
+                Position = new SpatialPoint(0.55, 0.10),
+                Metadata = new Dictionary<string, string>
+                {
+                    ["shortName"] = "Wand",
+                    ["roomRole"] = "far-surface"
+                }
             }
         ];
     }
@@ -417,6 +449,7 @@ public sealed class SpatialTraySession
             id = ablage.AblageId,
             ablageId = ablage.AblageId,
             displayName = ablage.DisplayName,
+            shortName = ablage.Metadata.TryGetValue("shortName", out var shortName) ? shortName : ablage.DisplayName,
             label = ablage.DisplayName,
             surfaceType = ablage.SurfaceType.ToString(),
             relativePosition = ablage.RelativePosition,
@@ -424,16 +457,19 @@ public sealed class SpatialTraySession
             distance = distance.ToString(),
             state = state.ToString(),
             isAvailable = ablage.IsAvailable,
-            isActive = state == SpatialAblageBubbleState.Active,
+            isActive = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active,
+            opens = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active,
             canReceive = ablage.CanReceive,
             canProvide = ablage.CanProvide,
+            metadata = ablage.Metadata,
             lastSeen = ablage.LastSeen,
             x = ablage.Position.X,
             y = ablage.Position.Y,
             scale = Math.Round(BaseScale(distance) * _configuration.BubbleScaleFactor, 2),
-            nameReadable = forceReadable || state is SpatialAblageBubbleState.Readable or SpatialAblageBubbleState.Active or SpatialAblageBubbleState.Placed,
+            nameReadable = forceReadable || state is SpatialAblageBubbleState.Readable or SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active or SpatialAblageBubbleState.Placed,
             microTextVisible = distance == SpatialAblageDistance.Medium,
-            actionText = state == SpatialAblageBubbleState.Active ? "Hier ablegen" : string.Empty
+            openingText = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active ? "Ablage oeffnet sich" : string.Empty,
+            actionText = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active ? "Hier ablegen" : string.Empty
         };
     }
 
@@ -449,6 +485,7 @@ public sealed class SpatialTraySession
             currentCarryId = thing.CurrentCarryId,
             positionOnAblage = thing.PositionOnAblage,
             previewAblageId = thing.PreviewAblageId,
+            metadata = thing.Metadata,
             updatedAt = thing.UpdatedAt
         };
     }
@@ -529,7 +566,7 @@ public sealed class SpatialTraySession
 
         if (thing.PreviewAblageId == ablageId)
         {
-            return SpatialAblageBubbleState.Active;
+            return SpatialAblageBubbleState.Opening;
         }
 
         return distance switch
@@ -599,7 +636,8 @@ public sealed class SpatialTraySession
             SpatialCarrySessionState.Picked => "Picked",
             SpatialCarrySessionState.Carried => "Carried",
             SpatialCarrySessionState.NearAblage => "NearAblage",
-            SpatialCarrySessionState.PreviewingOnAblage => "NearAblage",
+            SpatialCarrySessionState.OpeningAblage => "OpeningAblage",
+            SpatialCarrySessionState.PreviewingOnAblage => "PreviewingOnAblage",
             SpatialCarrySessionState.Placed => "Placed",
             SpatialCarrySessionState.Cancelled => "Cancelled",
             _ => "OnTray"
@@ -611,7 +649,9 @@ public sealed class SpatialTraySession
         if (_room.ActiveCarry?.CarrierAblageId == viewerAblageId &&
             thing.CurrentState is SpatialThingState.Carried or SpatialThingState.PreviewOnAblage)
         {
-            return "Ding liegt in deiner Hand";
+            return thing.CurrentState == SpatialThingState.PreviewOnAblage
+                ? "Ablage oeffnet sich"
+                : "Ding liegt in deiner Hand";
         }
 
         if (thing.PreviewAblageId == viewerAblageId)

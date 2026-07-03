@@ -23,4 +23,6 @@ public sealed record SpatialAblage
     public DateTimeOffset LastSeen { get; init; } = DateTimeOffset.UtcNow;
 
     public SpatialPoint Position { get; init; } = new(0.5, 0.5);
+
+    public IReadOnlyDictionary<string, string> Metadata { get; init; } = new Dictionary<string, string>();
 }

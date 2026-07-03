@@ -34,9 +34,12 @@ public static class SpatialTraySmokeTest
             var initialHandy = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
             var roomHasAblagenOk = HasAblage(initialHandy.RootElement, "handy") &&
                 HasAblage(initialHandy.RootElement, "monitor");
+            var preparedAblagenOk = initialHandy.RootElement.GetProperty("ablagen").GetArrayLength() >= 5;
             var initialThingOk = Thing(initialHandy.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
                 Thing(initialHandy.RootElement).GetProperty("currentState").GetString() == "RestingOnAblage";
             var bubblesOnHandyOk = initialHandy.RootElement.GetProperty("bubbles").GetArrayLength() >= 2;
+            var distanceLanguageOk = !Bubble(initialHandy.RootElement, "beamer").GetProperty("nameReadable").GetBoolean() &&
+                Bubble(initialHandy.RootElement, "monitor").GetProperty("nameReadable").GetBoolean();
 
             using var pickHandy = await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token);
             var pickRemovesFromHandyOk = Thing(pickHandy.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
@@ -54,7 +57,11 @@ public static class SpatialTraySmokeTest
             using var monitorPreview = await GetJsonAsync(client, "/api/state?ablage=monitor", timeout.Token);
             var monitorPreviewOk = Thing(approachMonitor.RootElement).GetProperty("previewAblageId").GetString() == "monitor" &&
                 Thing(approachMonitor.RootElement).GetProperty("currentState").GetString() == "PreviewOnAblage" &&
-                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean();
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean() &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("text").GetString()?.Contains("kommt an", StringComparison.Ordinal) == true;
+            var openingAblageOk = approachMonitor.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "OpeningAblage" &&
+                Bubble(approachMonitor.RootElement, "monitor").GetProperty("opens").GetBoolean();
+            var activeBubbleOk = Bubble(approachMonitor.RootElement, "monitor").GetProperty("actionText").GetString() == "Hier ablegen";
 
             using var placeMonitor = await PostJsonAsync(
                 client,
@@ -116,10 +123,13 @@ public static class SpatialTraySmokeTest
                 handySurfaceOk &&
                 monitorSurfaceOk &&
                 roomHasAblagenOk &&
+                preparedAblagenOk &&
                 initialThingOk &&
                 pickRemovesFromHandyOk &&
                 sourceTraceOk &&
                 monitorPreviewOk &&
+                openingAblageOk &&
+                activeBubbleOk &&
                 placeMonitorOk &&
                 pickFromMonitorOk &&
                 handyPreviewOk &&
@@ -127,6 +137,7 @@ public static class SpatialTraySmokeTest
                 freePlaceOk &&
                 cancelOk &&
                 languageOk &&
+                distanceLanguageOk &&
                 bubblesOnHandyOk;
 
             Console.WriteLine("Spatial Room Smoke Test");
@@ -135,10 +146,13 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Handy surface: {(handySurfaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Monitor surface: {(monitorSurfaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Room ablagen: {(roomHasAblagenOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Prepared ablagen: {(preparedAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Initial thing: {(initialThingOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Pick removes source: {(pickRemovesFromHandyOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Source trace: {(sourceTraceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Monitor preview: {(monitorPreviewOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Opening ablage: {(openingAblageOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Active bubble: {(activeBubbleOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Place on monitor: {(placeMonitorOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Pick from monitor: {(pickFromMonitorOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Handy preview: {(handyPreviewOk ? "OK" : "FAILED")}");
@@ -146,6 +160,7 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Free place: {(freePlaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Cancel return: {(cancelOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Human words: {(languageOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Bubble distance: {(distanceLanguageOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Surface bubbles: {(bubblesOnHandyOk ? "OK" : "FAILED")}");
             Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
@@ -192,7 +207,10 @@ public static class SpatialTraySmokeTest
             "Gerät",
             "Agent",
             "Workspace",
-            "IPC"
+            "IPC",
+            "Empfaenger",
+            "Empfänger",
+            "Sender"
         };
         return forbidden.All(word => !text.Contains(word, StringComparison.Ordinal));
     }
@@ -231,6 +249,13 @@ public static class SpatialTraySmokeTest
         return state.GetProperty("ablagen")
             .EnumerateArray()
             .Any(ablage => ablage.GetProperty("ablageId").GetString() == ablageId);
+    }
+
+    private static JsonElement Bubble(JsonElement state, string ablageId)
+    {
+        return state.GetProperty("bubbles")
+            .EnumerateArray()
+            .Single(ablage => ablage.GetProperty("ablageId").GetString() == ablageId);
     }
 
     private static int FindAvailablePort()

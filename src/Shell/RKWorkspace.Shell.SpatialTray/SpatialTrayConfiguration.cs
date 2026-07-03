@@ -20,9 +20,9 @@ public sealed record SpatialTrayConfiguration
 
     public double MicroTextOpacity { get; init; } = 0.34;
 
-    public double WobbleAmplitude { get; init; } = 0.08;
+    public double WobbleAmplitude { get; init; } = 0.03;
 
-    public double WobbleFrequency { get; init; } = 0.16;
+    public double WobbleFrequency { get; init; } = 0.08;
 
     public double SoftSnapStrength { get; init; } = 0.22;
 

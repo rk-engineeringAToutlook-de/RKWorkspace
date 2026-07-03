@@ -59,7 +59,7 @@ function settleTowardTarget() {
 function clearActiveBubble() {
     activeAblage = null;
     activeBubbleId = null;
-    document.querySelectorAll(".ablage-bubble").forEach((bubble) => bubble.classList.remove("is-active"));
+    document.querySelectorAll(".ablage-bubble").forEach((bubble) => bubble.classList.remove("is-active", "is-opening"));
 }
 
 function activateBubble(bubble) {
@@ -67,6 +67,7 @@ function activateBubble(bubble) {
     activeBubbleId = bubble.dataset.id;
     document.querySelectorAll(".ablage-bubble").forEach((candidate) => {
         candidate.classList.toggle("is-active", candidate === bubble);
+        candidate.classList.toggle("is-opening", candidate === bubble);
     });
 }
 
@@ -97,7 +98,7 @@ async function markNearBubble(bubble) {
     const changed = activeBubbleId !== bubble.dataset.id;
     activateBubble(bubble);
     thing.classList.add("is-carried");
-    setStatus("Hier ablegen");
+    setStatus("Ablage oeffnet sich");
     if (changed) {
         softHaptic(12);
         await post("/api/approach", {
@@ -144,22 +145,26 @@ function renderBubbles(bubbles) {
         node.style.top = `${Math.round(bubble.y * 100)}%`;
         node.style.setProperty("--bubble-scale", bubble.scale);
         node.classList.toggle("is-active", bubble.state === "Active");
+        node.classList.toggle("is-opening", bubble.opens || bubble.state === "Opening");
         node.classList.toggle("is-placed", bubble.state === "Placed");
 
         const dot = document.createElement("span");
         dot.className = "bubble-dot";
         const label = document.createElement("span");
         label.className = "bubble-label";
-        label.textContent = bubble.displayName;
+        label.textContent = bubble.shortName || bubble.displayName;
+        const opening = document.createElement("span");
+        opening.className = "bubble-opening";
+        opening.textContent = bubble.openingText || "";
         const action = document.createElement("span");
         action.className = "bubble-action";
         action.textContent = bubble.actionText || "Hier ablegen";
-        node.append(dot, label, action);
+        node.append(dot, label, opening, action);
 
         node.addEventListener("pointerdown", async (event) => {
             event.preventDefault();
             activateBubble(node);
-            setStatus("Hier ablegen");
+            setStatus("Ablage oeffnet sich");
             softHaptic(10);
             await post("/api/approach", {
                 carrierAblageId: surfaceId,
@@ -172,7 +177,7 @@ function renderBubbles(bubbles) {
 }
 
 function renderState(state) {
-    surfaceName.textContent = state.surface.displayName;
+    surfaceName.textContent = state.surface.shortName || state.surface.displayName;
     surfaceHint.textContent = state.surfaceThing.isPreviewHere ? "kommt an" : "bereit";
     thingName.textContent = state.surfaceThing.displayName;
     thingHint.textContent = state.surfaceThing.text;

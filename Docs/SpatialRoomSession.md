@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -38,6 +38,7 @@ Der Raumzustand wird durch `SpatialRoomState` beschrieben.
 Er enthaelt:
 
 - `RoomId`
+- `Version`
 - `Ablagen`
 - `Things`
 - `ActiveCarry`
@@ -54,6 +55,7 @@ MA006.04 fuehrt Oberflaechen ein:
 /surface/monitor
 /surface/tablet
 /surface/desktop
+/surface/beamer
 ```
 
 Jede Surface ist eine Ablage im Raum.
@@ -74,6 +76,8 @@ Eine Ablage wird durch `SpatialAblage` beschrieben:
 - `CanReceive`
 - `CanProvide`
 - `LastSeen`
+- `Position`
+- `Metadata`
 
 Beispiele:
 
@@ -100,6 +104,8 @@ Es besitzt immer genau einen Zustand:
 - `Lost`
 
 Ein Ding darf nicht gleichzeitig auf einer Ablage liegen und in der digitalen Hand sein.
+
+`Metadata` beschreibt die menschliche Rolle des Dings, nicht technische Nutzdaten. Im Prototyp ist `Rechnung.pdf` ein Arbeitsding, das HX-001 unterstuetzt: `Das gehoert zu meiner Arbeit`.
 
 Beim Greifen gilt:
 
@@ -136,9 +142,33 @@ Zustaende:
 - Picked
 - Carried
 - NearAblage
+- OpeningAblage
 - PreviewingOnAblage
 - Placed
 - Cancelled
+
+`OpeningAblage` beschreibt den Moment, in dem eine Ablage auf Naehe antwortet. Die Ablage wird nicht nur markiert; sie wird praesenter, lesbarer und zeigt eine innere Ablage-Linse.
+
+## Ablage-Linse
+
+Wenn der Mensch sich einer Ablage naehert, entsteht keine technische Zielmarkierung.
+
+Stattdessen oeffnet sich die Ablage ruhig:
+
+- Bubble wird praesent.
+- Name wird lesbar.
+- eine innere Ablage-Flaeche wird sichtbar.
+- `Ablage oeffnet sich` beschreibt den Zustand.
+- `Hier ablegen` erscheint erst bei aktiver Naehe.
+
+Die Distanzsprache ist verbindlich:
+
+- Far: Name nicht lesbar.
+- Medium: Mikrotext.
+- Near: Name lesbar.
+- VeryNear: Name und `Hier ablegen`.
+
+Die Ablage ist damit keine Schaltflaeche, keine Box und kein technisches Ziel. Sie ist eine Moeglichkeit im Raum.
 
 ## Remote Preview
 
@@ -156,6 +186,12 @@ Es ist die Wahrnehmung:
 
 ```text
 Diese Ablage erkennt, dass etwas in ihren Raum kommt.
+```
+
+Die Preview ist eine Ghost-Karte. Sie zeigt nicht, dass etwas uebertragen wurde, sondern nur:
+
+```text
+Etwas kommt in meinen Raum.
 ```
 
 ## Ablegen
@@ -206,6 +242,24 @@ Eine Ablage zeigt sich nicht sofort als Ziel.
 Sie offenbart sich durch Naehe.
 
 Erst wenn der Mensch nahe genug ist, erkennt er, was dort liegt oder moeglich ist.
+
+Ab Version 1.1 oeffnen sich aktive Bubbles als Ablage-Linse. Damit wird Naehe nicht nur ueber Farbe oder Groesse gezeigt, sondern ueber Verhalten.
+
+## Spatial Handover
+
+Spatial Handover ist nur dokumentiert, noch nicht implementiert.
+
+Gemeint ist der spaetere Moment, in dem ein Ding von einer Ablage in eine andere Raumzone weitergereicht wird, ohne wie ein Versand, Upload oder Synchronisationsvorgang zu wirken.
+
+MA006.04 legt dafuer nur die Begriffe und Zustandsgrenzen an:
+
+- ein gemeinsamer Raumzustand.
+- ein Ding existiert genau einmal.
+- eine aktive Carry Session.
+- eine oeffnende Ablage.
+- eine Preview, bevor abgelegt wird.
+
+Es gibt noch kein echtes Handover-Protokoll, keine Discovery, kein Pairing und keine Payload.
 
 ## Endpunkte
 
@@ -262,4 +316,5 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | Ablage-Linse, OpeningAblage, Metadata, Version und Spatial Handover als dokumentierten Zukunftsschritt ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.04 Spatial Room Session dokumentiert. |

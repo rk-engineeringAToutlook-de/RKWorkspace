@@ -7,7 +7,8 @@ public enum SpatialCarrySessionState
     Picked = 2,
     Carried = 3,
     NearAblage = 4,
-    PreviewingOnAblage = 5,
-    Placed = 6,
-    Cancelled = 7
+    OpeningAblage = 5,
+    PreviewingOnAblage = 6,
+    Placed = 7,
+    Cancelled = 8
 }

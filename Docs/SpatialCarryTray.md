@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -65,6 +65,8 @@ Das Ding existiert nur einmal:
 - kann von dort wieder genommen werden
 
 Die Details stehen in `Docs/SpatialRoomSession.md`.
+
+Die verfeinerte MA006.04-Fassung fuehrt `OpeningAblage` und die Ablage-Linse ein. Aktive Ablagen reagieren auf Naehe, werden lesbarer, zeigen eine innere Ablageflaeche und lassen erst dann `Hier ablegen` erscheinen. Mindestens fuenf Ablagen sind im Raum vorbereitet.
 
 ## Projekt
 
@@ -393,6 +395,7 @@ Zusatzfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage und fuenf vorbereitete Ablagen eingeordnet. |
 | 1.2.0 | 2026-07-03 | MA006.04 Spatial Room Session als Erweiterung eingeordnet. |
 | 1.1.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, freie Ablage und Ablage-Bubbles dokumentiert. |
 | 1.0.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Prototype dokumentiert. |

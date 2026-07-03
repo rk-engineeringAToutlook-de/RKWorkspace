@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.10.0
+Version: 1.11.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -27,6 +27,8 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Ablage | Ablage | Ort im Raum, auf dem ein digitales Ding abgelegt werden kann. | Nicht als Geraet, Host oder technisches Ziel beschreiben. |
 | Ablage Compass | Ablage-Kompass | Ruhige Orientierung, welche Ablagen im Raum erreichbar sind. | Nicht als Bildschirmrand-Logik oder Device-Liste darstellen. |
 | Ablage Bubble | Ablage-Bubble | Weiche, raeumliche Moeglichkeit, auf der ein digitales Ding abgelegt werden kann. | Keine Schaltflaeche, keine Box, kein technisches Ziel. |
+| Ablage Lens | Ablage-Linse | Oeffnende innere Ablageflaeche, die bei aktiver Naehe sichtbar wird und zeigt, dass hier abgelegt werden kann. | Nicht als technische Zielmarkierung, Button oder Drop-Zone darstellen. |
+| OpeningAblage | Oeffnende Ablage | Carry-Zustand, in dem eine Ablage auf Naehe antwortet, lesbar wird und `Hier ablegen` zeigt. | Nicht als abgeschlossene Platzierung oder Transportstatus verstehen. |
 | Microtext | Mikrotext | Sehr kleine, transparente oder unscharfe Beschriftung, die Naehe andeutet, aber noch nicht voll lesbar ist. | Nicht als normale UI-Beschriftung behandeln. |
 | Distance Readability | Distanz-Lesbarkeit | Prinzip, dass Ablagen erst bei ausreichender Naehe klar lesbar werden. | Nicht alle Ziele sofort voll beschriften. |
 | Soft Snap | Weiches Einrasten | Subtiles Annaehern und Orientieren an einer Ablage ohne harte Sprungbewegung. | Kein aggressiver Magnetismus und kein hartes Snapping. |
@@ -35,6 +37,7 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Spatial Room State | SpatialRoomState / Raumzustand | Modell fuer RoomId, Ablagen, Things, ActiveCarry und UpdatedAt. | Keine technische Transport-Session. |
 | Surface | Surface / Oberflaeche | Sichtbare Ansicht einer Ablage, z. B. Handy oder Monitor. | Keine App-Rolle, kein Client, kein Device. |
 | Remote Preview | Remote Preview / Ankommendes Ding | Zielablage sieht ein Ding bereits kommen, bevor es dort abgelegt wird. | Nicht als empfangene Datei oder abgeschlossener Transfer formulieren. |
+| Spatial Handover | Raeumliches Weiterreichen | Dokumentierter Zukunftsschritt fuer das natuerliche Weiterreichen eines Dings durch den gemeinsamen Raum. | Noch nicht implementiert; kein Protokoll, kein Pairing, keine Payload. |
 | Carry Session | Carry Session / Tragehandlung | Laufende menschliche Handlung: Quelle, tragende Ablage, Zielkandidat und Zustand. | Nicht als Datenuebertragung oder Netzwerkverbindung verstehen. |
 | Digital Room | Digitaler Raum | Gemeinsamer Arbeitsraum, in dem Menschen, digitale Dinge und Arbeitsflaechen existieren. | Nicht als Netzwerk, Plattformverbund oder Geraeteliste beschreiben. |
 | Workspace Room | Arbeitsraum | Benutzerperspektive auf alle aktuell verfuegbaren Arbeitsflaechen. | Endet nicht am Bildschirmrand oder Monitor. |
@@ -103,6 +106,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.11.0 | 2026-07-03 | Begriffe fuer Ablage-Linse, OpeningAblage und Spatial Handover ergaenzt. |
 | 1.10.0 | 2026-07-03 | MA006.04 Begriffe fuer Spatial Room Session, Raumzustand, Surface, Remote Preview und Carry Session ergaenzt. |
 | 1.9.0 | 2026-07-03 | MA006.03-A Begriffe fuer Ablage-Bubbles, Mikrotext, Distanz-Lesbarkeit, weiches Einrasten und freies Ablegen ergaenzt. |
 | 1.8.0 | 2026-07-03 | MA006.03 Begriffe fuer digitales Tablett, Ablage und Ablage-Kompass ergaenzt. |

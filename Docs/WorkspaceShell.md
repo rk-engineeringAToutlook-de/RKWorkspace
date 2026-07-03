@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -179,6 +179,7 @@ SpatialRoomState
 Es beschreibt:
 
 - `RoomId`
+- `Version`
 - `Ablagen`
 - `Things`
 - `ActiveCarry`
@@ -198,6 +199,10 @@ Alle Ablagen sind gleichberechtigt.
 Das Ding existiert nur einmal. Wenn es genommen wird, ist `CurrentAblageId = null` und `CurrentCarryId` verweist auf die aktive Carry Session. Dadurch liegt es nicht mehr auf der Ursprungslage.
 
 Eine Zielablage sieht das Ding bereits als Preview, bevor es endgueltig abgelegt wird.
+
+Ab der verfeinerten MA006.04-Fassung reagiert eine Zielablage mit `OpeningAblage`: Die Ablage oeffnet sich als ruhige Ablage-Linse, macht ihren Namen erst durch Naehe lesbar und zeigt `Hier ablegen` nur im aktiven Moment. `SpatialRoomState`, `SpatialAblage` und `SpatialThing` tragen dafuer Version und Metadata, ohne daraus technische Transportlogik zu machen.
+
+Spatial Handover ist nur dokumentiert. Es gibt noch kein Handover-Protokoll, keine Discovery, kein Pairing und keine echte Payload.
 
 Details: `Docs/SpatialRoomSession.md`
 
@@ -344,6 +349,7 @@ MA006.04 baut zusaetzlich noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage, Version/Metadata und dokumentiertes Spatial Handover ergaenzt. |
 | 1.5.0 | 2026-07-03 | MA006.04 Spatial Room Session, gleichberechtigte Surfaces und einheitlichen Raumzustand dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, Ablage-Bubbles und freies Ablegen ergaenzt. |
 | 1.3.0 | 2026-07-03 | MA006.03 Spatial Carry Tray als neuen Wahrnehmungspfad dokumentiert. |

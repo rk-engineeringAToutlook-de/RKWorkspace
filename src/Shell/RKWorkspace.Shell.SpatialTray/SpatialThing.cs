@@ -19,4 +19,6 @@ public sealed record SpatialThing
     public string? PreviewAblageId { get; init; }
 
     public DateTimeOffset UpdatedAt { get; init; } = DateTimeOffset.UtcNow;
+
+    public IReadOnlyDictionary<string, string> Metadata { get; init; } = new Dictionary<string, string>();
 }
