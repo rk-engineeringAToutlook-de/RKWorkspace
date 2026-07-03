@@ -222,3 +222,26 @@ if (-not $overlayText.Contains('OverlaySmoke: SUCCESS')) {
 if (-not $overlayText.Contains('RESULT: SUCCESS')) {
     throw "Workspace Overlay Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Spatial Carry Tray Smoke Test'
+Write-Host '-----------------------------'
+$spatialTrayOutput = & (Join-Path $root 'tools\run-spatial-tray.ps1') -SmokeTest 2>&1
+$spatialTrayExitCode = $LASTEXITCODE
+$spatialTrayOutput | ForEach-Object { Write-Host $_ }
+if ($spatialTrayExitCode -ne 0) {
+    throw "Spatial Carry Tray Smoke Test failed with exit code $spatialTrayExitCode."
+}
+
+$spatialTrayText = $spatialTrayOutput -join [Environment]::NewLine
+if (-not $spatialTrayText.Contains('Spatial Tray Smoke Test')) {
+    throw "Spatial Carry Tray Smoke Test failed because output did not contain Spatial Tray Smoke Test."
+}
+
+if (-not $spatialTrayText.Contains('Simulated place: OK')) {
+    throw "Spatial Carry Tray Smoke Test failed because output did not contain Simulated place: OK."
+}
+
+if (-not $spatialTrayText.Contains('RESULT: SUCCESS')) {
+    throw "Spatial Carry Tray Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

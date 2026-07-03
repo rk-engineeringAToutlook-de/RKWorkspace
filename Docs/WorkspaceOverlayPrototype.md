@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -10,6 +10,14 @@ Datum: 2026-07-03
 MA006.02 fuehrt erstmals eine sichtbare Workspace-Shell-Ebene ueber dem echten Desktop ein.
 
 Der Prototyp ist keine App, kein Developer Studio und keine Panel-Oberflaeche. Er ist eine transparente Ebene ueber dem Desktop, die nur sichtbar wird, wenn ein Mensch ein digitales Ding nimmt, traegt oder ablegt.
+
+## Einordnung Nach MA006.03
+
+Der Vollbild-Desktop-Overlay-Prototyp bleibt ein technisches Experiment.
+
+Er ist nicht mehr der Hauptpfad fuer das Human-Experience-Ziel. Das Raumgefuehl entsteht voraussichtlich staerker durch ein Geraet in der Hand: Handy oder Tablet als digitales Tablett, Desktop und Monitor als Ablagen im Raum.
+
+MA006.03 verfolgt diesen neuen Testpfad im Dokument `Docs/SpatialCarryTray.md`.
 
 ## Projekt
 
@@ -160,4 +168,5 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | MA006.03 eingeordnet: Desktop-Overlay bleibt Experiment, Spatial Carry Tray wird neuer Wahrnehmungstest. |
 | 1.0.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype dokumentiert. |

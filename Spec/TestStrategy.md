@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.3.0
+Version: 2.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -60,6 +60,8 @@ Ab MA005.00 prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Multi Windo
 Ab MA006.01 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Shell Smoke-Test mit `tools/run-shell.ps1 -Once`. Dieser Test startet den vorbereiteten Shell-Produktpfad ohne Hauptfenster, prueft den Runtime-Status und beendet den Prozess wieder sauber.
 
 Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke-Test mit `tools/run-shell.ps1 -OverlaySmokeTest`. Dieser Test initialisiert den Windows-Overlay-Prototyp ohne manuelle Bedienung und prueft Overlay-State, Carry-State-Kompatibilitaet, Demo-Ding, Ablagen und sicheren Exit-Pfad.
+
+Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte und simuliert das Ablegen.
 
 ## MA003.05 Core Integration Tests
 
@@ -325,6 +327,46 @@ Der Test prueft nicht:
 - Explorer-, Browser-, Office- oder Mail-Adapter.
 - Netzwerk, Discovery oder Pairing.
 
+## MA006.03 Spatial Carry Tray Prototype Tests
+
+MA006.03 fuehrt `src/Shell/RKWorkspace.Shell.SpatialTray/` und `tools/run-spatial-tray.ps1` ein. Der Prototyp ist ein lokaler Webserver mit statischer HTML/CSS/JavaScript-Oberflaeche fuer Handy oder Tablet.
+
+Der Smoke-Test fuehrt aus:
+
+```powershell
+.\tools\run-spatial-tray.ps1 -SmokeTest
+```
+
+Erwartete Ausgabe:
+
+```text
+Spatial Tray Smoke Test
+Server: OK
+Tray endpoint: OK
+Ablage endpoint: OK
+Demo thing: OK
+Simulated place: OK
+RESULT: SUCCESS
+```
+
+Der Test prueft:
+
+- lokaler Server startet mit Timeout-Schutz.
+- `/health` ist erreichbar.
+- `/tray` zeigt das mobile digitale Tablett.
+- `/api/state` meldet das Demo-Ding.
+- `/api/place` setzt den Zustand `Placed`.
+- `/ablage` zeigt danach `Hier liegt jetzt: Rechnung.pdf`.
+
+Der Test prueft nicht:
+
+- echtes Handy oder Tablet.
+- echte Payload.
+- Discovery.
+- Pairing.
+- Kamera, UWB oder Raumvermessung.
+- Sicherheitsschicht.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -336,6 +378,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.4.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Smoke-Test dokumentiert. |
 | 2.3.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype Smoke-Test dokumentiert. |
 | 2.2.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host Smoke-Test dokumentiert. |
 | 2.1.0 | 2026-07-02 | MA005.00 Multi Window Workspace Prototype Smoke-Test dokumentiert. |

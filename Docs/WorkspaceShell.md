@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -123,6 +123,32 @@ Der Smoke-Test:
 
 Der Prototyp zeigt eine transparente Ebene ueber dem echten Desktop, ein einzelnes digitales Ding und zwei Ablagen am linken und rechten Bildschirmrand. `Esc` beendet die Ebene sicher.
 
+Ab MA006.03 bleibt dieser Desktop-Overlay-Prototyp erhalten, ist aber nicht mehr der Hauptpfad fuer das Raumgefuehl.
+
+## Spatial Carry Tray Prototype
+
+MA006.03 fuehrt den neuen Wahrnehmungspfad ein:
+
+```text
+src/Shell/RKWorkspace.Shell.SpatialTray
+```
+
+Der lokale Web-Prototyp wird auf dem Desktop gestartet und auf Handy oder Tablet im Browser geoeffnet. Das mobile Geraet wird als digitale Hand oder digitales Tablett gedacht. Desktop und Monitor erscheinen nur als Ablagen im Raum.
+
+Start:
+
+```powershell
+.\tools\run-spatial-tray.ps1
+```
+
+Smoke-Test:
+
+```powershell
+.\tools\run-spatial-tray.ps1 -SmokeTest
+```
+
+MA006.03 enthaelt keine Discovery, kein Pairing, keine Cloud, keine native Mobile-App und kein echtes Payload-System.
+
 ## Human Experience Referenz
 
 Workspace Shell verweist ausdruecklich auf:
@@ -240,10 +266,21 @@ MA006.02 baut noch nicht:
 - produktive Overlay-Persistenz
 - Netzwerk, Discovery oder Pairing
 
+MA006.03 baut noch nicht:
+
+- Discovery
+- Pairing
+- Sicherheitsschicht
+- echtes Payload-System
+- native iOS- oder Android-App
+- Kamera- oder UWB-Raumvermessung
+- finale Produkt-UI
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | MA006.03 Spatial Carry Tray als neuen Wahrnehmungspfad dokumentiert. |
 | 1.2.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype und Overlay-States dokumentiert. |
 | 1.1.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host und Shell-Smoke dokumentiert. |
 | 1.0.0 | 2026-07-03 | MA006.00 Workspace Shell Foundation dokumentiert. |

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Digitales Tablett</title>
+    <link rel="stylesheet" href="/tray.css">
+</head>
+<body>
+    <main class="tray-shell">
+        <section class="tray-surface" aria-label="Digitales Tablett">
+            <p class="eyebrow">Digitales Tablett</p>
+            <h1>Digitales Ding</h1>
+            <button id="thing" class="thing-card" type="button" aria-label="Digitales Ding nehmen">
+                <span class="thing-name">Rechnung.pdf</span>
+                <span class="thing-hint">liegt auf deinem Tablett</span>
+            </button>
+            <p id="status" class="status">Ding liegt auf dem Tablett</p>
+        </section>
+
+        <section class="compass" aria-label="Ablage-Kompass">
+            <div class="compass-ring">
+                <button class="ablage-point ablage-front" type="button" data-ablage="Ablage Schreibtisch">
+                    <span>Ablage Schreibtisch</span>
+                </button>
+                <button class="ablage-point ablage-right" type="button" data-ablage="Ablage Monitor">
+                    <span>Ablage Monitor</span>
+                </button>
+                <button class="ablage-point ablage-left" type="button" data-ablage="Ablage links">
+                    <span>Ablage links</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="actions" aria-label="Ablageaktion">
+            <button id="place" class="place-button" type="button">Hier ablegen</button>
+        </section>
+    </main>
+    <script src="/tray.js"></script>
+</body>
+</html>

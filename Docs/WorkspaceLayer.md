@@ -1,7 +1,7 @@
 # Workspace Layer
 
 Dokument-ID: RKWS-WORKSPACE-LAYER
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -51,6 +51,14 @@ src/Shell/RKWorkspace.Shell.Overlay.Windows
 
 Das Overlay ist keine App-Ebene. Es ist eine transparente Workspace-Ebene ueber dem echten Desktop. Es zeigt nur ein Demo-Ding und linke/rechte Ablagen als Orte im Raum.
 
+Ab MA006.03 wird das Desktop-Overlay als technisches Experiment eingeordnet. Der neue Human-Experience-Testpfad ist das Spatial Carry Tray:
+
+```text
+src/Shell/RKWorkspace.Shell.SpatialTray
+```
+
+Hier wird Handy oder Tablet als digitales Tablett getestet. Die Shell denkt Desktop und Monitor als Ablagen im Raum, nicht als Geraete.
+
 ## Ebene 3: Workspace Adapter
 
 Workspace Adapter verbinden bestehende Anwendungen und Umgebungen mit dem Workspace-Raum.
@@ -75,6 +83,7 @@ Die Architektur folgt dieser Richtung:
 flowchart TB
     HX["Human Experience"] --> Shell["Workspace Shell"]
     Shell --> Overlay["Workspace Overlay"]
+    Shell --> Tray["Spatial Carry Tray"]
     Shell --> Adapter["Workspace Adapter"]
     Adapter --> Apps["Anwendungen und Ablagen"]
 ```
@@ -101,6 +110,7 @@ Es definiert nur die Layer-Regel.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | MA006.03 Spatial Carry Tray als neuen Shell-Wahrnehmungspfad ergaenzt. |
 | 1.2.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype als erste sichtbare Shell-Ebene ergaenzt. |
 | 1.1.0 | 2026-07-03 | MA006.01 Shell Runtime Host als vorbereiteten Produktpfad ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.00 dreistufige Workspace-Layer-Architektur dokumentiert. |
