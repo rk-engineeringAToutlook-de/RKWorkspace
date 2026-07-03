@@ -1,15 +1,17 @@
 # Workspace Experience Lab
 
 Dokument-ID: RKWS-DEV-WORKSPACE-EXPERIENCE-LAB
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
-Datum: 2026-07-02
+Datum: 2026-07-03
 
 ## Zweck
 
 Das Workspace Experience Lab ist ein internes Experimentierlabor im Developer Studio. Es dient nicht dazu, sofort die finale UX zu bauen, sondern viele Bedienvarianten live miteinander vergleichbar zu machen.
 
 Der Owner entscheidet nach Gefuehl. Nicht die technisch erste Loesung gewinnt, sondern die Variante, die sich am natuerlichsten anfuehlt.
+
+Ab HX-LAB-001 ist dieses Lab nicht mehr der fuehrende sichtbare Prozess. Die Darstellungs- und Variantenlogik bleibt als Grundlage erhalten, aber neue Experimente werden im `Human Experience Lab` einer konkreten HX zugeordnet und ueber Wahrnehmung bewertet.
 
 Leitsatz:
 
@@ -157,10 +159,13 @@ RESULT: SUCCESS
 
 Nach manueller Bewertung kann eine Gewinnerkombination in den produktnahen Multi-Window-Prototyp uebernommen werden. Bis dahin bleiben alle Varianten experimentell.
 
+Neue UX-Entscheidungen muessen zusaetzlich eine Human Experience referenzieren. Die Weiterentwicklung laeuft ueber `Docs/Development/HumanExperienceLab.md`.
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | HX-LAB-001 Hinweis auf Human Experience Lab als fuehrenden Prozess ergaenzt. |
 | 1.2.0 | 2026-07-03 | DP-001 mit Tragevarianten, Pick-Carry-Place und Digital Physics dokumentiert. |
 | 1.1.0 | 2026-07-02 | UX-EVO Sprint 1 mit Generationen, Evolutionsbewertung und Statistik dokumentiert. |
 | 1.0.0 | 2026-07-02 | UX-LAB-001 Workspace Experience Lab dokumentiert. |

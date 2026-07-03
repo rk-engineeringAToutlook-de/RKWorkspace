@@ -38,6 +38,7 @@ internal static class Program
         var illusionResult = illusionWindow.RunWorkspaceIllusionDemo();
         var firstContactResult = RunFirstContactSmokeTest();
         var labResult = RunWorkspaceExperienceLabSmokeTest();
+        var humanExperienceLabResult = RunHumanExperienceLabSmokeTest();
         var edgeLeft = multiWindow.DetectWindowEdge(5, 0, 200, 24);
         var edgeRight = multiWindow.DetectWindowEdge(195, 0, 200, 24);
         var edgeMiddle = multiWindow.DetectWindowEdge(100, 0, 200, 24);
@@ -85,7 +86,8 @@ internal static class Program
             sessionCandidateReady &&
             illusionResult.IsSuccess &&
             firstContactResult.IsSuccess &&
-            labResult.IsSuccess;
+            labResult.IsSuccess &&
+            humanExperienceLabResult.IsSuccess;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -133,6 +135,12 @@ internal static class Program
         Console.WriteLine($"LabRating: {(labResult.RatingSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"LabEvolution: {(labResult.EvolutionSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"LabAppliedToMultiWindow: {(labResult.MultiWindowAppliedSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperienceLabStarted: {(humanExperienceLabResult.StartedSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperienceLabExperiment: {(humanExperienceLabResult.ExperimentSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperienceLabObservation: {(humanExperienceLabResult.ObservationSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperienceLabEvolution: {(humanExperienceLabResult.EvolutionSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperienceLabDashboard: {(humanExperienceLabResult.DashboardSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperienceLabActive: {humanExperienceLabResult.ActiveHumanExperience}");
         Console.WriteLine($"EdgeTargetLeft: {edgeLeftSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetRight: {edgeRightSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetLogic: {(edgeLogicSuccess ? "SUCCESS" : "FAILED")}");
@@ -150,6 +158,7 @@ internal static class Program
         Console.WriteLine(illusionResult.IsSuccess ? "WorkspaceIllusion: SUCCESS" : "WorkspaceIllusion: FAILED");
         Console.WriteLine(firstContactResult.IsSuccess ? "FirstContact: SUCCESS" : "FirstContact: FAILED");
         Console.WriteLine(labResult.IsSuccess ? "WorkspaceExperienceLab: SUCCESS" : "WorkspaceExperienceLab: FAILED");
+        Console.WriteLine(humanExperienceLabResult.IsSuccess ? "HumanExperienceLab: SUCCESS" : "HumanExperienceLab: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();
@@ -236,6 +245,58 @@ internal static class Program
         }
     }
 
+    private static HumanExperienceLabSmokeResult RunHumanExperienceLabSmokeTest()
+    {
+        var lab = HumanExperienceLabState.CreateTransient();
+        var initial = lab.GetSnapshot();
+        var startedSuccess = lab.SmokeCheck() &&
+            lab.GetActiveHumanExperienceBlock().Contains("HX-000", StringComparison.Ordinal) &&
+            lab.GetActiveHumanExperienceBlock().Contains("HX-003", StringComparison.Ordinal);
+
+        lab.SetActiveHumanExperience("HX-001");
+        var activeExperiment = lab.GetActiveExperiment();
+        var experimentSuccess =
+            string.Equals(lab.ActiveHumanExperienceId, "HX-001", StringComparison.Ordinal) &&
+            string.Equals(activeExperiment.HumanExperienceId, "HX-001", StringComparison.Ordinal) &&
+            activeExperiment.DisplayName.StartsWith("Experiment ", StringComparison.Ordinal);
+
+        var observation = lab.RecordObservation(
+            HumanExperienceLabRating.Right,
+            "Owner bestaetigt: Das gehoert zu meiner Arbeit.",
+            durationSeconds: 14,
+            repetitions: 2);
+        var snapshot = lab.GetSnapshot();
+        var observationSuccess = snapshot.Observations.Any(item =>
+            string.Equals(item.ExperimentId, activeExperiment.ExperimentId, StringComparison.Ordinal) &&
+            item.Rating == HumanExperienceLabRating.Right &&
+            item.DurationSeconds == 14 &&
+            item.Repetitions == 2 &&
+            string.Equals(item.Comment, observation.Comment, StringComparison.Ordinal));
+        var evolvedExperiment = lab.GetActiveExperiment();
+        var evolutionSuccess =
+            lab.EvolutionStep == initial.EvolutionStep + 1 &&
+            !string.Equals(evolvedExperiment.ExperimentId, activeExperiment.ExperimentId, StringComparison.Ordinal) &&
+            string.Equals(evolvedExperiment.SourceExperimentId, activeExperiment.ExperimentId, StringComparison.Ordinal);
+        var dashboard = lab.GetDashboardText();
+        var dashboardSuccess =
+            dashboard.Contains("Getestete HX: 1", StringComparison.Ordinal) &&
+            dashboard.Contains("Bestaetigte HX: 1", StringComparison.Ordinal) &&
+            lab.GetTimelineText().Contains("Status: bestaetigt", StringComparison.Ordinal);
+        var ownershipSuccess = snapshot.Experiments.All(experiment =>
+            HumanExperienceLabState.HumanExperiences.Any(hx =>
+                string.Equals(hx.Id, experiment.HumanExperienceId, StringComparison.Ordinal)));
+
+        return new HumanExperienceLabSmokeResult
+        {
+            StartedSuccess = startedSuccess,
+            ExperimentSuccess = experimentSuccess && ownershipSuccess,
+            ObservationSuccess = observationSuccess,
+            EvolutionSuccess = evolutionSuccess,
+            DashboardSuccess = dashboardSuccess,
+            ActiveHumanExperience = lab.ActiveHumanExperienceId
+        };
+    }
+
     private sealed record WorkspaceExperienceLabSmokeResult
     {
         public required bool CountsSuccess { get; init; }
@@ -253,6 +314,27 @@ internal static class Program
             RatingSuccess &&
             EvolutionSuccess &&
             MultiWindowAppliedSuccess;
+    }
+
+    private sealed record HumanExperienceLabSmokeResult
+    {
+        public required bool StartedSuccess { get; init; }
+
+        public required bool ExperimentSuccess { get; init; }
+
+        public required bool ObservationSuccess { get; init; }
+
+        public required bool EvolutionSuccess { get; init; }
+
+        public required bool DashboardSuccess { get; init; }
+
+        public required string ActiveHumanExperience { get; init; }
+
+        public bool IsSuccess => StartedSuccess &&
+            ExperimentSuccess &&
+            ObservationSuccess &&
+            EvolutionSuccess &&
+            DashboardSuccess;
     }
 
     private sealed record FirstContactSmokeResult

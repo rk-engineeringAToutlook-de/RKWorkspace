@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 2.0.0
+Version: 2.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -52,7 +52,7 @@ Die zweite Registerkarte enthaelt das bestehende Developer Studio:
 - Unten: Log und Transfer-History.
 - Separat: Multi Window Prototype mit zwei echten Arbeitsflaechen, gemeinsamem Core-Kontext, Objektkarten, Arbeitsflaechenvorschau, Durchgangszonen, Ghost-Kontinuitaet, History, Diagnostics, UX-Diagnose und Log je Fenster.
 
-Die dritte Registerkarte heisst `Digitale Physik`. Sie dient ausschliesslich dem Live-Vergleich von UX-Varianten nach Pick, Carry, Place.
+Die dritte Registerkarte heisst `Human Experience Lab`. Sie dient der lokalen Validierung von Human Experiences. Dort werden nicht Animationen verglichen, sondern Experimente einer HX zugeordnet, bewertet und als Evolution nachvollziehbar gemacht.
 
 ## Aktionen
 
@@ -68,7 +68,7 @@ Minimal verfuegbare Aktionen:
 - Reset Interactive Demo
 - Run Full Interactive Demo
 - Open Multi Window Prototype
-- Digitale Physik: Greifen, Tragen, Durchgang, Kontinuitaet, Ablegen, Aufmerksamkeit, Animation und Geschwindigkeit live umschalten
+- Human Experience Lab: aktive HX sehen, Experiment waehlen, Owner-Bewertung speichern, Timeline und Dashboard pruefen
 
 `Run Full Demo` startet die Runtime, erzeugt `RKWS-Demo-Laptop` und `RKWS-Demo-Display-Right`, erzeugt ein Textobjekt `Hallo von RK Workspace`, fuehrt einen Transfer nach rechts aus und erwartet `SUCCESS`.
 
@@ -76,7 +76,7 @@ Minimal verfuegbare Aktionen:
 
 `Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Arbeitsflaechen fuer den linken und rechten Arbeitsplatz. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Arbeitsflaechen, Dinge, Diagnostics, History, Log und die wichtigsten Aktionen.
 
-`Digitale Physik` stellt ab DP-001 generierte Generationen bereit: 24 Greifvarianten, 12 Tragevarianten, 24 Durchgangsvarianten, 24 Kontinuitaetsvarianten, 20 Ablegevarianten und 8 Aufmerksamkeitsvarianten. Varianten koennen zur Laufzeit gewechselt werden. Jede Variante wird lokal mit den drei Gefuehlsbuttons `Gruen - Das fuehlt sich richtig an`, `Gelb - Fast` oder `Rot - Fuehlt sich falsch an` bewertet. Nach einer Bewertung waehlt das Lab automatisch eine nahe Folgegeneration.
+Das `Human Experience Lab` zeigt HX-000 bis HX-003 dauerhaft, fuehrt Experimente als `Experiment 001`, `Experiment 002` usw. und speichert Owner-Bewertungen lokal. Jede Bewertung erzeugt ein gezieltes Folgeexperiment innerhalb derselben HX. Die fruehere Digitale-Physik-Logik bleibt als Darstellungsgrundlage im Studio vorhanden, ist aber nicht mehr der fuehrende sichtbare Experimentierprozess.
 
 ## First Contact
 
@@ -120,6 +120,38 @@ Beide Fenster verwenden denselben laufenden Core-Kontext mit `RuntimeEngine`, `W
 
 Die Objektkarten koennen per Maus zwischen zwei Arbeitsflaechen bewegt werden. Beim Greifen wechselt die Karte in den Zustand `Genommen`: sie loest sich sichtbar, bekommt Tiefe, Gewicht oder Grip. Die Trage-Generation bestimmt, ob das Objekt direkt, mit Nachlauf, Feder oder spuerbarer Masse reagiert. Der Bildschirmrand wird als Durchgang behandelt: er wird weicher, die andere Arbeitsflaeche nimmt das Objekt an, und ein Ghost-Objekt zeigt Kontinuitaet. Beim Ablegen setzt das Objekt ruhig auf der anderen Arbeitsflaeche auf. Intern nutzt der erste erfolgreiche Ablauf weiterhin `TransferEngine.ExecuteLogicalTransfer()`, aber die sichtbare Sprache beschreibt nehmen, tragen und ablegen.
 
+## Human Experience Lab
+
+Das Human Experience Lab ist die fuehrende Registerkarte fuer neue UX-Entscheidungen. Es zeigt:
+
+- Aktive Human Experience
+- Experiment-Modus
+- Human Experience Timeline
+- Human Experience Dashboard
+- Experiment-Historie
+- Beobachtungsprotokoll
+
+Aktuell sichtbare HX:
+
+- HX-000: Ich bin in meinem Arbeitsraum.
+- HX-001: Das gehoert zu meiner Arbeit.
+- HX-002: Ich habe etwas in meiner Hand.
+- HX-003: Ich trage etwas.
+
+Der Owner bewertet jedes Experiment nur mit:
+
+- Gruen: Das fuehlt sich richtig an.
+- Gelb: Fast.
+- Rot: Nein.
+
+Gespeichert werden HX, Experiment, Datum, Bewertung, Kommentar, Dauer und Wiederholungen. Speicherort:
+
+```text
+%LOCALAPPDATA%\RKWorkspace\human-experience-lab.json
+```
+
+Die Historie bleibt erhalten. Experimente werden nicht geloescht und nicht ueberschrieben.
+
 ## Core-Anbindung
 
 Das Studio verwendet echte Core-Komponenten:
@@ -135,9 +167,11 @@ Der Ablauf wird nicht als separate Studio-Logik dupliziert. Das Studio ruft den 
 
 ## IPC-Hinweis
 
-Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktiven Workspace-Prototyp und den Multi Window Workspace Prototype. Die interaktiven Demos verwenden keinen Local-IPC-Kanal und keine Netzwerkfunktion.
+Developer Studio zeigt lokale Simulationen, Dual-Agent-Diagnose, den interaktiven Workspace-Prototyp, den Multi Window Workspace Prototype und das Human Experience Lab. Die interaktiven Demos verwenden keinen Local-IPC-Kanal und keine Netzwerkfunktion.
 
 Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio. Sie veraendert keine Core-Komponenten und keinen Transport. Die Evolutionslogik arbeitet nur auf Studio-Varianten, lokaler Bewertung und lokaler Statistik.
+
+Das Human Experience Lab veraendert ebenfalls keine Core-Komponenten und keinen Transport. Es speichert nur lokale Experimente und Beobachtungen.
 
 ## Nicht-Ziele
 
@@ -157,6 +191,7 @@ Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio.
 - Der Smoke-Test prueft den Multi-Window-Ablauf, `Run Full Demo`, EdgeTarget-Logik, Roundtrip B nach A, UX-Diagnostics, Workspace Illusion und `WorkspaceSessionCandidate` viewmodelbasiert ohne echte UI-Automation.
 - Der Smoke-Test prueft die Digitale Physik viewmodelbasiert: Variantenanzahl inklusive 12 Tragevarianten, Live-Wechsel, Bewertung, automatische Folgegeneration und Anwendung im Multi-Window-Kontext.
 - Der Smoke-Test prueft First Contact viewmodelbasiert: Startzustand, Greifen, Ablegen, lokale Messwerte und 30-Sekunden-Erfolg.
+- Der Smoke-Test prueft das Human Experience Lab viewmodelbasiert: aktive HX, Experiment-Zuordnung, lokale Beobachtung, gezielte Evolution und Dashboard.
 - Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
@@ -167,13 +202,16 @@ Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio.
 - `WorkspaceSessionCandidate` ist vorbereitet, aber noch keine Live-Workspace-Session.
 - Die Workspace-Illusion ist optisch; echte OS-Hot-Zones, Monitoruebertritt und Live-Sessions sind noch nicht implementiert.
 - Das Workspace Experience Lab ist ein internes Experimentierlabor, kein Produkt und kein Endanwenderwerkzeug.
+- Das Human Experience Lab ist das fuehrende interne Validierungslabor fuer Wahrnehmung, kein Produkt und kein Endanwenderwerkzeug.
 - First Contact ist ein Owner-Testmodus, kein Produktmodus und keine echte Studie mit externer Telemetrie.
 - Lab-Bewertungen, Evolutionsschritt und lokale Statistik werden in `%LOCALAPPDATA%\RKWorkspace\workspace-experience-lab.json` gespeichert.
+- Human-Experience-Experimente und Beobachtungen werden in `%LOCALAPPDATA%\RKWorkspace\human-experience-lab.json` gespeichert.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.1.0 | 2026-07-03 | HX-LAB-001 Human Experience Lab als fuehrende dritte Registerkarte dokumentiert. |
 | 2.0.0 | 2026-07-03 | MA005.04 First Contact mit reduzierter Erstkontakt-Testflaeche dokumentiert. |
 | 1.9.0 | 2026-07-03 | DP-001 Digitale Physik mit Tragevarianten und Pick-Carry-Place dokumentiert. |
 | 1.8.0 | 2026-07-02 | UX Evolution Lab Sprint 1 mit Generationen, Gefuehlsbewertung und Statistik dokumentiert. |

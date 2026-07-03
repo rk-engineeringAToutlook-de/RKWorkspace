@@ -13,6 +13,7 @@ internal sealed class MainWindow : Form
     private readonly FirstContactSurface _firstContactSurface = new();
     private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
     private readonly WorkspaceExperienceLabState _experienceLab = WorkspaceExperienceLabState.Load();
+    private readonly HumanExperienceLabState _humanExperienceLab = HumanExperienceLabState.Load();
     private readonly List<WorkspaceWindow> _workspaceWindows = new();
     private readonly ToolTip _toolTip = new();
     private readonly Dictionary<string, ComboBox> _labVariantCombos = new(StringComparer.Ordinal);
@@ -30,9 +31,24 @@ internal sealed class MainWindow : Form
     private readonly Label _labSpeedLabel = ValueLabel();
     private readonly CheckBox _labAnimationEnabled = new();
     private readonly TrackBar _labSpeed = new();
+    private readonly ComboBox _hxSelector = new();
+    private readonly ComboBox _hxExperimentSelector = new();
+    private readonly Label _hxActive = ValueLabel();
+    private readonly Label _hxExperimentDetail = ValueLabel();
+    private readonly Label _hxTimeline = ValueLabel();
+    private readonly Label _hxDashboard = ValueLabel();
+    private readonly TextBox _hxComment = new();
+    private readonly NumericUpDown _hxDurationSeconds = new();
+    private readonly NumericUpDown _hxRepetitions = new();
+    private readonly RadioButton _hxRatingRight = new();
+    private readonly RadioButton _hxRatingAlmost = new();
+    private readonly RadioButton _hxRatingNo = new();
+    private readonly DataGridView _hxExperimentGrid = CreateGrid();
+    private readonly DataGridView _hxObservationGrid = CreateGrid();
     private TabControl? _tabs;
     private MultiWindowWorkspaceContext? _multiWindowContext;
     private bool _syncingLabControls;
+    private bool _syncingHumanExperienceLabControls;
 
     public MainWindow()
     {
@@ -63,9 +79,11 @@ internal sealed class MainWindow : Form
         };
         Controls.Add(BuildLayout());
         _experienceLab.Changed += OnExperienceLabChanged;
+        _humanExperienceLab.Changed += OnHumanExperienceLabChanged;
         ConfigureToolTips();
         RefreshUi();
         RefreshLabControls();
+        RefreshHumanExperienceLabControls();
     }
 
     protected override void Dispose(bool disposing)
@@ -73,6 +91,7 @@ internal sealed class MainWindow : Form
         if (disposing)
         {
             _experienceLab.Changed -= OnExperienceLabChanged;
+            _humanExperienceLab.Changed -= OnHumanExperienceLabChanged;
             _toolTip.Dispose();
         }
 
@@ -90,8 +109,8 @@ internal sealed class MainWindow : Form
         firstContactPage.Controls.Add(BuildFirstContactLayout());
         var studioPage = new TabPage("Developer Studio");
         studioPage.Controls.Add(BuildDeveloperStudioLayout());
-        var labPage = new TabPage("Digitale Physik");
-        labPage.Controls.Add(BuildExperienceLab());
+        var labPage = new TabPage("Human Experience Lab");
+        labPage.Controls.Add(BuildHumanExperienceLab());
         tabs.TabPages.Add(firstContactPage);
         tabs.TabPages.Add(studioPage);
         tabs.TabPages.Add(labPage);
@@ -202,6 +221,183 @@ internal sealed class MainWindow : Form
             _tabs.SelectedIndex = 0;
         }
 
+        return true;
+    }
+
+    private Control BuildHumanExperienceLab()
+    {
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 3,
+            Padding = new Padding(10)
+        };
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 168));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 48));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 52));
+
+        _hxActive.Dock = DockStyle.Fill;
+        _hxActive.TextAlign = ContentAlignment.TopLeft;
+        _hxActive.Padding = new Padding(8);
+        _hxActive.BorderStyle = BorderStyle.FixedSingle;
+        _hxActive.AutoEllipsis = false;
+
+        _hxTimeline.Dock = DockStyle.Fill;
+        _hxTimeline.TextAlign = ContentAlignment.TopLeft;
+        _hxTimeline.Padding = new Padding(8);
+        _hxTimeline.BorderStyle = BorderStyle.FixedSingle;
+        _hxTimeline.AutoEllipsis = false;
+
+        _hxDashboard.Dock = DockStyle.Fill;
+        _hxDashboard.TextAlign = ContentAlignment.TopLeft;
+        _hxDashboard.Padding = new Padding(8);
+        _hxDashboard.BorderStyle = BorderStyle.FixedSingle;
+        _hxDashboard.AutoEllipsis = false;
+
+        root.Controls.Add(Panel("Aktive Human Experience", _hxActive), 0, 0);
+        root.Controls.Add(Panel("Human Experience Timeline", _hxTimeline), 1, 0);
+        root.Controls.Add(BuildHumanExperienceExperimentPanel(), 0, 1);
+        root.Controls.Add(Panel("Human Experience Dashboard", _hxDashboard), 1, 1);
+        root.Controls.Add(Panel("Experimente", _hxExperimentGrid), 0, 2);
+        root.Controls.Add(Panel("Beobachtungsprotokoll", _hxObservationGrid), 1, 2);
+        return root;
+    }
+
+    private Control BuildHumanExperienceExperimentPanel()
+    {
+        var panel = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 8,
+            Padding = new Padding(6)
+        };
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
+        panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 70));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+
+        _hxSelector.Dock = DockStyle.Fill;
+        _hxSelector.DropDownStyle = ComboBoxStyle.DropDownList;
+        _hxSelector.DisplayMember = nameof(HumanExperienceDefinition.DisplayName);
+        _hxSelector.SelectedIndexChanged += (_, _) =>
+        {
+            if (_syncingHumanExperienceLabControls ||
+                _hxSelector.SelectedItem is not HumanExperienceDefinition definition)
+            {
+                return;
+            }
+
+            _humanExperienceLab.SetActiveHumanExperience(definition.Id);
+        };
+
+        _hxExperimentSelector.Dock = DockStyle.Fill;
+        _hxExperimentSelector.DropDownStyle = ComboBoxStyle.DropDownList;
+        _hxExperimentSelector.DisplayMember = nameof(HumanExperienceExperiment.DisplayName);
+        _hxExperimentSelector.SelectedIndexChanged += (_, _) =>
+        {
+            if (_syncingHumanExperienceLabControls ||
+                _hxExperimentSelector.SelectedItem is not HumanExperienceExperiment experiment)
+            {
+                return;
+            }
+
+            _humanExperienceLab.SetActiveExperiment(experiment.ExperimentId);
+        };
+
+        _hxExperimentDetail.Dock = DockStyle.Fill;
+        _hxExperimentDetail.TextAlign = ContentAlignment.TopLeft;
+        _hxExperimentDetail.Padding = new Padding(4);
+        _hxExperimentDetail.BorderStyle = BorderStyle.FixedSingle;
+        _hxExperimentDetail.AutoEllipsis = false;
+
+        var ratingPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true
+        };
+        _hxRatingRight.Text = "Gruen - Das fuehlt sich richtig an.";
+        _hxRatingAlmost.Text = "Gelb - Fast.";
+        _hxRatingNo.Text = "Rot - Nein.";
+        _hxRatingRight.AutoSize = true;
+        _hxRatingAlmost.AutoSize = true;
+        _hxRatingNo.AutoSize = true;
+        _hxRatingRight.Margin = new Padding(4, 7, 12, 4);
+        _hxRatingAlmost.Margin = new Padding(4, 7, 12, 4);
+        _hxRatingNo.Margin = new Padding(4, 7, 12, 4);
+        ratingPanel.Controls.Add(_hxRatingRight);
+        ratingPanel.Controls.Add(_hxRatingAlmost);
+        ratingPanel.Controls.Add(_hxRatingNo);
+
+        _hxComment.Dock = DockStyle.Fill;
+        _hxComment.Multiline = true;
+        _hxComment.ScrollBars = ScrollBars.Vertical;
+
+        _hxDurationSeconds.Minimum = 0;
+        _hxDurationSeconds.Maximum = 3600;
+        _hxDurationSeconds.Dock = DockStyle.Fill;
+        _hxRepetitions.Minimum = 1;
+        _hxRepetitions.Maximum = 999;
+        _hxRepetitions.Value = 1;
+        _hxRepetitions.Dock = DockStyle.Fill;
+
+        panel.Controls.Add(new Label { Text = "Human Experience", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 0);
+        panel.Controls.Add(_hxSelector, 1, 0);
+        panel.Controls.Add(new Label { Text = "Experiment", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 1);
+        panel.Controls.Add(_hxExperimentSelector, 1, 1);
+        panel.Controls.Add(new Label { Text = "Ziel", Dock = DockStyle.Fill, TextAlign = ContentAlignment.TopLeft }, 0, 2);
+        panel.Controls.Add(_hxExperimentDetail, 1, 2);
+        panel.Controls.Add(new Label { Text = "Bewertung", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 3);
+        panel.Controls.Add(ratingPanel, 1, 3);
+        panel.Controls.Add(new Label { Text = "Kommentar", Dock = DockStyle.Fill, TextAlign = ContentAlignment.TopLeft }, 0, 4);
+        panel.Controls.Add(_hxComment, 1, 4);
+        panel.Controls.Add(new Label { Text = "Dauer Sekunden", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 5);
+        panel.Controls.Add(_hxDurationSeconds, 1, 5);
+        panel.Controls.Add(new Label { Text = "Wiederholungen", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft }, 0, 6);
+        panel.Controls.Add(_hxRepetitions, 1, 6);
+        panel.Controls.Add(Button(
+            "Bewertung speichern",
+            RecordHumanExperienceObservation,
+            "Speichert die Owner-Bewertung lokal im Human Experience Beobachtungsprotokoll."), 1, 7);
+        return Panel("Experiment-Modus", panel);
+    }
+
+    private bool RecordHumanExperienceObservation()
+    {
+        var rating = _hxRatingRight.Checked
+            ? HumanExperienceLabRating.Right
+            : _hxRatingAlmost.Checked
+                ? HumanExperienceLabRating.Almost
+                : _hxRatingNo.Checked
+                    ? HumanExperienceLabRating.No
+                    : HumanExperienceLabRating.NotRated;
+        if (rating == HumanExperienceLabRating.NotRated)
+        {
+            return false;
+        }
+
+        _humanExperienceLab.RecordObservation(
+            rating,
+            _hxComment.Text,
+            (int)_hxDurationSeconds.Value,
+            (int)_hxRepetitions.Value);
+        _hxComment.Clear();
+        _hxDurationSeconds.Value = 0;
+        _hxRepetitions.Value = 1;
+        _hxRatingRight.Checked = false;
+        _hxRatingAlmost.Checked = false;
+        _hxRatingNo.Checked = false;
+        RefreshHumanExperienceLabControls();
         return true;
     }
 
@@ -623,6 +819,106 @@ internal sealed class MainWindow : Form
         ApplyColumnHeaders(_historyGrid);
     }
 
+    private void OnHumanExperienceLabChanged(object? sender, EventArgs args)
+    {
+        if (IsDisposed)
+        {
+            return;
+        }
+
+        if (InvokeRequired)
+        {
+            BeginInvoke(RefreshHumanExperienceLabControls);
+            return;
+        }
+
+        RefreshHumanExperienceLabControls();
+    }
+
+    private void RefreshHumanExperienceLabControls()
+    {
+        _syncingHumanExperienceLabControls = true;
+        try
+        {
+            var snapshot = _humanExperienceLab.GetSnapshot();
+            _hxActive.Text = _humanExperienceLab.GetActiveHumanExperienceBlock();
+            _hxTimeline.Text = _humanExperienceLab.GetTimelineText();
+            _hxDashboard.Text = _humanExperienceLab.GetDashboardText();
+
+            _hxSelector.DataSource = snapshot.HumanExperiences.ToArray();
+            SelectHumanExperience(snapshot.ActiveHumanExperienceId);
+
+            var experiments = _humanExperienceLab.GetExperimentsForHumanExperience(snapshot.ActiveHumanExperienceId).ToArray();
+            _hxExperimentSelector.DataSource = experiments;
+            SelectHumanExperienceExperiment(snapshot.ActiveExperimentId);
+
+            var activeExperiment = experiments.FirstOrDefault(experiment =>
+                    string.Equals(experiment.ExperimentId, snapshot.ActiveExperimentId, StringComparison.Ordinal)) ??
+                experiments.FirstOrDefault();
+            _hxExperimentDetail.Text = activeExperiment is null
+                ? ""
+                : $"{activeExperiment.Title}\r\n\r\n{activeExperiment.Goal}\r\n\r\n{activeExperiment.EvolutionNote}";
+
+            _hxExperimentGrid.DataSource = snapshot.Experiments
+                .Select(experiment => new
+                {
+                    HX = experiment.HumanExperienceId,
+                    Experiment = experiment.DisplayName,
+                    experiment.Title,
+                    experiment.Goal,
+                    Quelle = experiment.SourceExperimentId ?? "-",
+                    Erstellt = experiment.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                })
+                .ToArray();
+            _hxObservationGrid.DataSource = snapshot.Observations
+                .Select(observation => new
+                {
+                    HX = observation.HumanExperienceId,
+                    Experiment = observation.ExperimentId,
+                    Datum = observation.ObservedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
+                    Bewertung = HumanExperienceLabState.RatingLabel(observation.Rating),
+                    observation.Comment,
+                    DauerSekunden = observation.DurationSeconds,
+                    observation.Repetitions
+                })
+                .ToArray();
+            ResizeColumns(_hxExperimentGrid);
+            ResizeColumns(_hxObservationGrid);
+            ApplyColumnHeaders(_hxExperimentGrid);
+            ApplyColumnHeaders(_hxObservationGrid);
+        }
+        finally
+        {
+            _syncingHumanExperienceLabControls = false;
+        }
+    }
+
+    private void SelectHumanExperience(string humanExperienceId)
+    {
+        for (var index = 0; index < _hxSelector.Items.Count; index++)
+        {
+            if (_hxSelector.Items[index] is HumanExperienceDefinition definition &&
+                string.Equals(definition.Id, humanExperienceId, StringComparison.Ordinal))
+            {
+                _hxSelector.SelectedIndex = index;
+                return;
+            }
+        }
+    }
+
+    private void SelectHumanExperienceExperiment(string experimentId)
+    {
+        for (var index = 0; index < _hxExperimentSelector.Items.Count; index++)
+        {
+            if (_hxExperimentSelector.Items[index] is HumanExperienceExperiment experiment &&
+                string.Equals(experiment.ExperimentId, experimentId, StringComparison.Ordinal))
+            {
+                _hxExperimentSelector.SelectedIndex = index;
+                return;
+            }
+        }
+    }
+
     private void OnExperienceLabChanged(object? sender, EventArgs args)
     {
         if (IsDisposed)
@@ -800,6 +1096,21 @@ internal sealed class MainWindow : Form
         _toolTip.SetToolTip(
             _historyGrid,
             "Zeigt den lokalen Verlauf des aktuellen Dings.");
+        _toolTip.SetToolTip(
+            _hxSelector,
+            "Waehlt die Human Experience, zu der das naechste Experiment gehoert.");
+        _toolTip.SetToolTip(
+            _hxExperimentSelector,
+            "Waehlt ein erhaltenes Experiment. Experimente werden nicht ueberschrieben.");
+        _toolTip.SetToolTip(
+            _hxComment,
+            "Speichert die Beobachtung des Owners lokal im Human Experience Protokoll.");
+        _toolTip.SetToolTip(
+            _hxExperimentGrid,
+            "Zeigt alle bisherigen Human-Experience-Experimente mit Herkunft und Ziel.");
+        _toolTip.SetToolTip(
+            _hxObservationGrid,
+            "Zeigt alle lokalen Bewertungen mit Datum, Dauer und Wiederholungen.");
         _toolTip.SetToolTip(
             _capabilities,
             "Faehigkeiten sind die vom Core erkannten Moeglichkeiten der aktuellen Arbeitsflaechen.");
