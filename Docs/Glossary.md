@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.13.0
+Version: 1.14.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -38,6 +38,10 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Glide Into Bubble | In die Bubble gleiten | Sichtbarer Uebergang, bei dem ein getragenes Ding in eine geoeffnete Ablage-Bubble hinein gleitet. | Kein Sprung, kein Teleport und kein Versandgefuehl. |
 | Spatial Portal Carry | Raeumliches Portal-Tragen | Wahrnehmungspfad, bei dem ein Ding aus der Quelle in eine oeffnende Ablage am Rand eintritt und als Ghost im Ziel auftaucht. | Keine echte Portaltechnik, kein Netzwerk und kein Transferstatus. |
 | Ablage Portal | Ablage-Portal | Geoeffnete Ablage-Bubble, die wie ein ruhiger Durchgang in eine andere Ablage wirkt. | Keine Drop-Zone, kein Button, keine technische Zielmarkierung. |
+| Surface Overlay Reset | Surface Overlay Reset | MA006.07-Korrektur, die Radar-/Statusseiten-UI verwirft und die Surface auf Ablage, Ding, Hand und periphere Moeglichkeiten reduziert. | Keine Karte, keine Statusseite, keine App als Erlebnis. |
+| Peripheral Possibility | Periphere Moeglichkeit | Ablage-Hinweis am Rand der Surface, der erst bei aktiver Tragehandlung erscheint. | Nicht dauerhaft sichtbares Ziel und keine Raumkarte. |
+| Empty Surface | Leere Ablageflaeche | Surface-Zustand ohne Ding und ohne sichtbare Bubbles. | Nicht "wartend", nicht "empfangsbereit". |
+| Standalone Surface | Standalone Surface | Browser-Prototyp im PWA-/Vollbildmodus, damit Browser-Chrome im Gefuehlstest verschwindet. | Keine native App und keine finale Produkt-Shell. |
 | Portal Phase | Portalphase | Sichtbarer Zustand einer Ablage-Bubble von `DistantBubble` bis `Placed`. | Beschreibt Wahrnehmung, nicht Datenuebertragung. |
 | SpatialPortalTransition | SpatialPortalTransition | Lokales Wahrnehmungsmodell fuer ThingId, Quelle, Ziel, Progress und visuelle Source-/Target-Anteile. | Kein Handover-Protokoll und kein Payload-Transfer. |
 | SourceVisualProgress | Source Visual Progress | Anteil, wie weit das Ding auf der Quelle optisch in das Portal eingetreten ist. | Nicht mit geloeschter oder gesendeter Datei verwechseln. |
@@ -117,6 +121,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.14.0 | 2026-07-03 | Begriffe fuer Surface Overlay Reset, periphere Moeglichkeit, leere Ablageflaeche und Standalone Surface ergaenzt. |
 | 1.13.0 | 2026-07-03 | Begriffe fuer Spatial Portal Carry, Ablage-Portal, Portalphase, SpatialPortalTransition, Source-/Target-Progress und ReadyToPlace ergaenzt. |
 | 1.12.0 | 2026-07-03 | Begriffe fuer Tactile Carry, Teilverdeckung, Bewegungsvektor-Neigung und Glide Into Bubble ergaenzt. |
 | 1.11.0 | 2026-07-03 | Begriffe fuer Ablage-Linse, OpeningAblage und Spatial Handover ergaenzt. |

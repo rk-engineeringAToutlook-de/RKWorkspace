@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.9.0
+Version: 2.10.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -63,7 +63,7 @@ Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke
 
 Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte, simuliert Pick/Release/Cancel/Place und prueft ab MA006.03-A digitale Hand, freies Ablegen, Ablage-Bubbles und weiche Bewegungsparameter.
 
-Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel. Die verfeinerte Fassung prueft zusaetzlich mindestens fuenf vorbereitete Ablagen, Distanz-Lesbarkeit, `OpeningAblage`, aktive Ablage-Linse und sichtbare menschliche Sprache ohne Transport- oder Geraetejargon. Ab MA006.05 prueft der Smoke-Test zusaetzlich taktile UI-Vorbereitung, Vektor-Neigung, reduzierte Wobble-Werte, weiches Snap, digitale Hand, Ghost vor Place, Glide und gespeicherte Zielposition. Ab MA006.06 prueft er Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Edge-Portal, ReadyToPlace und der Regel, dass das Ding vor `Place` nicht sofort auf die Zielablage springt.
+Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel. Die verfeinerte Fassung prueft zusaetzlich mindestens fuenf vorbereitete Ablagen, Distanz-Lesbarkeit, `OpeningAblage`, aktive Ablage-Linse und sichtbare menschliche Sprache ohne Transport- oder Geraetejargon. Ab MA006.05 prueft der Smoke-Test zusaetzlich taktile UI-Vorbereitung, Vektor-Neigung, reduzierte Wobble-Werte, weiches Snap, digitale Hand, Ghost vor Place, Glide und gespeicherte Zielposition. Ab MA006.06 prueft er Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Edge-Portal, ReadyToPlace und der Regel, dass das Ding vor `Place` nicht sofort auf die Zielablage springt. Ab MA006.07 prueft er zusaetzlich Surface Overlay Reset: keine zentrale Statuskarte, keine Radarstruktur, keine Empty-Bubbles, Bubbles erst beim Tragen, periphere Bubbles, kein sichtbares `Zuruecklegen` und Standalone-/PWA-Vorbereitung.
 
 ## MA003.05 Core Integration Tests
 
@@ -349,6 +349,7 @@ Health: OK
 Handy surface: OK
 Monitor surface: OK
 Tactile UI: OK
+Surface reset UI: OK
 Tactile config: OK
 Wobble reduced: OK
 Soft snap: OK
@@ -358,8 +359,10 @@ Portal prepared: OK
 Room ablagen: OK
 Prepared ablagen: OK
 Initial thing: OK
+Empty hides bubbles: OK
 Pick removes source: OK
 Digital hand: OK
+Peripheral bubbles: OK
 Source trace: OK
 Monitor preview: OK
 Target ghost: OK
@@ -394,9 +397,12 @@ Der Test prueft:
 - mindestens zwei Ablagen existieren: Handy und Monitor.
 - mindestens fuenf Ablagen sind vorbereitet.
 - das Ding liegt initial auf Ablage Handy.
+- Empty zeigt keine Bubbles und keine zentrale Raumkarte.
 - `/api/pick` setzt `carryState` auf `Picked`.
 - Pick entfernt das Ding aus der Ursprungslage.
 - die digitale Hand meldet kompakte Darstellung und Teilverdeckung.
+- Bubbles erscheinen erst nach aktiver Tragehandlung.
+- Bubbles liegen peripher am Rand.
 - eine Carry Session ist aktiv.
 - Annaherung an Monitor erzeugt Preview auf Monitor.
 - Annaherung an Monitor setzt `OpeningAblage`.
@@ -423,6 +429,8 @@ Der Test prueft:
 - sichtbare Oberflaechen vermeiden technische Sprache.
 - statische UI enthaelt Vektor-Neigung, Teilverdeckung, Ablage-Linse und optionale mobile Haptik.
 - statische UI enthaelt Portal-, Entering-, Emerging- und ReadyToPlace-Darstellung.
+- statische UI enthaelt keine Radarstruktur, keine sichtbare Statusseite und keinen sichtbaren Zuruecklege-Button.
+- Web App Manifest bereitet Standalone-Nutzung vor.
 - Motion-Konfiguration enthaelt stark reduzierte Wobble-Werte und weiches Einrasten.
 - Bubbles existieren auf der Surface.
 
@@ -448,6 +456,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.10.0 | 2026-07-03 | MA006.07 Smoke-Test um Surface Overlay Reset, Empty-ohne-Bubbles, periphere Bubbles, keine Radar-/Statusstruktur, kein sichtbares Zuruecklegen und PWA-Vorbereitung erweitert. |
 | 2.9.0 | 2026-07-03 | MA006.06 Smoke-Test um Spatial Portal Carry, PortalTransition, Source-/Target-Progress, Edge-Portal, ReadyToPlace und No-Jump-Regel erweitert. |
 | 2.8.0 | 2026-07-03 | MA006.05 Smoke-Test um taktile UI, Vektor-Neigung, digitale Hand, Ghost, Glide und Zielposition erweitert. |
 | 2.7.0 | 2026-07-03 | MA006.04 Smoke-Test um fuenf Ablagen, OpeningAblage, Ablage-Linse und Distanz-Lesbarkeit erweitert. |

@@ -1,5 +1,4 @@
 const surfaceName = document.querySelector("#surface-name");
-const surfaceHint = document.querySelector("#surface-hint");
 const thing = document.querySelector("#thing");
 const thingName = document.querySelector("#thing-name");
 const thingHint = document.querySelector("#thing-hint");
@@ -8,6 +7,7 @@ const statusText = document.querySelector("#status");
 const placeButton = document.querySelector("#place");
 const cancelButton = document.querySelector("#cancel");
 const compass = document.querySelector("#compass");
+const possibilities = document.querySelector("#possibilities");
 
 const surfaceId = window.location.pathname.split("/").filter(Boolean).pop() || "handy";
 let activeAblage = null;
@@ -172,8 +172,17 @@ function distanceClass(distance) {
     }[distance] || "is-medium";
 }
 
-function renderBubbles(bubbles) {
+function carryIsActive(state) {
+    return Boolean(state.activeCarry) &&
+        ["Picked", "Carried", "NearAblage", "OpeningAblage", "PreviewingOnAblage"].includes(state.activeCarry.state);
+}
+
+function renderBubbles(bubbles, shouldShow) {
     compass.innerHTML = "";
+    if (!shouldShow) {
+        return;
+    }
+
     for (const bubble of bubbles) {
         const node = document.createElement("div");
         node.className = `ablage-bubble ${distanceClass(bubble.distance)}`;
@@ -241,17 +250,20 @@ function renderState(state) {
         heldScale: state.motion?.heldCompactScale ?? tactileConfig.heldScale,
         glideMs: state.motion?.glideIntoBubbleMs ?? tactileConfig.glideMs
     };
+    const bubblesActive = carryIsActive(state);
     surfaceName.textContent = state.surface.shortName || state.surface.displayName;
-    surfaceHint.textContent = state.surfaceThing.isPreviewHere ? "kommt an" : "bereit";
     thingName.textContent = state.surfaceThing.displayName;
     thingHint.textContent = state.surfaceThing.text;
     canPickHere = state.surfaceThing.isHere;
     applySurfaceThingPosition(state.surfaceThing);
     document.body.classList.toggle("is-carrying", state.surfaceThing.isCarriedHere || isPicked);
+    document.body.classList.toggle("is-carry-active", bubblesActive || isPicked);
+    document.body.classList.toggle("is-surface-empty", !state.surfaceThing.visible && !bubblesActive && !isPicked);
     document.body.classList.toggle("is-arriving", state.surfaceThing.isPreviewHere);
     document.body.classList.toggle("is-ready-to-place", state.surfaceThing.readyToPlace);
+    possibilities?.setAttribute("aria-hidden", bubblesActive || isPicked ? "false" : "true");
     updateThingClasses(state.surfaceThing);
-    renderBubbles(state.bubbles);
+    renderBubbles(state.bubbles, bubblesActive || isPicked);
     setStatus(state.status);
 }
 
@@ -279,7 +291,8 @@ thing.addEventListener("pointerdown", async (event) => {
     emptyTrace.classList.add("is-hidden");
     setStatus("Ding genommen");
     softHaptic(8);
-    await post("/api/pick", { carrierAblageId: surfaceId });
+    const state = await post("/api/pick", { carrierAblageId: surfaceId });
+    renderState(state);
 });
 
 thing.addEventListener("pointermove", async (event) => {
@@ -380,7 +393,7 @@ thing.addEventListener("pointerup", async (event) => {
     renderState(state);
 });
 
-placeButton.addEventListener("click", async () => {
+placeButton?.addEventListener("click", async () => {
     const placementPoint = placementPointFromMotion();
     const state = activeAblage
         ? await post("/api/place", {
@@ -402,7 +415,7 @@ placeButton.addEventListener("click", async () => {
     renderState(state);
 });
 
-cancelButton.addEventListener("click", async () => {
+cancelButton?.addEventListener("click", async () => {
     const state = await post("/api/cancel", { carrierAblageId: surfaceId });
     isPicked = false;
     resetThingMotion();

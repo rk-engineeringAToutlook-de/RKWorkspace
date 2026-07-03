@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -57,6 +57,16 @@ MA006.06 fuegt fuer spaetere Overlays eine weitere Regel hinzu:
 - ein Ghost im Ziel ist noch kein finales Ablegen.
 
 Der aktuelle Overlay-Prototyp bleibt unveraendert. Wenn Overlays spaeter wieder Produktpfad werden, muessen sie Spatial Portal Carry respektieren und duerfen nicht in klassisches Drag-and-Drop oder technische Drop-Zones zurueckfallen.
+
+MA006.07 fuegt hinzu:
+
+- ein Overlay darf keine Karte im Zentrum zeigen.
+- ein Overlay darf keine Warteseite sein.
+- Ablagen duerfen nicht dauerhaft als Ziele sichtbar sein.
+- Moeglichkeiten erscheinen erst, wenn der Mensch ein Ding traegt.
+- die reale oder ruhige Flaeche bleibt wichtiger als eine UI-Erklaerung.
+
+Der lokale Browser-Prototyp bereitet dafuer Standalone-/Fullscreen-Nutzung vor. Das ist nur eine Zwischenloesung. Langfristig muss die Surface ueber der echten Umgebung liegen, nicht als eigene Web-App-Welt daneben.
 
 ## Projekt
 
@@ -207,6 +217,7 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-03 | MA006.07 Surface Overlay Reset als Regel fuer keine Karte, keine Statusseite und Bubbles nur bei aktiver Tragehandlung eingeordnet. |
 | 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als spaetere Overlay-Regel fuer Durchgang, Ghost und No-Jump-Verhalten dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.05 taktile Carry-Regeln fuer spaetere Overlays eingeordnet. |
 | 1.3.0 | 2026-07-03 | MA006.04 Spatial Room Session als Bedingung fuer spaetere Overlays eingeordnet. |

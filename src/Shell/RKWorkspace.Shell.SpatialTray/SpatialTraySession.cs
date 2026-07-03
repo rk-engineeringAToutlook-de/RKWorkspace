@@ -81,8 +81,9 @@ public sealed class SpatialTraySession
         {
             var viewer = FindAblageOrDefault(surfaceAblageId ?? "handy");
             var thing = MainThing();
-            var bubbles = CreateBubbles(viewer.AblageId).ToArray();
             var surfaceThing = CreateSurfaceThingSnapshot(viewer.AblageId, thing);
+            var bubblesVisible = ShouldShowBubbles(thing);
+            var bubbles = bubblesVisible ? CreateBubbles(viewer.AblageId).ToArray() : Array.Empty<object>();
             return new
             {
                 roomId = _room.RoomId,
@@ -99,6 +100,7 @@ public sealed class SpatialTraySession
                 portalTransition = _room.ActivePortalTransition is null ? null : CreatePortalTransitionSnapshot(_room.ActivePortalTransition),
                 activeAblage = viewer.DisplayName,
                 activeAblageId = viewer.AblageId,
+                bubblesVisible,
                 compass = bubbles,
                 bubbles,
                 surfaceThing,
@@ -500,6 +502,25 @@ public sealed class SpatialTraySession
                 var state = BubbleStateFor(ablage.AblageId, distance);
                 return CreateAblageSnapshot(ablage, state, distance, false);
             });
+    }
+
+    private bool ShouldShowBubbles(SpatialThing thing)
+    {
+        if (_room.ActiveCarry?.State is not (
+            SpatialCarrySessionState.Picked or
+            SpatialCarrySessionState.Carried or
+            SpatialCarrySessionState.NearAblage or
+            SpatialCarrySessionState.OpeningAblage or
+            SpatialCarrySessionState.PreviewingOnAblage))
+        {
+            return false;
+        }
+
+        return thing.CurrentState is
+            SpatialThingState.Picked or
+            SpatialThingState.Carried or
+            SpatialThingState.ApproachingAblage or
+            SpatialThingState.PreviewOnAblage;
     }
 
     private object CreateAblageSnapshot(

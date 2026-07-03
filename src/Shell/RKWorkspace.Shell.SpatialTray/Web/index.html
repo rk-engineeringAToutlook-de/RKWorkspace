@@ -3,16 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="RK Ablage">
+    <meta name="theme-color" content="#e7e4db">
     <title>Ablage im Raum</title>
+    <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="/tray.css">
 </head>
 <body>
-    <main class="room-shell">
-        <section class="surface" aria-label="Ablage">
-            <p class="eyebrow">Ablage im Raum</p>
-            <h1 id="surface-name">Ablage</h1>
-            <p id="surface-hint" class="surface-hint">bereit</p>
-
+    <main class="surface-shell" aria-label="Ablage im Raum">
+        <section class="surface" aria-label="Ablageflaeche">
+            <h1 id="surface-name" class="surface-name">Ablage</h1>
             <div id="thing" class="thing-card is-hidden" role="button" tabindex="0" aria-label="Digitales Ding nehmen">
                 <span class="hand-zone" aria-hidden="true"></span>
                 <span id="thing-name" class="thing-name">Rechnung.pdf</span>
@@ -20,16 +22,11 @@
             </div>
 
             <div id="empty-trace" class="empty-trace is-hidden">Ding wurde genommen</div>
-            <p id="status" class="status">Ablage bereit</p>
+            <p id="status" class="sr-only" aria-live="polite"></p>
         </section>
 
-        <section class="room-map" aria-label="Raum">
-            <div id="compass" class="compass-ring"></div>
-        </section>
-
-        <section class="actions" aria-label="Aktionen">
-            <button id="place" class="place-button" type="button">Hier ablegen</button>
-            <button id="cancel" class="cancel-button" type="button">Zuruecklegen</button>
+        <section id="possibilities" class="possibilities" aria-label="Moeglichkeiten">
+            <div id="compass" class="possibility-field"></div>
         </section>
     </main>
     <script src="/tray.js"></script>

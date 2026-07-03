@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -71,6 +71,8 @@ Die verfeinerte MA006.04-Fassung fuehrt `OpeningAblage` und die Ablage-Linse ein
 MA006.05 konzentriert diesen Pfad auf den Tactile Mobile Carry Slice: Handy oder Tablet soll weniger wie Webseite und staerker wie digitale Hand wirken. Das Ding loest sich mit kurzem Widerstand, wird kompakter, ist teilweise verdeckt, neigt sich nach Bewegungsvektor und gleitet in die geoeffnete Ablage-Bubble.
 
 MA006.06 erweitert die geoeffnete Bubble zum Spatial Portal Carry. Die Ablage am Rand des Raums wirkt nicht mehr nur wie ein Ziel, sondern wie eine Oeffnung. Das Ding verschwindet teilweise auf der Quelle, erscheint teilweise als Ghost im Ziel und wird erst bei `Place` endgueltig dort abgelegt.
+
+MA006.07 setzt die sichtbare Surface zurueck. Die Radar-/Statusseiten-Darstellung aus MA006.06 war technisch nuetzlich, fuehlte sich aber zu sehr wie Web-App und Raumkarte an. Deshalb zeigt Empty keine Bubbles mehr. Die Surface ist zuerst nur Ablageflaeche. Moeglichkeiten erscheinen erst, wenn ein Ding getragen wird.
 
 ## Projekt
 
@@ -338,6 +340,34 @@ Es wurde uebertragen.
 
 Die Position wird erst beim finalen Ablegen auf der Zielablage gespeichert.
 
+## Surface Overlay Reset
+
+Ab MA006.07 gilt:
+
+```text
+Keine Karte.
+Keine Statusseite.
+Keine App.
+Nur Ablage, Ding, Hand und Raum.
+```
+
+Im Empty-Zustand:
+
+- keine Bubbles.
+- kein Radar-Kreis.
+- keine zentrale Raumgrafik.
+- keine Wartekarte.
+- keine sichtbaren Bedienbuttons.
+
+Beim Tragen:
+
+- Bubbles erscheinen peripher am Rand.
+- Bubbles wirken wie Moeglichkeiten im Raum.
+- aktive Bubble oeffnet sich als Portal.
+- das Ding gleitet hinein statt zu springen.
+
+Die Surface bleibt technisch ein lokaler Browser-Prototyp, ist aber fuer Standalone-/Fullscreen-Nutzung vorbereitet. Fuer den Gefuehlstest soll sie auf Handy oder Tablet zum Startbildschirm hinzugefuegt oder im Vollbildmodus geoeffnet werden.
+
 ## Desktop Als Ablage
 
 Der Desktop zeigt nur ein ruhiges Empfangssignal:
@@ -402,6 +432,7 @@ Zusaetzlich meldet der State:
 - `haptics`: vorbereitete mobile Haptik, Teilverdeckung und optische Haptik
 - `transition`: Ghost vor Place, Gleiten in die Bubble und relative Zielposition
 - `portalTransition`: Source-/Target-Progress, Portalzustand und ReadyToPlace
+- `bubblesVisible`: Bubbles erst bei aktiver Tragehandlung
 - `placement`: Ablage oder freier Raum
 
 ## Human Experience Referenz
@@ -476,6 +507,7 @@ Zusatzfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit Empty-ohne-Bubbles, peripheren Bubbles, entfernter Status-/Radarwirkung und PWA-Vorbereitung dokumentiert. |
 | 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit ruhigem Ablage-Portal, Source-/Target-Progress, ReadyToPlace und No-Jump-Regel dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit Widerstand, Teilverdeckung, Vektor-Neigung, optionaler Haptik und gleitendem Ablegen dokumentiert. |
 | 1.3.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage und fuenf vorbereitete Ablagen eingeordnet. |

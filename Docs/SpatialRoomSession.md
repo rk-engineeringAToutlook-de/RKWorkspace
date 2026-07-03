@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -401,6 +401,31 @@ Die Zielablage wird im Prototyp bewusst am Rand des wahrgenommenen Raums positio
 
 Spaeter kann diese Logik durch echte Raumdaten ersetzt werden, ohne den Human-Experience-Ablauf zu aendern.
 
+## Surface Overlay Reset
+
+MA006.07 verwirft die MA006.06-Radar-/Statusdarstellung als Produktpfad.
+
+Die Logik bleibt:
+
+- Spatial Room Session.
+- Spatial Portal Carry.
+- Portalphasen.
+- Source-/Target-Progress.
+- Ghost vor Place.
+- gespeicherte Zielposition.
+
+Die sichtbare Grunddarstellung wird zurueckgesetzt:
+
+- keine zentrale Statuskarte.
+- keine zentrale Raumkarte.
+- keine permanenten Bubbles.
+- keine sichtbaren technischen Aktionsbuttons.
+- Empty bedeutet: die Surface wirkt leer, nicht wartend.
+- Bubbles erscheinen erst bei aktiver Tragehandlung.
+- Bubbles liegen peripher am Rand der aktuellen Surface.
+
+Der Raum wird dadurch nicht mehr als Karte gezeigt. Er zeigt sich nur noch als Moeglichkeit, wenn der Mensch ein Ding traegt.
+
 ## Endpunkte
 
 MA006.04 stellt bereit:
@@ -456,6 +481,7 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit Empty-ohne-Bubbles, peripheren Moeglichkeiten und verworfener Radar-/Statusdarstellung dokumentiert. |
 | 1.3.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit Portalphasen, SpatialPortalTransition, Source-/Target-Progress und No-Jump-Regel dokumentiert. |
 | 1.2.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit digitaler Hand, Vektor-Neigung, Ghost, Glide und Zielposition dokumentiert. |
 | 1.1.0 | 2026-07-03 | Ablage-Linse, OpeningAblage, Metadata, Version und Spatial Handover als dokumentierten Zukunftsschritt ergaenzt. |

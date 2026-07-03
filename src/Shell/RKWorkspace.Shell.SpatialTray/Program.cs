@@ -37,6 +37,7 @@ try
     Console.WriteLine(diagnostics.TrayUrl);
     Console.WriteLine("Ablage Monitor oeffnen:");
     Console.WriteLine(diagnostics.AblageUrl);
+    Console.WriteLine("Fuer den Gefuehlstest auf Handy oder Tablet: zum Startbildschirm hinzufuegen oder im Vollbildmodus oeffnen.");
     Console.WriteLine("Falls das Handy/Tablet die Adresse nicht erreicht, im selben WLAN die lokale Rechner-IP verwenden.");
     Console.WriteLine("Ctrl+C beendet die lokale Raum-Session.");
 

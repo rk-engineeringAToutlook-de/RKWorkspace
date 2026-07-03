@@ -148,6 +148,7 @@ public sealed class SpatialTrayServer : IAsyncDisposable
         app.MapGet("/tray", () => Results.Redirect("/surface/handy"));
         app.MapGet("/ablage", () => Results.Redirect("/surface/monitor"));
         app.MapGet("/surface/{ablageId}", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
+        app.MapGet("/manifest.webmanifest", () => ServeWebFile("manifest.webmanifest", "application/manifest+json; charset=utf-8"));
         app.MapGet("/tray.css", () => ServeWebFile("tray.css", "text/css; charset=utf-8"));
         app.MapGet("/tray.js", () => ServeWebFile("tray.js", "application/javascript; charset=utf-8"));
     }

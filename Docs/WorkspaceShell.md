@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.8.0
+Version: 1.9.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -226,6 +226,16 @@ MA006.06 erweitert diesen Wahrnehmungspfad um Spatial Portal Carry. Eine Zielabl
 
 Auch dieser Schritt bleibt Shell-Wahrnehmung, nicht Transporttechnik. Es gibt keine Payload, keine Discovery, kein Pairing und keine echte Plattformkopplung.
 
+MA006.07 korrigiert die sichtbare Richtung. Die MA006.06-Logik bleibt, aber die Radar-/Statusseiten-Darstellung wird nicht als Produktpfad fortgefuehrt. Die Surface wird auf eine ruhige Ablageflaeche reduziert:
+
+- Empty zeigt keine Bubbles und keine Karte.
+- Bubbles erscheinen erst bei aktiver Tragehandlung.
+- Bubbles liegen peripher am Rand.
+- sichtbare Abbruch- und Reset-Buttons werden aus dem Erlebnis entfernt.
+- Web App Manifest und Standalone-Modus sind vorbereitet.
+
+Damit folgt die Shell staerker dem Produktgrundsatz: Workspace Shell ist keine Anwendung, sondern der Raum, der nur in Erscheinung tritt, wenn Human Experience entsteht.
+
 Details: `Docs/SpatialRoomSession.md`
 
 ## Human Experience Referenz
@@ -387,10 +397,20 @@ MA006.06 baut weiterhin nicht:
 - echte Raum- oder Monitorerkennung
 - produktive Shell-Persistenz
 
+MA006.07 baut weiterhin nicht:
+
+- native Mobile-App
+- echte transparente Mobile- oder Desktop-Overlay-Schicht
+- OS-Hooks
+- echte Raumvermessung
+- echte Monitorerkennung
+- Discovery, Pairing oder Payload-Transport
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.9.0 | 2026-07-03 | MA006.07 Surface Overlay Reset als Korrektur von Radar-/Statusseite zu ruhiger Ablageflaeche mit Bubbles nur beim Tragen eingeordnet. |
 | 1.8.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als Shell-Wahrnehmungspfad mit Source-/Target-Progress und ReadyToPlace eingeordnet. |
 | 1.7.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit taktilen Wahrnehmungsdaten und gleitendem Ablegen eingeordnet. |
 | 1.6.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage, Version/Metadata und dokumentiertes Spatial Handover ergaenzt. |

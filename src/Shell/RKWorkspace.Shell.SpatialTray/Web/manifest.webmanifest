@@ -1,0 +1,12 @@
+{
+  "name": "RK Workspace Ablage",
+  "short_name": "RK Ablage",
+  "description": "Ruhige Ablageflaeche fuer den RK Workspace Gefuehlstest.",
+  "start_url": "/surface/handy",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e7e4db",
+  "theme_color": "#e7e4db",
+  "categories": ["productivity"]
+}
