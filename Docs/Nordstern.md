@@ -1,9 +1,23 @@
 # RK Workspace Nordstern
 
 Dokument-ID: RKWS-NORDSTERN-001
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
+
+## Hierarchie
+
+Der Nordstern folgt HX-000.
+
+HX-000 definiert den ersten Moment:
+
+> Das ist mein Arbeitsraum.
+
+Der Nordstern beschreibt die daraus folgende Richtung:
+
+> Natuerlich nehme ich das einfach in die Hand und lege es dort ab.
+
+Wenn Nordstern und HX im Widerspruch stehen, gewinnt HX.
 
 ## Warum dieses Dokument existiert
 
@@ -11,7 +25,7 @@ Dieses Dokument beschreibt nicht, wie RK Workspace programmiert wird.
 
 Es beschreibt, warum RK Workspace ueberhaupt existiert.
 
-Wenn zukuenftige Architekturentscheidungen, Implementierungen oder Funktionen diesem Dokument widersprechen, ist dieses Dokument immer wichtiger als der Code.
+Wenn zukuenftige Architekturentscheidungen, Implementierungen oder Funktionen diesem Dokument widersprechen, ist dieses Dokument wichtiger als der Code, solange es HX-000 nicht widerspricht.
 
 ## Unsere Vision
 
@@ -259,8 +273,17 @@ Dann ist RK Workspace fertig.
 
 Nicht frueher.
 
+## Querverweise
+
+- `Spec/HumanExperienceSpecification_HX000.md`
+- `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/EmotionSpecification_ES001.md`
+- `Spec/EmotionSpecification_ES002.md`
+- `Spec/ProductPhilosophy.md`
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | HX-000 als uebergeordnete Human Experience vor dem Nordstern verankert. |
 | 1.0.0 | 2026-07-03 | Nordstern als oberste Projektorientierung angelegt. |

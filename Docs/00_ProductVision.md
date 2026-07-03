@@ -1,11 +1,11 @@
 # 00 Product Vision
 
 Dokument-ID: RKWS-DOC-00  
-Version: 0.4.0
+Version: 0.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
-Diese Produktvision folgt dem Nordstern in `Docs/Nordstern.md`. Der Nordstern ist die hoechste Projektorientierung: RK Workspace soll Menschen digitale Dinge nehmen, tragen und ablegen lassen, ohne dass sie ueber Geraete oder Dateiuebertragung nachdenken muessen.
+Diese Produktvision folgt HX-000 in `Spec/HumanExperienceSpecification_HX000.md` und dem Nordstern in `Docs/Nordstern.md`. RK Workspace beginnt in der Wahrnehmung des Menschen: Der Benutzer erlebt einen Arbeitsraum, nicht mehrere Geraete. Aus diesem Arbeitsraum heraus soll er digitale Dinge nehmen, tragen und ablegen, ohne ueber Geraete oder Dateiuebertragung nachdenken zu muessen.
 
 RK Workspace ist eine Arbeitsflaechen-Erweiterung fuer Menschen, die ihren digitalen Alltag nicht mehr auf ein einzelnes Geraet beschraenken. Moderne Arbeit findet auf Laptops, Tablets, Telefonen, externen Monitoren, KVM-Arbeitsplaetzen, Leitstaenden und gekapselten Systemen statt. Klassische Software behandelt diese Punkte als voneinander getrennte Rechner oder Zieladressen. RK Workspace behandelt sie als zusammenhaengenden Arbeitsraum.
 
@@ -43,6 +43,7 @@ flowchart LR
 
 ## Querverweise
 
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/Nordstern.md`
 - `Spec/ProductVision.md`
 - `Spec/ProductPhilosophy.md`
@@ -53,6 +54,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.5.0 | 2026-07-03 | HX-000 als menschliche Ausgangswahrnehmung der Produktvision ergaenzt. |
 | 0.4.0 | 2026-07-03 | Nordstern als hoechste Produktorientierung referenziert. |
 | 0.3.0 | 2026-07-02 | Mission Statement fuer RKWS-0340 ergaenzt. |
 | 0.2.0 | 2026-07-02 | Dokumentstandard, Diagramm und Querverweise ergaenzt. |

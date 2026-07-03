@@ -1,7 +1,7 @@
 # Human Experience Specification HX-001
 
 Dokument-ID: RKWS-SPEC-HUMAN-EXPERIENCE-HX001
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -22,6 +22,8 @@ Dieses Dokument beschreibt die erste bewusste Wahrnehmung des Benutzers.
 Nicht das Greifen.
 
 Sondern den Moment davor.
+
+HX-001 folgt HX-000. Erst wenn der Benutzer einen Arbeitsraum erlebt, kann ein einzelnes Objekt als Teil der aktuellen Arbeit wahrgenommen werden.
 
 ## Ziel
 
@@ -119,6 +121,7 @@ Greifen beginnt im Kopf.
 
 ## Querverweise
 
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/Nordstern.md`
 - `Spec/UX.md`
 - `Spec/ProductPhilosophy.md`
@@ -130,4 +133,5 @@ Greifen beginnt im Kopf.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | HX-000 als vorausgehende Arbeitsraum-Wahrnehmung verlinkt. |
 | 1.0.0 | 2026-07-03 | HX-001 als erste Human Experience Specification angelegt. |

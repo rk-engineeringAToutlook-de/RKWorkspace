@@ -1,7 +1,7 @@
 # Emotion Specification ES-002
 
 Dokument-ID: RKWS-SPEC-EMOTION-ES002
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -49,7 +49,7 @@ Tragen ist Bewegung mit Verantwortung.
 
 ## Mentales Modell
 
-Vor dem Tragen muessen HX-001 und ES-001 erfuellt sein: Das Objekt gehoert zur aktuellen Arbeit und befindet sich bereits in der digitalen Hand.
+Vor dem Tragen muessen HX-000, HX-001 und ES-001 erfuellt sein: Der Benutzer erlebt einen Arbeitsraum, das Objekt gehoert zur aktuellen Arbeit und befindet sich bereits in der digitalen Hand.
 
 Das Objekt befindet sich nicht mehr auf einer Arbeitsflaeche.
 
@@ -205,6 +205,7 @@ Zukuenftige Carry-/Drag-/Move-Implementierungen muessen mit ES-002 vereinbar sei
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/UX.md`
@@ -217,4 +218,5 @@ Zukuenftige Carry-/Drag-/Move-Implementierungen muessen mit ES-002 vereinbar sei
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | HX-000 als vorausgehende Arbeitsraum-Wahrnehmung ergaenzt. |
 | 1.0.0 | 2026-07-03 | ES-002 als zweite Emotion Specification angelegt. |

@@ -1,7 +1,7 @@
 # RKWS Specification Index
 
 Dokument-ID: RKWS-SPEC-INDEX  
-Version: 0.9.0
+Version: 0.10.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -13,8 +13,9 @@ Dieses Verzeichnis enthaelt normative Spezifikationen. Dokumente in `Docs/` erkl
 
 ```mermaid
 flowchart TB
-    NorthStar["Nordstern"] --> Product["ProductVision"]
-    NorthStar --> HumanExperience["Human Experience Specifications"]
+    HX000["HX-000 Arbeitsraum"] --> NorthStar["Nordstern"]
+    HX000 --> HumanExperience["Human Experience Specifications"]
+    NorthStar --> Product["ProductVision"]
     NorthStar --> Emotion["Emotion Specifications"]
     HumanExperience --> Emotion
     Product["ProductVision"] --> Object["ObjectModel"]
@@ -38,6 +39,7 @@ flowchart TB
 
 ## Startpunkte
 
+- `HumanExperienceSpecification_HX000.md`
 - `../Docs/Nordstern.md`
 - `HumanExperienceSpecification_HX001.md`
 - `EmotionSpecification_ES001.md`
@@ -72,6 +74,7 @@ flowchart TB
 
 ## Querverweise
 
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/Nordstern.md`
 - `Docs/Architecture/ArchitectureFreeze.md`
 - `Docs/Architecture/ArchitectureBaseline.md`
@@ -86,6 +89,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.10.0 | 2026-07-03 | HX-000 als oberste Human Experience Specification aufgenommen. |
 | 0.9.0 | 2026-07-03 | Human Experience Specification HX-001 aufgenommen. |
 | 0.8.0 | 2026-07-03 | Emotion Specification ES-002 aufgenommen. |
 | 0.7.0 | 2026-07-03 | Emotion Specification ES-001 aufgenommen. |

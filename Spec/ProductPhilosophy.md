@@ -1,7 +1,7 @@
 # RKWS-0350 Product Philosophy
 
 Dokument-ID: RKWS-SPEC-PHILOSOPHY-001  
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -9,7 +9,21 @@ Datum: 2026-07-02
 
 Dieses Dokument definiert die Produktphilosophie von RK Workspace. Sie ist verbindlich fuer Architektur, UX, Plugins, Capabilities und spaetere Plattformimplementierungen.
 
-Die Produktphilosophie folgt dem Nordstern in `Docs/Nordstern.md`. Wenn eine technische Entscheidung diesem Nordstern widerspricht, wird die technische Entscheidung ueberarbeitet.
+Die Produktphilosophie folgt zuerst HX-000 in `Spec/HumanExperienceSpecification_HX000.md` und danach dem Nordstern in `Docs/Nordstern.md`. Wenn eine technische Entscheidung einer Human Experience widerspricht, wird die technische Entscheidung ueberarbeitet.
+
+## Human-Experience-Prinzip
+
+RK Workspace beginnt in der Wahrnehmung des Menschen.
+
+Der Benutzer muss zuerst einen Arbeitsraum erleben, nicht mehrere Geraete, Fenster oder Betriebssysteme.
+
+Vor jeder neuen Implementierung ist zu pruefen:
+
+```text
+Welche HX wird durch diese Funktion unterstuetzt?
+```
+
+Wenn keine HX unterstuetzt wird, wird nicht implementiert.
 
 ## Nordstern-Prinzip
 
@@ -52,6 +66,7 @@ flowchart TB
 
 ## Querverweise
 
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/Nordstern.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
@@ -65,6 +80,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-03 | HX-000 als oberste Human-Experience-Regel vor Nordstern und Implementierung verankert. |
 | 1.4.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor UX-Gefuehlen ergaenzt. |
 | 1.3.0 | 2026-07-03 | Emotion Specification ES-002 als zweites Zielgefuehl verlinkt. |
 | 1.2.0 | 2026-07-03 | Emotion Specifications als Bindeglied zwischen Nordstern und UX-Experimenten ergaenzt. |

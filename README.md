@@ -1,13 +1,15 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.11.0
+Version: 2.12.0
 Status: Accepted  
 Datum: 2026-07-02
 
 RK Workspace (RKWS) ist ein eigenstaendiges Software- und Hardwareprodukt fuer raeumlich gedachte digitale Arbeitsflaechen. Das Projekt ist kein Bestandteil von RKOS und wird mit eigener Roadmap, eigener Dokumentation, eigenen Releases und eigener Architektur gefuehrt.
 
-Der Nordstern des Projektes steht in `Docs/Nordstern.md`. Er ist wichtiger als Code, Architekturdetails oder konkrete Implementierungen: Der Benutzer nimmt digitale Dinge in die Hand, traegt sie durch seinen Arbeitsraum und legt sie dort ab, wo er weiterarbeiten moechte.
+HX-000 steht in `Spec/HumanExperienceSpecification_HX000.md` und ist die oberste Wahrnehmungsregel des Projektes: RK Workspace beginnt in der Wahrnehmung des Menschen. Wenn Code, Architektur, ADRs, UX, GUI oder Nordstern einer Human Experience widersprechen, gewinnt die Human Experience.
+
+Der Nordstern des Projektes steht in `Docs/Nordstern.md`. Er folgt HX-000 und beschreibt die Richtung nach dem ersten Arbeitsraum-Gefuehl: Der Benutzer nimmt digitale Dinge in die Hand, traegt sie durch seinen Arbeitsraum und legt sie dort ab, wo er weiterarbeiten moechte.
 
 Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet senden" denken, sondern "dieses Objekt nach rechts verschieben". RK Workspace modelliert deshalb Arbeitsflaechen statt Geraete. Ein Windows-Laptop, ein MacBook, ein iPad, ein Linux-Rechner, ein Monitor mit Dongle, ein KVM-Arbeitsplatz oder ein Industrie-Leitstand koennen alle Arbeitsflaechen sein.
 
@@ -15,7 +17,8 @@ Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet s
 
 Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung laeuft in MA003. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und die ersten plattformneutralen Core-Bausteine:
 
-- Der Nordstern ist als oberste Projektorientierung dokumentiert und gilt als verbindlicher Kompass fuer Architektur, UX und Implementierung.
+- Human Experience Specification HX-000 definiert die oberste Wahrnehmung: `Ich betrete meinen Arbeitsraum`.
+- Der Nordstern ist als Projektorientierung dokumentiert und folgt HX-000 als verbindlichem Kompass fuer Architektur, UX und Implementierung.
 - Human Experience Specification HX-001 definiert die erste bewusste Wahrnehmung vor dem Greifen: `Das gehoert gerade zu meiner Arbeit`.
 - Emotion Specification ES-001 definiert das erste fuehrende UX-Gefuehl: `Ich habe etwas in meiner Hand`.
 - Emotion Specification ES-002 definiert das zweite fuehrende UX-Gefuehl: `Ich trage etwas`.
@@ -53,16 +56,17 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 
 Neue Entwickler beginnen mit diesen Dokumenten:
 
-1. `Docs/Nordstern.md`
-2. `Spec/HumanExperienceSpecification_HX001.md`
-3. `Spec/EmotionSpecification_ES001.md`
-4. `Spec/EmotionSpecification_ES002.md`
-5. `Docs/00_ProductVision.md`
-6. `Docs/Glossary.md`
-7. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
-8. `Spec/README.md`
-9. `Docs/ADR/README.md`
-10. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+1. `Spec/HumanExperienceSpecification_HX000.md`
+2. `Docs/Nordstern.md`
+3. `Spec/HumanExperienceSpecification_HX001.md`
+4. `Spec/EmotionSpecification_ES001.md`
+5. `Spec/EmotionSpecification_ES002.md`
+6. `Docs/00_ProductVision.md`
+7. `Docs/Glossary.md`
+8. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+9. `Spec/README.md`
+10. `Docs/ADR/README.md`
+11. `Docs/Architecture/OpenIssuesBeforeMA003.md`
 
 Die Spezifikationen liegen in `Spec/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 
@@ -153,7 +157,9 @@ Oder gesammelt:
 
 Die Entwicklungsreihenfolge ist Vision, Requirements, Architektur, Spezifikation, Simulation, Core, Plattformdienste, Hardware, Firmware, Tests und Produktion. Kein Schritt wird uebersprungen. Architektur, Dokumentation und Tests besitzen denselben Stellenwert wie Quellcode.
 
-Der Nordstern steht ueber lokalen technischen Entscheidungen. Jede neue Funktion muss beantworten, was der Mensch in diesem Moment fuehlen soll. Wenn diese Frage nicht beantwortet werden kann, ist die Funktion noch nicht bereit.
+HX-000 steht ueber lokalen technischen Entscheidungen. Vor jeder neuen Implementierung ist zu pruefen, welche Human Experience durch diese Funktion unterstuetzt wird. Wenn keine HX unterstuetzt wird, wird nicht implementiert.
+
+Der Nordstern folgt HX-000. Jede neue Funktion muss beantworten, was der Mensch in diesem Moment fuehlen soll. Wenn diese Frage nicht beantwortet werden kann, ist die Funktion noch nicht bereit.
 
 Human Experience Specifications konkretisieren die bewusste Wahrnehmung vor einer Interaktion. HX-001 gilt fuer alle kuenftigen UX-Experimente: Ein Objekt muss zuerst als Teil der aktuellen Arbeit erscheinen.
 
@@ -183,6 +189,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 ## Querverweise
 
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/Nordstern.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
@@ -220,6 +227,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.12.0 | 2026-07-03 | Human Experience Specification HX-000 als oberste Wahrnehmungsregel verlinkt. |
 | 2.11.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor dem Greifen verlinkt. |
 | 2.10.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument verlinkt. |
 | 2.9.0 | 2026-07-03 | Emotion Specification ES-001 als fuehrendes UX-Dokument verlinkt. |

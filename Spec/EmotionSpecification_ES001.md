@@ -1,7 +1,7 @@
 # Emotion Specification ES-001
 
 Dokument-ID: RKWS-SPEC-EMOTION-ES001
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -47,7 +47,7 @@ Sondern:
 
 ## Mentales Modell
 
-Vor dem Greifen muss HX-001 erfuellt sein: Das Objekt wirkt nicht wie eine Datei, sondern wie etwas, das gerade zur Arbeit des Benutzers gehoert.
+Vor dem Greifen muessen HX-000 und HX-001 erfuellt sein: Der Benutzer erlebt einen Arbeitsraum, und das Objekt wirkt nicht wie eine Datei, sondern wie etwas, das gerade zur Arbeit des Benutzers gehoert.
 
 Ein digitales Objekt liegt zunaechst auf einer Arbeitsflaeche.
 
@@ -259,6 +259,7 @@ Nur Greifen.
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/HumanExperienceSpecification_HX000.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/UX.md`
 - `Spec/ProductPhilosophy.md`
@@ -269,4 +270,5 @@ Nur Greifen.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | HX-000 als vorausgehende Arbeitsraum-Wahrnehmung ergaenzt. |
 | 1.0.0 | 2026-07-03 | ES-001 als erste Emotion Specification angelegt. |
