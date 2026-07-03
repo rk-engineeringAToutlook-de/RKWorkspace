@@ -1,0 +1,87 @@
+# Workspace Layer
+
+Dokument-ID: RKWS-WORKSPACE-LAYER
+Version: 1.0.0
+Status: Accepted
+Datum: 2026-07-03
+
+## Zweck
+
+Ab MA006.00 besteht RK Workspace aus drei Ebenen.
+
+## Ebene 1: Human Experience
+
+Die oberste Ebene ist der Mensch.
+
+Human Experience entscheidet, ob eine Funktion existieren darf. Technik dient nur dazu, diese Wahrnehmung entstehen zu lassen.
+
+Aktuelle fuehrende HX:
+
+- HX-000
+- HX-001
+- HX-001A
+- HX-002
+
+## Ebene 2: Workspace Shell
+
+Workspace Shell ist die unsichtbare Systemebene.
+
+Sie verbindet:
+
+- Benutzer
+- digitalen Raum
+- Anwendungen
+- Ablagen
+
+Workspace Shell ist keine App. Sie wird spaeter nicht bewusst gestartet und nicht als Fenster bedient.
+
+## Ebene 3: Workspace Adapter
+
+Workspace Adapter verbinden bestehende Anwendungen und Umgebungen mit dem Workspace-Raum.
+
+Beispiele:
+
+- Explorer
+- Browser
+- PDF
+- Word
+- Outlook
+- WinCC
+- PCS7
+
+Adapter sind nicht das Produkt. Sie sind Uebersetzer.
+
+## Richtung
+
+Die Architektur folgt dieser Richtung:
+
+```mermaid
+flowchart TB
+    HX["Human Experience"] --> Shell["Workspace Shell"]
+    Shell --> Adapter["Workspace Adapter"]
+    Adapter --> Apps["Anwendungen und Ablagen"]
+```
+
+Technische Entscheidungen duerfen diese Richtung nicht umkehren.
+
+## Warum mit Ebene 3 beginnen
+
+MA006 beginnt bewusst mit der Adapter-Perspektive, obwohl Adapter nicht das Ziel sind.
+
+Grund:
+
+Adapter machen spaeter sichtbar, welche digitalen Dinge aus realen Anwendungen in Workspace Sessions uebersetzt werden koennen.
+
+Das Ziel bleibt trotzdem Workspace Shell.
+
+## Nicht-Ziele
+
+Dieses Dokument definiert keine konkrete Integration fuer Explorer, Browser, PDF, Word, Outlook, WinCC oder PCS7.
+
+Es definiert nur die Layer-Regel.
+
+## Aenderungsverlauf
+
+| Version | Datum | Aenderung |
+| --- | --- | --- |
+| 1.0.0 | 2026-07-03 | MA006.00 dreistufige Workspace-Layer-Architektur dokumentiert. |

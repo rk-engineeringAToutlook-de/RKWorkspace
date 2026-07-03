@@ -1,15 +1,17 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 2.3.0
+Version: 2.4.0
 Status: Accepted
 Datum: 2026-07-03
 
 ## Zweck
 
-Das Developer Workspace Studio ist eine erste sichtbare Core-Testoberflaeche fuer RK Workspace. Es dient Entwicklung, Diagnose, Tests, Demonstration und Core-Visualisierung.
+Das Developer Workspace Studio ist eine sichtbare Core-Testoberflaeche fuer RK Workspace. Es dient Entwicklung, Diagnose, Tests, Demonstration, Core-Visualisierung und Human-Experience-Playground.
 
-Das Studio ist keine Endanwender-GUI und kein Produktagent. Der interaktive Workspace-Prototyp ist ebenfalls nur ein Entwicklungsprototyp.
+Das Studio ist keine Endanwender-GUI und kein Produktagent. Es ist nicht das Produkt.
+
+Ab MA006.00 ist das eigentliche Produkt Workspace Shell.
 
 ## Technologie
 
@@ -210,6 +212,7 @@ Der Human Experience Playground veraendert ebenfalls keine Core-Komponenten und 
 - keine Cloud-Funktion
 - keine produktive Endanwender-GUI
 - keine stabilen UI-Automation-Tests
+- keine Workspace Shell Produktoberflaeche
 
 ## Bekannte Einschraenkungen
 
@@ -242,6 +245,7 @@ Der Human Experience Playground veraendert ebenfalls keine Core-Komponenten und 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.4.0 | 2026-07-03 | MA006.00 Hinweis ergaenzt, dass Developer Studio nur Werkzeug ist und Workspace Shell das Produkt wird. |
 | 2.3.0 | 2026-07-03 | HX-P001 Human Experience Playground mit fuenf isolierten Magic-Moment-Hypothesen dokumentiert. |
 | 2.2.0 | 2026-07-03 | HX-001A als Zwischenstufe digitaler Objektantwort im Human Experience Lab dokumentiert. |
 | 2.1.0 | 2026-07-03 | HX-LAB-001 Human Experience Lab als fuehrende dritte Registerkarte dokumentiert. |

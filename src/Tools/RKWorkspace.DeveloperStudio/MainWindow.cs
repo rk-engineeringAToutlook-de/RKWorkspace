@@ -115,6 +115,28 @@ internal sealed class MainWindow : Form
 
     private Control BuildLayout()
     {
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2
+        };
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        var shellHint = new Label
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(12, 0, 12, 0),
+            TextAlign = ContentAlignment.MiddleLeft,
+            Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold),
+            BackColor = Color.FromArgb(235, 239, 244),
+            ForeColor = Color.FromArgb(35, 44, 58),
+            Text = "Dieses Werkzeug dient ausschliesslich der Entwicklung. Das eigentliche Produkt ist Workspace Shell."
+        };
+        _toolTip.SetToolTip(
+            shellHint,
+            "Workspace Shell ist keine Anwendung. Workspace Shell ist der digitale Raum, in dem sich der Mensch bewegt.");
+
         var tabs = new TabControl
         {
             Dock = DockStyle.Fill
@@ -133,7 +155,9 @@ internal sealed class MainWindow : Form
         tabs.TabPages.Add(labPage);
         tabs.TabPages.Add(playgroundPage);
         tabs.SelectedTab = firstContactPage;
-        return tabs;
+        root.Controls.Add(shellHint, 0, 0);
+        root.Controls.Add(tabs, 0, 1);
+        return root;
     }
 
     private Control BuildFirstContactLayout()
