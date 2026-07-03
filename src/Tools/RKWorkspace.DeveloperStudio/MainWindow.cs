@@ -14,6 +14,8 @@ internal sealed class MainWindow : Form
     private readonly InteractiveWorkspaceSurface _interactiveSurface = new();
     private readonly WorkspaceExperienceLabState _experienceLab = WorkspaceExperienceLabState.Load();
     private readonly HumanExperienceLabState _humanExperienceLab = HumanExperienceLabState.Load();
+    private readonly HumanExperiencePlaygroundState _humanExperiencePlayground = HumanExperiencePlaygroundState.Load();
+    private readonly HumanExperiencePlaygroundSurface _playgroundSurface = new();
     private readonly List<WorkspaceWindow> _workspaceWindows = new();
     private readonly ToolTip _toolTip = new();
     private readonly Dictionary<string, ComboBox> _labVariantCombos = new(StringComparer.Ordinal);
@@ -45,10 +47,20 @@ internal sealed class MainWindow : Form
     private readonly RadioButton _hxRatingNo = new();
     private readonly DataGridView _hxExperimentGrid = CreateGrid();
     private readonly DataGridView _hxObservationGrid = CreateGrid();
+    private readonly ComboBox _playgroundHypothesisSelector = new();
+    private readonly Label _playgroundMission = ValueLabel();
+    private readonly Label _playgroundHypothesisDetail = ValueLabel();
+    private readonly Label _playgroundLogSummary = ValueLabel();
+    private readonly TextBox _playgroundComment = new();
+    private readonly RadioButton _playgroundBelieve = new();
+    private readonly RadioButton _playgroundAlmost = new();
+    private readonly RadioButton _playgroundSoftware = new();
+    private readonly DataGridView _playgroundLogGrid = CreateGrid();
     private TabControl? _tabs;
     private MultiWindowWorkspaceContext? _multiWindowContext;
     private bool _syncingLabControls;
     private bool _syncingHumanExperienceLabControls;
+    private bool _syncingPlaygroundControls;
 
     public MainWindow()
     {
@@ -80,10 +92,12 @@ internal sealed class MainWindow : Form
         Controls.Add(BuildLayout());
         _experienceLab.Changed += OnExperienceLabChanged;
         _humanExperienceLab.Changed += OnHumanExperienceLabChanged;
+        _humanExperiencePlayground.Changed += OnHumanExperiencePlaygroundChanged;
         ConfigureToolTips();
         RefreshUi();
         RefreshLabControls();
         RefreshHumanExperienceLabControls();
+        RefreshHumanExperiencePlaygroundControls();
     }
 
     protected override void Dispose(bool disposing)
@@ -92,6 +106,7 @@ internal sealed class MainWindow : Form
         {
             _experienceLab.Changed -= OnExperienceLabChanged;
             _humanExperienceLab.Changed -= OnHumanExperienceLabChanged;
+            _humanExperiencePlayground.Changed -= OnHumanExperiencePlaygroundChanged;
             _toolTip.Dispose();
         }
 
@@ -111,9 +126,12 @@ internal sealed class MainWindow : Form
         studioPage.Controls.Add(BuildDeveloperStudioLayout());
         var labPage = new TabPage("Human Experience Lab");
         labPage.Controls.Add(BuildHumanExperienceLab());
+        var playgroundPage = new TabPage("Human Experience Playground");
+        playgroundPage.Controls.Add(BuildHumanExperiencePlayground());
         tabs.TabPages.Add(firstContactPage);
         tabs.TabPages.Add(studioPage);
         tabs.TabPages.Add(labPage);
+        tabs.TabPages.Add(playgroundPage);
         tabs.SelectedTab = firstContactPage;
         return tabs;
     }
@@ -398,6 +416,132 @@ internal sealed class MainWindow : Form
         _hxRatingAlmost.Checked = false;
         _hxRatingNo.Checked = false;
         RefreshHumanExperienceLabControls();
+        return true;
+    }
+
+    private Control BuildHumanExperiencePlayground()
+    {
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 2,
+            Padding = new Padding(10)
+        };
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 64));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 118));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+        _playgroundMission.Dock = DockStyle.Fill;
+        _playgroundMission.TextAlign = ContentAlignment.TopLeft;
+        _playgroundMission.Padding = new Padding(8);
+        _playgroundMission.BorderStyle = BorderStyle.FixedSingle;
+        _playgroundMission.AutoEllipsis = false;
+
+        _playgroundLogSummary.Dock = DockStyle.Fill;
+        _playgroundLogSummary.TextAlign = ContentAlignment.TopLeft;
+        _playgroundLogSummary.Padding = new Padding(8);
+        _playgroundLogSummary.BorderStyle = BorderStyle.FixedSingle;
+        _playgroundLogSummary.AutoEllipsis = false;
+
+        _playgroundSurface.Dock = DockStyle.Fill;
+        root.Controls.Add(Panel("Mission", _playgroundMission), 0, 0);
+        root.Controls.Add(Panel("Human Experience Log", _playgroundLogSummary), 1, 0);
+        root.Controls.Add(Panel("Playground", _playgroundSurface), 0, 1);
+        root.Controls.Add(BuildHumanExperiencePlaygroundPanel(), 1, 1);
+        return root;
+    }
+
+    private Control BuildHumanExperiencePlaygroundPanel()
+    {
+        var panel = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 7,
+            Padding = new Padding(6)
+        };
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 136));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 78));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 82));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 42));
+        panel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        panel.RowStyles.Add(new RowStyle(SizeType.Absolute, 4));
+
+        _playgroundHypothesisSelector.Dock = DockStyle.Fill;
+        _playgroundHypothesisSelector.DropDownStyle = ComboBoxStyle.DropDownList;
+        _playgroundHypothesisSelector.DisplayMember = nameof(HumanExperiencePlaygroundHypothesis.DisplayName);
+        _playgroundHypothesisSelector.SelectedIndexChanged += (_, _) =>
+        {
+            if (_syncingPlaygroundControls ||
+                _playgroundHypothesisSelector.SelectedItem is not HumanExperiencePlaygroundHypothesis hypothesis)
+            {
+                return;
+            }
+
+            _humanExperiencePlayground.SetActiveHypothesis(hypothesis.Id);
+        };
+
+        _playgroundHypothesisDetail.Dock = DockStyle.Fill;
+        _playgroundHypothesisDetail.TextAlign = ContentAlignment.TopLeft;
+        _playgroundHypothesisDetail.Padding = new Padding(4);
+        _playgroundHypothesisDetail.BorderStyle = BorderStyle.FixedSingle;
+        _playgroundHypothesisDetail.AutoEllipsis = false;
+
+        var ratingPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false
+        };
+        _playgroundBelieve.Text = "Gruen - Ich glaube fuer einen Moment, dass ich es halte.";
+        _playgroundAlmost.Text = "Gelb - Fast.";
+        _playgroundSoftware.Text = "Rot - Es bleibt nur Software.";
+        _playgroundBelieve.AutoSize = true;
+        _playgroundAlmost.AutoSize = true;
+        _playgroundSoftware.AutoSize = true;
+        ratingPanel.Controls.Add(_playgroundBelieve);
+        ratingPanel.Controls.Add(_playgroundAlmost);
+        ratingPanel.Controls.Add(_playgroundSoftware);
+
+        _playgroundComment.Dock = DockStyle.Fill;
+        _playgroundComment.Multiline = true;
+        _playgroundComment.ScrollBars = ScrollBars.Vertical;
+
+        panel.Controls.Add(_playgroundHypothesisSelector, 0, 0);
+        panel.Controls.Add(_playgroundHypothesisDetail, 0, 1);
+        panel.Controls.Add(ratingPanel, 0, 2);
+        panel.Controls.Add(_playgroundComment, 0, 3);
+        panel.Controls.Add(Button(
+            "Wahrnehmung speichern",
+            RecordHumanExperiencePlaygroundObservation,
+            "Speichert Variante, Wahrnehmung, Owner-Bewertung und Kommentar lokal im Playground-Log."), 0, 4);
+        panel.Controls.Add(Panel("Gespeicherte Wahrnehmungen", _playgroundLogGrid), 0, 5);
+        return Panel("Fuenf isolierte Hypothesen", panel);
+    }
+
+    private bool RecordHumanExperiencePlaygroundObservation()
+    {
+        var rating = _playgroundBelieve.Checked
+            ? HumanExperiencePlaygroundRating.Believe
+            : _playgroundAlmost.Checked
+                ? HumanExperiencePlaygroundRating.Almost
+                : _playgroundSoftware.Checked
+                    ? HumanExperiencePlaygroundRating.Software
+                    : HumanExperiencePlaygroundRating.NotRated;
+        if (rating == HumanExperiencePlaygroundRating.NotRated)
+        {
+            return false;
+        }
+
+        _humanExperiencePlayground.RecordObservation(rating, _playgroundComment.Text);
+        _playgroundComment.Clear();
+        _playgroundBelieve.Checked = false;
+        _playgroundAlmost.Checked = false;
+        _playgroundSoftware.Checked = false;
+        RefreshHumanExperiencePlaygroundControls();
         return true;
     }
 
@@ -919,6 +1063,68 @@ internal sealed class MainWindow : Form
         }
     }
 
+    private void OnHumanExperiencePlaygroundChanged(object? sender, EventArgs args)
+    {
+        if (IsDisposed)
+        {
+            return;
+        }
+
+        if (InvokeRequired)
+        {
+            BeginInvoke(RefreshHumanExperiencePlaygroundControls);
+            return;
+        }
+
+        RefreshHumanExperiencePlaygroundControls();
+    }
+
+    private void RefreshHumanExperiencePlaygroundControls()
+    {
+        _syncingPlaygroundControls = true;
+        try
+        {
+            var snapshot = _humanExperiencePlayground.GetSnapshot();
+            var active = _humanExperiencePlayground.GetActiveHypothesis();
+            _playgroundMission.Text = _humanExperiencePlayground.GetMissionText();
+            _playgroundHypothesisDetail.Text = _humanExperiencePlayground.GetActiveHypothesisText();
+            _playgroundLogSummary.Text = _humanExperiencePlayground.GetLogText();
+            _playgroundSurface.SetHypothesis(active);
+
+            _playgroundHypothesisSelector.DataSource = snapshot.Hypotheses.ToArray();
+            SelectPlaygroundHypothesis(snapshot.ActiveHypothesisId);
+
+            _playgroundLogGrid.DataSource = snapshot.Log
+                .Select(entry => new
+                {
+                    entry.Variant,
+                    entry.Perception,
+                    Bewertung = HumanExperiencePlaygroundState.RatingLabel(entry.Rating),
+                    entry.Comment
+                })
+                .ToArray();
+            ResizeColumns(_playgroundLogGrid);
+            ApplyColumnHeaders(_playgroundLogGrid);
+        }
+        finally
+        {
+            _syncingPlaygroundControls = false;
+        }
+    }
+
+    private void SelectPlaygroundHypothesis(string hypothesisId)
+    {
+        for (var index = 0; index < _playgroundHypothesisSelector.Items.Count; index++)
+        {
+            if (_playgroundHypothesisSelector.Items[index] is HumanExperiencePlaygroundHypothesis hypothesis &&
+                string.Equals(hypothesis.Id, hypothesisId, StringComparison.Ordinal))
+            {
+                _playgroundHypothesisSelector.SelectedIndex = index;
+                return;
+            }
+        }
+    }
+
     private void OnExperienceLabChanged(object? sender, EventArgs args)
     {
         if (IsDisposed)
@@ -1111,6 +1317,18 @@ internal sealed class MainWindow : Form
         _toolTip.SetToolTip(
             _hxObservationGrid,
             "Zeigt alle lokalen Bewertungen mit Datum, Dauer und Wiederholungen.");
+        _toolTip.SetToolTip(
+            _playgroundSurface,
+            "Playground fuer den ersten Magic Moment: Hypothese waehlen, Ding kurz halten, nur das Gefuehl bewerten.");
+        _toolTip.SetToolTip(
+            _playgroundHypothesisSelector,
+            "Waehlt genau eine isolierte Wahrnehmungshypothese fuer den Test.");
+        _toolTip.SetToolTip(
+            _playgroundComment,
+            "Freier Kommentar zur Wahrnehmung. Keine Zahlen, keine Punkte.");
+        _toolTip.SetToolTip(
+            _playgroundLogGrid,
+            "Speichert Variante, Wahrnehmung, Owner-Bewertung und Kommentar lokal.");
         _toolTip.SetToolTip(
             _capabilities,
             "Faehigkeiten sind die vom Core erkannten Moeglichkeiten der aktuellen Arbeitsflaechen.");

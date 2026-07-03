@@ -1,7 +1,7 @@
 # Human Experience Lab
 
 Dokument-ID: RKWS-DEV-HUMAN-EXPERIENCE-LAB
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -10,6 +10,8 @@ Datum: 2026-07-03
 Das Human Experience Lab erweitert das bisherige UX-Labor im Developer Studio. Es testet nicht mehr einzelne Animationen, sondern menschliche Wahrnehmung.
 
 Das Lab ist kein Produkt, kein Endanwenderwerkzeug und keine technische Telemetrie. Es ist ein lokales Validierungslabor fuer den Owner.
+
+HX-P001 ergaenzt daneben den `Human Experience Playground`. Das Lab fuehrt HX, Experimente, Timeline und Beobachtungsprotokoll. Der Playground testet isolierte Wahrnehmungshypothesen fuer den ersten Magic Moment.
 
 ## Registerkarte
 
@@ -167,9 +169,14 @@ Der Smoke-Test nutzt einen transienten Lab-State und schreibt keine echten Owner
 - Keine automatische Entscheidung, welche HX final gewinnt.
 - Keine Produkt-GUI.
 
+## Verweise
+
+- `Docs/Development/HumanExperiencePlayground.md`
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | HX-P001 Human Experience Playground als separate Wahrnehmungsbuehne verlinkt. |
 | 1.1.0 | 2026-07-03 | HX-001A als digitale Antwort zwischen Arbeitsrelevanz und Tragen ergaenzt. |
 | 1.0.0 | 2026-07-03 | HX-LAB-001 Human Experience Validation Lab dokumentiert. |

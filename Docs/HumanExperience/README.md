@@ -1,7 +1,7 @@
 # Human Experience
 
 Dokument-ID: RKWS-HX-README
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -72,6 +72,23 @@ Das Human Experience Lab speichert seine Beobachtungen lokal:
 
 Experimente werden nicht geloescht und nicht ueberschrieben. Neue Bewertungen erzeugen gezielt ein Folgeexperiment aus dem besten passenden Ausgangspunkt.
 
+## Playground
+
+HX-P001 fuehrt einen separaten Human Experience Playground ein. Dort werden nicht Varianten optimiert, sondern fuenf isolierte Wahrnehmungshypothesen fuer den ersten Magic Moment getestet.
+
+Der Playground speichert lokal:
+
+- Variante
+- Wahrnehmung
+- Owner-Bewertung
+- freier Kommentar
+
+Speicherort:
+
+```text
+%LOCALAPPDATA%\RKWorkspace\human-experience-playground.json
+```
+
 ## Entwicklungsregel
 
 Codex darf kuenftig keine UX-Komponente entwickeln, ohne dass sie genau einer Human Experience zugeordnet ist.
@@ -104,3 +121,4 @@ Das Human Experience Lab veraendert nur das Developer Studio. Es veraendert nich
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Docs/Development/HumanExperienceLab.md`
+- `Docs/Development/HumanExperiencePlayground.md`

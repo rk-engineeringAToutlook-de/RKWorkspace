@@ -129,6 +129,7 @@ internal static class StudioUiText
             "ObjectType" => "Dingart",
             "Position" => "Position",
             "Priority" => "Prioritaet",
+            "Perception" => "Wahrnehmung",
             "Result" => "Ergebnis",
             "Runtime" => "Runtime",
             "Quelle" => "Quelle",
@@ -141,6 +142,7 @@ internal static class StudioUiText
             "Title" => "Titel",
             "Trusted" => "Vertraut",
             "Type" => "Typ",
+            "Variant" => "Variante",
             "Workspace" => "Arbeitsflaeche",
             "WorkspaceId" => "Arbeitsflaeche-ID",
             _ => propertyName

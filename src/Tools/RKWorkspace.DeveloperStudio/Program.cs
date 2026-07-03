@@ -39,6 +39,7 @@ internal static class Program
         var firstContactResult = RunFirstContactSmokeTest();
         var labResult = RunWorkspaceExperienceLabSmokeTest();
         var humanExperienceLabResult = RunHumanExperienceLabSmokeTest();
+        var humanExperiencePlaygroundResult = RunHumanExperiencePlaygroundSmokeTest();
         var edgeLeft = multiWindow.DetectWindowEdge(5, 0, 200, 24);
         var edgeRight = multiWindow.DetectWindowEdge(195, 0, 200, 24);
         var edgeMiddle = multiWindow.DetectWindowEdge(100, 0, 200, 24);
@@ -87,7 +88,8 @@ internal static class Program
             illusionResult.IsSuccess &&
             firstContactResult.IsSuccess &&
             labResult.IsSuccess &&
-            humanExperienceLabResult.IsSuccess;
+            humanExperienceLabResult.IsSuccess &&
+            humanExperiencePlaygroundResult.IsSuccess;
 
         Console.WriteLine("RK Workspace Developer Studio Smoke Test");
         Console.WriteLine("----------------------------------------");
@@ -141,6 +143,10 @@ internal static class Program
         Console.WriteLine($"HumanExperienceLabEvolution: {(humanExperienceLabResult.EvolutionSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"HumanExperienceLabDashboard: {(humanExperienceLabResult.DashboardSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"HumanExperienceLabActive: {humanExperienceLabResult.ActiveHumanExperience}");
+        Console.WriteLine($"HumanExperiencePlaygroundHypotheses: {humanExperiencePlaygroundResult.HypothesisCount}");
+        Console.WriteLine($"HumanExperiencePlaygroundIsolation: {(humanExperiencePlaygroundResult.IsolationSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperiencePlaygroundLog: {(humanExperiencePlaygroundResult.LogSuccess ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"HumanExperiencePlaygroundNoScoring: {(humanExperiencePlaygroundResult.NoScoringSuccess ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"EdgeTargetLeft: {edgeLeftSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetRight: {edgeRightSuggestion.WorkspaceId}");
         Console.WriteLine($"EdgeTargetLogic: {(edgeLogicSuccess ? "SUCCESS" : "FAILED")}");
@@ -159,6 +165,7 @@ internal static class Program
         Console.WriteLine(firstContactResult.IsSuccess ? "FirstContact: SUCCESS" : "FirstContact: FAILED");
         Console.WriteLine(labResult.IsSuccess ? "WorkspaceExperienceLab: SUCCESS" : "WorkspaceExperienceLab: FAILED");
         Console.WriteLine(humanExperienceLabResult.IsSuccess ? "HumanExperienceLab: SUCCESS" : "HumanExperienceLab: FAILED");
+        Console.WriteLine(humanExperiencePlaygroundResult.IsSuccess ? "HumanExperiencePlayground: SUCCESS" : "HumanExperiencePlayground: FAILED");
         Console.WriteLine(interactiveSuccess ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
         viewModel.StopDualAgents();
@@ -298,6 +305,45 @@ internal static class Program
         };
     }
 
+    private static HumanExperiencePlaygroundSmokeResult RunHumanExperiencePlaygroundSmokeTest()
+    {
+        var playground = HumanExperiencePlaygroundState.CreateTransient();
+        var startedSuccess = playground.SmokeCheck();
+        var snapshot = playground.GetSnapshot();
+        var isolationSuccess =
+            snapshot.Hypotheses.Count == 5 &&
+            snapshot.Hypotheses.Select(hypothesis => hypothesis.Id).SequenceEqual(new[] { "A", "B", "C", "D", "E" }) &&
+            snapshot.Hypotheses.Select(hypothesis => hypothesis.Perception).Distinct(StringComparer.Ordinal).Count() == 5 &&
+            snapshot.Hypotheses.All(hypothesis =>
+                !hypothesis.DisplayName.Contains("Generation", StringComparison.OrdinalIgnoreCase) &&
+                !hypothesis.Intent.Contains("Kombination", StringComparison.OrdinalIgnoreCase));
+
+        playground.SetActiveHypothesis("D");
+        var entry = playground.RecordObservation(
+            HumanExperiencePlaygroundRating.Believe,
+            "Jetzt habe ich es fuer einen kurzen Moment geglaubt.");
+        var after = playground.GetSnapshot();
+        var logSuccess =
+            after.Log.Count == 1 &&
+            after.Log[0] == entry &&
+            entry.Variant.Contains("Hypothese D", StringComparison.Ordinal) &&
+            entry.Perception.Contains("Kontrolle", StringComparison.Ordinal) &&
+            entry.Rating == HumanExperiencePlaygroundRating.Believe;
+        var noScoringSuccess =
+            !entry.Comment.Any(char.IsDigit) &&
+            !HumanExperiencePlaygroundState.RatingLabel(entry.Rating).Any(char.IsDigit) &&
+            !entry.Perception.Any(char.IsDigit);
+
+        return new HumanExperiencePlaygroundSmokeResult
+        {
+            StartedSuccess = startedSuccess,
+            IsolationSuccess = isolationSuccess,
+            LogSuccess = logSuccess,
+            NoScoringSuccess = noScoringSuccess,
+            HypothesisCount = snapshot.Hypotheses.Count
+        };
+    }
+
     private sealed record WorkspaceExperienceLabSmokeResult
     {
         public required bool CountsSuccess { get; init; }
@@ -336,6 +382,24 @@ internal static class Program
             ObservationSuccess &&
             EvolutionSuccess &&
             DashboardSuccess;
+    }
+
+    private sealed record HumanExperiencePlaygroundSmokeResult
+    {
+        public required bool StartedSuccess { get; init; }
+
+        public required bool IsolationSuccess { get; init; }
+
+        public required bool LogSuccess { get; init; }
+
+        public required bool NoScoringSuccess { get; init; }
+
+        public required int HypothesisCount { get; init; }
+
+        public bool IsSuccess => StartedSuccess &&
+            IsolationSuccess &&
+            LogSuccess &&
+            NoScoringSuccess;
     }
 
     private sealed record FirstContactSmokeResult

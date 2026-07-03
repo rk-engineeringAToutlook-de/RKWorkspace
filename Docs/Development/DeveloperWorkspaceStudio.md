@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 2.2.0
+Version: 2.3.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -54,6 +54,8 @@ Die zweite Registerkarte enthaelt das bestehende Developer Studio:
 
 Die dritte Registerkarte heisst `Human Experience Lab`. Sie dient der lokalen Validierung von Human Experiences. Dort werden nicht Animationen verglichen, sondern Experimente einer HX zugeordnet, bewertet und als Evolution nachvollziehbar gemacht.
 
+Die vierte Registerkarte heisst `Human Experience Playground`. Sie dient HX-P001: fuenf isolierte Wahrnehmungshypothesen fuer den ersten Magic Moment.
+
 ## Aktionen
 
 Minimal verfuegbare Aktionen:
@@ -69,6 +71,7 @@ Minimal verfuegbare Aktionen:
 - Run Full Interactive Demo
 - Open Multi Window Prototype
 - Human Experience Lab: aktive HX sehen, Experiment waehlen, Owner-Bewertung speichern, Timeline und Dashboard pruefen
+- Human Experience Playground: Hypothese A bis E isoliert testen und Wahrnehmung speichern
 
 `Run Full Demo` startet die Runtime, erzeugt `RKWS-Demo-Laptop` und `RKWS-Demo-Display-Right`, erzeugt ein Textobjekt `Hallo von RK Workspace`, fuehrt einen Transfer nach rechts aus und erwartet `SUCCESS`.
 
@@ -153,6 +156,28 @@ Gespeichert werden HX, Experiment, Datum, Bewertung, Kommentar, Dauer und Wieder
 
 Die Historie bleibt erhalten. Experimente werden nicht geloescht und nicht ueberschrieben.
 
+## Human Experience Playground
+
+Der Human Experience Playground ist die isolierte Testflaeche fuer HX-P001. Ziel ist ein einziger Moment:
+
+```text
+Ich glaube fuer einen kurzen Moment, dass ich es halte.
+```
+
+Der Playground enthaelt genau fuenf Hypothesen:
+
+- A: Das Objekt loest sich.
+- B: Die digitale Hand.
+- C: Das Objekt verschwindet teilweise.
+- D: Das Objekt antwortet.
+- E: Die Welt reagiert.
+
+Die Hypothesen werden nicht kombiniert. Jede Hypothese wird einzeln getestet. Das Log speichert Variante, Wahrnehmung, Owner-Bewertung und Kommentar lokal in:
+
+```text
+%LOCALAPPDATA%\RKWorkspace\human-experience-playground.json
+```
+
 ## Core-Anbindung
 
 Das Studio verwendet echte Core-Komponenten:
@@ -174,6 +199,8 @@ Die Digitale Physik veraendert ausschliesslich Darstellung und Timing im Studio.
 
 Das Human Experience Lab veraendert ebenfalls keine Core-Komponenten und keinen Transport. Es speichert nur lokale Experimente und Beobachtungen.
 
+Der Human Experience Playground veraendert ebenfalls keine Core-Komponenten und keinen Transport. Er speichert nur lokale Wahrnehmungslogs.
+
 ## Nicht-Ziele
 
 - keine Netzwerkfunktion
@@ -193,6 +220,7 @@ Das Human Experience Lab veraendert ebenfalls keine Core-Komponenten und keinen 
 - Der Smoke-Test prueft die Digitale Physik viewmodelbasiert: Variantenanzahl inklusive 12 Tragevarianten, Live-Wechsel, Bewertung, automatische Folgegeneration und Anwendung im Multi-Window-Kontext.
 - Der Smoke-Test prueft First Contact viewmodelbasiert: Startzustand, Greifen, Ablegen, lokale Messwerte und 30-Sekunden-Erfolg.
 - Der Smoke-Test prueft das Human Experience Lab viewmodelbasiert: aktive HX, Experiment-Zuordnung, lokale Beobachtung, gezielte Evolution und Dashboard.
+- Der Smoke-Test prueft den Human Experience Playground viewmodelbasiert: fuenf Hypothesen, Isolation, lokales Log und keine Scoring-Logik.
 - Die Randlogik ist vorbereitet, aber noch keine echte Monitorerkennung oder Betriebssystem-Randbindung.
 - Es gibt noch keine Persistenz und keine gespeicherten Studio-Profile.
 - Das Log ist nur eine In-Memory-Ansicht.
@@ -204,14 +232,17 @@ Das Human Experience Lab veraendert ebenfalls keine Core-Komponenten und keinen 
 - Die Workspace-Illusion ist optisch; echte OS-Hot-Zones, Monitoruebertritt und Live-Sessions sind noch nicht implementiert.
 - Das Workspace Experience Lab ist ein internes Experimentierlabor, kein Produkt und kein Endanwenderwerkzeug.
 - Das Human Experience Lab ist das fuehrende interne Validierungslabor fuer Wahrnehmung, kein Produkt und kein Endanwenderwerkzeug.
+- Der Human Experience Playground ist eine Wahrnehmungsbuehne fuer HX-P001, kein Produkt und kein Endanwenderwerkzeug.
 - First Contact ist ein Owner-Testmodus, kein Produktmodus und keine echte Studie mit externer Telemetrie.
 - Lab-Bewertungen, Evolutionsschritt und lokale Statistik werden in `%LOCALAPPDATA%\RKWorkspace\workspace-experience-lab.json` gespeichert.
 - Human-Experience-Experimente und Beobachtungen werden in `%LOCALAPPDATA%\RKWorkspace\human-experience-lab.json` gespeichert.
+- Playground-Wahrnehmungen werden in `%LOCALAPPDATA%\RKWorkspace\human-experience-playground.json` gespeichert.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.3.0 | 2026-07-03 | HX-P001 Human Experience Playground mit fuenf isolierten Magic-Moment-Hypothesen dokumentiert. |
 | 2.2.0 | 2026-07-03 | HX-001A als Zwischenstufe digitaler Objektantwort im Human Experience Lab dokumentiert. |
 | 2.1.0 | 2026-07-03 | HX-LAB-001 Human Experience Lab als fuehrende dritte Registerkarte dokumentiert. |
 | 2.0.0 | 2026-07-03 | MA005.04 First Contact mit reduzierter Erstkontakt-Testflaeche dokumentiert. |
