@@ -1,7 +1,7 @@
 # RKWS Specification Index
 
 Dokument-ID: RKWS-SPEC-INDEX  
-Version: 0.7.0
+Version: 0.8.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -38,6 +38,7 @@ flowchart TB
 
 - `../Docs/Nordstern.md`
 - `EmotionSpecification_ES001.md`
+- `EmotionSpecification_ES002.md`
 - `ProductVision.md`
 - `ProductPhilosophy.md`
 - `PluginArchitecture.md`
@@ -82,6 +83,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.8.0 | 2026-07-03 | Emotion Specification ES-002 aufgenommen. |
 | 0.7.0 | 2026-07-03 | Emotion Specification ES-001 aufgenommen. |
 | 0.6.0 | 2026-07-03 | Nordstern als obersten Orientierungspunkt aufgenommen. |
 | 0.5.0 | 2026-07-02 | RuntimeArchitecture fuer Core Runtime Orchestrator aufgenommen. |

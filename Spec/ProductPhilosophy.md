@@ -1,7 +1,7 @@
 # RKWS-0350 Product Philosophy
 
 Dokument-ID: RKWS-SPEC-PHILOSOPHY-001  
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -52,6 +52,7 @@ flowchart TB
 
 - `Docs/Nordstern.md`
 - `Spec/EmotionSpecification_ES001.md`
+- `Spec/EmotionSpecification_ES002.md`
 - `Docs/00_ProductVision.md`
 - `Docs/ADR/ADR-0001-workspaces-instead-of-devices.md`
 - `Spec/CapabilityModel.md`
@@ -61,6 +62,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | Emotion Specification ES-002 als zweites Zielgefuehl verlinkt. |
 | 1.2.0 | 2026-07-03 | Emotion Specifications als Bindeglied zwischen Nordstern und UX-Experimenten ergaenzt. |
 | 1.1.0 | 2026-07-03 | Nordstern-Prinzip als verbindliche Produktphilosophie ergaenzt. |
 | 1.0.0 | 2026-07-02 | Produktphilosophie fuer RKWS-0350 definiert. |

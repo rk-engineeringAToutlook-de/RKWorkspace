@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.9.0
+Version: 2.10.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -17,6 +17,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 
 - Der Nordstern ist als oberste Projektorientierung dokumentiert und gilt als verbindlicher Kompass fuer Architektur, UX und Implementierung.
 - Emotion Specification ES-001 definiert das erste fuehrende UX-Gefuehl: `Ich habe etwas in meiner Hand`.
+- Emotion Specification ES-002 definiert das zweite fuehrende UX-Gefuehl: `Ich trage etwas`.
 - Produktvision und Architektur sind dokumentiert.
 - Spec-Dokumente fuer Objektmodell, Arbeitsflaechenmodell, Kommunikation, Plugins, Capabilities, UX, Hardware, Firmware und Tests sind angelegt.
 - ADRs und Decision-Log sind eingerichtet.
@@ -53,12 +54,13 @@ Neue Entwickler beginnen mit diesen Dokumenten:
 
 1. `Docs/Nordstern.md`
 2. `Spec/EmotionSpecification_ES001.md`
-3. `Docs/00_ProductVision.md`
-4. `Docs/Glossary.md`
-5. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
-6. `Spec/README.md`
-7. `Docs/ADR/README.md`
-8. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+3. `Spec/EmotionSpecification_ES002.md`
+4. `Docs/00_ProductVision.md`
+5. `Docs/Glossary.md`
+6. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+7. `Spec/README.md`
+8. `Docs/ADR/README.md`
+9. `Docs/Architecture/OpenIssuesBeforeMA003.md`
 
 Die Spezifikationen liegen in `Spec/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 
@@ -179,6 +181,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 - `Docs/Nordstern.md`
 - `Spec/EmotionSpecification_ES001.md`
+- `Spec/EmotionSpecification_ES002.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `Docs/Architecture/ArchitectureFreeze.md`
 - `Docs/Architecture/ArchitectureBaseline.md`
@@ -212,6 +215,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.10.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument verlinkt. |
 | 2.9.0 | 2026-07-03 | Emotion Specification ES-001 als fuehrendes UX-Dokument verlinkt. |
 | 2.8.0 | 2026-07-03 | Nordstern als oberste Projektorientierung verlinkt. |
 | 2.7.0 | 2026-07-03 | MA005.04 First Contact mit Erstkontakt-Test und lokalen Messwerten dokumentiert. |

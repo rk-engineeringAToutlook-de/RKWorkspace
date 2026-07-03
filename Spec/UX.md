@@ -1,7 +1,7 @@
 # RKWS UX Specification
 
 Dokument-ID: RKWS-SPEC-UX-001  
-Version: 0.3.0
+Version: 0.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -19,7 +19,13 @@ ES-001 definiert das erste zentrale Gefuehl:
 Ich habe etwas in meiner Hand.
 ```
 
-Aus ES-001 folgen Experimente, keine direkten Produktentscheidungen. Codex erzeugt Varianten; der Owner bewertet das Gefuehl.
+ES-002 definiert das zweite zentrale Gefuehl:
+
+```text
+Ich trage etwas.
+```
+
+Aus Emotion Specifications folgen Experimente, keine direkten Produktentscheidungen. Codex erzeugt Varianten; der Owner bewertet das Gefuehl.
 
 ## Directional Intent
 
@@ -43,6 +49,7 @@ flowchart LR
 ## Querverweise
 
 - `Spec/EmotionSpecification_ES001.md`
+- `Spec/EmotionSpecification_ES002.md`
 - `Spec/GestureModel.md`
 - `Spec/StateMachine.md`
 - `Docs/05_UX_Gestures.md`
@@ -51,6 +58,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.4.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument referenziert. |
 | 0.3.0 | 2026-07-03 | Emotion Specification ES-001 als fuehrendes UX-Dokument referenziert. |
 | 0.2.0 | 2026-07-02 | Dokumentstandard und Gestenverweise ergaenzt. |
 | 0.1.0 | 2026-07-02 | UX-Spezifikation angelegt. |
