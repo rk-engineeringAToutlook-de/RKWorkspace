@@ -1,13 +1,23 @@
 # RKWS UX Specification
 
 Dokument-ID: RKWS-SPEC-UX-001  
-Version: 0.4.0
+Version: 0.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
 ## Principle
 
 Die normale Benutzerinteraktion soll gestenbasiert und unaufdringlich sein. Die GUI ist fuer Einrichtung, Pairing, Diagnose, Logs, Firmware, Hardware und Tests vorgesehen.
+
+## Human Experience Specifications
+
+Human Experience Specifications definieren bewusste Wahrnehmungen vor einer konkreten Interaktion. Sie stehen vor Emotion Specifications, weil ein Objekt erst als Teil der eigenen Arbeit wahrgenommen werden muss, bevor es natuerlich gegriffen werden kann.
+
+HX-001 definiert die erste bewusste Wahrnehmung:
+
+```text
+Das gehoert gerade zu meiner Arbeit.
+```
 
 ## Emotion Specifications
 
@@ -25,7 +35,7 @@ ES-002 definiert das zweite zentrale Gefuehl:
 Ich trage etwas.
 ```
 
-Aus Emotion Specifications folgen Experimente, keine direkten Produktentscheidungen. Codex erzeugt Varianten; der Owner bewertet das Gefuehl.
+Aus Human Experience Specifications und Emotion Specifications folgen Experimente, keine direkten Produktentscheidungen. Codex erzeugt Varianten; der Owner bewertet Wahrnehmung und Gefuehl.
 
 ## Directional Intent
 
@@ -48,6 +58,7 @@ flowchart LR
 
 ## Querverweise
 
+- `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Spec/GestureModel.md`
@@ -58,6 +69,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.5.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor dem Greifen referenziert. |
 | 0.4.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument referenziert. |
 | 0.3.0 | 2026-07-03 | Emotion Specification ES-001 als fuehrendes UX-Dokument referenziert. |
 | 0.2.0 | 2026-07-02 | Dokumentstandard und Gestenverweise ergaenzt. |

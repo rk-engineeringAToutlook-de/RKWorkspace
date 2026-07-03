@@ -47,6 +47,8 @@ Sondern:
 
 ## Mentales Modell
 
+Vor dem Greifen muss HX-001 erfuellt sein: Das Objekt wirkt nicht wie eine Datei, sondern wie etwas, das gerade zur Arbeit des Benutzers gehoert.
+
 Ein digitales Objekt liegt zunaechst auf einer Arbeitsflaeche.
 
 Beim Greifen verlaesst es diese Arbeitsflaeche.
@@ -257,6 +259,7 @@ Nur Greifen.
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/UX.md`
 - `Spec/ProductPhilosophy.md`
 - `Docs/Development/DigitalPhysicsSprint.md`

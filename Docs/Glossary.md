@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -25,9 +25,12 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Digital Hand | Digitale Hand | UX-Metapher fuer den Moment, in dem ein Ding vom Benutzer gegriffen und getragen wird. | Nicht mit Mauszeiger, Cursor oder OS-Drag gleichsetzen. |
 | Digital Room | Digitaler Raum | Gemeinsamer Arbeitsraum, in dem Menschen, digitale Dinge und Arbeitsflaechen existieren. | Nicht als Netzwerk, Plattformverbund oder Geraeteliste beschreiben. |
 | Workspace Room | Arbeitsraum | Benutzerperspektive auf alle aktuell verfuegbaren Arbeitsflaechen. | Endet nicht am Bildschirmrand oder Monitor. |
+| Work Relevance | Arbeitsrelevanz | Wahrnehmung, dass ein digitales Ding zur aktuellen Aufgabe gehoert und jetzt mitgenommen werden kann. | Nicht als Dateiauswahl, Fensteraktivierung oder App-Bedienung darstellen. |
+| Take Intent | Nehmen-Wollen | Mentale Bereitschaft, ein Objekt als Teil der Arbeit zu nehmen statt nur darauf zu klicken. | Entsteht vor Greifen, Tragen und Ablegen. |
 | Transition | Uebergang | Sichtbarer und logischer Weg eines digitalen Dings durch den Arbeitsraum. | In UX-Kontexten bevorzugt gegenueber Transfer, Sprung oder Dateiuebertragung. |
 | Carry | Tragen | Zielgefuehl nach dem Greifen: ein digitales Ding bleibt in der digitalen Hand und bewegt sich mit dem Benutzer durch den Arbeitsraum. | Nicht als Cursor-Anhang oder klassisches Drag-and-Drop beschreiben. |
 | Digital Inertia | Digitale Traegheit | Psychologisch spuerbarer, minimal verzoegerter Bewegungsanteil beim Tragen. | Niemals schwammig, langsam, unpraezise oder frustrierend. |
+| Human Experience Specification | Human Experience Specification | Normatives Fuehrungsdokument fuer eine bewusste Wahrnehmung vor einer konkreten Interaktion. | Keine GUI, keine Technik, keine Animation. |
 | Emotion Specification | Emotion Specification | Fuehrendes UX-Dokument fuer ein Zielgefuehl, aus dem Experimente entstehen. | Keine finale Implementierung und keine Architekturentscheidung. |
 | Optical Haptics | Optische Haptik | Sichtbare Reaktion, die das Gehirn als Widerstand, Griff oder Kontakt interpretiert. | Kein Blinken, kein dekorativer Effekt, kein zufaelliges Wackeln. |
 | Capability | Faehigkeit | Effektive Eigenschaft eines Workspace oder Plugins. | Entscheidungen niemals nur ueber Geraetetyp treffen. |
@@ -62,6 +65,7 @@ flowchart LR
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Spec/ProductPhilosophy.md`
@@ -74,6 +78,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-03 | HX-001-Begriffe fuer Arbeitsrelevanz und Nehmen-Wollen ergaenzt. |
 | 1.3.0 | 2026-07-03 | Tragen und digitale Traegheit fuer ES-002 ergaenzt. |
 | 1.2.0 | 2026-07-03 | Emotion Specification und optische Haptik ergaenzt. |
 | 1.1.0 | 2026-07-03 | Nordstern-Begriffe fuer digitales Ding, digitale Hand, digitalen Raum und Uebergang ergaenzt. |

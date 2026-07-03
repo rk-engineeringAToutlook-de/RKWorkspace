@@ -1,7 +1,7 @@
 # RKWS-0350 Product Philosophy
 
 Dokument-ID: RKWS-SPEC-PHILOSOPHY-001  
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -16,6 +16,8 @@ Die Produktphilosophie folgt dem Nordstern in `Docs/Nordstern.md`. Wenn eine tec
 Code folgt dem Gefuehl. Nicht umgekehrt.
 
 Jede neue Funktion muss zuerst beantworten, was der Mensch in diesem Moment fuehlen soll. Der Massstab ist nicht nur, ob Code laeuft oder Tests gruen sind, sondern ob der Benutzer vergisst, dass er zwischen mehreren Geraeten arbeitet.
+
+Human Experience Specifications beschreiben bewusste Wahrnehmungen vor einer Interaktion. HX-001 legt fest, dass ein Objekt zuerst als Teil der aktuellen Arbeit erscheinen muss, bevor es natuerlich gegriffen werden kann.
 
 Emotion Specifications konkretisieren diese Frage fuer einzelne Gefuehle. Sie fuehren zu Experimenten, nicht automatisch zu finaler Implementierung.
 
@@ -51,6 +53,7 @@ flowchart TB
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Docs/00_ProductVision.md`
@@ -62,6 +65,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor UX-Gefuehlen ergaenzt. |
 | 1.3.0 | 2026-07-03 | Emotion Specification ES-002 als zweites Zielgefuehl verlinkt. |
 | 1.2.0 | 2026-07-03 | Emotion Specifications als Bindeglied zwischen Nordstern und UX-Experimenten ergaenzt. |
 | 1.1.0 | 2026-07-03 | Nordstern-Prinzip als verbindliche Produktphilosophie ergaenzt. |

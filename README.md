@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.10.0
+Version: 2.11.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -16,6 +16,7 @@ Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet s
 Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung laeuft in MA003. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und die ersten plattformneutralen Core-Bausteine:
 
 - Der Nordstern ist als oberste Projektorientierung dokumentiert und gilt als verbindlicher Kompass fuer Architektur, UX und Implementierung.
+- Human Experience Specification HX-001 definiert die erste bewusste Wahrnehmung vor dem Greifen: `Das gehoert gerade zu meiner Arbeit`.
 - Emotion Specification ES-001 definiert das erste fuehrende UX-Gefuehl: `Ich habe etwas in meiner Hand`.
 - Emotion Specification ES-002 definiert das zweite fuehrende UX-Gefuehl: `Ich trage etwas`.
 - Produktvision und Architektur sind dokumentiert.
@@ -53,14 +54,15 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 Neue Entwickler beginnen mit diesen Dokumenten:
 
 1. `Docs/Nordstern.md`
-2. `Spec/EmotionSpecification_ES001.md`
-3. `Spec/EmotionSpecification_ES002.md`
-4. `Docs/00_ProductVision.md`
-5. `Docs/Glossary.md`
-6. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
-7. `Spec/README.md`
-8. `Docs/ADR/README.md`
-9. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+2. `Spec/HumanExperienceSpecification_HX001.md`
+3. `Spec/EmotionSpecification_ES001.md`
+4. `Spec/EmotionSpecification_ES002.md`
+5. `Docs/00_ProductVision.md`
+6. `Docs/Glossary.md`
+7. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+8. `Spec/README.md`
+9. `Docs/ADR/README.md`
+10. `Docs/Architecture/OpenIssuesBeforeMA003.md`
 
 Die Spezifikationen liegen in `Spec/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 
@@ -153,6 +155,8 @@ Die Entwicklungsreihenfolge ist Vision, Requirements, Architektur, Spezifikation
 
 Der Nordstern steht ueber lokalen technischen Entscheidungen. Jede neue Funktion muss beantworten, was der Mensch in diesem Moment fuehlen soll. Wenn diese Frage nicht beantwortet werden kann, ist die Funktion noch nicht bereit.
 
+Human Experience Specifications konkretisieren die bewusste Wahrnehmung vor einer Interaktion. HX-001 gilt fuer alle kuenftigen UX-Experimente: Ein Objekt muss zuerst als Teil der aktuellen Arbeit erscheinen.
+
 Emotion Specifications konkretisieren diese Frage fuer einzelne Zielgefuehle. Sie erzeugen Experimente, aber keine unmittelbaren finalen Produktentscheidungen.
 
 Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine Firmware, keine Hardwarelayouts, keine Netzwerkimplementierung und keine Betriebssystemintegration gebaut werden.
@@ -180,6 +184,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/HumanExperienceSpecification_HX001.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
@@ -215,6 +220,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.11.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor dem Greifen verlinkt. |
 | 2.10.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument verlinkt. |
 | 2.9.0 | 2026-07-03 | Emotion Specification ES-001 als fuehrendes UX-Dokument verlinkt. |
 | 2.8.0 | 2026-07-03 | Nordstern als oberste Projektorientierung verlinkt. |
