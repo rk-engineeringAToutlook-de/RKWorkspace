@@ -1,7 +1,7 @@
 # Human Experience
 
 Dokument-ID: RKWS-HX-README
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -26,6 +26,11 @@ Das gehoert zu meiner Arbeit.
 
 v
 
+HX-001A
+Das Objekt antwortet mir.
+
+v
+
 HX-002
 Ich habe etwas in meiner Hand.
 
@@ -35,7 +40,7 @@ HX-003
 Ich trage etwas.
 ```
 
-HX-000 und HX-001 liegen als normative Spezifikationen in `Spec/`. HX-002 und HX-003 werden im Lab als fuehrende Wahrnehmungen aus ES-001 und ES-002 gefuehrt, bis eigene HX-Spezifikationen geschrieben werden.
+HX-000, HX-001 und HX-001A liegen als normative Spezifikationen in `Spec/`. HX-002 und HX-003 werden im Lab als fuehrende Wahrnehmungen aus ES-001 und ES-002 gefuehrt, bis eigene HX-Spezifikationen geschrieben werden.
 
 ## Validierung
 
@@ -95,6 +100,7 @@ Das Human Experience Lab veraendert nur das Developer Studio. Es veraendert nich
 
 - `Spec/HumanExperienceSpecification_HX000.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Docs/Development/HumanExperienceLab.md`

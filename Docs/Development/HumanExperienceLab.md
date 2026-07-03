@@ -1,7 +1,7 @@
 # Human Experience Lab
 
 Dokument-ID: RKWS-DEV-HUMAN-EXPERIENCE-LAB
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -33,6 +33,9 @@ Ich bin in meinem Arbeitsraum.
 
 HX-001
 Das gehoert zu meiner Arbeit.
+
+HX-001A
+Das Objekt antwortet mir.
 
 HX-002
 Ich habe etwas in meiner Hand.
@@ -106,6 +109,10 @@ HX-001
 
 v
 
+HX-001A
+
+v
+
 HX-002
 
 v
@@ -164,4 +171,5 @@ Der Smoke-Test nutzt einen transienten Lab-State und schreibt keine echten Owner
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | HX-001A als digitale Antwort zwischen Arbeitsrelevanz und Tragen ergaenzt. |
 | 1.0.0 | 2026-07-03 | HX-LAB-001 Human Experience Validation Lab dokumentiert. |

@@ -235,7 +235,7 @@ internal sealed class MainWindow : Form
         };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46));
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54));
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 168));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 212));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 48));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 52));
 

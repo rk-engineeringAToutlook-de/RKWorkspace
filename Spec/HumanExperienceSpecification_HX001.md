@@ -1,7 +1,7 @@
 # Human Experience Specification HX-001
 
 Dokument-ID: RKWS-SPEC-HUMAN-EXPERIENCE-HX001
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -24,6 +24,8 @@ Nicht das Greifen.
 Sondern den Moment davor.
 
 HX-001 folgt HX-000. Erst wenn der Benutzer einen Arbeitsraum erlebt, kann ein einzelnes Objekt als Teil der aktuellen Arbeit wahrgenommen werden.
+
+HX-001A folgt auf HX-001. Erst wenn ein Objekt zu meiner Arbeit gehoert, kann seine digitale Antwort Besitz und Kontrolle bestaetigen.
 
 ## Ziel
 
@@ -122,6 +124,7 @@ Greifen beginnt im Kopf.
 ## Querverweise
 
 - `Spec/HumanExperienceSpecification_HX000.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Docs/Nordstern.md`
 - `Spec/UX.md`
 - `Spec/ProductPhilosophy.md`
@@ -133,5 +136,6 @@ Greifen beginnt im Kopf.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | HX-001A als folgende Wahrnehmung digitaler Antwort verlinkt. |
 | 1.1.0 | 2026-07-03 | HX-000 als vorausgehende Arbeitsraum-Wahrnehmung verlinkt. |
 | 1.0.0 | 2026-07-03 | HX-001 als erste Human Experience Specification angelegt. |

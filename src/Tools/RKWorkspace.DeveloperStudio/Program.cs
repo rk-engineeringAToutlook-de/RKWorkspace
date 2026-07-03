@@ -251,6 +251,7 @@ internal static class Program
         var initial = lab.GetSnapshot();
         var startedSuccess = lab.SmokeCheck() &&
             lab.GetActiveHumanExperienceBlock().Contains("HX-000", StringComparison.Ordinal) &&
+            lab.GetActiveHumanExperienceBlock().Contains("HX-001A", StringComparison.Ordinal) &&
             lab.GetActiveHumanExperienceBlock().Contains("HX-003", StringComparison.Ordinal);
 
         lab.SetActiveHumanExperience("HX-001");

@@ -1,7 +1,7 @@
 # RKWS Specification Index
 
 Dokument-ID: RKWS-SPEC-INDEX  
-Version: 0.10.0
+Version: 0.11.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -42,6 +42,7 @@ flowchart TB
 - `HumanExperienceSpecification_HX000.md`
 - `../Docs/Nordstern.md`
 - `HumanExperienceSpecification_HX001.md`
+- `HumanExperienceSpecification_HX001A.md`
 - `EmotionSpecification_ES001.md`
 - `EmotionSpecification_ES002.md`
 - `ProductVision.md`
@@ -75,6 +76,8 @@ flowchart TB
 ## Querverweise
 
 - `Spec/HumanExperienceSpecification_HX000.md`
+- `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Docs/Nordstern.md`
 - `Docs/Architecture/ArchitectureFreeze.md`
 - `Docs/Architecture/ArchitectureBaseline.md`
@@ -89,6 +92,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.11.0 | 2026-07-03 | Human Experience Specification HX-001A aufgenommen. |
 | 0.10.0 | 2026-07-03 | HX-000 als oberste Human Experience Specification aufgenommen. |
 | 0.9.0 | 2026-07-03 | Human Experience Specification HX-001 aufgenommen. |
 | 0.8.0 | 2026-07-03 | Emotion Specification ES-002 aufgenommen. |

@@ -43,6 +43,12 @@ internal sealed class HumanExperienceLabState
         },
         new HumanExperienceDefinition
         {
+            Id = "HX-001A",
+            Title = "Das Objekt antwortet mir.",
+            Description = "Das Ding bestaetigt Kontrolle durch glaubwuerdige digitale Antwort."
+        },
+        new HumanExperienceDefinition
+        {
             Id = "HX-002",
             Title = "Ich habe etwas in meiner Hand.",
             Description = "Nach dem Greifen fuehlt sich das Ding in der digitalen Hand an."
@@ -219,10 +225,11 @@ internal sealed class HumanExperienceLabState
 
     public bool SmokeCheck()
     {
-        return HumanExperiences.Count == 4 &&
-            _experiments.Count >= 4 &&
+        return HumanExperiences.Count == 5 &&
+            _experiments.Count >= HumanExperiences.Count &&
             HumanExperiences.All(hx => _experiments.Any(experiment => experiment.HumanExperienceId == hx.Id)) &&
             GetActiveHumanExperienceBlock().Contains("HX-000", StringComparison.Ordinal) &&
+            GetActiveHumanExperienceBlock().Contains("HX-001A", StringComparison.Ordinal) &&
             GetTimelineText().Contains("HX-003", StringComparison.Ordinal);
     }
 
@@ -358,6 +365,7 @@ internal sealed class HumanExperienceLabState
         {
             "HX-000" => "Pruefen, ob der Owner einen einzigen Arbeitsraum wahrnimmt.",
             "HX-001" => "Pruefen, ob ein Ding als Teil der aktuellen Arbeit wirkt.",
+            "HX-001A" => "Pruefen, ob das Ding durch Verhalten Kontrolle bestaetigt.",
             "HX-002" => "Pruefen, ob sich ein gegriffenes Ding in der digitalen Hand anfuehlt.",
             "HX-003" => "Pruefen, ob sich ein Ding getragen statt gezogen anfuehlt.",
             _ => "Pruefen, ob diese Human Experience wahrnehmbar wird."

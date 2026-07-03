@@ -1,7 +1,7 @@
 # Human Experience Specification HX-000
 
 Dokument-ID: RKWS-SPEC-HUMAN-EXPERIENCE-HX000
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -172,6 +172,7 @@ RK Workspace beginnt in der Wahrnehmung des Menschen.
 
 - `Docs/Nordstern.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Spec/UX.md`
 - `Spec/ProductPhilosophy.md`
 - `Docs/Architecture/README.md`
@@ -181,4 +182,5 @@ RK Workspace beginnt in der Wahrnehmung des Menschen.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | HX-001A als spaetere Wahrnehmung in der HX-Kette verlinkt. |
 | 1.0.0 | 2026-07-03 | HX-000 als oberste Human Experience Specification angelegt. |

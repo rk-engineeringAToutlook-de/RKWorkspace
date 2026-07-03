@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.13.0
+Version: 2.14.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -20,6 +20,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Human Experience Specification HX-000 definiert die oberste Wahrnehmung: `Ich betrete meinen Arbeitsraum`.
 - Der Nordstern ist als Projektorientierung dokumentiert und folgt HX-000 als verbindlichem Kompass fuer Architektur, UX und Implementierung.
 - Human Experience Specification HX-001 definiert die erste bewusste Wahrnehmung vor dem Greifen: `Das gehoert gerade zu meiner Arbeit`.
+- Human Experience Specification HX-001A definiert die digitale Antwort: `Das Objekt antwortet mir`.
 - Emotion Specification ES-001 definiert das erste fuehrende UX-Gefuehl: `Ich habe etwas in meiner Hand`.
 - Emotion Specification ES-002 definiert das zweite fuehrende UX-Gefuehl: `Ich trage etwas`.
 - Produktvision und Architektur sind dokumentiert.
@@ -60,15 +61,16 @@ Neue Entwickler beginnen mit diesen Dokumenten:
 1. `Spec/HumanExperienceSpecification_HX000.md`
 2. `Docs/Nordstern.md`
 3. `Spec/HumanExperienceSpecification_HX001.md`
-4. `Spec/EmotionSpecification_ES001.md`
-5. `Spec/EmotionSpecification_ES002.md`
-6. `Docs/HumanExperience/README.md`
-7. `Docs/00_ProductVision.md`
-8. `Docs/Glossary.md`
-9. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
-10. `Spec/README.md`
-11. `Docs/ADR/README.md`
-12. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+4. `Spec/HumanExperienceSpecification_HX001A.md`
+5. `Spec/EmotionSpecification_ES001.md`
+6. `Spec/EmotionSpecification_ES002.md`
+7. `Docs/HumanExperience/README.md`
+8. `Docs/00_ProductVision.md`
+9. `Docs/Glossary.md`
+10. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+11. `Spec/README.md`
+12. `Docs/ADR/README.md`
+13. `Docs/Architecture/OpenIssuesBeforeMA003.md`
 
 Die Spezifikationen liegen in `Spec/`. Human-Experience-Validierung liegt in `Docs/HumanExperience/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 
@@ -166,7 +168,7 @@ Ab HX-LAB-001 gilt zusaetzlich: Jede sichtbare UX-Komponente muss genau einer HX
 
 Der Nordstern folgt HX-000. Jede neue Funktion muss beantworten, was der Mensch in diesem Moment fuehlen soll. Wenn diese Frage nicht beantwortet werden kann, ist die Funktion noch nicht bereit.
 
-Human Experience Specifications konkretisieren die bewusste Wahrnehmung vor einer Interaktion. HX-001 gilt fuer alle kuenftigen UX-Experimente: Ein Objekt muss zuerst als Teil der aktuellen Arbeit erscheinen.
+Human Experience Specifications konkretisieren die bewusste Wahrnehmung vor einer Interaktion. HX-001 gilt fuer alle kuenftigen UX-Experimente: Ein Objekt muss zuerst als Teil der aktuellen Arbeit erscheinen. HX-001A gilt danach: Das Objekt muss auf die Handlung des Menschen antworten, damit Kontrolle und Besitz entstehen koennen.
 
 Emotion Specifications konkretisieren diese Frage fuer einzelne Zielgefuehle. Sie erzeugen Experimente, aber keine unmittelbaren finalen Produktentscheidungen.
 
@@ -197,6 +199,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 - `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/Nordstern.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Docs/HumanExperience/README.md`
@@ -234,6 +237,8 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.14.0 | 2026-07-03 | Human Experience Specification HX-001A als digitale Antwort des Objekts verlinkt. |
+| 2.13.0 | 2026-07-03 | HX-LAB-001 Human Experience Validation Lab dokumentiert. |
 | 2.12.0 | 2026-07-03 | Human Experience Specification HX-000 als oberste Wahrnehmungsregel verlinkt. |
 | 2.11.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor dem Greifen verlinkt. |
 | 2.10.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument verlinkt. |

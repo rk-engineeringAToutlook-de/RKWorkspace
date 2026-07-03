@@ -1,7 +1,7 @@
 # RKWS UX Specification
 
 Dokument-ID: RKWS-SPEC-UX-001  
-Version: 0.6.0
+Version: 0.7.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -24,6 +24,14 @@ HX-001 definiert die erste bewusste Wahrnehmung:
 ```text
 Das gehoert gerade zu meiner Arbeit.
 ```
+
+HX-001A definiert die digitale Antwort des Objekts:
+
+```text
+Das Objekt antwortet mir.
+```
+
+Wenn ein Objekt nur am Cursor klebt oder nur animiert wird, entsteht keine glaubwuerdige Kontrolle.
 
 ## Emotion Specifications
 
@@ -66,6 +74,7 @@ flowchart LR
 
 - `Spec/HumanExperienceSpecification_HX000.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Spec/GestureModel.md`
@@ -76,6 +85,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.7.0 | 2026-07-03 | Human Experience Specification HX-001A als digitale Antwort vor Besitzgefuehl referenziert. |
 | 0.6.0 | 2026-07-03 | Human Experience Specification HX-000 als Wahrnehmung vor allen Interaktionen referenziert. |
 | 0.5.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor dem Greifen referenziert. |
 | 0.4.0 | 2026-07-03 | Emotion Specification ES-002 als zweites fuehrendes UX-Dokument referenziert. |

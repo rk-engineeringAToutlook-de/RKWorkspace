@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -28,6 +28,8 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Room Perception | Arbeitsraum-Wahrnehmung | Erste Wahrnehmung, dass alles ein Arbeitsraum ist, bevor einzelne Objekte oder Geraete bewertet werden. | Nicht als mehrere Fenster, Betriebssysteme oder Computer darstellen. |
 | Work Relevance | Arbeitsrelevanz | Wahrnehmung, dass ein digitales Ding zur aktuellen Aufgabe gehoert und jetzt mitgenommen werden kann. | Nicht als Dateiauswahl, Fensteraktivierung oder App-Bedienung darstellen. |
 | Take Intent | Nehmen-Wollen | Mentale Bereitschaft, ein Objekt als Teil der Arbeit zu nehmen statt nur darauf zu klicken. | Entsteht vor Greifen, Tragen und Ablegen. |
+| Digital Response | Digitale Antwort | Glaubwuerdiges Verhalten eines digitalen Dings, das Kontrolle bestaetigt. | Nicht als dekorative Animation, Glow oder Wackeln verstehen. |
+| Control Confirmation | Kontrollbestaetigung | Wahrnehmung, dass ein Objekt auf die Handlung des Benutzers antwortet und dadurch kontrollierbar wirkt. | Nicht mit perfektem Cursor-Folgen oder Gehorsam gleichsetzen. |
 | Transition | Uebergang | Sichtbarer und logischer Weg eines digitalen Dings durch den Arbeitsraum. | In UX-Kontexten bevorzugt gegenueber Transfer, Sprung oder Dateiuebertragung. |
 | Carry | Tragen | Zielgefuehl nach dem Greifen: ein digitales Ding bleibt in der digitalen Hand und bewegt sich mit dem Benutzer durch den Arbeitsraum. | Nicht als Cursor-Anhang oder klassisches Drag-and-Drop beschreiben. |
 | Digital Inertia | Digitale Traegheit | Psychologisch spuerbarer, minimal verzoegerter Bewegungsanteil beim Tragen. | Niemals schwammig, langsam, unpraezise oder frustrierend. |
@@ -69,6 +71,7 @@ flowchart LR
 - `Docs/Nordstern.md`
 - `Spec/HumanExperienceSpecification_HX000.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
+- `Spec/HumanExperienceSpecification_HX001A.md`
 - `Spec/EmotionSpecification_ES001.md`
 - `Spec/EmotionSpecification_ES002.md`
 - `Spec/ProductPhilosophy.md`
@@ -81,6 +84,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-03 | HX-001A-Begriffe fuer digitale Antwort und Kontrollbestaetigung ergaenzt. |
 | 1.5.0 | 2026-07-03 | HX-000-Begriffe fuer Arbeitsraum-Wahrnehmung und Human Experience ergaenzt. |
 | 1.4.0 | 2026-07-03 | HX-001-Begriffe fuer Arbeitsrelevanz und Nehmen-Wollen ergaenzt. |
 | 1.3.0 | 2026-07-03 | Tragen und digitale Traegheit fuer ES-002 ergaenzt. |

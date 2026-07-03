@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 2.1.0
+Version: 2.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -76,7 +76,7 @@ Minimal verfuegbare Aktionen:
 
 `Open Multi Window Prototype` oeffnet zwei echte Windows-Forms-Arbeitsflaechen fuer den linken und rechten Arbeitsplatz. Beide Fenster teilen sich denselben `MultiWindowWorkspaceContext` und aktualisieren sich bei Core-Aenderungen gegenseitig. Tooltips erklaeren Arbeitsflaechen, Dinge, Diagnostics, History, Log und die wichtigsten Aktionen.
 
-Das `Human Experience Lab` zeigt HX-000 bis HX-003 dauerhaft, fuehrt Experimente als `Experiment 001`, `Experiment 002` usw. und speichert Owner-Bewertungen lokal. Jede Bewertung erzeugt ein gezieltes Folgeexperiment innerhalb derselben HX. Die fruehere Digitale-Physik-Logik bleibt als Darstellungsgrundlage im Studio vorhanden, ist aber nicht mehr der fuehrende sichtbare Experimentierprozess.
+Das `Human Experience Lab` zeigt HX-000 bis HX-003 dauerhaft und ordnet HX-001A als Zwischenstufe zwischen Arbeitsrelevanz und Tragen ein. Es fuehrt Experimente als `Experiment 001`, `Experiment 002` usw. und speichert Owner-Bewertungen lokal. Jede Bewertung erzeugt ein gezieltes Folgeexperiment innerhalb derselben HX. Die fruehere Digitale-Physik-Logik bleibt als Darstellungsgrundlage im Studio vorhanden, ist aber nicht mehr der fuehrende sichtbare Experimentierprozess.
 
 ## First Contact
 
@@ -135,6 +135,7 @@ Aktuell sichtbare HX:
 
 - HX-000: Ich bin in meinem Arbeitsraum.
 - HX-001: Das gehoert zu meiner Arbeit.
+- HX-001A: Das Objekt antwortet mir.
 - HX-002: Ich habe etwas in meiner Hand.
 - HX-003: Ich trage etwas.
 
@@ -211,6 +212,7 @@ Das Human Experience Lab veraendert ebenfalls keine Core-Komponenten und keinen 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.2.0 | 2026-07-03 | HX-001A als Zwischenstufe digitaler Objektantwort im Human Experience Lab dokumentiert. |
 | 2.1.0 | 2026-07-03 | HX-LAB-001 Human Experience Lab als fuehrende dritte Registerkarte dokumentiert. |
 | 2.0.0 | 2026-07-03 | MA005.04 First Contact mit reduzierter Erstkontakt-Testflaeche dokumentiert. |
 | 1.9.0 | 2026-07-03 | DP-001 Digitale Physik mit Tragevarianten und Pick-Carry-Place dokumentiert. |
