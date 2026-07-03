@@ -7,6 +7,8 @@ public sealed record WorkspaceOverlay
 {
     public bool IsVisible { get; init; }
 
+    public WorkspaceOverlayState State { get; init; } = WorkspaceOverlayState.Inactive;
+
     public WorkspaceCarryState CarryState { get; init; } = WorkspaceCarryState.Empty;
 
     public string? HumanExperienceReference { get; init; }

@@ -1,7 +1,7 @@
 # Developer Workspace Studio
 
 Dokument-ID: RKWS-DEV-DEVELOPER-STUDIO
-Version: 2.5.0
+Version: 2.6.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -14,6 +14,8 @@ Das Studio ist keine Endanwender-GUI und kein Produktagent. Es ist nicht das Pro
 Ab MA006.00 ist das eigentliche Produkt Workspace Shell.
 
 Ab MA006.01 besitzt Workspace Shell einen eigenen Runtime Host. Das Studio bleibt trotzdem Labor, Diagnose und Human-Experience-Playground. Der Produktpfad wird ueber `tools/run-shell.ps1` gestartet, nicht ueber das Studio.
+
+Ab MA006.02 findet der echte Produkttest ueber das Workspace Shell Overlay statt. Das Developer Studio bleibt Diagnose- und Experimentierwerkzeug; es ist nicht die Shell und nicht der spaetere Benutzerzugang.
 
 ## Technologie
 
@@ -207,6 +209,18 @@ Der Human Experience Playground veraendert ebenfalls keine Core-Komponenten und 
 
 Workspace Shell Runtime Host und Developer Studio teilen keine Produktoberflaeche. Der Shell Host ist vorbereitet fuer Overlay, Adapter und Carry State, zeigt aber noch kein Fenster und besitzt keine OS-Hooks. Das Studio darf Shell-Ideen sichtbar erproben, ist aber nicht der spaetere Benutzerzugang.
 
+Der Workspace Overlay Prototype wird nicht im Studio gestartet. Er laeuft ueber:
+
+```powershell
+.\tools\run-shell.ps1 -OverlayDemo
+```
+
+Der automatische Overlay-Smoke laeuft ueber:
+
+```powershell
+.\tools\run-shell.ps1 -OverlaySmokeTest
+```
+
 ## Nicht-Ziele
 
 - keine Netzwerkfunktion
@@ -219,7 +233,7 @@ Workspace Shell Runtime Host und Developer Studio teilen keine Produktoberflaech
 - keine Workspace Shell Produktoberflaeche
 - keine Shell-OS-Hooks
 - keine Shell-Tray-Integration
-- keine transparente Shell-Overlay-Schicht
+- keine produktive Shell-Overlay-Schicht
 
 ## Bekannte Einschraenkungen
 
@@ -252,6 +266,7 @@ Workspace Shell Runtime Host und Developer Studio teilen keine Produktoberflaech
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.6.0 | 2026-07-03 | MA006.02 Hinweis ergaenzt, dass der Produkttest ueber Workspace Shell Overlay laeuft. |
 | 2.5.0 | 2026-07-03 | MA006.01 Shell Runtime Host als Produktpfad dokumentiert; Studio bleibt Labor. |
 | 2.4.0 | 2026-07-03 | MA006.00 Hinweis ergaenzt, dass Developer Studio nur Werkzeug ist und Workspace Shell das Produkt wird. |
 | 2.3.0 | 2026-07-03 | HX-P001 Human Experience Playground mit fuenf isolierten Magic-Moment-Hypothesen dokumentiert. |

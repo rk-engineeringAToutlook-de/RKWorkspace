@@ -1,7 +1,7 @@
 # Workspace Layer
 
 Dokument-ID: RKWS-WORKSPACE-LAYER
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -43,6 +43,14 @@ src/Shell/RKWorkspace.Shell.Host
 
 Dieser Host ist der vorbereitete Produktpfad. Er zeigt kein Hauptfenster, besitzt noch keine OS-Hooks und dient nur dazu, die Shell als staendige unsichtbare Ebene startbar, stoppbar und diagnostizierbar zu machen.
 
+Ab MA006.02 besitzt dieser Produktpfad den ersten sichtbaren Overlay-Prototyp:
+
+```text
+src/Shell/RKWorkspace.Shell.Overlay.Windows
+```
+
+Das Overlay ist keine App-Ebene. Es ist eine transparente Workspace-Ebene ueber dem echten Desktop. Es zeigt nur ein Demo-Ding und linke/rechte Ablagen als Orte im Raum.
+
 ## Ebene 3: Workspace Adapter
 
 Workspace Adapter verbinden bestehende Anwendungen und Umgebungen mit dem Workspace-Raum.
@@ -66,6 +74,7 @@ Die Architektur folgt dieser Richtung:
 ```mermaid
 flowchart TB
     HX["Human Experience"] --> Shell["Workspace Shell"]
+    Shell --> Overlay["Workspace Overlay"]
     Shell --> Adapter["Workspace Adapter"]
     Adapter --> Apps["Anwendungen und Ablagen"]
 ```
@@ -92,5 +101,6 @@ Es definiert nur die Layer-Regel.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype als erste sichtbare Shell-Ebene ergaenzt. |
 | 1.1.0 | 2026-07-03 | MA006.01 Shell Runtime Host als vorbereiteten Produktpfad ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.00 dreistufige Workspace-Layer-Architektur dokumentiert. |

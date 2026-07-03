@@ -199,3 +199,26 @@ if (-not $shellText.Contains('CarryState: Empty')) {
 if (-not $shellText.Contains('RESULT: SUCCESS')) {
     throw "Workspace Shell Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Workspace Overlay Smoke Test'
+Write-Host '----------------------------'
+$overlayOutput = & (Join-Path $root 'tools\run-shell.ps1') -OverlaySmokeTest 2>&1
+$overlayExitCode = $LASTEXITCODE
+$overlayOutput | ForEach-Object { Write-Host $_ }
+if ($overlayExitCode -ne 0) {
+    throw "Workspace Overlay Smoke Test failed with exit code $overlayExitCode."
+}
+
+$overlayText = $overlayOutput -join [Environment]::NewLine
+if (-not $overlayText.Contains('RK Workspace Overlay Smoke Test')) {
+    throw "Workspace Overlay Smoke Test failed because output did not contain RK Workspace Overlay Smoke Test."
+}
+
+if (-not $overlayText.Contains('OverlaySmoke: SUCCESS')) {
+    throw "Workspace Overlay Smoke Test failed because output did not contain OverlaySmoke: SUCCESS."
+}
+
+if (-not $overlayText.Contains('RESULT: SUCCESS')) {
+    throw "Workspace Overlay Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

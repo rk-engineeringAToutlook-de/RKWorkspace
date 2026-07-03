@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -49,6 +49,8 @@ Aktuelle Architekturdateien:
 - `WorkspaceShellRuntimeState.cs`
 - `WorkspaceShellDiagnostics.cs`
 - `WorkspaceShellRuntimeException.cs`
+- `WorkspaceOverlayState.cs`
+- `WorkspaceOverlayStateMapper.cs`
 - `WorkspaceOverlay.cs`
 - `WorkspaceOverlayManager.cs`
 - `WorkspaceSession.cs`
@@ -73,6 +75,8 @@ Startskript:
 .\tools\run-shell.ps1
 .\tools\run-shell.ps1 -Once
 .\tools\run-shell.ps1 -Status
+.\tools\run-shell.ps1 -OverlayDemo
+.\tools\run-shell.ps1 -OverlaySmokeTest
 ```
 
 Der Smoke-Pfad zeigt:
@@ -94,6 +98,30 @@ Damit ist sichtbar:
 - Der menschliche Carry State ist `Empty`.
 - Das Overlay ist vorbereitet, aber inaktiv.
 - Es gibt weiterhin keine OS-Hooks, keine Adapter, keine Discovery und keine Netzwerkfunktion.
+
+## Workspace Overlay Prototype
+
+MA006.02 fuehrt den ersten sichtbaren Shell-Schritt ein:
+
+```text
+src/Shell/RKWorkspace.Shell.Overlay.Windows
+```
+
+Der Prototyp ist Windows-spezifisch und bewusst von `src/Shell/RKWorkspace.Shell` getrennt. Der neutrale Shell-Core kennt nur die Overlay-States und deren Kompatibilitaet zu `WorkspaceCarryState`; die transparente Desktop-Ebene, Mausinteraktion und Darstellung liegen im Windows-Projekt.
+
+Der Demo-Modus:
+
+```powershell
+.\tools\run-shell.ps1 -OverlayDemo
+```
+
+Der Smoke-Test:
+
+```powershell
+.\tools\run-shell.ps1 -OverlaySmokeTest
+```
+
+Der Prototyp zeigt eine transparente Ebene ueber dem echten Desktop, ein einzelnes digitales Ding und zwei Ablagen am linken und rechten Bildschirmrand. `Esc` beendet die Ebene sicher.
 
 ## Human Experience Referenz
 
@@ -168,6 +196,18 @@ Es besitzt keine:
 
 Es erscheint nur, wenn Human Experience entsteht.
 
+Ab MA006.02 existieren dafuer die neutralen Overlay-Zustaende:
+
+- Inactive
+- Listening
+- CarryCandidate
+- Picked
+- Carried
+- NearAblage
+- Placed
+- Cancelled
+- Failed
+
 ## Nicht-Ziele
 
 MA006.00 baut noch nicht:
@@ -191,9 +231,19 @@ MA006.01 baut zusaetzlich noch nicht:
 - Explorer-, Browser- oder Office-Adapter
 - persistente Shell-Sessions
 
+MA006.02 baut noch nicht:
+
+- echte Desktop-Objekterkennung
+- Explorer-, Browser- oder Office-Adapter
+- globale Eingabe-Hooks
+- echte Monitor- oder Rand-Erkennung
+- produktive Overlay-Persistenz
+- Netzwerk, Discovery oder Pairing
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype und Overlay-States dokumentiert. |
 | 1.1.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host und Shell-Smoke dokumentiert. |
 | 1.0.0 | 2026-07-03 | MA006.00 Workspace Shell Foundation dokumentiert. |

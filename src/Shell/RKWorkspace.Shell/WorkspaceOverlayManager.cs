@@ -22,6 +22,7 @@ public sealed class WorkspaceOverlayManager
         _overlay = new WorkspaceOverlay
         {
             IsVisible = true,
+            State = WorkspaceOverlayStateMapper.FromCarryState(carryState),
             CarryState = carryState,
             HumanExperienceReference = humanExperienceReference,
             Reason = reason

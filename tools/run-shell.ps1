@@ -1,6 +1,8 @@
 param(
     [switch] $Once,
     [switch] $Status,
+    [switch] $OverlayDemo,
+    [switch] $OverlaySmokeTest,
     [switch] $Help
 )
 
@@ -16,6 +18,14 @@ if ($Once) {
 
 if ($Status) {
     $shellArgs += '--status'
+}
+
+if ($OverlayDemo) {
+    $shellArgs += '--overlay-demo'
+}
+
+if ($OverlaySmokeTest) {
+    $shellArgs += '--overlay-smoke-test'
 }
 
 if ($Help) {

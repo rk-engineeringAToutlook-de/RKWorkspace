@@ -1,10 +1,12 @@
 using RKWorkspace.Shell;
+using RKWorkspace.Shell.Overlay.Windows;
 
 namespace RKWorkspace.Shell.Host;
 
 internal static class Program
 {
-    private static async Task<int> Main(string[] args)
+    [STAThread]
+    private static int Main(string[] args)
     {
         if (args.Any(argument => Is(argument, "--help")))
         {
@@ -21,13 +23,25 @@ internal static class Program
 
         var once = args.Any(argument => Is(argument, "--once"));
         var status = args.Any(argument => Is(argument, "--status"));
-        if (once && status)
+        var overlayDemo = args.Any(argument => Is(argument, "--overlay-demo"));
+        var overlaySmokeTest = args.Any(argument => Is(argument, "--overlay-smoke-test"));
+        if (new[] { once, status, overlayDemo, overlaySmokeTest }.Count(enabled => enabled) > 1)
         {
-            Console.WriteLine("RK Workspace Shell failed: --once and --status cannot be used together.");
+            Console.WriteLine("RK Workspace Shell failed: shell modes cannot be combined.");
             return 1;
         }
 
         var runtime = new WorkspaceShellRuntime();
+        if (overlayDemo)
+        {
+            return WorkspaceOverlayApplication.RunDemo();
+        }
+
+        if (overlaySmokeTest)
+        {
+            return WorkspaceOverlayApplication.RunSmokeTest();
+        }
+
         if (once)
         {
             return RunOnce(runtime);
@@ -38,7 +52,7 @@ internal static class Program
             return RunStatus(runtime);
         }
 
-        return await RunUntilCancelled(runtime);
+        return RunUntilCancelled(runtime).GetAwaiter().GetResult();
     }
 
     private static int RunOnce(IWorkspaceShellRuntime runtime)
@@ -111,6 +125,10 @@ internal static class Program
         Console.WriteLine("Options:");
         Console.WriteLine("  --once      Start the shell, print status, then stop cleanly.");
         Console.WriteLine("  --status    Print prepared shell diagnostics and stop.");
+        Console.WriteLine("  --overlay-demo");
+        Console.WriteLine("              Start the transparent Workspace Overlay prototype.");
+        Console.WriteLine("  --overlay-smoke-test");
+        Console.WriteLine("              Initialize the Workspace Overlay prototype and stop.");
         Console.WriteLine("  --help      Show help.");
     }
 
@@ -119,6 +137,8 @@ internal static class Program
         return value.StartsWith("--", StringComparison.Ordinal) &&
             !Is(value, "--once") &&
             !Is(value, "--status") &&
+            !Is(value, "--overlay-demo") &&
+            !Is(value, "--overlay-smoke-test") &&
             !Is(value, "--help");
     }
 

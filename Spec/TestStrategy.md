@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.2.0
+Version: 2.3.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -58,6 +58,8 @@ Ab MA004.X prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Interactive 
 Ab MA005.00 prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Multi Window Workspace Prototype. Der Smoke-Test verwendet denselben Core-Kontext wie die sichtbaren Fenster und prueft den Transferpfad von Window A nach Window B ohne echte Maus-UI-Automation.
 
 Ab MA006.01 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Shell Smoke-Test mit `tools/run-shell.ps1 -Once`. Dieser Test startet den vorbereiteten Shell-Produktpfad ohne Hauptfenster, prueft den Runtime-Status und beendet den Prozess wieder sauber.
+
+Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke-Test mit `tools/run-shell.ps1 -OverlaySmokeTest`. Dieser Test initialisiert den Windows-Overlay-Prototyp ohne manuelle Bedienung und prueft Overlay-State, Carry-State-Kompatibilitaet, Demo-Ding, Ablagen und sicheren Exit-Pfad.
 
 ## MA003.05 Core Integration Tests
 
@@ -288,6 +290,41 @@ Der Smoke-Test erwartet:
 
 Der Test prueft keine OS-Hooks, keine transparente Overlay-Anzeige, keine Adapter, keine Discovery und keine Netzwerkfunktion. Er beweist nur, dass die Shell als Runtime-Prozess startbar ist, eine aktive Workspace Session besitzt, den Carry State sichtbar meldet und das vorbereitete Overlay inaktiv laesst.
 
+## MA006.02 Workspace Overlay Prototype Tests
+
+MA006.02 fuehrt `src/Shell/RKWorkspace.Shell.Overlay.Windows/` ein. Das Projekt ist Windows-spezifisch und bleibt vom neutralen Shell-Core getrennt.
+
+Der Overlay Smoke-Test in `tools/run-tests.ps1` fuehrt aus:
+
+```powershell
+.\tools\run-shell.ps1 -OverlaySmokeTest
+```
+
+Der Smoke-Test erwartet:
+
+- Exitcode 0.
+- Ausgabe enthaelt `RK Workspace Overlay Smoke Test`.
+- Ausgabe enthaelt `OverlaySmoke: SUCCESS`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+
+Der Test prueft:
+
+- Shell Runtime startet.
+- Overlay-Prototyp kann initialisiert werden.
+- Overlay-State erreicht `Placed`.
+- Carry-State ist kompatibel zu `WorkspaceCarryState`.
+- `Digitales Ding` ist als Demo-Objekt vorhanden.
+- `Ablage links` und `Ablage rechts` sind vorbereitet.
+- `Esc` ist als sicherer Exit-Pfad vorgesehen.
+
+Der Test prueft nicht:
+
+- echte UI-Automation mit Maus.
+- echte Desktop-Objekte.
+- globale OS-Hooks.
+- Explorer-, Browser-, Office- oder Mail-Adapter.
+- Netzwerk, Discovery oder Pairing.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -299,6 +336,7 @@ Der Test prueft keine OS-Hooks, keine transparente Overlay-Anzeige, keine Adapte
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.3.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype Smoke-Test dokumentiert. |
 | 2.2.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host Smoke-Test dokumentiert. |
 | 2.1.0 | 2026-07-02 | MA005.00 Multi Window Workspace Prototype Smoke-Test dokumentiert. |
 | 2.0.0 | 2026-07-02 | MA004.X Interactive Workspace Prototype Smoke-Test dokumentiert. |
