@@ -11,6 +11,9 @@
     --tilt-y: 0deg;
     --held-scale: 1;
     --surface-scale: 1;
+    --portal-progress: 0;
+    --source-progress: 0;
+    --target-progress: 0;
     --lift-depth: 0px;
     --shadow-x: 0px;
     --shadow-y: 18px;
@@ -232,10 +235,11 @@ h1 {
 }
 
 .thing-card.is-gliding-into-bubble {
-    --held-scale: .82 !important;
+    --held-scale: .78 !important;
     --lift-depth: 18px;
-    opacity: .84;
+    opacity: .78;
     border-color: rgba(76, 121, 101, .5);
+    filter: saturate(.96) contrast(.98);
     transition:
         transform 180ms cubic-bezier(.24, .72, .24, 1),
         opacity 180ms ease,
@@ -244,7 +248,7 @@ h1 {
 
 .thing-card.is-preview,
 .thing-card.is-arriving {
-    opacity: .5;
+    opacity: calc(.34 + (var(--target-progress) * .5));
     border-color: rgba(78, 126, 152, .34);
     background:
         linear-gradient(130deg, rgba(255, 255, 255, .46), rgba(226, 236, 238, .5)),
@@ -252,6 +256,16 @@ h1 {
     box-shadow:
         0 20px 34px rgba(45, 69, 78, .13),
         0 0 0 1px rgba(255, 255, 255, .4) inset;
+}
+
+body.is-ready-to-place .thing-card.is-arriving {
+    border-color: rgba(72, 132, 104, .48);
+    background:
+        linear-gradient(130deg, rgba(255, 255, 255, .72), rgba(229, 240, 234, .68)),
+        #eef3f0;
+    box-shadow:
+        0 22px 38px rgba(44, 76, 62, .16),
+        0 0 0 1px rgba(255, 255, 255, .58) inset;
 }
 
 .thing-card.is-placed {
@@ -346,6 +360,7 @@ h1 {
     color: #24312d;
     box-shadow: 0 12px 28px rgba(53, 65, 59, .1);
     transform: scale(var(--bubble-scale, .72));
+    transform-style: preserve-3d;
     transition:
         transform 320ms cubic-bezier(.2, .75, .2, 1),
         background 260ms ease,
@@ -369,8 +384,20 @@ h1 {
     transition: opacity 260ms ease, transform 320ms cubic-bezier(.2, .75, .2, 1);
 }
 
+.ablage-bubble.is-portal {
+    width: 94px;
+    height: 76px;
+    margin: -38px 0 0 -47px;
+    border-radius: 46% 54% 54% 46% / 50% 46% 54% 50%;
+    background:
+        radial-gradient(ellipse at 48% 50%, rgba(246, 252, 247, .92), rgba(217, 238, 227, .74) 58%, rgba(203, 222, 215, .2) 74%),
+        rgba(229, 239, 232, .76);
+}
+
 .ablage-bubble.is-opening,
-.ablage-bubble.is-active {
+.ablage-bubble.is-active,
+.ablage-bubble.is-entering,
+.ablage-bubble.is-emerging {
     border-color: rgba(64, 128, 91, .64);
     background: rgba(225, 242, 231, .9);
     box-shadow: 0 18px 36px rgba(55, 84, 66, .2);
@@ -379,10 +406,30 @@ h1 {
 
 .ablage-bubble.is-opening .bubble-lens,
 .ablage-bubble.is-active .bubble-lens,
+.ablage-bubble.is-entering .bubble-lens,
+.ablage-bubble.is-emerging .bubble-lens,
 .ablage-bubble.is-opening::before,
-.ablage-bubble.is-active::before {
+.ablage-bubble.is-active::before,
+.ablage-bubble.is-entering::before,
+.ablage-bubble.is-emerging::before {
     opacity: 1;
     transform: scale(1.12) rotateX(62deg);
+}
+
+.ablage-bubble.is-entering {
+    box-shadow:
+        inset -18px 0 30px rgba(56, 92, 78, .16),
+        0 19px 38px rgba(55, 84, 66, .2);
+}
+
+.ablage-bubble.is-emerging {
+    box-shadow:
+        inset 18px 0 30px rgba(255, 255, 255, .44),
+        0 20px 40px rgba(55, 84, 66, .22);
+}
+
+.ablage-bubble.is-emerging .bubble-dot {
+    transform: scale(calc(.72 + (var(--target-progress, 0) * .28)));
 }
 
 .ablage-bubble.is-placed {
@@ -457,8 +504,12 @@ h1 {
 
 .ablage-bubble.is-opening .bubble-opening,
 .ablage-bubble.is-active .bubble-opening,
+.ablage-bubble.is-entering .bubble-opening,
+.ablage-bubble.is-emerging .bubble-opening,
 .ablage-bubble.is-opening .bubble-action,
-.ablage-bubble.is-active .bubble-action {
+.ablage-bubble.is-active .bubble-action,
+.ablage-bubble.is-entering .bubble-action,
+.ablage-bubble.is-emerging .bubble-action {
     opacity: 1;
 }
 

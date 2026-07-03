@@ -48,6 +48,11 @@ public static class SpatialTraySmokeTest
             var transitionPreparedOk = initialHandy.RootElement.GetProperty("transition").GetProperty("targetGhostBeforePlace").GetBoolean() &&
                 initialHandy.RootElement.GetProperty("transition").GetProperty("glideIntoBubble").GetBoolean() &&
                 initialHandy.RootElement.GetProperty("transition").GetProperty("targetPositioning").GetString() == "relative-on-ablage";
+            var portalPreparedOk = initialHandy.RootElement.GetProperty("transition").GetProperty("portalPhases").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("transition").GetProperty("portalTransition").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("transition").GetProperty("objectEmerges").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("transition").GetProperty("enteringProgress").GetDouble() > 0 &&
+                initialHandy.RootElement.GetProperty("transition").GetProperty("emergingProgress").GetDouble() < 1;
             var roomHasAblagenOk = HasAblage(initialHandy.RootElement, "handy") &&
                 HasAblage(initialHandy.RootElement, "monitor");
             var preparedAblagenOk = initialHandy.RootElement.GetProperty("ablagen").GetArrayLength() >= 5;
@@ -80,10 +85,31 @@ public static class SpatialTraySmokeTest
                 monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean() &&
                 monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("text").GetString()?.Contains("kommt an", StringComparison.Ordinal) == true;
             var targetGhostOk = monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("ghostVisible").GetBoolean() &&
-                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "Arriving" &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "ReadyToPlace" &&
                 monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("displayScale").GetDouble() < 1;
+            var portalTransition = approachMonitor.RootElement.GetProperty("portalTransition");
+            var portalTransitionOk = portalTransition.ValueKind == JsonValueKind.Object &&
+                portalTransition.GetProperty("transitionId").GetString()?.StartsWith("portal-", StringComparison.Ordinal) == true &&
+                portalTransition.GetProperty("thingId").GetString() == "thing-rechnung" &&
+                portalTransition.GetProperty("sourceAblageId").GetString() == "handy" &&
+                portalTransition.GetProperty("targetAblageId").GetString() == "monitor" &&
+                portalTransition.GetProperty("state").GetString() == "ReadyToPlace" &&
+                portalTransition.GetProperty("progress").GetDouble() > 0 &&
+                portalTransition.GetProperty("progress").GetDouble() < 1;
+            var sourceProgressOk = approachMonitor.RootElement.GetProperty("surfaceThing").GetProperty("sourceVisualProgress").GetDouble() > 0 &&
+                approachMonitor.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "ObjectEntering";
+            var targetProgressOk = monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("targetVisualProgress").GetDouble() > 0 &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("displayScale").GetDouble() > 0.8;
+            var noInstantJumpOk = Thing(approachMonitor.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
+                !monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
+                Thing(approachMonitor.RootElement).GetProperty("currentState").GetString() == "PreviewOnAblage";
             var openingAblageOk = approachMonitor.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "OpeningAblage" &&
-                Bubble(approachMonitor.RootElement, "monitor").GetProperty("opens").GetBoolean();
+                Bubble(approachMonitor.RootElement, "monitor").GetProperty("opens").GetBoolean() &&
+                Bubble(approachMonitor.RootElement, "monitor").GetProperty("portalPhase").GetString() == "ObjectEmerging";
+            var portalEdgeOk = Bubble(approachMonitor.RootElement, "monitor").GetProperty("x").GetDouble() > 0.85 &&
+                Bubble(approachMonitor.RootElement, "monitor").GetProperty("isPortal").GetBoolean();
+            var readyToPlaceOk = monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("readyToPlace").GetBoolean() &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "ReadyToPlace";
             var activeBubbleOk = Bubble(approachMonitor.RootElement, "monitor").GetProperty("actionText").GetString() == "Hier ablegen";
 
             using var placeMonitor = await PostJsonAsync(
@@ -113,6 +139,8 @@ public static class SpatialTraySmokeTest
             using var handyPreview = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
             var handyPreviewOk = Thing(approachHandy.RootElement).GetProperty("previewAblageId").GetString() == "handy" &&
                 handyPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean();
+            var returnPortalOk = approachHandy.RootElement.GetProperty("portalTransition").GetProperty("sourceAblageId").GetString() == "monitor" &&
+                approachHandy.RootElement.GetProperty("portalTransition").GetProperty("targetAblageId").GetString() == "handy";
 
             using var placeHandy = await PostJsonAsync(
                 client,
@@ -153,6 +181,7 @@ public static class SpatialTraySmokeTest
                 softSnapOk &&
                 hapticsPreparedOk &&
                 transitionPreparedOk &&
+                portalPreparedOk &&
                 roomHasAblagenOk &&
                 preparedAblagenOk &&
                 initialThingOk &&
@@ -161,12 +190,19 @@ public static class SpatialTraySmokeTest
                 sourceTraceOk &&
                 monitorPreviewOk &&
                 targetGhostOk &&
+                portalTransitionOk &&
+                sourceProgressOk &&
+                targetProgressOk &&
+                noInstantJumpOk &&
                 openingAblageOk &&
+                portalEdgeOk &&
+                readyToPlaceOk &&
                 activeBubbleOk &&
                 placeMonitorOk &&
                 targetPositionOk &&
                 pickFromMonitorOk &&
                 handyPreviewOk &&
+                returnPortalOk &&
                 placeHandyOk &&
                 freePlaceOk &&
                 cancelOk &&
@@ -185,6 +221,7 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Soft snap: {(softSnapOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Haptics prepared: {(hapticsPreparedOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Glide prepared: {(transitionPreparedOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Portal prepared: {(portalPreparedOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Room ablagen: {(roomHasAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Prepared ablagen: {(preparedAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Initial thing: {(initialThingOk ? "OK" : "FAILED")}");
@@ -193,12 +230,19 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Source trace: {(sourceTraceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Monitor preview: {(monitorPreviewOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Target ghost: {(targetGhostOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Portal transition: {(portalTransitionOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Source progress: {(sourceProgressOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Target progress: {(targetProgressOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"No instant jump: {(noInstantJumpOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Opening ablage: {(openingAblageOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Portal edge: {(portalEdgeOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Ready to place: {(readyToPlaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Active bubble: {(activeBubbleOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Place on monitor: {(placeMonitorOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Target position: {(targetPositionOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Pick from monitor: {(pickFromMonitorOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Handy preview: {(handyPreviewOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Return portal: {(returnPortalOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Place on handy: {(placeHandyOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Free place: {(freePlaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Cancel return: {(cancelOk ? "OK" : "FAILED")}");
@@ -253,6 +297,9 @@ public static class SpatialTraySmokeTest
             "Agent",
             "Workspace",
             "IPC",
+            "Portal-API",
+            "Request",
+            "Response",
             "Empfaenger",
             "Empfänger",
             "Sender"
@@ -269,8 +316,15 @@ public static class SpatialTraySmokeTest
             css.Contains("is-gliding-into-bubble", StringComparison.Ordinal) &&
             css.Contains("is-occluded", StringComparison.Ordinal) &&
             css.Contains("bubble-lens", StringComparison.Ordinal) &&
+            css.Contains("is-portal", StringComparison.Ordinal) &&
+            css.Contains("is-entering", StringComparison.Ordinal) &&
+            css.Contains("is-emerging", StringComparison.Ordinal) &&
+            css.Contains("--portal-progress", StringComparison.Ordinal) &&
             js.Contains("targetTilt", StringComparison.Ordinal) &&
-            js.Contains("movement", StringComparison.Ordinal) &&
+            js.Contains("movement.x", StringComparison.Ordinal) &&
+            js.Contains("movement.y", StringComparison.Ordinal) &&
+            js.Contains("portalProgress", StringComparison.Ordinal) &&
+            js.Contains("is-ready-to-place", StringComparison.Ordinal) &&
             js.Contains("navigator.vibrate", StringComparison.Ordinal) &&
             js.Contains("Ding gleitet hinein", StringComparison.Ordinal);
     }

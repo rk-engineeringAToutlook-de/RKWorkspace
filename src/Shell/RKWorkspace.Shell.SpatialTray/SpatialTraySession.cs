@@ -90,12 +90,13 @@ public sealed class SpatialTraySession
                 updatedAt = _room.UpdatedAt,
                 state = CurrentState.ToString(),
                 carryState = CarryStateText(),
-                surface = CreateAblageSnapshot(viewer, SpatialAblageBubbleState.Readable, viewer.Distance, true),
-                ablagen = _room.Ablagen.Select(ablage => CreateAblageSnapshot(ablage, SpatialAblageBubbleState.Visible, ablage.Distance, true)).ToArray(),
+                surface = CreateAblageSnapshot(viewer, SpatialAblageBubbleState.ReadableBubble, viewer.Distance, true),
+                ablagen = _room.Ablagen.Select(ablage => CreateAblageSnapshot(ablage, SpatialAblageBubbleState.DistantBubble, ablage.Distance, true)).ToArray(),
                 things = _room.Things.Select(CreateThingSnapshot).ToArray(),
                 thing = "Digitales Ding",
                 name = thing.DisplayName,
                 activeCarry = _room.ActiveCarry is null ? null : CreateCarrySnapshot(_room.ActiveCarry),
+                portalTransition = _room.ActivePortalTransition is null ? null : CreatePortalTransitionSnapshot(_room.ActivePortalTransition),
                 activeAblage = viewer.DisplayName,
                 activeAblageId = viewer.AblageId,
                 compass = bubbles,
@@ -124,6 +125,7 @@ public sealed class SpatialTraySession
                     opticalPrepared = _configuration.OpticalHapticsPrepared,
                     digitalHand = true,
                     partialOcclusion = true,
+                    occlusionRatio = _configuration.HandOcclusionRatio,
                     contactShadow = true,
                     compactWhenHeld = true,
                     vibrateOnPickMs = 8,
@@ -134,12 +136,17 @@ public sealed class SpatialTraySession
                 transition = new
                 {
                     bubbleOpens = true,
+                    portalPhases = true,
+                    portalTransition = true,
                     targetGhostBeforePlace = true,
                     glideIntoBubble = true,
+                    objectEmerges = true,
                     placeAfterGlide = true,
                     targetPositioning = "relative-on-ablage",
+                    enteringProgress = _configuration.PortalEnteringProgress,
+                    emergingProgress = _configuration.PortalEmergingProgress,
                     carriedScale = _configuration.HeldCompactScale,
-                    previewScale = 0.82,
+                    previewScale = 0.74,
                     placedScale = 1.0
                 },
                 placement = new
@@ -192,7 +199,7 @@ public sealed class SpatialTraySession
                 PositionOnAblage = null,
                 UpdatedAt = now
             });
-            _room = _room with { ActiveCarry = carry, UpdatedAt = now };
+            _room = _room with { ActiveCarry = carry, ActivePortalTransition = null, UpdatedAt = now };
         }
     }
 
@@ -255,6 +262,19 @@ public sealed class SpatialTraySession
                 State = SpatialCarrySessionState.OpeningAblage,
                 UpdatedAt = now
             };
+            var transition = new SpatialPortalTransition
+            {
+                TransitionId = $"portal-{Guid.NewGuid():N}",
+                ThingId = ThingId,
+                SourceAblageId = carry.SourceAblageId,
+                TargetAblageId = target.AblageId,
+                State = SpatialPortalTransitionState.ReadyToPlace,
+                Progress = _configuration.PortalEmergingProgress,
+                SourceVisualProgress = _configuration.PortalEnteringProgress,
+                TargetVisualProgress = _configuration.PortalEmergingProgress,
+                StartedAt = now,
+                UpdatedAt = now
+            };
             ReplaceThing(MainThing() with
             {
                 CurrentState = SpatialThingState.PreviewOnAblage,
@@ -264,7 +284,7 @@ public sealed class SpatialTraySession
                 PositionOnAblage = null,
                 UpdatedAt = now
             });
-            _room = _room with { ActiveCarry = carry, UpdatedAt = now };
+            _room = _room with { ActiveCarry = carry, ActivePortalTransition = transition, UpdatedAt = now };
         }
     }
 
@@ -302,6 +322,7 @@ public sealed class SpatialTraySession
             _room = _room with
             {
                 ActiveCarry = carry with { State = SpatialCarrySessionState.Placed, UpdatedAt = now },
+                ActivePortalTransition = null,
                 UpdatedAt = now
             };
         }
@@ -336,6 +357,17 @@ public sealed class SpatialTraySession
                     State = SpatialCarrySessionState.Placed,
                     UpdatedAt = now
                 },
+                ActivePortalTransition = _room.ActivePortalTransition is null
+                    ? null
+                    : _room.ActivePortalTransition with
+                    {
+                        TargetAblageId = target.AblageId,
+                        State = SpatialPortalTransitionState.Placed,
+                        Progress = 1.0,
+                        SourceVisualProgress = 1.0,
+                        TargetVisualProgress = 1.0,
+                        UpdatedAt = now
+                    },
                 UpdatedAt = now
             };
         }
@@ -364,6 +396,13 @@ public sealed class SpatialTraySession
             _room = _room with
             {
                 ActiveCarry = carry with { State = SpatialCarrySessionState.Cancelled, UpdatedAt = now },
+                ActivePortalTransition = _room.ActivePortalTransition is null
+                    ? null
+                    : _room.ActivePortalTransition with
+                    {
+                        State = SpatialPortalTransitionState.Cancelled,
+                        UpdatedAt = now
+                    },
                 UpdatedAt = now
             };
         }
@@ -481,20 +520,24 @@ public sealed class SpatialTraySession
             direction = ablage.RelativePosition,
             distance = distance.ToString(),
             state = state.ToString(),
+            portalPhase = state.ToString(),
             isAvailable = ablage.IsAvailable,
-            isActive = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active,
-            opens = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active,
+            isActive = state is SpatialAblageBubbleState.OpeningPortal or SpatialAblageBubbleState.PortalOpen or SpatialAblageBubbleState.ObjectEntering or SpatialAblageBubbleState.ObjectEmerging,
+            opens = state is SpatialAblageBubbleState.OpeningPortal or SpatialAblageBubbleState.PortalOpen or SpatialAblageBubbleState.ObjectEntering or SpatialAblageBubbleState.ObjectEmerging,
+            isPortal = state is SpatialAblageBubbleState.OpeningPortal or SpatialAblageBubbleState.PortalOpen or SpatialAblageBubbleState.ObjectEntering or SpatialAblageBubbleState.ObjectEmerging,
             canReceive = ablage.CanReceive,
             canProvide = ablage.CanProvide,
             metadata = ablage.Metadata,
             lastSeen = ablage.LastSeen,
-            x = ablage.Position.X,
-            y = ablage.Position.Y,
+            x = EdgePositionFor(ablage).X,
+            y = EdgePositionFor(ablage).Y,
+            roomX = ablage.Position.X,
+            roomY = ablage.Position.Y,
             scale = Math.Round(BaseScale(distance) * _configuration.BubbleScaleFactor, 2),
-            nameReadable = forceReadable || state is SpatialAblageBubbleState.Readable or SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active or SpatialAblageBubbleState.Placed,
+            nameReadable = forceReadable || state is SpatialAblageBubbleState.ReadableBubble or SpatialAblageBubbleState.OpeningPortal or SpatialAblageBubbleState.PortalOpen or SpatialAblageBubbleState.ObjectEntering or SpatialAblageBubbleState.ObjectEmerging or SpatialAblageBubbleState.Placed,
             microTextVisible = distance == SpatialAblageDistance.Medium,
-            openingText = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active ? "Ablage oeffnet sich" : string.Empty,
-            actionText = state is SpatialAblageBubbleState.Opening or SpatialAblageBubbleState.Active ? "Hier ablegen" : string.Empty
+            openingText = state is SpatialAblageBubbleState.OpeningPortal or SpatialAblageBubbleState.PortalOpen or SpatialAblageBubbleState.ObjectEntering or SpatialAblageBubbleState.ObjectEmerging ? "Ablage oeffnet sich" : string.Empty,
+            actionText = state is SpatialAblageBubbleState.PortalOpen or SpatialAblageBubbleState.ObjectEntering or SpatialAblageBubbleState.ObjectEmerging ? "Hier ablegen" : string.Empty
         };
     }
 
@@ -531,6 +574,23 @@ public sealed class SpatialTraySession
         };
     }
 
+    private object CreatePortalTransitionSnapshot(SpatialPortalTransition transition)
+    {
+        return new
+        {
+            transitionId = transition.TransitionId,
+            thingId = transition.ThingId,
+            sourceAblageId = transition.SourceAblageId,
+            targetAblageId = transition.TargetAblageId,
+            state = transition.State.ToString(),
+            progress = transition.Progress,
+            sourceVisualProgress = transition.SourceVisualProgress,
+            targetVisualProgress = transition.TargetVisualProgress,
+            startedAt = transition.StartedAt,
+            updatedAt = transition.UpdatedAt
+        };
+    }
+
     private object CreateSurfaceThingSnapshot(string viewerAblageId, SpatialThing thing)
     {
         var isHere = thing.CurrentAblageId == viewerAblageId &&
@@ -539,6 +599,11 @@ public sealed class SpatialTraySession
             thing.CurrentState is SpatialThingState.Picked or SpatialThingState.Carried or SpatialThingState.PreviewOnAblage or SpatialThingState.ApproachingAblage;
         var isPreviewHere = thing.PreviewAblageId == viewerAblageId &&
             thing.CurrentState is SpatialThingState.PreviewOnAblage or SpatialThingState.ApproachingAblage;
+        var portal = _room.ActivePortalTransition;
+        var isPortalSource = portal?.SourceAblageId == viewerAblageId &&
+            (thing.CurrentState is SpatialThingState.PreviewOnAblage or SpatialThingState.Carried);
+        var isPortalTarget = portal?.TargetAblageId == viewerAblageId &&
+            thing.CurrentState is SpatialThingState.PreviewOnAblage;
         var sourceWasHere = _room.ActiveCarry?.SourceAblageId == viewerAblageId &&
             thing.CurrentAblageId is null &&
             thing.CurrentCarryId is not null;
@@ -548,13 +613,17 @@ public sealed class SpatialTraySession
             isHere,
             isCarriedHere,
             isPreviewHere,
-            ghostVisible = isPreviewHere,
+            ghostVisible = isPreviewHere || isPortalTarget,
             sourceWasHere,
             displayName = thing.DisplayName,
             state = thing.CurrentState.ToString(),
             position = isPreviewHere ? PreviewPosition(viewerAblageId) : thing.PositionOnAblage,
-            displayScale = SurfaceThingScale(isHere, isCarriedHere, isPreviewHere),
-            glidePhase = SurfaceThingGlidePhase(isHere, isCarriedHere, isPreviewHere, sourceWasHere),
+            displayScale = SurfaceThingScale(isHere, isCarriedHere, isPreviewHere, portal, viewerAblageId),
+            glidePhase = SurfaceThingGlidePhase(isHere, isCarriedHere, isPreviewHere, sourceWasHere, portal, viewerAblageId),
+            portalProgress = portal?.Progress ?? 0,
+            sourceVisualProgress = isPortalSource ? portal?.SourceVisualProgress ?? 0 : 0,
+            targetVisualProgress = isPortalTarget ? portal?.TargetVisualProgress ?? 0 : 0,
+            readyToPlace = portal?.State == SpatialPortalTransitionState.ReadyToPlace && isPortalTarget,
             partialOcclusion = isCarriedHere,
             heldCompact = isCarriedHere,
             opticalHaptics = isCarriedHere || isPreviewHere,
@@ -598,15 +667,34 @@ public sealed class SpatialTraySession
 
         if (thing.PreviewAblageId == ablageId)
         {
-            return SpatialAblageBubbleState.Opening;
+            return PortalBubbleStateFor(ablageId);
         }
 
         return distance switch
         {
-            SpatialAblageDistance.VeryFar => SpatialAblageBubbleState.Visible,
-            SpatialAblageDistance.Far => SpatialAblageBubbleState.Visible,
-            SpatialAblageDistance.Medium => SpatialAblageBubbleState.Approaching,
-            _ => SpatialAblageBubbleState.Readable
+            SpatialAblageDistance.VeryFar => SpatialAblageBubbleState.DistantBubble,
+            SpatialAblageDistance.Far => SpatialAblageBubbleState.DistantBubble,
+            SpatialAblageDistance.Medium => SpatialAblageBubbleState.ApproachingBubble,
+            _ => SpatialAblageBubbleState.ReadableBubble
+        };
+    }
+
+    private SpatialAblageBubbleState PortalBubbleStateFor(string ablageId)
+    {
+        var transition = _room.ActivePortalTransition;
+        if (transition is null || transition.TargetAblageId != ablageId)
+        {
+            return SpatialAblageBubbleState.OpeningPortal;
+        }
+
+        return transition.State switch
+        {
+            SpatialPortalTransitionState.Entering => SpatialAblageBubbleState.ObjectEntering,
+            SpatialPortalTransitionState.InBetween => SpatialAblageBubbleState.ObjectEntering,
+            SpatialPortalTransitionState.Emerging => SpatialAblageBubbleState.ObjectEmerging,
+            SpatialPortalTransitionState.ReadyToPlace => SpatialAblageBubbleState.ObjectEmerging,
+            SpatialPortalTransitionState.Placed => SpatialAblageBubbleState.Placed,
+            _ => SpatialAblageBubbleState.PortalOpen
         };
     }
 
@@ -742,11 +830,26 @@ public sealed class SpatialTraySession
         };
     }
 
-    private static double SurfaceThingScale(bool isHere, bool isCarriedHere, bool isPreviewHere)
+    private static double SurfaceThingScale(
+        bool isHere,
+        bool isCarriedHere,
+        bool isPreviewHere,
+        SpatialPortalTransition? portal,
+        string viewerAblageId)
     {
+        if (portal?.TargetAblageId == viewerAblageId && isPreviewHere)
+        {
+            return Math.Round(0.62 + (portal.TargetVisualProgress * 0.38), 2);
+        }
+
+        if (portal?.SourceAblageId == viewerAblageId && isCarriedHere)
+        {
+            return Math.Round(0.92 - (portal.SourceVisualProgress * 0.14), 2);
+        }
+
         if (isPreviewHere)
         {
-            return 0.82;
+            return 0.74;
         }
 
         if (isCarriedHere)
@@ -761,8 +864,22 @@ public sealed class SpatialTraySession
         bool isHere,
         bool isCarriedHere,
         bool isPreviewHere,
-        bool sourceWasHere)
+        bool sourceWasHere,
+        SpatialPortalTransition? portal,
+        string viewerAblageId)
     {
+        if (portal?.SourceAblageId == viewerAblageId && isCarriedHere)
+        {
+            return "ObjectEntering";
+        }
+
+        if (portal?.TargetAblageId == viewerAblageId && isPreviewHere)
+        {
+            return portal.State == SpatialPortalTransitionState.ReadyToPlace
+                ? "ReadyToPlace"
+                : "ObjectEmerging";
+        }
+
         if (isPreviewHere)
         {
             return "Arriving";
@@ -784,6 +901,19 @@ public sealed class SpatialTraySession
     private static double Clamp01(double value)
     {
         return Math.Max(0, Math.Min(1, value));
+    }
+
+    private static SpatialPoint EdgePositionFor(SpatialAblage ablage)
+    {
+        return ablage.AblageId switch
+        {
+            "monitor" => new SpatialPoint(0.92, 0.48),
+            "handy" => new SpatialPoint(0.08, 0.52),
+            "tablet" => new SpatialPoint(0.82, 0.16),
+            "desktop" => new SpatialPoint(0.08, 0.46),
+            "beamer" => new SpatialPoint(0.54, 0.08),
+            _ => ablage.Position
+        };
     }
 
     private static double BaseScale(SpatialAblageDistance distance)

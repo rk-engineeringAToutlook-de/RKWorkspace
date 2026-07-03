@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -217,6 +217,15 @@ Die Shell-Modelle bleiben unveraendert plattformneutral. Der lokale Spatial Tray
 - gleitender Uebergang in die Ablage-Bubble.
 - relative Zielposition auf der Ablage.
 
+MA006.06 erweitert diesen Wahrnehmungspfad um Spatial Portal Carry. Eine Zielablage am Rand des wahrgenommenen Raums oeffnet sich als Portal. Das Ding wird nicht sofort auf die Zielablage gesetzt, sondern durchlaeuft eine `SpatialPortalTransition` mit Source-/Target-Progress:
+
+- Quelle: Ding tritt optisch in die Oeffnung ein.
+- Zwischenraum: `Progress` beschreibt den Weg durch den Raum.
+- Ziel: Ghost erscheint, wird klarer und meldet `ReadyToPlace`.
+- Erst `Place` setzt `CurrentAblageId` und speichert die Zielposition.
+
+Auch dieser Schritt bleibt Shell-Wahrnehmung, nicht Transporttechnik. Es gibt keine Payload, keine Discovery, kein Pairing und keine echte Plattformkopplung.
+
 Details: `Docs/SpatialRoomSession.md`
 
 ## Human Experience Referenz
@@ -368,10 +377,21 @@ MA006.05 baut weiterhin nicht:
 - native Mobile-App
 - finale Produkt-UI
 
+MA006.06 baut weiterhin nicht:
+
+- echte Portal- oder Handover-Technik
+- echte Mehrgeraete-Kopplung
+- Payload-Transport
+- Discovery, Pairing oder Sicherheitsschicht
+- native Mobile-App
+- echte Raum- oder Monitorerkennung
+- produktive Shell-Persistenz
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als Shell-Wahrnehmungspfad mit Source-/Target-Progress und ReadyToPlace eingeordnet. |
 | 1.7.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit taktilen Wahrnehmungsdaten und gleitendem Ablegen eingeordnet. |
 | 1.6.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage, Version/Metadata und dokumentiertes Spatial Handover ergaenzt. |
 | 1.5.0 | 2026-07-03 | MA006.04 Spatial Room Session, gleichberechtigte Surfaces und einheitlichen Raumzustand dokumentiert. |

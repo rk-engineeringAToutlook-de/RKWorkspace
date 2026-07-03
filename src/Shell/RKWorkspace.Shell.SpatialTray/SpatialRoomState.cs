@@ -12,5 +12,7 @@ public sealed record SpatialRoomState
 
     public SpatialCarrySession? ActiveCarry { get; init; }
 
+    public SpatialPortalTransition? ActivePortalTransition { get; init; }
+
     public required DateTimeOffset UpdatedAt { get; init; }
 }

@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -47,6 +47,16 @@ MA006.05 fuegt fuer spaetere Overlays eine taktile Regel hinzu:
 - das Ding gleitet hinein und springt nicht.
 
 Der aktuelle Overlay-Prototyp wird dadurch nicht erweitert. Die Regeln werden im Spatial Tray erprobt und spaeter auf echte Shell-Overlays uebertragen.
+
+MA006.06 fuegt fuer spaetere Overlays eine weitere Regel hinzu:
+
+- ein Bildschirmrand ist kein Ziel, sondern ein moeglicher Durchgang.
+- eine Ablage am Rand darf sich als Portal oeffnen.
+- das Ding darf nicht sofort im Ziel erscheinen.
+- Quelle und Ziel zeigen eine kontinuierliche Wahrnehmung ueber Source-/Target-Progress.
+- ein Ghost im Ziel ist noch kein finales Ablegen.
+
+Der aktuelle Overlay-Prototyp bleibt unveraendert. Wenn Overlays spaeter wieder Produktpfad werden, muessen sie Spatial Portal Carry respektieren und duerfen nicht in klassisches Drag-and-Drop oder technische Drop-Zones zurueckfallen.
 
 ## Projekt
 
@@ -197,6 +207,7 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als spaetere Overlay-Regel fuer Durchgang, Ghost und No-Jump-Verhalten dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.05 taktile Carry-Regeln fuer spaetere Overlays eingeordnet. |
 | 1.3.0 | 2026-07-03 | MA006.04 Spatial Room Session als Bedingung fuer spaetere Overlays eingeordnet. |
 | 1.2.0 | 2026-07-03 | MA006.03-A Prinzipien fuer digitale Hand, optische Haptik und freie Ablage in Overlay-Einordnung aufgenommen. |

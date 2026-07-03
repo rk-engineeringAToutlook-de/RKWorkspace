@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -42,6 +42,7 @@ Er enthaelt:
 - `Ablagen`
 - `Things`
 - `ActiveCarry`
+- `ActivePortalTransition`
 - `UpdatedAt`
 
 Alle Oberflaechen lesen denselben Raumzustand.
@@ -310,6 +311,96 @@ Cancel = zurueck zur Quelle
 
 Freies Ablegen bleibt gueltig.
 
+## Spatial Portal Carry
+
+MA006.06 macht aus der oeffnenden Ablage erstmals einen ruhigen Durchgang.
+
+Nicht:
+
+```text
+Ding springt auf den Monitor.
+```
+
+Sondern:
+
+```text
+Ablage Handy
+Ding nehmen
+digitale Hand
+Ablage Monitor oeffnet sich als Portal
+Ding gleitet in das Portal
+Ding erscheint auf Monitor
+Ding wird dort oertlich abgelegt
+```
+
+Das Portal ist keine technische Verbindung. Es ist eine Wahrnehmungsbruecke zwischen zwei Ablagen desselben Raums. Es gibt weiterhin kein echtes Handover-Protokoll, keine Discovery, kein Pairing und keine Payload.
+
+### Portalphasen
+
+Eine Ablage-Bubble kann ab MA006.06 folgende Portalphasen melden:
+
+- `DistantBubble`
+- `ApproachingBubble`
+- `ReadableBubble`
+- `OpeningPortal`
+- `PortalOpen`
+- `ObjectEntering`
+- `ObjectEmerging`
+- `Placed`
+
+Diese Phasen beschreiben, wie die Ablage fuer den Menschen sichtbar wird. Sie beschreiben nicht, ob Daten kopiert wurden.
+
+### SpatialPortalTransition
+
+Eine laufende Portalbewegung wird durch `SpatialPortalTransition` beschrieben:
+
+- `TransitionId`
+- `ThingId`
+- `SourceAblageId`
+- `TargetAblageId`
+- `State`
+- `Progress`
+- `StartedAt`
+- `UpdatedAt`
+- `SourceVisualProgress`
+- `TargetVisualProgress`
+
+Zustaende:
+
+- `None`
+- `Entering`
+- `InBetween`
+- `Emerging`
+- `ReadyToPlace`
+- `Placed`
+- `Cancelled`
+
+`Progress` beschreibt den wahrgenommenen Weg durch den Raum:
+
+- `0.0`: Ding ist noch sichtbar auf der Quelle.
+- `0.5`: Ding befindet sich im Zwischenraum.
+- `1.0`: Ding ist final auf der Zielablage abgelegt.
+
+Vor dem finalen Ablegen bleibt das Ding im Zustand `PreviewOnAblage`. Die Zielablage zeigt einen Ghost, aber `CurrentAblageId` bleibt leer. Dadurch ist abgesichert:
+
+```text
+Es gibt keinen Sofortsprung.
+```
+
+`SourceVisualProgress` steuert, wie stark das Ding auf der Quelle optisch in das Portal eintritt. `TargetVisualProgress` steuert, wie klar und gross es auf der Zielablage als Ghost erscheint. Erst `Place` setzt das Ding final auf die Zielablage und speichert die dortige Position.
+
+### Rand Des Raums
+
+Die Zielablage wird im Prototyp bewusst am Rand des wahrgenommenen Raums positioniert. Das ist noch keine echte Monitor- oder Raumerkennung. Es ist eine kapselbare Wahrnehmungslogik:
+
+- Monitor rechts.
+- Handy links.
+- Tablet oben rechts.
+- Tisch links.
+- Wand oben.
+
+Spaeter kann diese Logik durch echte Raumdaten ersetzt werden, ohne den Human-Experience-Ablauf zu aendern.
+
 ## Endpunkte
 
 MA006.04 stellt bereit:
@@ -365,6 +456,7 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit Portalphasen, SpatialPortalTransition, Source-/Target-Progress und No-Jump-Regel dokumentiert. |
 | 1.2.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit digitaler Hand, Vektor-Neigung, Ghost, Glide und Zielposition dokumentiert. |
 | 1.1.0 | 2026-07-03 | Ablage-Linse, OpeningAblage, Metadata, Version und Spatial Handover als dokumentierten Zukunftsschritt ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.04 Spatial Room Session dokumentiert. |

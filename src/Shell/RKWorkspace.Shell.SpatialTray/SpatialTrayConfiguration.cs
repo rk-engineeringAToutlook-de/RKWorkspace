@@ -20,23 +20,27 @@ public sealed record SpatialTrayConfiguration
 
     public double MicroTextOpacity { get; init; } = 0.34;
 
-    public double WobbleAmplitude { get; init; } = 0.005;
+    public double WobbleAmplitude { get; init; } = 0.002;
 
-    public double WobbleFrequency { get; init; } = 0.02;
+    public double WobbleFrequency { get; init; } = 0.01;
 
     public double SoftSnapStrength { get; init; } = 0.12;
 
     public double InitialResistanceDistancePx { get; init; } = 10;
 
-    public double HeldCompactScale { get; init; } = 0.94;
+    public double HeldCompactScale { get; init; } = 0.92;
 
-    public double HandOcclusionRatio { get; init; } = 0.34;
+    public double HandOcclusionRatio { get; init; } = 0.42;
 
     public double LiftDepthPx { get; init; } = 34;
 
     public double VectorTiltMaxDegrees { get; init; } = 4.2;
 
     public int GlideIntoBubbleMs { get; init; } = 180;
+
+    public double PortalEnteringProgress { get; init; } = 0.46;
+
+    public double PortalEmergingProgress { get; init; } = 0.78;
 
     public bool MobileHapticsPrepared { get; init; } = true;
 
@@ -120,6 +124,16 @@ public sealed record SpatialTrayConfiguration
         if (GlideIntoBubbleMs < 0)
         {
             throw new SpatialTrayException("Glide duration must not be negative.");
+        }
+
+        if (PortalEnteringProgress is < 0 or > 1 || PortalEmergingProgress is < 0 or > 1)
+        {
+            throw new SpatialTrayException("Portal progress values must be between 0 and 1.");
+        }
+
+        if (PortalEnteringProgress >= PortalEmergingProgress)
+        {
+            throw new SpatialTrayException("Portal entering progress must be before emerging progress.");
         }
 
         return this;

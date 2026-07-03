@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.23.0
+Version: 2.24.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -60,6 +60,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA006.04 fuehrt die Spatial Room Session ein: alle Ablagen sehen denselben Raum, das digitale Ding existiert nur einmal, Zielablagen sehen eine Preview und jede Ablage kann das Ding wieder nehmen.
 - MA006.04-A schaerft die Spatial Room Session: mindestens fuenf Ablagen sind vorbereitet, Distanz steuert Lesbarkeit, aktive Ablagen oeffnen sich als Ablage-Linse und Spatial Handover ist als naechster Wahrnehmungsschritt dokumentiert.
 - MA006.05 verfeinert den Tactile Mobile Carry Slice: kurzer Widerstand, Loesen aus der Ablage, kompakte digitale Hand, Teilverdeckung, Vektor-Neigung, fast kein Wabern, Ghost auf der Zielablage und gleitendes Ablegen mit gespeicherter Zielposition.
+- MA006.06 fuehrt Spatial Portal Carry ein: Ablage-Bubbles werden zu ruhigen Portalen, das Ding springt nicht, sondern geht mit Source-/Target-Progress durch einen Durchgang und erscheint als groesser werdender Ghost auf der Zielablage.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -210,7 +211,7 @@ Der Workspace Shell Runtime Host ist ab MA006.01 der vorbereitete Produktpfad. E
 
 Der Workspace Overlay Prototype ist ab MA006.02 der erste sichtbare Produkttest ausserhalb des Developer Studios. Er startet ueber `.\tools\run-shell.ps1 -OverlayDemo`, liegt transparent ueber dem echten Desktop, zeigt ein digitales Ding und linke/rechte Ablagen als Orte im Raum. Der automatische Check laeuft ueber `.\tools\run-shell.ps1 -OverlaySmokeTest`.
 
-Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Handy oder Tablet und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur `Zuruecklegen` bricht ab. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. Spatial Handover bleibt nur dokumentiert. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
+Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Handy oder Tablet und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur `Zuruecklegen` bricht ab. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. MA006.06 macht diese Oeffnung erstmals zu einem Spatial Portal Carry: die Zielablage sitzt am Rand des wahrgenommenen Raums, oeffnet sich als Portal, das Ding verschwindet teilweise auf der Quelle, erscheint teilweise im Ziel, bleibt bis `ReadyToPlace` nur Preview und wird erst beim Ablegen final dort platziert. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
 
 Der Interactive Workspace Prototype im Studio testet erstmals das Bediengefuehl: Ein sichtbares Textobjekt wird von Workspace A nach Workspace B gezogen. Beim Ablegen nutzt das Studio die vorhandene Transfer Engine; es gibt weiterhin keine Netzwerkfunktion, keine Discovery, keine Hardware, keine Firmware und keine Cloud.
 
@@ -224,7 +225,7 @@ Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Seit MA
 
 Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte Fenster gemeinsam geprueft. Danach wird entschieden, ob echte Monitor-/Rand-Erkennung, Local Discovery oder echter Netzwerktransfer begonnen wird. Discovery kommt weiterhin nach der TAL, damit Agenten spaeter einen Transport auswaehlen koennen, ohne an Named Pipes, TCP, WebSocket, USB, BLE oder Cloud Relay gekoppelt zu sein.
 
-Nach MA006.05 entscheidet der Owner anhand des Gefuehls, ob der Tactile Mobile Carry Slice wenigstens fuer einen Moment das Gefuehl erzeugt, das Ding wirklich in der Hand zu haben. Erst danach wird entschieden, ob Spatial Handover als naechster Schritt gebaut werden darf, ob HX-003 normativ ausformuliert wird oder ob ein neuer Wahrnehmungsansatz noetig ist.
+Nach MA006.06 entscheidet der Owner anhand des Gefuehls, ob Spatial Portal Carry den ersten glaubwuerdigen Durchgang zwischen Ablagen erzeugt: kein Senden, kein Sprung, sondern nehmen, tragen, durch eine Oeffnung fuehren und ablegen. Erst danach wird entschieden, ob HX-003 normativ ausformuliert wird, ob Portal Carry vertieft wird oder ob ein neuer Wahrnehmungsansatz noetig ist.
 
 ## Querverweise
 
@@ -276,6 +277,7 @@ Nach MA006.05 entscheidet der Owner anhand des Gefuehls, ob der Tactile Mobile C
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.24.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Ghost vor Place und No-Jump-Regel dokumentiert. |
 | 2.23.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit digitaler Hand, Vektor-Neigung, Ghost, Glide und Zielposition dokumentiert. |
 | 2.22.0 | 2026-07-03 | MA006.04 Spatial Room Session um Ablage-Linse, OpeningAblage, Distanz-Lesbarkeit und dokumentiertes Spatial Handover ergaenzt. |
 | 2.21.0 | 2026-07-03 | MA006.04 Spatial Room Session mit gemeinsamem Raumzustand und gleichberechtigten Ablagen dokumentiert. |

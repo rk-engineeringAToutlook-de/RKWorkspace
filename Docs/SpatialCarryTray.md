@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -69,6 +69,8 @@ Die Details stehen in `Docs/SpatialRoomSession.md`.
 Die verfeinerte MA006.04-Fassung fuehrt `OpeningAblage` und die Ablage-Linse ein. Aktive Ablagen reagieren auf Naehe, werden lesbarer, zeigen eine innere Ablageflaeche und lassen erst dann `Hier ablegen` erscheinen. Mindestens fuenf Ablagen sind im Raum vorbereitet.
 
 MA006.05 konzentriert diesen Pfad auf den Tactile Mobile Carry Slice: Handy oder Tablet soll weniger wie Webseite und staerker wie digitale Hand wirken. Das Ding loest sich mit kurzem Widerstand, wird kompakter, ist teilweise verdeckt, neigt sich nach Bewegungsvektor und gleitet in die geoeffnete Ablage-Bubble.
+
+MA006.06 erweitert die geoeffnete Bubble zum Spatial Portal Carry. Die Ablage am Rand des Raums wirkt nicht mehr nur wie ein Ziel, sondern wie eine Oeffnung. Das Ding verschwindet teilweise auf der Quelle, erscheint teilweise als Ghost im Ziel und wird erst bei `Place` endgueltig dort abgelegt.
 
 ## Projekt
 
@@ -293,6 +295,49 @@ Das Einrasten ist weich. Die Ablage zieht das Ding nicht weg, sondern zeigt nur 
 Hier kannst du es hinlegen.
 ```
 
+## Spatial Portal Carry
+
+Ab MA006.06 ist die aktive Ablage-Bubble ein ruhiges Portal.
+
+Der Ablauf:
+
+```text
+Ablage Handy
+Ding nehmen
+digitale Hand
+Ablage Monitor oeffnet sich als Portal
+Ding gleitet in das Portal
+Ding erscheint auf Monitor
+Ding wird dort oertlich abgelegt
+```
+
+Wichtig:
+
+- kein Sofortsprung auf die Zielablage.
+- kein Teleport.
+- kein Senden-Gefuehl.
+- kein sichtbarer Technikbegriff.
+- kein finales Ablegen vor `Place`.
+
+Stattdessen entsteht eine zweigeteilte Wahrnehmung:
+
+- Quelle: `SourceVisualProgress` laesst das Ding optisch in die Oeffnung eintreten.
+- Ziel: `TargetVisualProgress` laesst einen Ghost klarer und groesser werden.
+
+Die Zielablage meldet vor dem Ablegen `ReadyToPlace`. Das bedeutet:
+
+```text
+Hier kannst du es ablegen.
+```
+
+Nicht:
+
+```text
+Es wurde uebertragen.
+```
+
+Die Position wird erst beim finalen Ablegen auf der Zielablage gespeichert.
+
 ## Desktop Als Ablage
 
 Der Desktop zeigt nur ein ruhiges Empfangssignal:
@@ -356,6 +401,7 @@ Zusaetzlich meldet der State:
 - `motion`: Bewegungsneigung nach Vektor, Widerstand, Loesetiefe und Glide-Dauer
 - `haptics`: vorbereitete mobile Haptik, Teilverdeckung und optische Haptik
 - `transition`: Ghost vor Place, Gleiten in die Bubble und relative Zielposition
+- `portalTransition`: Source-/Target-Progress, Portalzustand und ReadyToPlace
 - `placement`: Ablage oder freier Raum
 
 ## Human Experience Referenz
@@ -407,6 +453,8 @@ Zusatzfragen:
 6. Verschwindet ein Teil des Dings glaubwuerdig in meiner digitalen Hand?
 7. Offenbaren sich Ablagen erst durch Naehe?
 8. Fuehlt sich freies Ablegen besser an als automatisches Zurueckspringen?
+9. Wirkt die Monitor-Ablage wie ein Durchgang statt wie eine Schaltflaeche?
+10. Fuehlt sich das Auftauchen im Ziel eher kontinuierlich als sprunghaft an?
 
 ## Bekannte Grenzen
 
@@ -421,11 +469,14 @@ Zusatzfragen:
 - Keine native Mobile-App.
 - Keine erzwungene echte Mobile-Haptik.
 - Keine finale Produkt-UI.
+- Keine echte Portal- oder Handover-Technik.
+- Kein echtes Senden zwischen zwei Geraeten.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit ruhigem Ablage-Portal, Source-/Target-Progress, ReadyToPlace und No-Jump-Regel dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit Widerstand, Teilverdeckung, Vektor-Neigung, optionaler Haptik und gleitendem Ablegen dokumentiert. |
 | 1.3.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage und fuenf vorbereitete Ablagen eingeordnet. |
 | 1.2.0 | 2026-07-03 | MA006.04 Spatial Room Session als Erweiterung eingeordnet. |

@@ -25,7 +25,7 @@ let softTilt = { x: 0, y: 0 };
 let tactileConfig = {
     resistancePx: 10,
     maxTilt: 4.2,
-    heldScale: 0.94,
+    heldScale: 0.92,
     glideMs: 180
 };
 
@@ -83,7 +83,7 @@ function clearActiveBubble() {
     activeAblage = null;
     activeBubbleId = null;
     document.querySelectorAll(".ablage-bubble").forEach((bubble) => {
-        bubble.classList.remove("is-active", "is-opening");
+        bubble.classList.remove("is-active", "is-opening", "is-entering", "is-emerging");
     });
 }
 
@@ -93,6 +93,7 @@ function activateBubble(bubble) {
     document.querySelectorAll(".ablage-bubble").forEach((candidate) => {
         candidate.classList.toggle("is-active", candidate === bubble);
         candidate.classList.toggle("is-opening", candidate === bubble);
+        candidate.classList.toggle("is-entering", candidate === bubble);
     });
 }
 
@@ -180,8 +181,11 @@ function renderBubbles(bubbles) {
         node.style.left = `${Math.round(bubble.x * 100)}%`;
         node.style.top = `${Math.round(bubble.y * 100)}%`;
         node.style.setProperty("--bubble-scale", bubble.scale);
-        node.classList.toggle("is-active", bubble.state === "Active");
-        node.classList.toggle("is-opening", bubble.opens || bubble.state === "Opening");
+        node.classList.toggle("is-active", bubble.isActive || bubble.state === "PortalOpen");
+        node.classList.toggle("is-opening", bubble.opens || bubble.state === "OpeningPortal");
+        node.classList.toggle("is-portal", bubble.isPortal);
+        node.classList.toggle("is-entering", bubble.state === "ObjectEntering");
+        node.classList.toggle("is-emerging", bubble.state === "ObjectEmerging");
         node.classList.toggle("is-placed", bubble.state === "Placed");
 
         const dot = document.createElement("span");
@@ -225,6 +229,9 @@ function applySurfaceThingPosition(surfaceThing) {
     }
 
     thing.style.setProperty("--surface-scale", surfaceThing.displayScale || 1);
+    thing.style.setProperty("--portal-progress", surfaceThing.portalProgress || 0);
+    thing.style.setProperty("--source-progress", surfaceThing.sourceVisualProgress || 0);
+    thing.style.setProperty("--target-progress", surfaceThing.targetVisualProgress || 0);
 }
 
 function renderState(state) {
@@ -242,6 +249,7 @@ function renderState(state) {
     applySurfaceThingPosition(state.surfaceThing);
     document.body.classList.toggle("is-carrying", state.surfaceThing.isCarriedHere || isPicked);
     document.body.classList.toggle("is-arriving", state.surfaceThing.isPreviewHere);
+    document.body.classList.toggle("is-ready-to-place", state.surfaceThing.readyToPlace);
     updateThingClasses(state.surfaceThing);
     renderBubbles(state.bubbles);
     setStatus(state.status);

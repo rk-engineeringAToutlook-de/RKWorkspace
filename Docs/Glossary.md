@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.12.0
+Version: 1.13.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -36,6 +36,13 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Distance Readability | Distanz-Lesbarkeit | Prinzip, dass Ablagen erst bei ausreichender Naehe klar lesbar werden. | Nicht alle Ziele sofort voll beschriften. |
 | Soft Snap | Weiches Einrasten | Subtiles Annaehern und Orientieren an einer Ablage ohne harte Sprungbewegung. | Kein aggressiver Magnetismus und kein hartes Snapping. |
 | Glide Into Bubble | In die Bubble gleiten | Sichtbarer Uebergang, bei dem ein getragenes Ding in eine geoeffnete Ablage-Bubble hinein gleitet. | Kein Sprung, kein Teleport und kein Versandgefuehl. |
+| Spatial Portal Carry | Raeumliches Portal-Tragen | Wahrnehmungspfad, bei dem ein Ding aus der Quelle in eine oeffnende Ablage am Rand eintritt und als Ghost im Ziel auftaucht. | Keine echte Portaltechnik, kein Netzwerk und kein Transferstatus. |
+| Ablage Portal | Ablage-Portal | Geoeffnete Ablage-Bubble, die wie ein ruhiger Durchgang in eine andere Ablage wirkt. | Keine Drop-Zone, kein Button, keine technische Zielmarkierung. |
+| Portal Phase | Portalphase | Sichtbarer Zustand einer Ablage-Bubble von `DistantBubble` bis `Placed`. | Beschreibt Wahrnehmung, nicht Datenuebertragung. |
+| SpatialPortalTransition | SpatialPortalTransition | Lokales Wahrnehmungsmodell fuer ThingId, Quelle, Ziel, Progress und visuelle Source-/Target-Anteile. | Kein Handover-Protokoll und kein Payload-Transfer. |
+| SourceVisualProgress | Source Visual Progress | Anteil, wie weit das Ding auf der Quelle optisch in das Portal eingetreten ist. | Nicht mit geloeschter oder gesendeter Datei verwechseln. |
+| TargetVisualProgress | Target Visual Progress | Anteil, wie klar und gross das Ding als Ghost auf der Zielablage erscheint. | Noch keine finale Platzierung. |
+| ReadyToPlace | Bereit zum Ablegen | Zustand, in dem die Zielablage das Ding als Ghost zeigt und der Mensch es dort ablegen kann. | Nicht "Transfer abgeschlossen" und nicht automatisch platziert. |
 | Free Placement | Freies Ablegen | Loslassen im freien Raum legt das Ding dort ab, statt es automatisch zurueckspringen zu lassen. | Kein Fehlerfall und kein automatischer Ruecksprung. |
 | Spatial Room Session | Spatial Room Session / Raum-Session | Gemeinsamer Raumzustand, den alle Ablagen sehen. | Nicht als Sender-Empfaenger-Verbindung verstehen. |
 | Spatial Room State | SpatialRoomState / Raumzustand | Modell fuer RoomId, Ablagen, Things, ActiveCarry und UpdatedAt. | Keine technische Transport-Session. |
@@ -110,6 +117,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.13.0 | 2026-07-03 | Begriffe fuer Spatial Portal Carry, Ablage-Portal, Portalphase, SpatialPortalTransition, Source-/Target-Progress und ReadyToPlace ergaenzt. |
 | 1.12.0 | 2026-07-03 | Begriffe fuer Tactile Carry, Teilverdeckung, Bewegungsvektor-Neigung und Glide Into Bubble ergaenzt. |
 | 1.11.0 | 2026-07-03 | Begriffe fuer Ablage-Linse, OpeningAblage und Spatial Handover ergaenzt. |
 | 1.10.0 | 2026-07-03 | MA006.04 Begriffe fuer Spatial Room Session, Raumzustand, Surface, Remote Preview und Carry Session ergaenzt. |
