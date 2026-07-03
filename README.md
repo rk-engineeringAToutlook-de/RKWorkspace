@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.16.0
+Version: 2.17.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -53,6 +53,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - HX-LAB-001 erweitert das Studio zum Human Experience Validation Lab: aktive HX, Experimente, Owner-Bewertung, Timeline, Dashboard und lokales Beobachtungsprotokoll.
 - HX-P001 erweitert das Studio um den Human Experience Playground: fuenf isolierte Hypothesen fuer den ersten Magic Moment.
 - MA006.00 fuehrt die Workspace Shell Foundation ein: eine unsichtbare Shell-Ebene, Workspace Sessions, Carry States, Overlay-Architektur und Adaptermodell.
+- MA006.01 macht Workspace Shell erstmals als eigenen Runtime-Host startbar: kein Hauptfenster, keine OS-Hooks, aber Produktmodus `Shell`, aktive Workspace Session, CarryState `Empty` und vorbereitetes inaktives Overlay.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -93,6 +94,7 @@ flowchart TB
     Docs["Docs und ADR"] --> Spec["Spec"]
     Spec --> HX["Human Experience"]
     HX --> Shell["src/Shell"]
+    Shell --> ShellHost["Workspace Shell Host"]
     Spec --> Core["src/Core"]
     Shell --> Adapters["Spaetere Workspace Adapter"]
     Core --> Runtime["Runtime"]
@@ -115,6 +117,7 @@ Docs/                 Produkt-, Architektur-, ADR-, HX- und Entscheidungsdokumen
 Docs/HumanExperience/ Human-Experience-Validierung, Timeline und Lab-Regeln
 Spec/                 Spezifikationen fuer Modelle, UX, Kommunikation und Tests
 src/Shell/RKWorkspace.Shell/ Unsichtbare Workspace Shell Foundation ohne OS-, Netzwerk- oder Transportintegration
+src/Shell/RKWorkspace.Shell.Host/ Shell Runtime Host ohne Hauptfenster, OS-Hooks oder Produktoberflaeche
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
 src/Core/Capabilities/ Plattformneutraler Capability Manager und Capability-Vertraege
@@ -158,6 +161,7 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-agent.ps1 -Once
 .\tools\run-dual-agent.ps1
 .\tools\run-local-ipc.ps1
+.\tools\run-shell.ps1 -Once
 ```
 
 Oder gesammelt:
@@ -184,15 +188,17 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation. MA004.03 liefert den Local IPC Two Process Test. MA004.04 liefert die Transport Abstraction Layer. MA004.X liefert den Interactive Workspace Prototype im Developer Studio. MA005.00 liefert den Multi Window Workspace Prototype mit zwei echten Workspace-Fenstern. MA005.01 liefert Drag-Feedback und Randziel-Logik. MA005.02 liefert den Workspace Experience Sprint fuer ein natuerlicheres Arbeitsflaechen-Gefuehl. MA005.03 liefert den Workspace Illusion Sprint fuer Greifen, Randuebertritt und durchgehenden Arbeitsraum. UX-LAB-001 liefert ein internes Workspace Experience Lab fuer Live-Variantenvergleich und lokale Bewertung. UX Evolution Lab Sprint 1 erzeugt viele Generationen, bewertet sie ueber drei Gefuehlsbuttons und fuehrt lokal Statistik, damit der Owner die natuerlichste Kombination entscheiden kann. DP-001 Digital Physics macht Pick, Carry, Place zur verbindlichen UX-Regel und ergaenzt Trage-Generationen mit Feder, Traegheit und ruhigerem Hintergrund. MA005.04 First Contact prueft, ob eine neue Person ohne Erklaerung innerhalb von 30 Sekunden ein Ding nehmen, tragen und ablegen kann. HX-LAB-001 macht aus dem UX-Labor ein Human Experience Validation Lab, damit jede neue Interaktion zuerst einer bestaetigbaren Wahrnehmung folgt. HX-P001 liefert den Human Experience Playground mit fuenf isolierten Hypothesen fuer den ersten Magic Moment. MA006.00 fuehrt Workspace Shell als eigentliche Produktebene ein.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation. MA004.03 liefert den Local IPC Two Process Test. MA004.04 liefert die Transport Abstraction Layer. MA004.X liefert den Interactive Workspace Prototype im Developer Studio. MA005.00 liefert den Multi Window Workspace Prototype mit zwei echten Workspace-Fenstern. MA005.01 liefert Drag-Feedback und Randziel-Logik. MA005.02 liefert den Workspace Experience Sprint fuer ein natuerlicheres Arbeitsflaechen-Gefuehl. MA005.03 liefert den Workspace Illusion Sprint fuer Greifen, Randuebertritt und durchgehenden Arbeitsraum. UX-LAB-001 liefert ein internes Workspace Experience Lab fuer Live-Variantenvergleich und lokale Bewertung. UX Evolution Lab Sprint 1 erzeugt viele Generationen, bewertet sie ueber drei Gefuehlsbuttons und fuehrt lokal Statistik, damit der Owner die natuerlichste Kombination entscheiden kann. DP-001 Digital Physics macht Pick, Carry, Place zur verbindlichen UX-Regel und ergaenzt Trage-Generationen mit Feder, Traegheit und ruhigerem Hintergrund. MA005.04 First Contact prueft, ob eine neue Person ohne Erklaerung innerhalb von 30 Sekunden ein Ding nehmen, tragen und ablegen kann. HX-LAB-001 macht aus dem UX-Labor ein Human Experience Validation Lab, damit jede neue Interaktion zuerst einer bestaetigbaren Wahrnehmung folgt. HX-P001 liefert den Human Experience Playground mit fuenf isolierten Hypothesen fuer den ersten Magic Moment. MA006.00 fuehrt Workspace Shell als eigentliche Produktebene ein. MA006.01 macht diese Shell erstmals als eigenen Runtime-Host startbar.
 
 Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und kein Plattformadapter. Er startet die plattformneutrale Runtime Engine und fuehrt danach nur den aktuellen Core-Ablauf sichtbar ueber die Transfer Engine aus.
 
 Das Developer Workspace Studio ist ebenfalls kein Produktagent und keine Endanwender-GUI. Es ist ein separates Developer-Tool fuer Diagnose, Tests, Demonstration und Core-Visualisierung.
 
+Der Workspace Shell Runtime Host ist ab MA006.01 der vorbereitete Produktpfad. Er startet die Shell ohne Hauptfenster, meldet `ProductMode: Shell`, haelt eine aktive Workspace Session bereit und laesst das Overlay inaktiv, bis spaetere Human-Experience-Ereignisse es sichtbar machen. Er besitzt noch keine OS-Hooks, keine transparente Overlay-Schicht, keine Adapter, keine Discovery und keine Netzwerkfunktion.
+
 Der Interactive Workspace Prototype im Studio testet erstmals das Bediengefuehl: Ein sichtbares Textobjekt wird von Workspace A nach Workspace B gezogen. Beim Ablegen nutzt das Studio die vorhandene Transfer Engine; es gibt weiterhin keine Netzwerkfunktion, keine Discovery, keine Hardware, keine Firmware und keine Cloud.
 
-Der Multi Window Workspace Prototype erweitert diesen Bedienversuch auf zwei echte Betriebssystemfenster. Window A und Window B teilen sich denselben Core-Kontext, zeigen eigene Transferobjekte, History, Diagnostics und Logs und fuehren Drag-and-Drop ueber `TransferEngine.ExecuteLogicalTransfer()` aus. MA005.01 ergaenzt Drag-Hervorhebung, Statushinweise, Zieltext `Hier ablegen`, Success-/Fehlerfeedback und eine gekapselte Fensterrand-Logik, die rechts Workspace B und links Workspace A vorschlaegt. MA005.02 verbessert das Arbeitsflaechen-Gefuehl mit Monitor-Kopf, echten Objektkarten fuer Text, PDF, Bild und Link, Workspace Preview am Rand, sichtbarer Zielanimation, Ruecktransfer B nach A, UX-Diagnosewerten und vorbereitetem `WorkspaceSessionCandidate`. MA005.03 reagiert auf Owner-Feedback, dass sich der Prototyp noch zu sehr wie eine App mit zwei Kaestchen anfuehlt: Greifzustand, pulsierende Rand-Hot-Zones, Edge-Lock, Ghost-Objekt im Rand und Candidate-Zustaende sollen einen durchgehenden Arbeitsraum andeuten. UX-LAB-001 macht diese Darstellung variierbar: Greifen, Rand, Uebergang, Ablegen, Preview, Animation und Geschwindigkeit koennen live verglichen und lokal bewertet werden. UX Evolution Lab Sprint 1 erweitert das Lab auf Generationen: 24 Greif-, 24 Rand-, 24 Uebergangs-, 20 Ablege- und 8 Vorschauvarianten, drei Gefuehlsbuttons und lokale Statistik. DP-001 verschiebt den sichtbaren Fokus auf digitale Physik: Dinge werden genommen, getragen und abgelegt; der Rand ist ein Durchgang. MA005.04 ergaenzt einen reduzierten First-Contact-Test: ein Ding, zwei Arbeitsflaechen, keine Optionen, kurze Hinweise und lokale Messwerte fuer die erste Begegnung. HX-LAB-001 erweitert die dritte Studio-Registerkarte zum Human Experience Lab mit aktiver HX, Experiment-Historie, Beobachtungsprotokoll, Timeline und Dashboard. HX-P001 ergaenzt den Human Experience Playground fuer fuenf isolierte Magic-Moment-Hypothesen ohne Kombination und ohne Scoring. MA006.00 fuehrt Workspace Shell als unsichtbare Produktebene ein. Sie bleibt lokal und architektonisch: kein IPC, kein Netzwerk, keine Discovery, keine Persistenz ausser Lab-Bewertungen, Lab-Statistik, Human-Experience-Beobachtungen und Playground-Wahrnehmungen, keine echte Monitorerkennung und keine Plattformadapter im Core.
+Der Multi Window Workspace Prototype erweitert diesen Bedienversuch auf zwei echte Betriebssystemfenster. Window A und Window B teilen sich denselben Core-Kontext, zeigen eigene Transferobjekte, History, Diagnostics und Logs und fuehren Drag-and-Drop ueber `TransferEngine.ExecuteLogicalTransfer()` aus. MA005.01 ergaenzt Drag-Hervorhebung, Statushinweise, Zieltext `Hier ablegen`, Success-/Fehlerfeedback und eine gekapselte Fensterrand-Logik, die rechts Workspace B und links Workspace A vorschlaegt. MA005.02 verbessert das Arbeitsflaechen-Gefuehl mit Monitor-Kopf, echten Objektkarten fuer Text, PDF, Bild und Link, Workspace Preview am Rand, sichtbarer Zielanimation, Ruecktransfer B nach A, UX-Diagnosewerten und vorbereitetem `WorkspaceSessionCandidate`. MA005.03 reagiert auf Owner-Feedback, dass sich der Prototyp noch zu sehr wie eine App mit zwei Kaestchen anfuehlt: Greifzustand, pulsierende Rand-Hot-Zones, Edge-Lock, Ghost-Objekt im Rand und Candidate-Zustaende sollen einen durchgehenden Arbeitsraum andeuten. UX-LAB-001 macht diese Darstellung variierbar: Greifen, Rand, Uebergang, Ablegen, Preview, Animation und Geschwindigkeit koennen live verglichen und lokal bewertet werden. UX Evolution Lab Sprint 1 erweitert das Lab auf Generationen: 24 Greif-, 24 Rand-, 24 Uebergangs-, 20 Ablege- und 8 Vorschauvarianten, drei Gefuehlsbuttons und lokale Statistik. DP-001 verschiebt den sichtbaren Fokus auf digitale Physik: Dinge werden genommen, getragen und abgelegt; der Rand ist ein Durchgang. MA005.04 ergaenzt einen reduzierten First-Contact-Test: ein Ding, zwei Arbeitsflaechen, keine Optionen, kurze Hinweise und lokale Messwerte fuer die erste Begegnung. HX-LAB-001 erweitert die dritte Studio-Registerkarte zum Human Experience Lab mit aktiver HX, Experiment-Historie, Beobachtungsprotokoll, Timeline und Dashboard. HX-P001 ergaenzt den Human Experience Playground fuer fuenf isolierte Magic-Moment-Hypothesen ohne Kombination und ohne Scoring. MA006.00 fuehrt Workspace Shell als unsichtbare Produktebene ein. MA006.01 startet sie erstmals als Runtime Host. Sie bleibt lokal und architektonisch: kein IPC, kein Netzwerk, keine Discovery, keine Persistenz ausser Lab-Bewertungen, Lab-Statistik, Human-Experience-Beobachtungen und Playground-Wahrnehmungen, keine echte Monitorerkennung und keine Plattformadapter im Core.
 
 Die Workspace Agent Runtime ist noch kein Betriebssystemdienst. Sie ist ein LocalOnly-Konsolenprozess ohne Netzwerk, Discovery, GUI, Persistenz, Firmware, Hardware oder Cloud.
 
@@ -201,6 +207,8 @@ Die Dual Local Agent Simulation ist noch keine Prozesskommunikation. Zwei AgentR
 Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Seit MA004.04 laeuft er ueber die Transport Abstraction Layer. Die aktuelle Implementierung verwendet Named Pipes lokal auf demselben Rechner, aber Agent und Harness kommunizieren ueber `ITransport`, `ITransportClient`, `ITransportServer` und `TransportMessage`. Es gibt weiterhin keine TCP-/UDP-Ports, keine Discovery, keine Dienste und keine Netzwerkkommunikation ueber Rechnergrenzen.
 
 Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte Fenster gemeinsam geprueft. Danach wird entschieden, ob echte Monitor-/Rand-Erkennung, Local Discovery oder echter Netzwerktransfer begonnen wird. Discovery kommt weiterhin nach der TAL, damit Agenten spaeter einen Transport auswaehlen koennen, ohne an Named Pipes, TCP, WebSocket, USB, BLE oder Cloud Relay gekoppelt zu sein.
+
+Nach MA006.01 folgt MA006.02 Workspace Overlay Prototype. Erst dort entsteht die erste transparente sichtbare Ebene ueber dem Desktop. Bis dahin bleibt Workspace Shell bewusst unsichtbar und diagnostizierbar.
 
 ## Querverweise
 
@@ -249,6 +257,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.17.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host und run-shell Smoke-Test dokumentiert. |
 | 2.16.0 | 2026-07-03 | MA006.00 Workspace Shell Foundation als eigentliche Produktebene dokumentiert. |
 | 2.15.0 | 2026-07-03 | HX-P001 Human Experience Playground mit fuenf Magic-Moment-Hypothesen dokumentiert. |
 | 2.14.0 | 2026-07-03 | Human Experience Specification HX-001A als digitale Antwort des Objekts verlinkt. |

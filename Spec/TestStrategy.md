@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.1.0
+Version: 2.2.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -56,6 +56,8 @@ Ab MA004.04 pruefen die Unit-Tests zusaetzlich die Transport Abstraction Layer u
 Ab MA004.X prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Interactive Workspace Prototype. Der Smoke-Test bleibt viewmodelbasiert und erzwingt keine fragile UI-Automation.
 
 Ab MA005.00 prueft `tools/run-studio.ps1 -SmokeTest` zusaetzlich den Multi Window Workspace Prototype. Der Smoke-Test verwendet denselben Core-Kontext wie die sichtbaren Fenster und prueft den Transferpfad von Window A nach Window B ohne echte Maus-UI-Automation.
+
+Ab MA006.01 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Shell Smoke-Test mit `tools/run-shell.ps1 -Once`. Dieser Test startet den vorbereiteten Shell-Produktpfad ohne Hauptfenster, prueft den Runtime-Status und beendet den Prozess wieder sauber.
 
 ## MA003.05 Core Integration Tests
 
@@ -266,6 +268,26 @@ Er prueft:
 
 Nicht automatisiert wird echtes Cross-Window-Maus-Dragging, weil stabile UI-Automation fuer diesen Entwicklungsprototyp nicht erzwungen wird.
 
+## MA006.01 Workspace Shell Runtime Host Tests
+
+MA006.01 fuehrt `src/Shell/RKWorkspace.Shell.Host/` und `tools/run-shell.ps1` ein. Der Host ist kein Developer Studio, kein Agent und keine Endanwender-App. Er ist der vorbereitete Produktpfad der unsichtbaren Workspace Shell.
+
+Der Shell Smoke-Test in `tools/run-tests.ps1` fuehrt aus:
+
+```powershell
+.\tools\run-shell.ps1 -Once
+```
+
+Der Smoke-Test erwartet:
+
+- Exitcode 0.
+- Ausgabe enthaelt `RK Workspace Shell`.
+- Ausgabe enthaelt `State: Running`.
+- Ausgabe enthaelt `CarryState: Empty`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+
+Der Test prueft keine OS-Hooks, keine transparente Overlay-Anzeige, keine Adapter, keine Discovery und keine Netzwerkfunktion. Er beweist nur, dass die Shell als Runtime-Prozess startbar ist, eine aktive Workspace Session besitzt, den Carry State sichtbar meldet und das vorbereitete Overlay inaktiv laesst.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -277,6 +299,7 @@ Nicht automatisiert wird echtes Cross-Window-Maus-Dragging, weil stabile UI-Auto
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.2.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host Smoke-Test dokumentiert. |
 | 2.1.0 | 2026-07-02 | MA005.00 Multi Window Workspace Prototype Smoke-Test dokumentiert. |
 | 2.0.0 | 2026-07-02 | MA004.X Interactive Workspace Prototype Smoke-Test dokumentiert. |
 | 1.9.0 | 2026-07-02 | MA004.04 Transport Abstraction Layer Tests dokumentiert. |

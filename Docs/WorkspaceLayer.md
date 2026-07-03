@@ -1,7 +1,7 @@
 # Workspace Layer
 
 Dokument-ID: RKWS-WORKSPACE-LAYER
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -34,6 +34,14 @@ Sie verbindet:
 - Ablagen
 
 Workspace Shell ist keine App. Sie wird spaeter nicht bewusst gestartet und nicht als Fenster bedient.
+
+Ab MA006.01 existiert dafuer ein eigener Runtime Host:
+
+```text
+src/Shell/RKWorkspace.Shell.Host
+```
+
+Dieser Host ist der vorbereitete Produktpfad. Er zeigt kein Hauptfenster, besitzt noch keine OS-Hooks und dient nur dazu, die Shell als staendige unsichtbare Ebene startbar, stoppbar und diagnostizierbar zu machen.
 
 ## Ebene 3: Workspace Adapter
 
@@ -84,4 +92,5 @@ Es definiert nur die Layer-Regel.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | MA006.01 Shell Runtime Host als vorbereiteten Produktpfad ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.00 dreistufige Workspace-Layer-Architektur dokumentiert. |

@@ -172,3 +172,30 @@ finally {
     Remove-Item -LiteralPath $localIpcStdOut -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $localIpcStdErr -Force -ErrorAction SilentlyContinue
 }
+
+Write-Host ''
+Write-Host 'Workspace Shell Smoke Test'
+Write-Host '--------------------------'
+$shellOutput = & (Join-Path $root 'tools\run-shell.ps1') -Once 2>&1
+$shellExitCode = $LASTEXITCODE
+$shellOutput | ForEach-Object { Write-Host $_ }
+if ($shellExitCode -ne 0) {
+    throw "Workspace Shell Smoke Test failed with exit code $shellExitCode."
+}
+
+$shellText = $shellOutput -join [Environment]::NewLine
+if (-not $shellText.Contains('RK Workspace Shell')) {
+    throw "Workspace Shell Smoke Test failed because output did not contain RK Workspace Shell."
+}
+
+if (-not $shellText.Contains('State: Running')) {
+    throw "Workspace Shell Smoke Test failed because output did not contain State: Running."
+}
+
+if (-not $shellText.Contains('CarryState: Empty')) {
+    throw "Workspace Shell Smoke Test failed because output did not contain CarryState: Empty."
+}
+
+if (-not $shellText.Contains('RESULT: SUCCESS')) {
+    throw "Workspace Shell Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

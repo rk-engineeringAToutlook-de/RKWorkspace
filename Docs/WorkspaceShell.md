@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -44,6 +44,11 @@ Aktuelle Architekturdateien:
 - `WorkspaceShell.cs`
 - `WorkspaceShellState.cs`
 - `WorkspaceShellConfiguration.cs`
+- `WorkspaceShellRuntime.cs`
+- `IWorkspaceShellRuntime.cs`
+- `WorkspaceShellRuntimeState.cs`
+- `WorkspaceShellDiagnostics.cs`
+- `WorkspaceShellRuntimeException.cs`
 - `WorkspaceOverlay.cs`
 - `WorkspaceOverlayManager.cs`
 - `WorkspaceSession.cs`
@@ -51,6 +56,44 @@ Aktuelle Architekturdateien:
 - `WorkspaceObject.cs`
 
 Die Foundation enthaelt nur neutrale Architekturmodelle. Sie enthaelt keine Betriebssystemintegration, keine Fensterlogik, keine Netzwerkfunktion, keine Discovery, kein Pairing und keine Transportlogik.
+
+## Runtime Host
+
+MA006.01 fuehrt erstmals einen eigenen Shell-Prozess ein:
+
+```text
+src/Shell/RKWorkspace.Shell.Host
+```
+
+Der Host ist noch keine App und zeigt kein Hauptfenster. Er laeuft in V1 ausschliesslich als Konsolen-/Statusmodus, damit die unsichtbare Produktebene reproduzierbar gestartet, diagnostiziert und gestoppt werden kann.
+
+Startskript:
+
+```powershell
+.\tools\run-shell.ps1
+.\tools\run-shell.ps1 -Once
+.\tools\run-shell.ps1 -Status
+```
+
+Der Smoke-Pfad zeigt:
+
+```text
+RK Workspace Shell
+State: Running
+Session: Active
+CarryState: Empty
+Overlay: Inactive
+ProductMode: Shell
+RESULT: SUCCESS
+```
+
+Damit ist sichtbar:
+
+- Workspace Shell ist der Produktpfad.
+- Eine Workspace Session ist aktiv.
+- Der menschliche Carry State ist `Empty`.
+- Das Overlay ist vorbereitet, aber inaktiv.
+- Es gibt weiterhin keine OS-Hooks, keine Adapter, keine Discovery und keine Netzwerkfunktion.
 
 ## Human Experience Referenz
 
@@ -140,8 +183,17 @@ MA006.00 baut noch nicht:
 - Transport
 - produktive Adapter
 
+MA006.01 baut zusaetzlich noch nicht:
+
+- Tray-Integration
+- transparente Desktop-Overlays
+- globale Eingabe-Hooks
+- Explorer-, Browser- oder Office-Adapter
+- persistente Shell-Sessions
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host und Shell-Smoke dokumentiert. |
 | 1.0.0 | 2026-07-03 | MA006.00 Workspace Shell Foundation dokumentiert. |
