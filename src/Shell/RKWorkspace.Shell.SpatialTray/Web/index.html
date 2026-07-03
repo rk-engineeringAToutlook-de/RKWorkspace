@@ -3,53 +3,31 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Digitales Tablett</title>
+    <title>Ablage im Raum</title>
     <link rel="stylesheet" href="/tray.css">
 </head>
 <body>
-    <main class="tray-shell">
-        <section class="tray-surface" aria-label="Digitales Tablett">
-            <p class="eyebrow">Digitales Tablett</p>
-            <h1>Digitales Ding</h1>
-            <div id="thing" class="thing-card" role="button" tabindex="0" aria-label="Digitales Ding nehmen">
+    <main class="room-shell">
+        <section class="surface" aria-label="Ablage">
+            <p class="eyebrow">Ablage im Raum</p>
+            <h1 id="surface-name">Ablage</h1>
+            <p id="surface-hint" class="surface-hint">bereit</p>
+
+            <div id="thing" class="thing-card is-hidden" role="button" tabindex="0" aria-label="Digitales Ding nehmen">
                 <span class="hand-zone" aria-hidden="true"></span>
-                <span class="thing-name">Rechnung.pdf</span>
-                <span class="thing-hint">liegt auf deinem Tablett</span>
+                <span id="thing-name" class="thing-name">Rechnung.pdf</span>
+                <span id="thing-hint" class="thing-hint">liegt hier</span>
             </div>
-            <p id="status" class="status">Ding liegt auf dem Tablett</p>
+
+            <div id="empty-trace" class="empty-trace is-hidden">Ding wurde genommen</div>
+            <p id="status" class="status">Ablage bereit</p>
         </section>
 
-        <section class="compass" aria-label="Ablage-Kompass">
-            <div class="compass-ring">
-                <div class="ablage-bubble bubble-front is-near" data-ablage="Ablage Schreibtisch" data-id="schreibtisch">
-                    <span class="bubble-dot"></span>
-                    <span class="bubble-label">Ablage Schreibtisch</span>
-                    <span class="bubble-action">Hier ablegen</span>
-                </div>
-                <div class="ablage-bubble bubble-right is-very-near" data-ablage="Ablage Monitor" data-id="monitor">
-                    <span class="bubble-dot"></span>
-                    <span class="bubble-label">Ablage Monitor</span>
-                    <span class="bubble-action">Hier ablegen</span>
-                </div>
-                <div class="ablage-bubble bubble-left is-medium" data-ablage="Ablage links" data-id="links">
-                    <span class="bubble-dot"></span>
-                    <span class="bubble-label">Ablage links</span>
-                    <span class="bubble-action">Hier ablegen</span>
-                </div>
-                <div class="ablage-bubble bubble-far is-far" data-ablage="Ablage Fenster" data-id="fenster">
-                    <span class="bubble-dot"></span>
-                    <span class="bubble-label">Ablage Fenster</span>
-                    <span class="bubble-action">Hier ablegen</span>
-                </div>
-                <div class="ablage-bubble bubble-back is-very-far" data-ablage="Ablage Ruhe" data-id="ruhig">
-                    <span class="bubble-dot"></span>
-                    <span class="bubble-label">Ablage Ruhe</span>
-                    <span class="bubble-action">Hier ablegen</span>
-                </div>
-            </div>
+        <section class="room-map" aria-label="Raum">
+            <div id="compass" class="compass-ring"></div>
         </section>
 
-        <section class="actions" aria-label="Ablageaktion">
+        <section class="actions" aria-label="Aktionen">
             <button id="place" class="place-button" type="button">Hier ablegen</button>
             <button id="cancel" class="cancel-button" type="button">Zuruecklegen</button>
         </section>

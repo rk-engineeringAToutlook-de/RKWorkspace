@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.5.0
+Version: 2.6.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -62,6 +62,8 @@ Ab MA006.01 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Shell Smoke-T
 Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke-Test mit `tools/run-shell.ps1 -OverlaySmokeTest`. Dieser Test initialisiert den Windows-Overlay-Prototyp ohne manuelle Bedienung und prueft Overlay-State, Carry-State-Kompatibilitaet, Demo-Ding, Ablagen und sicheren Exit-Pfad.
 
 Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte, simuliert Pick/Release/Cancel/Place und prueft ab MA006.03-A digitale Hand, freies Ablegen, Ablage-Bubbles und weiche Bewegungsparameter.
+
+Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel.
 
 ## MA003.05 Core Integration Tests
 
@@ -327,9 +329,11 @@ Der Test prueft nicht:
 - Explorer-, Browser-, Office- oder Mail-Adapter.
 - Netzwerk, Discovery oder Pairing.
 
-## MA006.03 Spatial Carry Tray Prototype Tests
+## MA006.03 / MA006.04 Spatial Room Tests
 
 MA006.03 fuehrt `src/Shell/RKWorkspace.Shell.SpatialTray/` und `tools/run-spatial-tray.ps1` ein. Der Prototyp ist ein lokaler Webserver mit statischer HTML/CSS/JavaScript-Oberflaeche fuer Handy oder Tablet.
+
+MA006.04 erweitert ihn zur Spatial Room Session. Alle Surfaces sehen denselben Raumzustand.
 
 Der Smoke-Test fuehrt aus:
 
@@ -340,39 +344,47 @@ Der Smoke-Test fuehrt aus:
 Erwartete Ausgabe:
 
 ```text
-Spatial Tray Smoke Test
-Server: OK
-Tray endpoint: OK
-Ablage endpoint: OK
-Demo thing: OK
-Carry state: OK
+Spatial Room Smoke Test
+Health: OK
+Handy surface: OK
+Monitor surface: OK
+Room ablagen: OK
+Initial thing: OK
+Pick removes source: OK
+Source trace: OK
+Monitor preview: OK
+Place on monitor: OK
+Pick from monitor: OK
+Handy preview: OK
+Place on handy: OK
 Free place: OK
 Cancel return: OK
-Ablage bubbles: OK
-Active bubble: OK
-Soft motion: OK
-Simulated place: OK
+Human words: OK
+Surface bubbles: OK
 RESULT: SUCCESS
 ```
 
 Der Test prueft:
 
-- lokaler Server startet mit Timeout-Schutz.
+- lokaler Raum startet mit Timeout-Schutz.
 - `/health` ist erreichbar.
-- `/tray` zeigt das mobile digitale Tablett.
-- `/api/state` meldet das Demo-Ding.
+- `/surface/handy` ist erreichbar.
+- `/surface/monitor` ist erreichbar.
+- mindestens zwei Ablagen existieren: Handy und Monitor.
+- das Ding liegt initial auf Ablage Handy.
 - `/api/pick` setzt `carryState` auf `Picked`.
-- normales Loslassen ueber `/api/release` legt im freien Raum ab und springt nicht zur Startposition zurueck.
-- `/api/cancel` kehrt explizit auf das Tablett zurueck.
-- mindestens fuenf Ablage-Bubbles existieren.
-- Bubble-Groessen unterscheiden Naehe.
-- weit entfernte Bubble-Namen sind nicht lesbar.
-- nahe Bubble-Namen sind lesbar.
-- aktive Bubbles zeigen `Hier ablegen`.
-- Wobble-Parameter sind reduziert und konfigurierbar.
-- weiches Einrasten ist als konfigurierbarer `SoftSnapStrength` vorbereitet.
-- `/api/place` setzt den Zustand `Placed`.
-- `/ablage` zeigt danach `Hier liegt jetzt: Rechnung.pdf`.
+- Pick entfernt das Ding aus der Ursprungslage.
+- eine Carry Session ist aktiv.
+- Annaherung an Monitor erzeugt Preview auf Monitor.
+- Place legt das Ding auf Monitor ab.
+- das Ding liegt danach nicht mehr auf Handy.
+- das Ding kann vom Monitor wieder genommen werden.
+- Annaherung an Handy erzeugt Preview auf Handy.
+- Place legt das Ding zurueck auf Handy.
+- freies Ablegen ohne aktive Ablage bleibt an aktueller Position.
+- Cancel bringt das Ding zur Quelle zurueck.
+- sichtbare Oberflaechen vermeiden technische Sprache.
+- Bubbles existieren auf der Surface.
 
 Der Test prueft nicht:
 
@@ -396,6 +408,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.6.0 | 2026-07-03 | MA006.04 Spatial Room Session Smoke-Test dokumentiert. |
 | 2.5.0 | 2026-07-03 | MA006.03-A Smoke-Test fuer digitale Hand, freie Ablage, Ablage-Bubbles und weiche Motion-Parameter dokumentiert. |
 | 2.4.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Smoke-Test dokumentiert. |
 | 2.3.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype Smoke-Test dokumentiert. |

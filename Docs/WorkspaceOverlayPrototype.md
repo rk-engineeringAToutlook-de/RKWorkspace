@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -28,6 +28,15 @@ Die fuer den Spatial Carry Tray erprobten Prinzipien gelten auch fuer spaetere O
 - Ablagen offenbaren sich durch Naehe.
 - Freies Ablegen ist erlaubt.
 - Nur explizites Zuruecklegen kehrt zur alten Ablage zurueck.
+
+MA006.04 fuegt hinzu:
+
+- Jede sichtbare Flaeche ist eine Ablage im selben Raum.
+- Ein Ding existiert nur einmal.
+- Eine Zielablage sieht ein Ding als Preview, bevor es dort liegt.
+- Der Desktop darf nicht nur eine passive Warteseite sein.
+
+Wenn ein Overlay spaeter wieder Produktpfad wird, muss es denselben `SpatialRoomState` respektieren.
 
 ## Projekt
 
@@ -178,6 +187,7 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-03 | MA006.04 Spatial Room Session als Bedingung fuer spaetere Overlays eingeordnet. |
 | 1.2.0 | 2026-07-03 | MA006.03-A Prinzipien fuer digitale Hand, optische Haptik und freie Ablage in Overlay-Einordnung aufgenommen. |
 | 1.1.0 | 2026-07-03 | MA006.03 eingeordnet: Desktop-Overlay bleibt Experiment, Spatial Carry Tray wird neuer Wahrnehmungstest. |
 | 1.0.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype dokumentiert. |

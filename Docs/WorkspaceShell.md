@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -166,6 +166,41 @@ Sie offenbart sich durch Naehe.
 Erst wenn der Mensch nahe genug ist, erkennt er, was dort liegt oder moeglich ist.
 ```
 
+## Spatial Room Session
+
+MA006.04 erweitert den Spatial Carry Tray zur gemeinsamen Raum-Session.
+
+Das zentrale Modell ist:
+
+```text
+SpatialRoomState
+```
+
+Es beschreibt:
+
+- `RoomId`
+- `Ablagen`
+- `Things`
+- `ActiveCarry`
+- `UpdatedAt`
+
+Kanonische Oberflaechen:
+
+```text
+/surface/handy
+/surface/monitor
+/surface/tablet
+/surface/desktop
+```
+
+Alle Ablagen sind gleichberechtigt.
+
+Das Ding existiert nur einmal. Wenn es genommen wird, ist `CurrentAblageId = null` und `CurrentCarryId` verweist auf die aktive Carry Session. Dadurch liegt es nicht mehr auf der Ursprungslage.
+
+Eine Zielablage sieht das Ding bereits als Preview, bevor es endgueltig abgelegt wird.
+
+Details: `Docs/SpatialRoomSession.md`
+
 ## Human Experience Referenz
 
 Workspace Shell verweist ausdruecklich auf:
@@ -295,10 +330,21 @@ MA006.03 baut noch nicht:
 - erzwungene echte Mobile-Haptik
 - finale Distanzschwellen fuer Ablage-Bubbles
 
+MA006.04 baut zusaetzlich noch nicht:
+
+- echte Mehrgeraete-Discovery
+- Pairing
+- sichere Raumsitzung
+- echte Payload
+- native Mobile- oder Desktop-App
+- WebSocket-Pflicht
+- echte Raumvermessung
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-03 | MA006.04 Spatial Room Session, gleichberechtigte Surfaces und einheitlichen Raumzustand dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, Ablage-Bubbles und freies Ablegen ergaenzt. |
 | 1.3.0 | 2026-07-03 | MA006.03 Spatial Carry Tray als neuen Wahrnehmungspfad dokumentiert. |
 | 1.2.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype und Overlay-States dokumentiert. |

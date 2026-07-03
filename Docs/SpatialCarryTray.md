@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -39,6 +39,32 @@ Ablagepunkte = wichtiger als Bildschirmraender
 ```
 
 Das digitale Ding wird nicht aus einem Fenster geschoben. Es liegt auf dem mobilen Tablett und wird im realen Raum zu einer Ablage getragen.
+
+## Einordnung Nach MA006.04
+
+MA006.04 erweitert diesen Prototyp zur Spatial Room Session.
+
+Damit sind `/tray` und `/ablage` nicht mehr zwei unterschiedliche Konzepte.
+
+Kanonisch sind jetzt:
+
+```text
+/surface/handy
+/surface/monitor
+```
+
+Alle Oberflaechen sehen denselben Raumzustand.
+
+Das Ding existiert nur einmal:
+
+- liegt initial auf Ablage Handy
+- verschwindet dort beim Greifen
+- befindet sich waehrend Carry in der digitalen Hand
+- erscheint als Preview auf der Zielablage
+- liegt nach Place auf der Zielablage
+- kann von dort wieder genommen werden
+
+Die Details stehen in `Docs/SpatialRoomSession.md`.
 
 ## Projekt
 
@@ -367,5 +393,6 @@ Zusatzfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | MA006.04 Spatial Room Session als Erweiterung eingeordnet. |
 | 1.1.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, freie Ablage und Ablage-Bubbles dokumentiert. |
 | 1.0.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Prototype dokumentiert. |

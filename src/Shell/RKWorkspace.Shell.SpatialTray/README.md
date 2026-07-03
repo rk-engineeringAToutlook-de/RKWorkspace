@@ -24,3 +24,12 @@ MA006.03-A ergaenzt:
 - Ablage-Bubbles mit Distanz-Lesbarkeit
 - freies Ablegen beim normalen Loslassen
 - explizites `Zuruecklegen` als Abbruch
+
+MA006.04 ergaenzt die Spatial Room Session:
+
+- `/surface/handy`
+- `/surface/monitor`
+- gemeinsamer Raumzustand fuer alle Ablagen
+- ein Ding existiert nur einmal
+- Zielablagen sehen eine Preview
+- Ding kann von jeder Ablage wieder genommen werden

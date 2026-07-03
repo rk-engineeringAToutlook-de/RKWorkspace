@@ -224,24 +224,28 @@ if (-not $overlayText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
-Write-Host 'Spatial Carry Tray Smoke Test'
-Write-Host '-----------------------------'
+Write-Host 'Spatial Room Smoke Test'
+Write-Host '-----------------------'
 $spatialTrayOutput = & (Join-Path $root 'tools\run-spatial-tray.ps1') -SmokeTest 2>&1
 $spatialTrayExitCode = $LASTEXITCODE
 $spatialTrayOutput | ForEach-Object { Write-Host $_ }
 if ($spatialTrayExitCode -ne 0) {
-    throw "Spatial Carry Tray Smoke Test failed with exit code $spatialTrayExitCode."
+    throw "Spatial Room Smoke Test failed with exit code $spatialTrayExitCode."
 }
 
 $spatialTrayText = $spatialTrayOutput -join [Environment]::NewLine
-if (-not $spatialTrayText.Contains('Spatial Tray Smoke Test')) {
-    throw "Spatial Carry Tray Smoke Test failed because output did not contain Spatial Tray Smoke Test."
+if (-not $spatialTrayText.Contains('Spatial Room Smoke Test')) {
+    throw "Spatial Room Smoke Test failed because output did not contain Spatial Room Smoke Test."
 }
 
-if (-not $spatialTrayText.Contains('Simulated place: OK')) {
-    throw "Spatial Carry Tray Smoke Test failed because output did not contain Simulated place: OK."
+if (-not $spatialTrayText.Contains('Monitor preview: OK')) {
+    throw "Spatial Room Smoke Test failed because output did not contain Monitor preview: OK."
+}
+
+if (-not $spatialTrayText.Contains('Pick from monitor: OK')) {
+    throw "Spatial Room Smoke Test failed because output did not contain Pick from monitor: OK."
 }
 
 if (-not $spatialTrayText.Contains('RESULT: SUCCESS')) {
-    throw "Spatial Carry Tray Smoke Test failed because output did not contain RESULT: SUCCESS."
+    throw "Spatial Room Smoke Test failed because output did not contain RESULT: SUCCESS."
 }

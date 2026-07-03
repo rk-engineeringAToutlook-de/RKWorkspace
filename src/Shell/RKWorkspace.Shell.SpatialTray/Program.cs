@@ -31,14 +31,14 @@ try
     await server.StartAsync(cancellation.Token);
     var diagnostics = server.GetDiagnostics();
 
-    Console.WriteLine("RK Workspace Spatial Carry Tray");
-    Console.WriteLine("Desktop-Ablage: aktiv");
-    Console.WriteLine("Mobile Tray oeffnen:");
+    Console.WriteLine("RK Workspace Spatial Room Session");
+    Console.WriteLine("Raumzustand: aktiv");
+    Console.WriteLine("Ablage Handy oeffnen:");
     Console.WriteLine(diagnostics.TrayUrl);
-    Console.WriteLine("Lokale Ablage ansehen:");
+    Console.WriteLine("Ablage Monitor oeffnen:");
     Console.WriteLine(diagnostics.AblageUrl);
     Console.WriteLine("Falls das Handy/Tablet die Adresse nicht erreicht, im selben WLAN die lokale Rechner-IP verwenden.");
-    Console.WriteLine("Ctrl+C beendet den lokalen Tray-Prototyp.");
+    Console.WriteLine("Ctrl+C beendet die lokale Raum-Session.");
 
     while (!cancellation.IsCancellationRequested)
     {
@@ -58,7 +58,7 @@ return 0;
 
 static void PrintHelp()
 {
-    Console.WriteLine("RK Workspace Spatial Carry Tray");
+    Console.WriteLine("RK Workspace Spatial Room Session");
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  --smoke-test   Run the local smoke test and stop.");

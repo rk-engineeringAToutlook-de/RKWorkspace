@@ -27,85 +27,135 @@ public static class SpatialTraySmokeTest
             };
 
             var healthOk = await GetContainsAsync(client, "/health", "OK", timeout.Token);
-            var trayOk = await GetContainsAsync(client, "/tray", "Digitales Ding", timeout.Token) &&
-                await GetContainsAsync(client, "/tray", "Rechnung.pdf", timeout.Token);
-            var stateBefore = await client.GetStringAsync("/api/state", timeout.Token);
-            var demoThingOk = stateBefore.Contains("Rechnung.pdf", StringComparison.Ordinal) &&
-                stateBefore.Contains("ThingOnTray", StringComparison.Ordinal);
-            var initialState = JsonDocument.Parse(stateBefore);
-            var bubblesOk = HasExpectedBubbles(initialState.RootElement);
-            var motionOk = HasSoftMotionSettings(initialState.RootElement);
-            var ablageOk = await GetContainsAsync(client, "/ablage", "Ablage Monitor bereit", timeout.Token);
+            var handySurfaceOk = await GetContainsAsync(client, "/surface/handy", "Ablage im Raum", timeout.Token);
+            var monitorSurfaceOk = await GetContainsAsync(client, "/surface/monitor", "Ablage im Raum", timeout.Token);
+            var languageOk = await VisibleLanguageIsHumanAsync(client, timeout.Token);
 
-            using var pickResponse = await PostJsonAsync(client, "/api/pick", new { }, timeout.Token);
-            var carryStateOk = pickResponse.RootElement.GetProperty("carryState").GetString() == "Picked";
+            var initialHandy = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
+            var roomHasAblagenOk = HasAblage(initialHandy.RootElement, "handy") &&
+                HasAblage(initialHandy.RootElement, "monitor");
+            var initialThingOk = Thing(initialHandy.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
+                Thing(initialHandy.RootElement).GetProperty("currentState").GetString() == "RestingOnAblage";
+            var bubblesOnHandyOk = initialHandy.RootElement.GetProperty("bubbles").GetArrayLength() >= 2;
 
-            using var releaseResponse = await PostJsonAsync(
+            using var pickHandy = await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token);
+            var pickRemovesFromHandyOk = Thing(pickHandy.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
+                pickHandy.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "Picked" &&
+                pickHandy.RootElement.GetProperty("activeCarry").GetProperty("sourceAblageId").GetString() == "handy";
+            using var handyAfterPick = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
+            var sourceTraceOk = !handyAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
+                handyAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("sourceWasHere").GetBoolean();
+
+            using var approachMonitor = await PostJsonAsync(
+                client,
+                "/api/approach",
+                new { carrierAblageId = "handy", targetAblageId = "monitor" },
+                timeout.Token);
+            using var monitorPreview = await GetJsonAsync(client, "/api/state?ablage=monitor", timeout.Token);
+            var monitorPreviewOk = Thing(approachMonitor.RootElement).GetProperty("previewAblageId").GetString() == "monitor" &&
+                Thing(approachMonitor.RootElement).GetProperty("currentState").GetString() == "PreviewOnAblage" &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean();
+
+            using var placeMonitor = await PostJsonAsync(
+                client,
+                "/api/place",
+                new { carrierAblageId = "handy", targetAblageId = "monitor", x = 0.5, y = 0.5 },
+                timeout.Token);
+            using var handyAfterMonitorPlace = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
+            using var monitorAfterPlace = await GetJsonAsync(client, "/api/state?ablage=monitor", timeout.Token);
+            var placeMonitorOk = Thing(placeMonitor.RootElement).GetProperty("currentAblageId").GetString() == "monitor" &&
+                Thing(placeMonitor.RootElement).GetProperty("currentState").GetString() == "PlacedOnAblage" &&
+                monitorAfterPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
+                !handyAfterMonitorPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean();
+
+            using var pickMonitor = await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "monitor" }, timeout.Token);
+            var pickFromMonitorOk = Thing(pickMonitor.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
+                pickMonitor.RootElement.GetProperty("activeCarry").GetProperty("sourceAblageId").GetString() == "monitor" &&
+                pickMonitor.RootElement.GetProperty("activeCarry").GetProperty("carrierAblageId").GetString() == "monitor";
+
+            using var approachHandy = await PostJsonAsync(
+                client,
+                "/api/approach",
+                new { carrierAblageId = "monitor", targetAblageId = "handy" },
+                timeout.Token);
+            using var handyPreview = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
+            var handyPreviewOk = Thing(approachHandy.RootElement).GetProperty("previewAblageId").GetString() == "handy" &&
+                handyPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean();
+
+            using var placeHandy = await PostJsonAsync(
+                client,
+                "/api/place",
+                new { carrierAblageId = "monitor", targetAblageId = "handy", x = 0.5, y = 0.5 },
+                timeout.Token);
+            var placeHandyOk = Thing(placeHandy.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
+                Thing(placeHandy.RootElement).GetProperty("currentState").GetString() == "PlacedOnAblage";
+
+            using (await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token))
+            {
+            }
+
+            using var freePlace = await PostJsonAsync(
                 client,
                 "/api/release",
-                new { x = 0.42, y = 0.58, placeOnAblage = false },
+                new { carrierAblageId = "handy", x = 0.25, y = 0.66, placeOnAblage = false },
                 timeout.Token);
-            var freePlaceOk = releaseResponse.RootElement.GetProperty("state").GetString() == "Placed" &&
-                releaseResponse.RootElement.GetProperty("placement").GetProperty("kind").GetString() == "Free" &&
-                releaseResponse.RootElement.GetProperty("activeAblage").GetString() == "Freier Raum";
+            var freePlaceOk = Thing(freePlace.RootElement).GetProperty("currentState").GetString() == "FreePlaced" &&
+                Thing(freePlace.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
+                Thing(freePlace.RootElement).GetProperty("positionOnAblage").GetProperty("x").GetDouble() == 0.25;
 
-            using var cancelResponse = await PostJsonAsync(client, "/api/cancel", new { }, timeout.Token);
-            var cancelOk = cancelResponse.RootElement.GetProperty("carryState").GetString() == "OnTray" &&
-                cancelResponse.RootElement.GetProperty("placement").GetProperty("kind").GetString() == "Tray";
+            using (await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token))
+            {
+            }
 
-            using var nearResponse = await PostJsonAsync(
-                client,
-                "/api/near",
-                new { ablage = "monitor" },
-                timeout.Token);
-            var activeBubbleOk = HasActiveBubble(nearResponse.RootElement);
-
-            using var content = new StringContent(
-                JsonSerializer.Serialize(new { ablage = "Ablage Monitor" }),
-                Encoding.UTF8,
-                "application/json");
-            using var response = await client.PostAsync("/api/place", content, timeout.Token);
-            var placeResponse = await response.Content.ReadAsStringAsync(timeout.Token);
-            var stateAfter = await client.GetStringAsync("/api/state", timeout.Token);
-            var placeOk = response.IsSuccessStatusCode &&
-                placeResponse.Contains("Placed", StringComparison.Ordinal) &&
-                stateAfter.Contains("Placed", StringComparison.Ordinal) &&
-                await GetContainsAsync(client, "/ablage", "Hier liegt jetzt: Rechnung.pdf", timeout.Token);
+            using var cancel = await PostJsonAsync(client, "/api/cancel", new { carrierAblageId = "handy" }, timeout.Token);
+            var cancelOk = Thing(cancel.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
+                Thing(cancel.RootElement).GetProperty("currentState").GetString() == "Cancelled" &&
+                cancel.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "Cancelled";
 
             var success = healthOk &&
-                trayOk &&
-                ablageOk &&
-                demoThingOk &&
-                carryStateOk &&
+                handySurfaceOk &&
+                monitorSurfaceOk &&
+                roomHasAblagenOk &&
+                initialThingOk &&
+                pickRemovesFromHandyOk &&
+                sourceTraceOk &&
+                monitorPreviewOk &&
+                placeMonitorOk &&
+                pickFromMonitorOk &&
+                handyPreviewOk &&
+                placeHandyOk &&
                 freePlaceOk &&
                 cancelOk &&
-                bubblesOk &&
-                activeBubbleOk &&
-                motionOk &&
-                placeOk;
+                languageOk &&
+                bubblesOnHandyOk;
 
-            Console.WriteLine("Spatial Tray Smoke Test");
+            Console.WriteLine("Spatial Room Smoke Test");
             Console.WriteLine("-----------------------");
-            Console.WriteLine($"Server: {(healthOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Tray endpoint: {(trayOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Ablage endpoint: {(ablageOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Demo thing: {(demoThingOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Carry state: {(carryStateOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Health: {(healthOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Handy surface: {(handySurfaceOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Monitor surface: {(monitorSurfaceOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Room ablagen: {(roomHasAblagenOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Initial thing: {(initialThingOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Pick removes source: {(pickRemovesFromHandyOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Source trace: {(sourceTraceOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Monitor preview: {(monitorPreviewOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Place on monitor: {(placeMonitorOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Pick from monitor: {(pickFromMonitorOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Handy preview: {(handyPreviewOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Place on handy: {(placeHandyOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Free place: {(freePlaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Cancel return: {(cancelOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Ablage bubbles: {(bubblesOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Active bubble: {(activeBubbleOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Soft motion: {(motionOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Simulated place: {(placeOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Human words: {(languageOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Surface bubbles: {(bubblesOnHandyOk ? "OK" : "FAILED")}");
             Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
             return success ? 0 : 1;
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Spatial Tray Smoke Test");
+            Console.WriteLine("Spatial Room Smoke Test");
             Console.WriteLine("-----------------------");
-            Console.WriteLine($"Server: FAILED ({ex.Message})");
+            Console.WriteLine($"Health: FAILED ({ex.Message})");
             Console.WriteLine("RESULT: FAILED");
             return 1;
         }
@@ -125,6 +175,37 @@ public static class SpatialTraySmokeTest
         return text.Contains(expected, StringComparison.Ordinal);
     }
 
+    private static async Task<bool> VisibleLanguageIsHumanAsync(HttpClient client, CancellationToken cancellationToken)
+    {
+        var text = await client.GetStringAsync("/surface/handy", cancellationToken);
+        var forbidden = new[]
+        {
+            "Transfer",
+            "Upload",
+            "Download",
+            "Sync",
+            "Server",
+            "Client",
+            "Endpoint",
+            "Device",
+            "Geraet",
+            "Gerät",
+            "Agent",
+            "Workspace",
+            "IPC"
+        };
+        return forbidden.All(word => !text.Contains(word, StringComparison.Ordinal));
+    }
+
+    private static async Task<JsonDocument> GetJsonAsync(
+        HttpClient client,
+        string path,
+        CancellationToken cancellationToken)
+    {
+        var text = await client.GetStringAsync(path, cancellationToken);
+        return JsonDocument.Parse(text);
+    }
+
     private static async Task<JsonDocument> PostJsonAsync(
         HttpClient client,
         string path,
@@ -140,45 +221,16 @@ public static class SpatialTraySmokeTest
         return JsonDocument.Parse(text);
     }
 
-    private static bool HasExpectedBubbles(JsonElement state)
+    private static JsonElement Thing(JsonElement state)
     {
-        var bubbles = state.GetProperty("bubbles").EnumerateArray().ToArray();
-        if (bubbles.Length < 5)
-        {
-            return false;
-        }
-
-        var distinctScales = bubbles
-            .Select(bubble => bubble.GetProperty("scale").GetDouble())
-            .Distinct()
-            .Count();
-        var farNamesHidden = bubbles
-            .Where(bubble => bubble.GetProperty("distance").GetString() is "VeryFar" or "Far")
-            .All(bubble => !bubble.GetProperty("nameReadable").GetBoolean());
-        var nearNamesReadable = bubbles
-            .Where(bubble => bubble.GetProperty("distance").GetString() is "Near" or "VeryNear")
-            .All(bubble => bubble.GetProperty("nameReadable").GetBoolean());
-
-        return distinctScales >= 3 && farNamesHidden && nearNamesReadable;
+        return state.GetProperty("things").EnumerateArray().Single();
     }
 
-    private static bool HasActiveBubble(JsonElement state)
+    private static bool HasAblage(JsonElement state, string ablageId)
     {
-        return state.GetProperty("bubbles")
+        return state.GetProperty("ablagen")
             .EnumerateArray()
-            .Any(bubble =>
-                bubble.GetProperty("state").GetString() == "Active" &&
-                bubble.GetProperty("actionText").GetString() == "Hier ablegen");
-    }
-
-    private static bool HasSoftMotionSettings(JsonElement state)
-    {
-        var motion = state.GetProperty("motion");
-        return motion.GetProperty("wobbleAmplitude").GetDouble() <= 0.1 &&
-            motion.GetProperty("wobbleFrequency").GetDouble() <= 0.2 &&
-            motion.GetProperty("softSnapStrength").GetDouble() is > 0 and < 0.5 &&
-            motion.GetProperty("nameRevealThreshold").GetDouble() > 0 &&
-            motion.GetProperty("activationThreshold").GetDouble() > motion.GetProperty("nameRevealThreshold").GetDouble();
+            .Any(ablage => ablage.GetProperty("ablageId").GetString() == ablageId);
     }
 
     private static int FindAvailablePort()

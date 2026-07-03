@@ -28,9 +28,9 @@ public sealed class SpatialTrayServer : IAsyncDisposable
         return new SpatialTrayDiagnostics
         {
             Port = _configuration.Port,
-            TrayUrl = $"http://{ip}:{_configuration.Port}/tray",
-            LocalTrayUrl = $"http://localhost:{_configuration.Port}/tray",
-            AblageUrl = $"http://localhost:{_configuration.Port}/ablage",
+            TrayUrl = $"http://{ip}:{_configuration.Port}/surface/handy",
+            LocalTrayUrl = $"http://localhost:{_configuration.Port}/surface/handy",
+            AblageUrl = $"http://localhost:{_configuration.Port}/surface/monitor",
             State = _session.CurrentState,
             ThingName = _configuration.ThingName,
             DesktopAblageName = _configuration.DesktopAblageName,
@@ -80,46 +80,76 @@ public sealed class SpatialTrayServer : IAsyncDisposable
 
     private void MapEndpoints(WebApplication app)
     {
-        app.MapGet("/", () => Results.Redirect("/tray"));
+        app.MapGet("/", () => Results.Redirect("/surface/handy"));
         app.MapGet("/health", () => Results.Json(new { status = "OK" }));
-        app.MapGet("/api/state", () => Results.Json(_session.Snapshot()));
-        app.MapPost("/api/pick", () =>
+        app.MapGet("/api/state", (HttpRequest request) =>
         {
-            _session.Pick();
-            return Results.Json(_session.Snapshot());
+            var ablageId = request.Query["ablage"].FirstOrDefault();
+            return Results.Json(_session.Snapshot(ablageId));
         });
-        app.MapPost("/api/carry", () =>
+        app.MapPost("/api/pick", async (HttpRequest request) =>
         {
-            _session.Carry();
-            return Results.Json(_session.Snapshot());
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            _session.Pick(carrier);
+            return Results.Json(_session.Snapshot(carrier));
+        });
+        app.MapPost("/api/move", async (HttpRequest request) =>
+        {
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            _session.Move(carrier, payload.X, payload.Y);
+            return Results.Json(_session.Snapshot(carrier));
+        });
+        app.MapPost("/api/carry", async (HttpRequest request) =>
+        {
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            _session.Move(carrier, payload.X, payload.Y);
+            return Results.Json(_session.Snapshot(carrier));
+        });
+        app.MapPost("/api/approach", async (HttpRequest request) =>
+        {
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var target = payload.TargetAblageId ?? payload.Ablage ?? "monitor";
+            _session.Approach(carrier, target);
+            return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/near", async (HttpRequest request) =>
         {
-            var payload = await request.ReadFromJsonAsync<AblageRequest>();
-            _session.NearAblage(payload?.Ablage ?? _configuration.DesktopAblageName);
-            return Results.Json(_session.Snapshot());
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var target = payload.TargetAblageId ?? payload.Ablage ?? "monitor";
+            _session.Approach(carrier, target);
+            return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/release", async (HttpRequest request) =>
         {
-            var payload = await request.ReadFromJsonAsync<AblageRequest>();
-            _session.Release(payload?.X, payload?.Y, payload?.Ablage, payload?.PlaceOnAblage == true);
-            return Results.Json(_session.Snapshot());
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            _session.Release(payload.X, payload.Y, payload.TargetAblageId ?? payload.Ablage, payload.PlaceOnAblage == true);
+            return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/place", async (HttpRequest request) =>
         {
-            var payload = await request.ReadFromJsonAsync<AblageRequest>();
-            _session.Place(payload?.Ablage);
-            return Results.Json(_session.Snapshot());
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? payload.TargetAblageId ?? "handy";
+            _session.Place(payload.TargetAblageId ?? payload.Ablage, payload.X, payload.Y);
+            return Results.Json(_session.Snapshot(carrier));
         });
-        app.MapPost("/api/cancel", () =>
+        app.MapPost("/api/cancel", async (HttpRequest request) =>
         {
+            var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
+            var viewer = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
             _session.Cancel();
-            return Results.Json(_session.Snapshot());
+            return Results.Json(_session.Snapshot(viewer));
         });
-        app.MapGet("/tray", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
+        app.MapGet("/tray", () => Results.Redirect("/surface/handy"));
+        app.MapGet("/ablage", () => Results.Redirect("/surface/monitor"));
+        app.MapGet("/surface/{ablageId}", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
         app.MapGet("/tray.css", () => ServeWebFile("tray.css", "text/css; charset=utf-8"));
         app.MapGet("/tray.js", () => ServeWebFile("tray.js", "application/javascript; charset=utf-8"));
-        app.MapGet("/ablage", () => Results.Content(RenderAblage(), "text/html; charset=utf-8"));
     }
 
     private IResult ServeWebFile(string fileName, string contentType)
@@ -133,52 +163,6 @@ public sealed class SpatialTrayServer : IAsyncDisposable
         return Results.Bytes(File.ReadAllBytes(path), contentType);
     }
 
-    private string RenderAblage()
-    {
-        var placed = _session.DesktopAblageHasThing;
-        var status = placed
-            ? $"Hier liegt jetzt: {_configuration.ThingName}"
-            : $"{_configuration.DesktopAblageName} bereit";
-        var detail = placed ? "Abgelegt" : "Ruhig warten";
-
-        return $$"""
-            <!doctype html>
-            <html lang="de">
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>Ablage</title>
-                <style>
-                    body {
-                        margin: 0;
-                        min-height: 100vh;
-                        display: grid;
-                        place-items: center;
-                        background: #101820;
-                        color: #eef5f0;
-                        font-family: "Segoe UI", Arial, sans-serif;
-                    }
-                    main {
-                        border: 1px solid rgba(190, 220, 205, .32);
-                        border-radius: 8px;
-                        padding: 28px 32px;
-                        background: rgba(30, 45, 54, .82);
-                        box-shadow: 0 18px 60px rgba(0, 0, 0, .28);
-                    }
-                    h1 { margin: 0 0 10px; font-size: 24px; }
-                    p { margin: 0; color: #b8cbc2; font-size: 16px; }
-                </style>
-            </head>
-            <body>
-                <main>
-                    <h1>{{WebUtility.HtmlEncode(status)}}</h1>
-                    <p>{{WebUtility.HtmlEncode(detail)}}</p>
-                </main>
-            </body>
-            </html>
-            """;
-    }
-
     private static string? GetLocalIpAddress()
     {
         return NetworkInterface.GetAllNetworkInterfaces()
@@ -189,5 +173,20 @@ public sealed class SpatialTrayServer : IAsyncDisposable
             .FirstOrDefault(address => !IPAddress.IsLoopback(IPAddress.Parse(address)));
     }
 
-    private sealed record AblageRequest(string? Ablage, double? X, double? Y, bool? PlaceOnAblage);
+    private sealed record SpatialRoomRequest
+    {
+        public string? AblageId { get; init; }
+
+        public string? CarrierAblageId { get; init; }
+
+        public string? TargetAblageId { get; init; }
+
+        public string? Ablage { get; init; }
+
+        public double? X { get; init; }
+
+        public double? Y { get; init; }
+
+        public bool? PlaceOnAblage { get; init; }
+    }
 }
