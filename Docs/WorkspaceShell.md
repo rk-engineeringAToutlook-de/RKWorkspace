@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -204,6 +204,19 @@ Ab der verfeinerten MA006.04-Fassung reagiert eine Zielablage mit `OpeningAblage
 
 Spatial Handover ist nur dokumentiert. Es gibt noch kein Handover-Protokoll, keine Discovery, kein Pairing und keine echte Payload.
 
+MA006.05 verfeinert diesen Pfad als Tactile Mobile Carry Slice. Der Fokus liegt nicht auf neuen Funktionen, sondern auf dem einen Wahrnehmungsablauf: Ding von Ablage Handy nehmen, in der digitalen Hand halten, Ablage Monitor oeffnen lassen, das Ding hinein gleiten lassen und an einer relativen Position ablegen.
+
+Die Shell-Modelle bleiben unveraendert plattformneutral. Der lokale Spatial Tray meldet dafuer zusaetzliche Wahrnehmungsdaten:
+
+- Bewegungsneigung nach Vektor.
+- kompakter gehaltenes Ding.
+- Teilverdeckung und Kontaktflaeche.
+- fast vollstaendig reduziertes Wabern.
+- weiches Einrasten.
+- Ghost auf Zielablage vor Place.
+- gleitender Uebergang in die Ablage-Bubble.
+- relative Zielposition auf der Ablage.
+
 Details: `Docs/SpatialRoomSession.md`
 
 ## Human Experience Referenz
@@ -345,10 +358,21 @@ MA006.04 baut zusaetzlich noch nicht:
 - WebSocket-Pflicht
 - echte Raumvermessung
 
+MA006.05 baut weiterhin nicht:
+
+- Discovery
+- Pairing
+- LAN- oder Cloud-Kopplung
+- Kamera, UWB oder Dongle
+- echte Payload
+- native Mobile-App
+- finale Produkt-UI
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit taktilen Wahrnehmungsdaten und gleitendem Ablegen eingeordnet. |
 | 1.6.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage, Version/Metadata und dokumentiertes Spatial Handover ergaenzt. |
 | 1.5.0 | 2026-07-03 | MA006.04 Spatial Room Session, gleichberechtigte Surfaces und einheitlichen Raumzustand dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, Ablage-Bubbles und freies Ablegen ergaenzt. |

@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -261,6 +261,55 @@ MA006.04 legt dafuer nur die Begriffe und Zustandsgrenzen an:
 
 Es gibt noch kein echtes Handover-Protokoll, keine Discovery, kein Pairing und keine Payload.
 
+## Tactile Mobile Carry Slice
+
+MA006.05 reduziert den Prototyp bewusst auf einen einzigen Ablauf:
+
+```text
+Ablage Handy
+Ding nehmen
+Ding in digitaler Hand halten
+Ablage Monitor oeffnet sich
+Ding gleitet hinein
+Ding liegt auf Ablage Monitor
+```
+
+Der Slice fuegt keine neue Infrastruktur hinzu. Er verfeinert nur die Wahrnehmung:
+
+- kurzer Widerstand beim ersten Ziehen.
+- sichtbares Loesen aus der Ablage.
+- kompakteres Ding waehrend des Haltens.
+- Teilverdeckung durch digitale Hand.
+- optische Haptik ueber Kontaktflaeche, Griffschatten und Tiefe.
+- optionale mobile Haptik ueber `navigator.vibrate`, wenn verfuegbar.
+- Neigung nach Bewegungsvektor, nicht nach absoluter Bildschirmposition.
+- fast kein Wabern.
+- weiches Einrasten als Einladung, nicht als aggressive Magnetik.
+- Ghost auf der Zielablage vor dem eigentlichen Ablegen.
+- gleitender Uebergang in die Ablage-Bubble.
+- relative Zielposition auf der Ablage wird gespeichert.
+
+Die Surface-State-Daten melden dafuer:
+
+- `motion.tiltSource = movement-vector`
+- `motion.heldCompactScale`
+- `motion.initialResistanceDistancePx`
+- `motion.glideIntoBubbleMs`
+- `haptics.partialOcclusion`
+- `haptics.contactShadow`
+- `transition.targetGhostBeforePlace`
+- `transition.glideIntoBubble`
+- `transition.targetPositioning = relative-on-ablage`
+
+Damit bleibt die Regel erhalten:
+
+```text
+Release = hier ablegen
+Cancel = zurueck zur Quelle
+```
+
+Freies Ablegen bleibt gueltig.
+
 ## Endpunkte
 
 MA006.04 stellt bereit:
@@ -316,5 +365,6 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit digitaler Hand, Vektor-Neigung, Ghost, Glide und Zielposition dokumentiert. |
 | 1.1.0 | 2026-07-03 | Ablage-Linse, OpeningAblage, Metadata, Version und Spatial Handover als dokumentierten Zukunftsschritt ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.04 Spatial Room Session dokumentiert. |

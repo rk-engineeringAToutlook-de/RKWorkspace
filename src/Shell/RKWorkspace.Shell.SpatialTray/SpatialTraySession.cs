@@ -109,13 +109,38 @@ public sealed class SpatialTraySession
                     microTextOpacity = _configuration.MicroTextOpacity,
                     wobbleAmplitude = _configuration.WobbleAmplitude,
                     wobbleFrequency = _configuration.WobbleFrequency,
-                    softSnapStrength = _configuration.SoftSnapStrength
+                    softSnapStrength = _configuration.SoftSnapStrength,
+                    tiltSource = "movement-vector",
+                    vectorTiltMaxDegrees = _configuration.VectorTiltMaxDegrees,
+                    initialResistanceDistancePx = _configuration.InitialResistanceDistancePx,
+                    heldCompactScale = _configuration.HeldCompactScale,
+                    liftDepthPx = _configuration.LiftDepthPx,
+                    glideIntoBubbleMs = _configuration.GlideIntoBubbleMs,
+                    snapMode = "soft-invitation"
                 },
                 haptics = new
                 {
                     mobilePrepared = _configuration.MobileHapticsPrepared,
                     opticalPrepared = _configuration.OpticalHapticsPrepared,
-                    digitalHand = true
+                    digitalHand = true,
+                    partialOcclusion = true,
+                    contactShadow = true,
+                    compactWhenHeld = true,
+                    vibrateOnPickMs = 8,
+                    vibrateOnLiftMs = 9,
+                    vibrateOnAblageMs = 12,
+                    vibrateOnPlaceMs = 16
+                },
+                transition = new
+                {
+                    bubbleOpens = true,
+                    targetGhostBeforePlace = true,
+                    glideIntoBubble = true,
+                    placeAfterGlide = true,
+                    targetPositioning = "relative-on-ablage",
+                    carriedScale = _configuration.HeldCompactScale,
+                    previewScale = 0.82,
+                    placedScale = 1.0
                 },
                 placement = new
                 {
@@ -271,7 +296,7 @@ public sealed class SpatialTraySession
                 CurrentAblageId = carry.CarrierAblageId,
                 CurrentCarryId = null,
                 PreviewAblageId = null,
-                PositionOnAblage = new SpatialPoint(x ?? 0.5, y ?? 0.5),
+                PositionOnAblage = PlacementPoint(x, y),
                 UpdatedAt = now
             });
             _room = _room with
@@ -300,7 +325,7 @@ public sealed class SpatialTraySession
                 CurrentAblageId = target.AblageId,
                 CurrentCarryId = null,
                 PreviewAblageId = null,
-                PositionOnAblage = new SpatialPoint(x ?? 0.5, y ?? 0.5),
+                PositionOnAblage = PlacementPoint(x, y),
                 UpdatedAt = now
             });
             _room = _room with
@@ -523,9 +548,16 @@ public sealed class SpatialTraySession
             isHere,
             isCarriedHere,
             isPreviewHere,
+            ghostVisible = isPreviewHere,
             sourceWasHere,
             displayName = thing.DisplayName,
             state = thing.CurrentState.ToString(),
+            position = isPreviewHere ? PreviewPosition(viewerAblageId) : thing.PositionOnAblage,
+            displayScale = SurfaceThingScale(isHere, isCarriedHere, isPreviewHere),
+            glidePhase = SurfaceThingGlidePhase(isHere, isCarriedHere, isPreviewHere, sourceWasHere),
+            partialOcclusion = isCarriedHere,
+            heldCompact = isCarriedHere,
+            opticalHaptics = isCarriedHere || isPreviewHere,
             text = SurfaceThingText(isHere, isCarriedHere, isPreviewHere, sourceWasHere, thing)
         };
     }
@@ -684,6 +716,74 @@ public sealed class SpatialTraySession
             SpatialThingState.PreviewOnAblage => "Preview",
             _ => "Raum"
         };
+    }
+
+    private static SpatialPoint PlacementPoint(double? x, double? y)
+    {
+        var rawX = x ?? 0.5;
+        var rawY = y ?? 0.5;
+
+        if (Math.Abs(rawX) > 1 || Math.Abs(rawY) > 1)
+        {
+            rawX = 0.5 + (rawX / 720);
+            rawY = 0.5 + (rawY / 720);
+        }
+
+        return new SpatialPoint(Clamp01(rawX), Clamp01(rawY));
+    }
+
+    private static SpatialPoint PreviewPosition(string viewerAblageId)
+    {
+        return viewerAblageId switch
+        {
+            "monitor" => new SpatialPoint(0.62, 0.46),
+            "handy" => new SpatialPoint(0.48, 0.52),
+            _ => new SpatialPoint(0.5, 0.5)
+        };
+    }
+
+    private static double SurfaceThingScale(bool isHere, bool isCarriedHere, bool isPreviewHere)
+    {
+        if (isPreviewHere)
+        {
+            return 0.82;
+        }
+
+        if (isCarriedHere)
+        {
+            return 0.94;
+        }
+
+        return isHere ? 1.0 : 0.9;
+    }
+
+    private static string SurfaceThingGlidePhase(
+        bool isHere,
+        bool isCarriedHere,
+        bool isPreviewHere,
+        bool sourceWasHere)
+    {
+        if (isPreviewHere)
+        {
+            return "Arriving";
+        }
+
+        if (isCarriedHere)
+        {
+            return "Held";
+        }
+
+        if (sourceWasHere)
+        {
+            return "Lifted";
+        }
+
+        return isHere ? "Placed" : "None";
+    }
+
+    private static double Clamp01(double value)
+    {
+        return Math.Max(0, Math.Min(1, value));
     }
 
     private static double BaseScale(SpatialAblageDistance distance)

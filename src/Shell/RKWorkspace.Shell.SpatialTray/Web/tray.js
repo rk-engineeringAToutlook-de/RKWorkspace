@@ -15,9 +15,19 @@ let activeBubbleId = null;
 let canPickHere = false;
 let isPicked = false;
 let carryAnnounced = false;
+let hasLifted = false;
 let startPoint = { x: 0, y: 0 };
+let lastPoint = { x: 0, y: 0 };
 let targetOffset = { x: 0, y: 0 };
 let softOffset = { x: 0, y: 0 };
+let targetTilt = { x: 0, y: 0 };
+let softTilt = { x: 0, y: 0 };
+let tactileConfig = {
+    resistancePx: 10,
+    maxTilt: 4.2,
+    heldScale: 0.94,
+    glideMs: 180
+};
 
 async function post(path, body = {}) {
     const response = await fetch(path, {
@@ -43,23 +53,38 @@ function softHaptic(pattern) {
     }
 }
 
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function pause(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 function applyThingTransform() {
-    const tilt = Math.max(-2.2, Math.min(2.2, softOffset.x / 34));
     thing.style.setProperty("--carry-x", `${softOffset.x}px`);
     thing.style.setProperty("--carry-y", `${softOffset.y}px`);
-    thing.style.setProperty("--soft-tilt", `${tilt}deg`);
+    thing.style.setProperty("--tilt-x", `${softTilt.x}deg`);
+    thing.style.setProperty("--tilt-y", `${softTilt.y}deg`);
+    thing.style.setProperty("--shadow-x", `${clamp(-softTilt.x * 1.4, -8, 8)}px`);
+    thing.style.setProperty("--shadow-y", `${clamp(18 + Math.abs(softTilt.y) * 1.5, 15, 28)}px`);
+    thing.style.setProperty("--held-scale", hasLifted ? tactileConfig.heldScale : 1);
 }
 
 function settleTowardTarget() {
-    softOffset.x += (targetOffset.x - softOffset.x) * 0.64;
-    softOffset.y += (targetOffset.y - softOffset.y) * 0.64;
+    softOffset.x += (targetOffset.x - softOffset.x) * 0.56;
+    softOffset.y += (targetOffset.y - softOffset.y) * 0.56;
+    softTilt.x += (targetTilt.x - softTilt.x) * 0.38;
+    softTilt.y += (targetTilt.y - softTilt.y) * 0.38;
     applyThingTransform();
 }
 
 function clearActiveBubble() {
     activeAblage = null;
     activeBubbleId = null;
-    document.querySelectorAll(".ablage-bubble").forEach((bubble) => bubble.classList.remove("is-active", "is-opening"));
+    document.querySelectorAll(".ablage-bubble").forEach((bubble) => {
+        bubble.classList.remove("is-active", "is-opening");
+    });
 }
 
 function activateBubble(bubble) {
@@ -85,19 +110,20 @@ function findNearBubble(clientX, clientY) {
         }
     }
 
-    return nearestDistance < 96 ? nearest : null;
+    return nearestDistance < 104 ? nearest : null;
 }
 
 async function markNearBubble(bubble) {
     if (!bubble) {
         clearActiveBubble();
+        thing.classList.remove("is-near-ablage", "is-gliding-into-bubble");
         setStatus("Ding liegt in deiner Hand");
         return;
     }
 
     const changed = activeBubbleId !== bubble.dataset.id;
     activateBubble(bubble);
-    thing.classList.add("is-carried");
+    thing.classList.add("is-carried", "is-near-ablage");
     setStatus("Ablage oeffnet sich");
     if (changed) {
         softHaptic(12);
@@ -111,18 +137,28 @@ async function markNearBubble(bubble) {
 function resetThingMotion() {
     targetOffset = { x: 0, y: 0 };
     softOffset = { x: 0, y: 0 };
+    targetTilt = { x: 0, y: 0 };
+    softTilt = { x: 0, y: 0 };
+    hasLifted = false;
     thing.style.setProperty("--carry-x", "0px");
     thing.style.setProperty("--carry-y", "0px");
-    thing.style.setProperty("--soft-tilt", "0deg");
+    thing.style.setProperty("--tilt-x", "0deg");
+    thing.style.setProperty("--tilt-y", "0deg");
+    thing.style.setProperty("--shadow-x", "0px");
+    thing.style.setProperty("--shadow-y", "18px");
+    thing.style.setProperty("--held-scale", "1");
 }
 
 function updateThingClasses(surfaceThing) {
     thing.classList.toggle("is-hidden", !surfaceThing.visible || surfaceThing.sourceWasHere);
     emptyTrace.classList.toggle("is-hidden", !surfaceThing.sourceWasHere);
     thing.classList.toggle("is-preview", surfaceThing.isPreviewHere);
+    thing.classList.toggle("is-arriving", surfaceThing.ghostVisible);
     thing.classList.toggle("is-carried", surfaceThing.isCarriedHere || isPicked);
     thing.classList.toggle("is-placed", surfaceThing.isHere && !isPicked);
     thing.classList.toggle("is-picked", isPicked);
+    thing.classList.toggle("is-held-compact", surfaceThing.heldCompact || isPicked);
+    thing.classList.toggle("is-occluded", surfaceThing.partialOcclusion || isPicked);
 }
 
 function distanceClass(distance) {
@@ -150,6 +186,8 @@ function renderBubbles(bubbles) {
 
         const dot = document.createElement("span");
         dot.className = "bubble-dot";
+        const lens = document.createElement("span");
+        lens.className = "bubble-lens";
         const label = document.createElement("span");
         label.className = "bubble-label";
         label.textContent = bubble.shortName || bubble.displayName;
@@ -159,13 +197,14 @@ function renderBubbles(bubbles) {
         const action = document.createElement("span");
         action.className = "bubble-action";
         action.textContent = bubble.actionText || "Hier ablegen";
-        node.append(dot, label, opening, action);
+        node.append(lens, dot, label, opening, action);
 
         node.addEventListener("pointerdown", async (event) => {
             event.preventDefault();
             activateBubble(node);
+            thing.classList.add("is-near-ablage");
             setStatus("Ablage oeffnet sich");
-            softHaptic(10);
+            softHaptic(12);
             await post("/api/approach", {
                 carrierAblageId: surfaceId,
                 targetAblageId: node.dataset.id
@@ -176,15 +215,43 @@ function renderBubbles(bubbles) {
     }
 }
 
+function applySurfaceThingPosition(surfaceThing) {
+    if (surfaceThing.position) {
+        thing.style.setProperty("--place-shift-x", `${Math.round((surfaceThing.position.x - 0.5) * 150)}px`);
+        thing.style.setProperty("--place-shift-y", `${Math.round((surfaceThing.position.y - 0.5) * 110)}px`);
+    } else {
+        thing.style.setProperty("--place-shift-x", "0px");
+        thing.style.setProperty("--place-shift-y", "0px");
+    }
+
+    thing.style.setProperty("--surface-scale", surfaceThing.displayScale || 1);
+}
+
 function renderState(state) {
+    tactileConfig = {
+        resistancePx: state.motion?.initialResistanceDistancePx ?? tactileConfig.resistancePx,
+        maxTilt: state.motion?.vectorTiltMaxDegrees ?? tactileConfig.maxTilt,
+        heldScale: state.motion?.heldCompactScale ?? tactileConfig.heldScale,
+        glideMs: state.motion?.glideIntoBubbleMs ?? tactileConfig.glideMs
+    };
     surfaceName.textContent = state.surface.shortName || state.surface.displayName;
     surfaceHint.textContent = state.surfaceThing.isPreviewHere ? "kommt an" : "bereit";
     thingName.textContent = state.surfaceThing.displayName;
     thingHint.textContent = state.surfaceThing.text;
     canPickHere = state.surfaceThing.isHere;
+    applySurfaceThingPosition(state.surfaceThing);
+    document.body.classList.toggle("is-carrying", state.surfaceThing.isCarriedHere || isPicked);
+    document.body.classList.toggle("is-arriving", state.surfaceThing.isPreviewHere);
     updateThingClasses(state.surfaceThing);
     renderBubbles(state.bubbles);
     setStatus(state.status);
+}
+
+function placementPointFromMotion() {
+    return {
+        x: clamp(0.5 + (softOffset.x / Math.max(window.innerWidth, 1)) * 0.48, 0.12, 0.88),
+        y: clamp(0.5 + (softOffset.y / Math.max(window.innerHeight, 1)) * 0.48, 0.12, 0.88)
+    };
 }
 
 thing.addEventListener("pointerdown", async (event) => {
@@ -197,8 +264,10 @@ thing.addEventListener("pointerdown", async (event) => {
     isPicked = true;
     carryAnnounced = false;
     startPoint = { x: event.clientX, y: event.clientY };
-    thing.classList.remove("is-placed", "is-preview");
-    thing.classList.add("is-picked");
+    lastPoint = { ...startPoint };
+    resetThingMotion();
+    thing.classList.remove("is-placed", "is-preview", "is-arriving", "is-gliding-into-bubble");
+    thing.classList.add("is-picked", "is-touching", "is-resisting", "is-held-compact", "is-occluded");
     emptyTrace.classList.add("is-hidden");
     setStatus("Ding genommen");
     softHaptic(8);
@@ -211,9 +280,41 @@ thing.addEventListener("pointermove", async (event) => {
     }
 
     event.preventDefault();
-    targetOffset = {
-        x: event.clientX - startPoint.x,
-        y: event.clientY - startPoint.y
+    const currentPoint = { x: event.clientX, y: event.clientY };
+    const movement = {
+        x: currentPoint.x - lastPoint.x,
+        y: currentPoint.y - lastPoint.y
+    };
+    lastPoint = currentPoint;
+
+    const fromStart = {
+        x: currentPoint.x - startPoint.x,
+        y: currentPoint.y - startPoint.y
+    };
+    const distance = Math.hypot(fromStart.x, fromStart.y);
+
+    if (!hasLifted && distance < tactileConfig.resistancePx) {
+        targetOffset = {
+            x: fromStart.x * 0.28,
+            y: fromStart.y * 0.28
+        };
+        targetTilt = { x: 0, y: 0 };
+        settleTowardTarget();
+        return;
+    }
+
+    if (!hasLifted) {
+        hasLifted = true;
+        thing.classList.remove("is-resisting");
+        thing.classList.add("is-lifted");
+        setStatus("Ding liegt in deiner Hand");
+        softHaptic(9);
+    }
+
+    targetOffset = fromStart;
+    targetTilt = {
+        x: clamp(movement.x * 0.34, -tactileConfig.maxTilt, tactileConfig.maxTilt),
+        y: clamp(-movement.y * 0.28, -tactileConfig.maxTilt, tactileConfig.maxTilt)
     };
     settleTowardTarget();
 
@@ -240,39 +341,50 @@ thing.addEventListener("pointerup", async (event) => {
     }
 
     isPicked = false;
-    thing.classList.remove("is-picked", "is-carried");
-    thing.classList.add("is-placed");
+    thing.classList.remove("is-picked", "is-carried", "is-touching", "is-resisting", "is-lifted", "is-near-ablage");
     softHaptic(16);
+    const placementPoint = placementPointFromMotion();
 
-    const state = activeAblage
-        ? await post("/api/place", {
+    let state;
+    if (activeAblage) {
+        thing.classList.add("is-gliding-into-bubble");
+        setStatus("Ding gleitet hinein");
+        await pause(tactileConfig.glideMs);
+        state = await post("/api/place", {
             carrierAblageId: surfaceId,
             targetAblageId: activeAblage,
-            x: Math.round(softOffset.x),
-            y: Math.round(softOffset.y)
-        })
-        : await post("/api/release", {
+            x: placementPoint.x,
+            y: placementPoint.y
+        });
+    } else {
+        state = await post("/api/release", {
             carrierAblageId: surfaceId,
-            x: Math.round(softOffset.x),
-            y: Math.round(softOffset.y),
+            x: placementPoint.x,
+            y: placementPoint.y,
             placeOnAblage: false
         });
+    }
+
+    thing.classList.remove("is-gliding-into-bubble", "is-held-compact", "is-occluded");
+    thing.classList.add("is-placed");
     clearActiveBubble();
+    resetThingMotion();
     renderState(state);
 });
 
 placeButton.addEventListener("click", async () => {
+    const placementPoint = placementPointFromMotion();
     const state = activeAblage
         ? await post("/api/place", {
             carrierAblageId: surfaceId,
             targetAblageId: activeAblage,
-            x: Math.round(softOffset.x),
-            y: Math.round(softOffset.y)
+            x: placementPoint.x,
+            y: placementPoint.y
         })
         : await post("/api/release", {
             carrierAblageId: surfaceId,
-            x: Math.round(softOffset.x),
-            y: Math.round(softOffset.y),
+            x: placementPoint.x,
+            y: placementPoint.y,
             placeOnAblage: false
         });
     isPicked = false;

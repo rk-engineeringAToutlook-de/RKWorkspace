@@ -30,8 +30,24 @@ public static class SpatialTraySmokeTest
             var handySurfaceOk = await GetContainsAsync(client, "/surface/handy", "Ablage im Raum", timeout.Token);
             var monitorSurfaceOk = await GetContainsAsync(client, "/surface/monitor", "Ablage im Raum", timeout.Token);
             var languageOk = await VisibleLanguageIsHumanAsync(client, timeout.Token);
+            var tactileUiOk = await StaticTactileUiIsPreparedAsync(client, timeout.Token);
 
             var initialHandy = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
+            var tactileConfigOk = initialHandy.RootElement.GetProperty("motion").GetProperty("tiltSource").GetString() == "movement-vector" &&
+                initialHandy.RootElement.GetProperty("motion").GetProperty("initialResistanceDistancePx").GetDouble() > 0 &&
+                initialHandy.RootElement.GetProperty("motion").GetProperty("heldCompactScale").GetDouble() < 1 &&
+                initialHandy.RootElement.GetProperty("motion").GetProperty("liftDepthPx").GetDouble() > 0;
+            var wobbleReducedOk = initialHandy.RootElement.GetProperty("motion").GetProperty("wobbleAmplitude").GetDouble() <= 0.01 &&
+                initialHandy.RootElement.GetProperty("motion").GetProperty("wobbleFrequency").GetDouble() <= 0.03;
+            var softSnapOk = initialHandy.RootElement.GetProperty("motion").GetProperty("softSnapStrength").GetDouble() <= 0.15 &&
+                initialHandy.RootElement.GetProperty("motion").GetProperty("snapMode").GetString() == "soft-invitation";
+            var hapticsPreparedOk = initialHandy.RootElement.GetProperty("haptics").GetProperty("mobilePrepared").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("haptics").GetProperty("opticalPrepared").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("haptics").GetProperty("partialOcclusion").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("haptics").GetProperty("contactShadow").GetBoolean();
+            var transitionPreparedOk = initialHandy.RootElement.GetProperty("transition").GetProperty("targetGhostBeforePlace").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("transition").GetProperty("glideIntoBubble").GetBoolean() &&
+                initialHandy.RootElement.GetProperty("transition").GetProperty("targetPositioning").GetString() == "relative-on-ablage";
             var roomHasAblagenOk = HasAblage(initialHandy.RootElement, "handy") &&
                 HasAblage(initialHandy.RootElement, "monitor");
             var preparedAblagenOk = initialHandy.RootElement.GetProperty("ablagen").GetArrayLength() >= 5;
@@ -45,6 +61,10 @@ public static class SpatialTraySmokeTest
             var pickRemovesFromHandyOk = Thing(pickHandy.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
                 pickHandy.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "Picked" &&
                 pickHandy.RootElement.GetProperty("activeCarry").GetProperty("sourceAblageId").GetString() == "handy";
+            var digitalHandOk = pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("isCarriedHere").GetBoolean() &&
+                pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("heldCompact").GetBoolean() &&
+                pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("partialOcclusion").GetBoolean() &&
+                pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "Held";
             using var handyAfterPick = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
             var sourceTraceOk = !handyAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
                 handyAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("sourceWasHere").GetBoolean();
@@ -59,6 +79,9 @@ public static class SpatialTraySmokeTest
                 Thing(approachMonitor.RootElement).GetProperty("currentState").GetString() == "PreviewOnAblage" &&
                 monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean() &&
                 monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("text").GetString()?.Contains("kommt an", StringComparison.Ordinal) == true;
+            var targetGhostOk = monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("ghostVisible").GetBoolean() &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "Arriving" &&
+                monitorPreview.RootElement.GetProperty("surfaceThing").GetProperty("displayScale").GetDouble() < 1;
             var openingAblageOk = approachMonitor.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "OpeningAblage" &&
                 Bubble(approachMonitor.RootElement, "monitor").GetProperty("opens").GetBoolean();
             var activeBubbleOk = Bubble(approachMonitor.RootElement, "monitor").GetProperty("actionText").GetString() == "Hier ablegen";
@@ -66,7 +89,7 @@ public static class SpatialTraySmokeTest
             using var placeMonitor = await PostJsonAsync(
                 client,
                 "/api/place",
-                new { carrierAblageId = "handy", targetAblageId = "monitor", x = 0.5, y = 0.5 },
+                new { carrierAblageId = "handy", targetAblageId = "monitor", x = 0.64, y = 0.42 },
                 timeout.Token);
             using var handyAfterMonitorPlace = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
             using var monitorAfterPlace = await GetJsonAsync(client, "/api/state?ablage=monitor", timeout.Token);
@@ -74,6 +97,8 @@ public static class SpatialTraySmokeTest
                 Thing(placeMonitor.RootElement).GetProperty("currentState").GetString() == "PlacedOnAblage" &&
                 monitorAfterPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
                 !handyAfterMonitorPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean();
+            var targetPositionOk = Thing(placeMonitor.RootElement).GetProperty("positionOnAblage").GetProperty("x").GetDouble() == 0.64 &&
+                Thing(placeMonitor.RootElement).GetProperty("positionOnAblage").GetProperty("y").GetDouble() == 0.42;
 
             using var pickMonitor = await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "monitor" }, timeout.Token);
             var pickFromMonitorOk = Thing(pickMonitor.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
@@ -122,15 +147,24 @@ public static class SpatialTraySmokeTest
             var success = healthOk &&
                 handySurfaceOk &&
                 monitorSurfaceOk &&
+                tactileUiOk &&
+                tactileConfigOk &&
+                wobbleReducedOk &&
+                softSnapOk &&
+                hapticsPreparedOk &&
+                transitionPreparedOk &&
                 roomHasAblagenOk &&
                 preparedAblagenOk &&
                 initialThingOk &&
                 pickRemovesFromHandyOk &&
+                digitalHandOk &&
                 sourceTraceOk &&
                 monitorPreviewOk &&
+                targetGhostOk &&
                 openingAblageOk &&
                 activeBubbleOk &&
                 placeMonitorOk &&
+                targetPositionOk &&
                 pickFromMonitorOk &&
                 handyPreviewOk &&
                 placeHandyOk &&
@@ -145,15 +179,24 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Health: {(healthOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Handy surface: {(handySurfaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Monitor surface: {(monitorSurfaceOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Tactile UI: {(tactileUiOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Tactile config: {(tactileConfigOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Wobble reduced: {(wobbleReducedOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Soft snap: {(softSnapOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Haptics prepared: {(hapticsPreparedOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Glide prepared: {(transitionPreparedOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Room ablagen: {(roomHasAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Prepared ablagen: {(preparedAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Initial thing: {(initialThingOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Pick removes source: {(pickRemovesFromHandyOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Digital hand: {(digitalHandOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Source trace: {(sourceTraceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Monitor preview: {(monitorPreviewOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Target ghost: {(targetGhostOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Opening ablage: {(openingAblageOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Active bubble: {(activeBubbleOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Place on monitor: {(placeMonitorOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Target position: {(targetPositionOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Pick from monitor: {(pickFromMonitorOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Handy preview: {(handyPreviewOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Place on handy: {(placeHandyOk ? "OK" : "FAILED")}");
@@ -198,6 +241,8 @@ public static class SpatialTraySmokeTest
             "Transfer",
             "Upload",
             "Download",
+            "Senden",
+            "Empfangen",
             "Sync",
             "Server",
             "Client",
@@ -213,6 +258,21 @@ public static class SpatialTraySmokeTest
             "Sender"
         };
         return forbidden.All(word => !text.Contains(word, StringComparison.Ordinal));
+    }
+
+    private static async Task<bool> StaticTactileUiIsPreparedAsync(HttpClient client, CancellationToken cancellationToken)
+    {
+        var css = await client.GetStringAsync("/tray.css", cancellationToken);
+        var js = await client.GetStringAsync("/tray.js", cancellationToken);
+        return css.Contains("rotateX", StringComparison.Ordinal) &&
+            css.Contains("rotateY", StringComparison.Ordinal) &&
+            css.Contains("is-gliding-into-bubble", StringComparison.Ordinal) &&
+            css.Contains("is-occluded", StringComparison.Ordinal) &&
+            css.Contains("bubble-lens", StringComparison.Ordinal) &&
+            js.Contains("targetTilt", StringComparison.Ordinal) &&
+            js.Contains("movement", StringComparison.Ordinal) &&
+            js.Contains("navigator.vibrate", StringComparison.Ordinal) &&
+            js.Contains("Ding gleitet hinein", StringComparison.Ordinal);
     }
 
     private static async Task<JsonDocument> GetJsonAsync(

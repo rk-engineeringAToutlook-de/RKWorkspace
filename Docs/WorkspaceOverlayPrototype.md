@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -37,6 +37,16 @@ MA006.04 fuegt hinzu:
 - Der Desktop darf nicht nur eine passive Warteseite sein.
 
 Wenn ein Overlay spaeter wieder Produktpfad wird, muss es denselben `SpatialRoomState` respektieren.
+
+MA006.05 fuegt fuer spaetere Overlays eine taktile Regel hinzu:
+
+- ein Ding muss sich aus der Ablage loesen, bevor es getragen wird.
+- die Bewegung folgt dem Bewegungsvektor, nicht nur dem Cursor-Ort.
+- Teilverdeckung, Kontaktflaeche und Schatten ersetzen fehlende physische Haptik.
+- eine Ablage oeffnet sich als Ort.
+- das Ding gleitet hinein und springt nicht.
+
+Der aktuelle Overlay-Prototyp wird dadurch nicht erweitert. Die Regeln werden im Spatial Tray erprobt und spaeter auf echte Shell-Overlays uebertragen.
 
 ## Projekt
 
@@ -187,6 +197,7 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-03 | MA006.05 taktile Carry-Regeln fuer spaetere Overlays eingeordnet. |
 | 1.3.0 | 2026-07-03 | MA006.04 Spatial Room Session als Bedingung fuer spaetere Overlays eingeordnet. |
 | 1.2.0 | 2026-07-03 | MA006.03-A Prinzipien fuer digitale Hand, optische Haptik und freie Ablage in Overlay-Einordnung aufgenommen. |
 | 1.1.0 | 2026-07-03 | MA006.03 eingeordnet: Desktop-Overlay bleibt Experiment, Spatial Carry Tray wird neuer Wahrnehmungstest. |

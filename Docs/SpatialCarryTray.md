@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -67,6 +67,8 @@ Das Ding existiert nur einmal:
 Die Details stehen in `Docs/SpatialRoomSession.md`.
 
 Die verfeinerte MA006.04-Fassung fuehrt `OpeningAblage` und die Ablage-Linse ein. Aktive Ablagen reagieren auf Naehe, werden lesbarer, zeigen eine innere Ablageflaeche und lassen erst dann `Hier ablegen` erscheinen. Mindestens fuenf Ablagen sind im Raum vorbereitet.
+
+MA006.05 konzentriert diesen Pfad auf den Tactile Mobile Carry Slice: Handy oder Tablet soll weniger wie Webseite und staerker wie digitale Hand wirken. Das Ding loest sich mit kurzem Widerstand, wird kompakter, ist teilweise verdeckt, neigt sich nach Bewegungsvektor und gleitet in die geoeffnete Ablage-Bubble.
 
 ## Projekt
 
@@ -199,6 +201,25 @@ Nicht:
 Das Icon haengt an meinem Finger.
 ```
 
+Ab MA006.05 wird dieser Moment enger gefuehrt:
+
+- `beruehren`: dezente Kontaktflaeche und Griffschatten.
+- `Widerstand`: die ersten Pixel geben nur weich nach.
+- `loesen`: das Ding hebt sich sichtbar aus der Ablage.
+- `halten`: das Ding wird kompakter und teilweise verdeckt.
+- `tragen`: die Neigung folgt dem Bewegungsvektor.
+
+Das Ding darf nicht wabern. Es darf nur leicht leben: durch sanfte Traegheit, ruhigen Nachlauf und kurze Antwort beim Loesen.
+
+Auf Handy oder Tablet wird `navigator.vibrate` subtil genutzt, wenn verfuegbar:
+
+- beim Greifen.
+- beim Loesen.
+- beim Erreichen einer aktiven Ablage.
+- beim Ablegen.
+
+Wenn keine echte Haptik verfuegbar ist, uebernimmt die optische Haptik: Teilverdeckung, Schatten, Kontaktflaeche, Kompression und Stabilisierung.
+
 ## Release Und Cancel
 
 Normales Loslassen bedeutet:
@@ -248,6 +269,15 @@ Sie erscheinen als ruhige Moeglichkeiten im Raum:
 - sehr nah / aktiv: Name und `Hier ablegen`
 
 Damit entsteht Entfernung ueber Groesse, Lesbarkeit und Naehe.
+
+Ab MA006.05 ist die aktive Bubble ausdruecklich eine Oeffnung:
+
+- die Ablage-Linse wird sichtbar.
+- die Innenflaeche deutet einen Ort an.
+- das Ding kann hinein gleiten.
+- die Zielablage zeigt vorher einen Ghost.
+
+Der Uebergang darf nicht wie ein Sprung wirken. Auf der tragenden Ablage gleitet das Ding in die Bubble; auf der Zielablage wird es als Ghost sichtbar und danach an einer relativen Position abgelegt.
 
 Die konkreten Schwellen bleiben konfigurierbar:
 
@@ -323,8 +353,9 @@ Zusaetzlich meldet der State:
 
 - `carryState`: OnTray, Picked, Carried, Placed, Cancelled, Failed
 - `bubbles`: mindestens fuenf Ablage-Bubbles mit Distanz, Lesbarkeit, Groesse und Aktivzustand
-- `motion`: reduzierte Wobble- und weiche Snap-Parameter
-- `haptics`: vorbereitete mobile Haptik und optische Haptik
+- `motion`: Bewegungsneigung nach Vektor, Widerstand, Loesetiefe und Glide-Dauer
+- `haptics`: vorbereitete mobile Haptik, Teilverdeckung und optische Haptik
+- `transition`: Ghost vor Place, Gleiten in die Bubble und relative Zielposition
 - `placement`: Ablage oder freier Raum
 
 ## Human Experience Referenz
@@ -395,6 +426,7 @@ Zusatzfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit Widerstand, Teilverdeckung, Vektor-Neigung, optionaler Haptik und gleitendem Ablegen dokumentiert. |
 | 1.3.0 | 2026-07-03 | MA006.04 Ablage-Linse, OpeningAblage und fuenf vorbereitete Ablagen eingeordnet. |
 | 1.2.0 | 2026-07-03 | MA006.04 Spatial Room Session als Erweiterung eingeordnet. |
 | 1.1.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, freie Ablage und Ablage-Bubbles dokumentiert. |

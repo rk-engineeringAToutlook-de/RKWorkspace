@@ -20,11 +20,23 @@ public sealed record SpatialTrayConfiguration
 
     public double MicroTextOpacity { get; init; } = 0.34;
 
-    public double WobbleAmplitude { get; init; } = 0.03;
+    public double WobbleAmplitude { get; init; } = 0.005;
 
-    public double WobbleFrequency { get; init; } = 0.08;
+    public double WobbleFrequency { get; init; } = 0.02;
 
-    public double SoftSnapStrength { get; init; } = 0.22;
+    public double SoftSnapStrength { get; init; } = 0.12;
+
+    public double InitialResistanceDistancePx { get; init; } = 10;
+
+    public double HeldCompactScale { get; init; } = 0.94;
+
+    public double HandOcclusionRatio { get; init; } = 0.34;
+
+    public double LiftDepthPx { get; init; } = 34;
+
+    public double VectorTiltMaxDegrees { get; init; } = 4.2;
+
+    public int GlideIntoBubbleMs { get; init; } = 180;
 
     public bool MobileHapticsPrepared { get; init; } = true;
 
@@ -78,6 +90,36 @@ public sealed record SpatialTrayConfiguration
         if (SoftSnapStrength is < 0 or > 1)
         {
             throw new SpatialTrayException("Soft snap strength must be between 0 and 1.");
+        }
+
+        if (InitialResistanceDistancePx < 0)
+        {
+            throw new SpatialTrayException("Initial resistance distance must not be negative.");
+        }
+
+        if (HeldCompactScale is <= 0 or > 1)
+        {
+            throw new SpatialTrayException("Held compact scale must be greater than 0 and no more than 1.");
+        }
+
+        if (HandOcclusionRatio is < 0 or > 1)
+        {
+            throw new SpatialTrayException("Hand occlusion ratio must be between 0 and 1.");
+        }
+
+        if (LiftDepthPx < 0)
+        {
+            throw new SpatialTrayException("Lift depth must not be negative.");
+        }
+
+        if (VectorTiltMaxDegrees is < 0 or > 12)
+        {
+            throw new SpatialTrayException("Vector tilt must be subtle.");
+        }
+
+        if (GlideIntoBubbleMs < 0)
+        {
+            throw new SpatialTrayException("Glide duration must not be negative.");
         }
 
         return this;

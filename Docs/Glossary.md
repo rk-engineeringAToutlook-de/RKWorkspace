@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.11.0
+Version: 1.12.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -23,6 +23,9 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | TransferObject | Transferobjekt | Neutrales Objektmodell mit Metadaten, PayloadReference, Checksum und Status. | Nicht mit Payload gleichsetzen. |
 | Digital Thing | Digitales Ding / digitaler Gegenstand | Benutzerbezogener Begriff fuer digitale Information mit Bedeutung, Ort, Besitzer und Geschichte. | In UX-Kontexten bevorzugt gegenueber Datei oder Transferobjekt. |
 | Digital Hand | Digitale Hand | UX-Metapher fuer den Moment, in dem ein Ding vom Benutzer gegriffen und getragen wird. | Nicht mit Mauszeiger, Cursor oder OS-Drag gleichsetzen. |
+| Tactile Carry | Taktiles Tragen | Wahrnehmungspfad mit Widerstand, Loesen, Teilverdeckung, Tiefe, Vektor-Neigung und weichem Ablegen. | Nicht als neue Transporttechnik verstehen. |
+| Partial Occlusion | Teilverdeckung | Ein Teil des Dings wird optisch von der digitalen Hand ueberdeckt, damit das Gehirn Halten ergaenzt. | Keine Comic-Hand und keine realistische Handgrafik. |
+| Movement Vector Tilt | Bewegungsvektor-Neigung | Subtile Neigung nach der aktuellen Bewegungsrichtung des Fingers oder Cursors. | Nicht von absoluter Bildschirmposition ableiten. |
 | Digital Tray | Digitales Tablett | Handy oder Tablet als Traeger eines digitalen Dings im realen Raum. | Nicht als Upload-App oder mobile Dateiliste verstehen. |
 | Ablage | Ablage | Ort im Raum, auf dem ein digitales Ding abgelegt werden kann. | Nicht als Geraet, Host oder technisches Ziel beschreiben. |
 | Ablage Compass | Ablage-Kompass | Ruhige Orientierung, welche Ablagen im Raum erreichbar sind. | Nicht als Bildschirmrand-Logik oder Device-Liste darstellen. |
@@ -32,6 +35,7 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Microtext | Mikrotext | Sehr kleine, transparente oder unscharfe Beschriftung, die Naehe andeutet, aber noch nicht voll lesbar ist. | Nicht als normale UI-Beschriftung behandeln. |
 | Distance Readability | Distanz-Lesbarkeit | Prinzip, dass Ablagen erst bei ausreichender Naehe klar lesbar werden. | Nicht alle Ziele sofort voll beschriften. |
 | Soft Snap | Weiches Einrasten | Subtiles Annaehern und Orientieren an einer Ablage ohne harte Sprungbewegung. | Kein aggressiver Magnetismus und kein hartes Snapping. |
+| Glide Into Bubble | In die Bubble gleiten | Sichtbarer Uebergang, bei dem ein getragenes Ding in eine geoeffnete Ablage-Bubble hinein gleitet. | Kein Sprung, kein Teleport und kein Versandgefuehl. |
 | Free Placement | Freies Ablegen | Loslassen im freien Raum legt das Ding dort ab, statt es automatisch zurueckspringen zu lassen. | Kein Fehlerfall und kein automatischer Ruecksprung. |
 | Spatial Room Session | Spatial Room Session / Raum-Session | Gemeinsamer Raumzustand, den alle Ablagen sehen. | Nicht als Sender-Empfaenger-Verbindung verstehen. |
 | Spatial Room State | SpatialRoomState / Raumzustand | Modell fuer RoomId, Ablagen, Things, ActiveCarry und UpdatedAt. | Keine technische Transport-Session. |
@@ -106,6 +110,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.12.0 | 2026-07-03 | Begriffe fuer Tactile Carry, Teilverdeckung, Bewegungsvektor-Neigung und Glide Into Bubble ergaenzt. |
 | 1.11.0 | 2026-07-03 | Begriffe fuer Ablage-Linse, OpeningAblage und Spatial Handover ergaenzt. |
 | 1.10.0 | 2026-07-03 | MA006.04 Begriffe fuer Spatial Room Session, Raumzustand, Surface, Remote Preview und Carry Session ergaenzt. |
 | 1.9.0 | 2026-07-03 | MA006.03-A Begriffe fuer Ablage-Bubbles, Mikrotext, Distanz-Lesbarkeit, weiches Einrasten und freies Ablegen ergaenzt. |
