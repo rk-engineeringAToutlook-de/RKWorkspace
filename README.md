@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.8.0
+Version: 2.9.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -16,6 +16,7 @@ Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet s
 Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung laeuft in MA003. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und die ersten plattformneutralen Core-Bausteine:
 
 - Der Nordstern ist als oberste Projektorientierung dokumentiert und gilt als verbindlicher Kompass fuer Architektur, UX und Implementierung.
+- Emotion Specification ES-001 definiert das erste fuehrende UX-Gefuehl: `Ich habe etwas in meiner Hand`.
 - Produktvision und Architektur sind dokumentiert.
 - Spec-Dokumente fuer Objektmodell, Arbeitsflaechenmodell, Kommunikation, Plugins, Capabilities, UX, Hardware, Firmware und Tests sind angelegt.
 - ADRs und Decision-Log sind eingerichtet.
@@ -51,12 +52,13 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 Neue Entwickler beginnen mit diesen Dokumenten:
 
 1. `Docs/Nordstern.md`
-2. `Docs/00_ProductVision.md`
-3. `Docs/Glossary.md`
-4. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
-5. `Spec/README.md`
-6. `Docs/ADR/README.md`
-7. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+2. `Spec/EmotionSpecification_ES001.md`
+3. `Docs/00_ProductVision.md`
+4. `Docs/Glossary.md`
+5. `Docs/Architecture/ArchitectureBaseline_v1.0.md`
+6. `Spec/README.md`
+7. `Docs/ADR/README.md`
+8. `Docs/Architecture/OpenIssuesBeforeMA003.md`
 
 Die Spezifikationen liegen in `Spec/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 
@@ -149,6 +151,8 @@ Die Entwicklungsreihenfolge ist Vision, Requirements, Architektur, Spezifikation
 
 Der Nordstern steht ueber lokalen technischen Entscheidungen. Jede neue Funktion muss beantworten, was der Mensch in diesem Moment fuehlen soll. Wenn diese Frage nicht beantwortet werden kann, ist die Funktion noch nicht bereit.
 
+Emotion Specifications konkretisieren diese Frage fuer einzelne Zielgefuehle. Sie erzeugen Experimente, aber keine unmittelbaren finalen Produktentscheidungen.
+
 Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine Firmware, keine Hardwarelayouts, keine Netzwerkimplementierung und keine Betriebssystemintegration gebaut werden.
 
 ## Naechster Entwicklungsschritt
@@ -174,6 +178,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/EmotionSpecification_ES001.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
 - `Docs/Architecture/ArchitectureFreeze.md`
 - `Docs/Architecture/ArchitectureBaseline.md`
@@ -207,6 +212,7 @@ Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.9.0 | 2026-07-03 | Emotion Specification ES-001 als fuehrendes UX-Dokument verlinkt. |
 | 2.8.0 | 2026-07-03 | Nordstern als oberste Projektorientierung verlinkt. |
 | 2.7.0 | 2026-07-03 | MA005.04 First Contact mit Erstkontakt-Test und lokalen Messwerten dokumentiert. |
 | 2.6.0 | 2026-07-03 | DP-001 Digital Physics mit Pick, Carry, Place dokumentiert. |

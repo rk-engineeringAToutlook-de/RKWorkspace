@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -26,6 +26,8 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Digital Room | Digitaler Raum | Gemeinsamer Arbeitsraum, in dem Menschen, digitale Dinge und Arbeitsflaechen existieren. | Nicht als Netzwerk, Plattformverbund oder Geraeteliste beschreiben. |
 | Workspace Room | Arbeitsraum | Benutzerperspektive auf alle aktuell verfuegbaren Arbeitsflaechen. | Endet nicht am Bildschirmrand oder Monitor. |
 | Transition | Uebergang | Sichtbarer und logischer Weg eines digitalen Dings durch den Arbeitsraum. | In UX-Kontexten bevorzugt gegenueber Transfer, Sprung oder Dateiuebertragung. |
+| Emotion Specification | Emotion Specification | Fuehrendes UX-Dokument fuer ein Zielgefuehl, aus dem Experimente entstehen. | Keine finale Implementierung und keine Architekturentscheidung. |
+| Optical Haptics | Optische Haptik | Sichtbare Reaktion, die das Gehirn als Widerstand, Griff oder Kontakt interpretiert. | Kein Blinken, kein dekorativer Effekt, kein zufaelliges Wackeln. |
 | Capability | Faehigkeit | Effektive Eigenschaft eines Workspace oder Plugins. | Entscheidungen niemals nur ueber Geraetetyp treffen. |
 | Plugin | Plugin | Erweiterungsbaustein fuer Plattform-, Kommunikations-, Hardware- oder Spezialfunktionen. | Core kennt nur Verträge, nicht Implementierungen. |
 | Core | Core | Plattformneutraler Kern fuer Modelle, Regeln und Semantik. | Keine OS-, Netzwerk- oder Hardwarelogik. |
@@ -58,6 +60,7 @@ flowchart LR
 ## Querverweise
 
 - `Docs/Nordstern.md`
+- `Spec/EmotionSpecification_ES001.md`
 - `Spec/ProductPhilosophy.md`
 - `Spec/WorkspaceModel.md`
 - `Spec/DisplayNodeModel.md`
@@ -68,5 +71,6 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | Emotion Specification und optische Haptik ergaenzt. |
 | 1.1.0 | 2026-07-03 | Nordstern-Begriffe fuer digitales Ding, digitale Hand, digitalen Raum und Uebergang ergaenzt. |
 | 1.0.0 | 2026-07-02 | Glossar fuer RKWS-0470 angelegt. |

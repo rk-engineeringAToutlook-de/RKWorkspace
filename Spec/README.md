@@ -1,7 +1,7 @@
 # RKWS Specification Index
 
 Dokument-ID: RKWS-SPEC-INDEX  
-Version: 0.6.0
+Version: 0.7.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -14,8 +14,10 @@ Dieses Verzeichnis enthaelt normative Spezifikationen. Dokumente in `Docs/` erkl
 ```mermaid
 flowchart TB
     NorthStar["Nordstern"] --> Product["ProductVision"]
+    NorthStar --> Emotion["Emotion Specifications"]
     Product["ProductVision"] --> Object["ObjectModel"]
     Product --> Philosophy["ProductPhilosophy"]
+    Emotion --> UX["UX"]
     Philosophy --> Plugin["PluginArchitecture"]
     Plugin --> Capability["CapabilityModel"]
     Capability --> Matrix["WorkspaceCapabilityMatrix"]
@@ -35,6 +37,7 @@ flowchart TB
 ## Startpunkte
 
 - `../Docs/Nordstern.md`
+- `EmotionSpecification_ES001.md`
 - `ProductVision.md`
 - `ProductPhilosophy.md`
 - `PluginArchitecture.md`
@@ -79,6 +82,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.7.0 | 2026-07-03 | Emotion Specification ES-001 aufgenommen. |
 | 0.6.0 | 2026-07-03 | Nordstern als obersten Orientierungspunkt aufgenommen. |
 | 0.5.0 | 2026-07-02 | RuntimeArchitecture fuer Core Runtime Orchestrator aufgenommen. |
 | 0.4.0 | 2026-07-02 | Readiness- und Glossarverweise fuer MA002B ergaenzt. |
