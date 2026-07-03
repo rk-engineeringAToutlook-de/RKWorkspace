@@ -249,3 +249,30 @@ if (-not $spatialTrayText.Contains('Pick from monitor: OK')) {
 if (-not $spatialTrayText.Contains('RESULT: SUCCESS')) {
     throw "Spatial Room Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Native Spatial Overlay Smoke Test'
+Write-Host '---------------------------------'
+$nativeOverlayOutput = & (Join-Path $root 'tools\run-native-overlay.ps1') -SmokeTest 2>&1
+$nativeOverlayExitCode = $LASTEXITCODE
+$nativeOverlayOutput | ForEach-Object { Write-Host $_ }
+if ($nativeOverlayExitCode -ne 0) {
+    throw "Native Spatial Overlay Smoke Test failed with exit code $nativeOverlayExitCode."
+}
+
+$nativeOverlayText = $nativeOverlayOutput -join [Environment]::NewLine
+if (-not $nativeOverlayText.Contains('RK Workspace Native Spatial Overlay Smoke Test')) {
+    throw "Native Spatial Overlay Smoke Test failed because output did not contain RK Workspace Native Spatial Overlay Smoke Test."
+}
+
+if (-not $nativeOverlayText.Contains('BrowserSurface: NONE')) {
+    throw "Native Spatial Overlay Smoke Test failed because output did not contain BrowserSurface: NONE."
+}
+
+if (-not $nativeOverlayText.Contains('NativeOverlaySmoke: SUCCESS')) {
+    throw "Native Spatial Overlay Smoke Test failed because output did not contain NativeOverlaySmoke: SUCCESS."
+}
+
+if (-not $nativeOverlayText.Contains('RESULT: SUCCESS')) {
+    throw "Native Spatial Overlay Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

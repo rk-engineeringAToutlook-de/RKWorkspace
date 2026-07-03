@@ -1,4 +1,5 @@
 using RKWorkspace.Shell;
+using RKWorkspace.Shell.NativeOverlay.Windows;
 using RKWorkspace.Shell.Overlay.Windows;
 
 namespace RKWorkspace.Shell.Host;
@@ -25,7 +26,9 @@ internal static class Program
         var status = args.Any(argument => Is(argument, "--status"));
         var overlayDemo = args.Any(argument => Is(argument, "--overlay-demo"));
         var overlaySmokeTest = args.Any(argument => Is(argument, "--overlay-smoke-test"));
-        if (new[] { once, status, overlayDemo, overlaySmokeTest }.Count(enabled => enabled) > 1)
+        var nativeOverlayDemo = args.Any(argument => Is(argument, "--native-overlay-demo"));
+        var nativeOverlaySmokeTest = args.Any(argument => Is(argument, "--native-overlay-smoke-test"));
+        if (new[] { once, status, overlayDemo, overlaySmokeTest, nativeOverlayDemo, nativeOverlaySmokeTest }.Count(enabled => enabled) > 1)
         {
             Console.WriteLine("RK Workspace Shell failed: shell modes cannot be combined.");
             return 1;
@@ -40,6 +43,16 @@ internal static class Program
         if (overlaySmokeTest)
         {
             return WorkspaceOverlayApplication.RunSmokeTest();
+        }
+
+        if (nativeOverlayDemo)
+        {
+            return NativeSpatialOverlayApplication.RunDemo();
+        }
+
+        if (nativeOverlaySmokeTest)
+        {
+            return NativeSpatialOverlayApplication.RunSmokeTest();
         }
 
         if (once)
@@ -129,6 +142,10 @@ internal static class Program
         Console.WriteLine("              Start the transparent Workspace Overlay prototype.");
         Console.WriteLine("  --overlay-smoke-test");
         Console.WriteLine("              Initialize the Workspace Overlay prototype and stop.");
+        Console.WriteLine("  --native-overlay-demo");
+        Console.WriteLine("              Start the native transparent Spatial Overlay slice.");
+        Console.WriteLine("  --native-overlay-smoke-test");
+        Console.WriteLine("              Initialize the native Spatial Overlay slice and stop.");
         Console.WriteLine("  --help      Show help.");
     }
 
@@ -139,6 +156,8 @@ internal static class Program
             !Is(value, "--status") &&
             !Is(value, "--overlay-demo") &&
             !Is(value, "--overlay-smoke-test") &&
+            !Is(value, "--native-overlay-demo") &&
+            !Is(value, "--native-overlay-smoke-test") &&
             !Is(value, "--help");
     }
 

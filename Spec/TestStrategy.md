@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.10.0
+Version: 2.11.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -64,6 +64,8 @@ Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke
 Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte, simuliert Pick/Release/Cancel/Place und prueft ab MA006.03-A digitale Hand, freies Ablegen, Ablage-Bubbles und weiche Bewegungsparameter.
 
 Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel. Die verfeinerte Fassung prueft zusaetzlich mindestens fuenf vorbereitete Ablagen, Distanz-Lesbarkeit, `OpeningAblage`, aktive Ablage-Linse und sichtbare menschliche Sprache ohne Transport- oder Geraetejargon. Ab MA006.05 prueft der Smoke-Test zusaetzlich taktile UI-Vorbereitung, Vektor-Neigung, reduzierte Wobble-Werte, weiches Snap, digitale Hand, Ghost vor Place, Glide und gespeicherte Zielposition. Ab MA006.06 prueft er Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Edge-Portal, ReadyToPlace und der Regel, dass das Ding vor `Place` nicht sofort auf die Zielablage springt. Ab MA006.07 prueft er zusaetzlich Surface Overlay Reset: keine zentrale Statuskarte, keine Radarstruktur, keine Empty-Bubbles, Bubbles erst beim Tragen, periphere Bubbles, kein sichtbares `Zuruecklegen` und Standalone-/PWA-Vorbereitung.
+
+Ab MA006.08 prueft `tools/run-tests.ps1` zusaetzlich den Native Spatial Overlay Smoke-Test mit `tools/run-native-overlay.ps1 -SmokeTest`. Dieser Test prueft den nativen Windows-Slice ohne Browser/WebView, randloses transparentes Topmost-Overlay, Demo-Ding, CarryState, digitale Hand, diagonale Vektorantwort, Bubbles nur bei Carry, Bubble-Linsen statt gruenen Punkten, Portal, Mini-Ablage, Glide, Zielposition und sicheren `Esc`-Exit.
 
 ## MA003.05 Core Integration Tests
 
@@ -445,6 +447,66 @@ Der Test prueft nicht:
 - echte physische Mobile-Haptik.
 - finale Distanzschwellen.
 
+## MA006.08 Native Spatial Overlay Tests
+
+MA006.08 fuehrt `src/Shell/RKWorkspace.Shell.NativeOverlay.Windows/` und `tools/run-native-overlay.ps1` ein.
+
+Der Smoke-Test fuehrt aus:
+
+```powershell
+.\tools\run-native-overlay.ps1 -SmokeTest
+```
+
+Erwartete Ausgabe:
+
+```text
+RK Workspace Native Spatial Overlay Smoke Test
+NativeOverlay: READY
+BrowserSurface: NONE
+Borderless: OK
+TransparentDesktop: OK
+TopMost: OK
+DemoThing: OK
+PickCarryState: OK
+DigitalHand: OK
+VectorDiagonal: OK
+BubblesOnlyOnCarry: OK
+BubbleLens: OK
+PortalOpen: OK
+MiniAblage: OK
+GlideIntoPortal: OK
+TargetPosition: OK
+EscExit: OK
+NativeOverlaySmoke: SUCCESS
+RESULT: SUCCESS
+```
+
+Der Test prueft:
+
+- natives Windows-Projekt startet.
+- kein Browser und kein WebView sind Teil des Erlebnisses.
+- Overlay ist randlos, transparent, topmost und nicht in der Taskbar.
+- Demo-Ding kann erzeugt werden.
+- Pick setzt CarryState.
+- Ding wird kompakter und teilverdeckt.
+- optische Haptik ist vorbereitet.
+- Bewegung reagiert vektorbasiert inklusive Diagonalen.
+- Bubbles erscheinen erst bei aktivem Carry.
+- Bubble-Darstellung ist als Linse vorbereitet, nicht als gruener Punkt.
+- Bubble oeffnet sich als Portal.
+- Mini-Ablage wird im Portal sichtbar.
+- Ding gleitet in das Portal.
+- Zielposition wird gespeichert.
+- `Esc` beendet sicher.
+
+Der Test prueft nicht:
+
+- echte globale Hotkeys.
+- echte Desktop-Objekterkennung.
+- echte Payload.
+- Discovery, Pairing oder Sicherheitsschicht.
+- finale Produktphysik.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -456,6 +518,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.11.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Smoke-Test mit nativem transparentem Overlay, No-Browser-Regel, digitaler Hand, Bubble-Linsen, Mini-Ablage, Glide und Zielposition dokumentiert. |
 | 2.10.0 | 2026-07-03 | MA006.07 Smoke-Test um Surface Overlay Reset, Empty-ohne-Bubbles, periphere Bubbles, keine Radar-/Statusstruktur, kein sichtbares Zuruecklegen und PWA-Vorbereitung erweitert. |
 | 2.9.0 | 2026-07-03 | MA006.06 Smoke-Test um Spatial Portal Carry, PortalTransition, Source-/Target-Progress, Edge-Portal, ReadyToPlace und No-Jump-Regel erweitert. |
 | 2.8.0 | 2026-07-03 | MA006.05 Smoke-Test um taktile UI, Vektor-Neigung, digitale Hand, Ghost, Glide und Zielposition erweitert. |

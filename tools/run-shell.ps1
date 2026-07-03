@@ -3,6 +3,8 @@ param(
     [switch] $Status,
     [switch] $OverlayDemo,
     [switch] $OverlaySmokeTest,
+    [switch] $NativeOverlayDemo,
+    [switch] $NativeOverlaySmokeTest,
     [switch] $Help
 )
 
@@ -26,6 +28,14 @@ if ($OverlayDemo) {
 
 if ($OverlaySmokeTest) {
     $shellArgs += '--overlay-smoke-test'
+}
+
+if ($NativeOverlayDemo) {
+    $shellArgs += '--native-overlay-demo'
+}
+
+if ($NativeOverlaySmokeTest) {
+    $shellArgs += '--native-overlay-smoke-test'
 }
 
 if ($Help) {

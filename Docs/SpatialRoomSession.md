@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -426,6 +426,27 @@ Die sichtbare Grunddarstellung wird zurueckgesetzt:
 
 Der Raum wird dadurch nicht mehr als Karte gezeigt. Er zeigt sich nur noch als Moeglichkeit, wenn der Mensch ein Ding traegt.
 
+## Native Spatial Overlay Slice
+
+MA006.08 nutzt die in der Spatial Room Session erarbeiteten Regeln, verlaesst aber den Browser als primaeren Gefuehlspfad.
+
+Der Web-Prototyp bleibt nuetzlich fuer:
+
+- Raumzustand.
+- Portalphasen.
+- Source-/Target-Progress.
+- Smoke-Tests.
+
+Das gewuenschte Gefuehl benoetigt jedoch:
+
+- echten Desktop im Hintergrund.
+- transparentes natives Overlay.
+- keine Browserleiste.
+- keine Web-App-Struktur.
+- Bubbles nur bei aktivem Carry.
+
+Der native Slice implementiert noch keinen echten Mehrgeraete-Raumzustand. Er uebernimmt die Wahrnehmungsregeln als lokalen Windows-Slice.
+
 ## Endpunkte
 
 MA006.04 stellt bereit:
@@ -481,6 +502,7 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als nativen Gefuehlspfad auf Basis der Spatial-Room-Regeln eingeordnet. |
 | 1.4.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit Empty-ohne-Bubbles, peripheren Moeglichkeiten und verworfener Radar-/Statusdarstellung dokumentiert. |
 | 1.3.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit Portalphasen, SpatialPortalTransition, Source-/Target-Progress und No-Jump-Regel dokumentiert. |
 | 1.2.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit digitaler Hand, Vektor-Neigung, Ghost, Glide und Zielposition dokumentiert. |

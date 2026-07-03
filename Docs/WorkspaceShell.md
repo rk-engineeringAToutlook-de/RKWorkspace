@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.9.0
+Version: 1.10.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -77,6 +77,8 @@ Startskript:
 .\tools\run-shell.ps1 -Status
 .\tools\run-shell.ps1 -OverlayDemo
 .\tools\run-shell.ps1 -OverlaySmokeTest
+.\tools\run-shell.ps1 -NativeOverlayDemo
+.\tools\run-shell.ps1 -NativeOverlaySmokeTest
 ```
 
 Der Smoke-Pfad zeigt:
@@ -124,6 +126,34 @@ Der Smoke-Test:
 Der Prototyp zeigt eine transparente Ebene ueber dem echten Desktop, ein einzelnes digitales Ding und zwei Ablagen am linken und rechten Bildschirmrand. `Esc` beendet die Ebene sicher.
 
 Ab MA006.03 bleibt dieser Desktop-Overlay-Prototyp erhalten, ist aber nicht mehr der Hauptpfad fuer das Raumgefuehl.
+
+## Native Spatial Overlay Slice
+
+MA006.08 fuehrt den neuen nativen Gefuehlspfad ein:
+
+```text
+src/Shell/RKWorkspace.Shell.NativeOverlay.Windows
+```
+
+Der Slice ist kein Browser und kein WebView. Er ist ein randloses, transparentes, topmost Windows-Overlay ueber dem echten Desktop. Die Aktivierung erfolgt in V1 ueber `Ctrl+Alt+Space`.
+
+Der Slice zeigt:
+
+- Demo-Ding `Rechnung.pdf`.
+- digitale Hand ueber optische Haptik.
+- vektorbasierte Bewegung inklusive Diagonalen.
+- periphere Bubble-Linsen nur bei aktivem Carry.
+- Mini-Ablage im geoeffneten Portal.
+- sicheres Ende ueber `Esc`.
+
+Start:
+
+```powershell
+.\tools\run-native-overlay.ps1
+.\tools\run-native-overlay.ps1 -SmokeTest
+```
+
+Der Web-/Browser-Prototyp bleibt technisches Experiment. Fuer das echte Gefuehl ist ab MA006.08 das native Overlay der primaere Pfad.
 
 ## Spatial Carry Tray Prototype
 
@@ -406,10 +436,20 @@ MA006.07 baut weiterhin nicht:
 - echte Monitorerkennung
 - Discovery, Pairing oder Payload-Transport
 
+MA006.08 baut weiterhin nicht:
+
+- globale OS-Hooks
+- echte Desktop-Objekterkennung
+- Explorer-, Browser- oder Office-Adapter
+- echte Payload
+- Discovery, Pairing oder Sicherheitsschicht
+- finale Produktphysik
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.10.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als neuen primaeren Gefuehlspfad ohne Browser/WebView dokumentiert. |
 | 1.9.0 | 2026-07-03 | MA006.07 Surface Overlay Reset als Korrektur von Radar-/Statusseite zu ruhiger Ablageflaeche mit Bubbles nur beim Tragen eingeordnet. |
 | 1.8.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als Shell-Wahrnehmungspfad mit Source-/Target-Progress und ReadyToPlace eingeordnet. |
 | 1.7.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit taktilen Wahrnehmungsdaten und gleitendem Ablegen eingeordnet. |

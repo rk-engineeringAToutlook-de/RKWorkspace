@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -73,6 +73,8 @@ MA006.05 konzentriert diesen Pfad auf den Tactile Mobile Carry Slice: Handy oder
 MA006.06 erweitert die geoeffnete Bubble zum Spatial Portal Carry. Die Ablage am Rand des Raums wirkt nicht mehr nur wie ein Ziel, sondern wie eine Oeffnung. Das Ding verschwindet teilweise auf der Quelle, erscheint teilweise als Ghost im Ziel und wird erst bei `Place` endgueltig dort abgelegt.
 
 MA006.07 setzt die sichtbare Surface zurueck. Die Radar-/Statusseiten-Darstellung aus MA006.06 war technisch nuetzlich, fuehlte sich aber zu sehr wie Web-App und Raumkarte an. Deshalb zeigt Empty keine Bubbles mehr. Die Surface ist zuerst nur Ablageflaeche. Moeglichkeiten erscheinen erst, wenn ein Ding getragen wird.
+
+MA006.08 stoppt den Web-/Browser-Prototyp als primaeren Gefuehlspfad. Er bleibt technisches Experiment fuer Zustand und Portalregeln. Fuer echtes Raumgefuehl wird ein natives transparentes Overlay ueber dem echten Desktop eingefuehrt.
 
 ## Projekt
 
@@ -368,6 +370,31 @@ Beim Tragen:
 
 Die Surface bleibt technisch ein lokaler Browser-Prototyp, ist aber fuer Standalone-/Fullscreen-Nutzung vorbereitet. Fuer den Gefuehlstest soll sie auf Handy oder Tablet zum Startbildschirm hinzugefuegt oder im Vollbildmodus geoeffnet werden.
 
+## Einordnung Nach MA006.08
+
+Der Spatial Carry Tray bleibt bestehen, aber nicht mehr als primaerer Human-Experience-Pfad.
+
+Er bleibt sinnvoll fuer:
+
+- lokales Testen von Raumzustand.
+- Browser-erreichbare Handy-/Tablet-Experimente.
+- Smoke-Test der Spatial Room Session.
+- Portal- und Preview-Regeln.
+
+Der neue primaere Gefuehlspfad ist:
+
+```text
+Native Spatial Overlay
+```
+
+Grund:
+
+- echter Desktop bleibt sichtbar.
+- keine Browserleiste.
+- kein Web-App-Gefuehl.
+- keine Seitenstruktur.
+- digitale Dinge liegen ueber der realen Arbeitsumgebung.
+
 ## Desktop Als Ablage
 
 Der Desktop zeigt nur ein ruhiges Empfangssignal:
@@ -507,6 +534,7 @@ Zusatzfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-03 | MA006.08 eingeordnet: Web-Prototyp bleibt technisches Experiment, nativer Spatial Overlay Slice wird primaerer Gefuehlspfad. |
 | 1.6.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit Empty-ohne-Bubbles, peripheren Bubbles, entfernter Status-/Radarwirkung und PWA-Vorbereitung dokumentiert. |
 | 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit ruhigem Ablage-Portal, Source-/Target-Progress, ReadyToPlace und No-Jump-Regel dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.05 Tactile Mobile Carry Slice mit Widerstand, Teilverdeckung, Vektor-Neigung, optionaler Haptik und gleitendem Ablegen dokumentiert. |

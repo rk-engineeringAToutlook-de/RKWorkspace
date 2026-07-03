@@ -1,14 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RKWorkspace.Shell.NativeOverlay.Windows\RKWorkspace.Shell.NativeOverlay.Windows.csproj" />
-    <ProjectReference Include="..\RKWorkspace.Shell.Overlay.Windows\RKWorkspace.Shell.Overlay.Windows.csproj" />
     <ProjectReference Include="..\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
   </ItemGroup>
 </Project>

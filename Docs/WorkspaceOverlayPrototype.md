@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -67,6 +67,17 @@ MA006.07 fuegt hinzu:
 - die reale oder ruhige Flaeche bleibt wichtiger als eine UI-Erklaerung.
 
 Der lokale Browser-Prototyp bereitet dafuer Standalone-/Fullscreen-Nutzung vor. Das ist nur eine Zwischenloesung. Langfristig muss die Surface ueber der echten Umgebung liegen, nicht als eigene Web-App-Welt daneben.
+
+MA006.08 zieht daraus die Konsequenz:
+
+- der Browser-/Web-Prototyp bleibt technisches Experiment.
+- das echte Desktop-Gefuehl benoetigt ein natives Overlay.
+- der neue Slice liegt in `src/Shell/RKWorkspace.Shell.NativeOverlay.Windows`.
+- der echte Desktop bleibt sichtbar.
+- Bubbles sind transparente Linsen statt gruene Punkte.
+- die Testgeste ist `Ctrl+Alt+Space`.
+
+Damit wird der alte Overlay-Prototyp nicht geloescht. Er bleibt Referenz fuer transparente Fenstereigenschaften. Der neue Native Spatial Overlay Slice ist aber der aktuelle Human-Experience-Pfad.
 
 ## Projekt
 
@@ -217,6 +228,7 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als neuen Gefuehlspfad ueber echtem Desktop eingeordnet. |
 | 1.6.0 | 2026-07-03 | MA006.07 Surface Overlay Reset als Regel fuer keine Karte, keine Statusseite und Bubbles nur bei aktiver Tragehandlung eingeordnet. |
 | 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als spaetere Overlay-Regel fuer Durchgang, Ghost und No-Jump-Verhalten dokumentiert. |
 | 1.4.0 | 2026-07-03 | MA006.05 taktile Carry-Regeln fuer spaetere Overlays eingeordnet. |
