@@ -1,9 +1,16 @@
 const thing = document.querySelector("#thing");
 const statusText = document.querySelector("#status");
 const placeButton = document.querySelector("#place");
-const ablageButtons = [...document.querySelectorAll("[data-ablage]")];
+const cancelButton = document.querySelector("#cancel");
+const bubbles = [...document.querySelectorAll("[data-ablage]")];
 
-let activeAblage = "Ablage Monitor";
+let activeAblage = null;
+let activeBubbleId = null;
+let isPicked = false;
+let carryAnnounced = false;
+let startPoint = { x: 0, y: 0 };
+let targetOffset = { x: 0, y: 0 };
+let softOffset = { x: 0, y: 0 };
 
 async function post(path, body = {}) {
     const response = await fetch(path, {
@@ -18,72 +25,180 @@ function setStatus(text) {
     statusText.textContent = text;
 }
 
-function selectAblage(name) {
-    activeAblage = name;
-    ablageButtons.forEach((button) => {
-        button.classList.toggle("is-active", button.dataset.ablage === name);
+function softHaptic(pattern) {
+    if ("vibrate" in navigator) {
+        navigator.vibrate(pattern);
+    }
+}
+
+function applyThingTransform() {
+    const tilt = Math.max(-2.2, Math.min(2.2, softOffset.x / 34));
+    thing.style.setProperty("--carry-x", `${softOffset.x}px`);
+    thing.style.setProperty("--carry-y", `${softOffset.y}px`);
+    thing.style.setProperty("--soft-tilt", `${tilt}deg`);
+}
+
+function settleTowardTarget() {
+    softOffset.x += (targetOffset.x - softOffset.x) * 0.64;
+    softOffset.y += (targetOffset.y - softOffset.y) * 0.64;
+    applyThingTransform();
+}
+
+function clearActiveBubble() {
+    activeAblage = null;
+    activeBubbleId = null;
+    bubbles.forEach((bubble) => bubble.classList.remove("is-active"));
+}
+
+function activateBubble(bubble) {
+    activeAblage = bubble.dataset.ablage;
+    activeBubbleId = bubble.dataset.id;
+    bubbles.forEach((candidate) => {
+        candidate.classList.toggle("is-active", candidate === bubble);
     });
+}
+
+function findNearBubble(clientX, clientY) {
+    let nearest = null;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const bubble of bubbles) {
+        const rect = bubble.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distance = Math.hypot(clientX - centerX, clientY - centerY);
+        if (distance < nearestDistance) {
+            nearest = bubble;
+            nearestDistance = distance;
+        }
+    }
+
+    return nearestDistance < 92 ? nearest : null;
+}
+
+async function markNearBubble(bubble) {
+    if (!bubble) {
+        clearActiveBubble();
+        setStatus("Ding liegt in deiner Hand");
+        return;
+    }
+
+    const changed = activeBubbleId !== bubble.dataset.id;
+    activateBubble(bubble);
+    thing.classList.add("is-near");
+    setStatus("Hier ablegen");
+    if (changed) {
+        softHaptic(12);
+        await post("/api/near", { ablage: bubble.dataset.id });
+    }
+}
+
+function resetThingToTray() {
+    targetOffset = { x: 0, y: 0 };
+    softOffset = { x: 0, y: 0 };
+    thing.style.setProperty("--carry-x", "0px");
+    thing.style.setProperty("--carry-y", "0px");
+    thing.style.setProperty("--soft-tilt", "0deg");
+    thing.classList.remove("is-picked", "is-carried", "is-near", "is-placed");
+    clearActiveBubble();
 }
 
 thing.addEventListener("pointerdown", async (event) => {
     thing.setPointerCapture(event.pointerId);
+    isPicked = true;
+    carryAnnounced = false;
+    startPoint = { x: event.clientX, y: event.clientY };
+    thing.classList.remove("is-placed");
     thing.classList.add("is-picked");
     setStatus("Ding genommen");
+    softHaptic(8);
     await post("/api/pick");
 });
 
 thing.addEventListener("pointermove", async (event) => {
-    if (!thing.classList.contains("is-picked")) {
+    if (!isPicked) {
         return;
     }
 
-    const rect = thing.getBoundingClientRect();
-    const drift = Math.max(-18, Math.min(18, event.movementX * 1.8));
-    thing.style.transform = `translate(${drift}px, -10px) rotate(${drift / 8}deg) scale(1.02)`;
+    targetOffset = {
+        x: event.clientX - startPoint.x,
+        y: event.clientY - startPoint.y
+    };
+    settleTowardTarget();
 
-    if (event.clientX > window.innerWidth * 0.58) {
-        selectAblage("Ablage Monitor");
-        thing.classList.add("is-near");
-        setStatus("Ablage Monitor rechts erkannt");
-        await post("/api/near", { ablage: activeAblage });
-    } else if (event.clientY < rect.top + 12) {
-        selectAblage("Ablage Schreibtisch");
-        thing.classList.add("is-near");
-        setStatus("Ablage Schreibtisch vorne erkannt");
-        await post("/api/near", { ablage: activeAblage });
+    if (!carryAnnounced) {
+        carryAnnounced = true;
+        thing.classList.add("is-carried");
+        await post("/api/carry");
     }
+
+    await markNearBubble(findNearBubble(event.clientX, event.clientY));
 });
 
-thing.addEventListener("pointerup", (event) => {
+thing.addEventListener("pointerup", async (event) => {
+    if (!isPicked) {
+        return;
+    }
+
     if (thing.hasPointerCapture(event.pointerId)) {
         thing.releasePointerCapture(event.pointerId);
     }
 
-    thing.style.transform = "";
+    isPicked = false;
+    thing.classList.remove("is-picked", "is-carried");
+    thing.classList.add("is-placed");
+    softHaptic(16);
+
+    const placeOnAblage = Boolean(activeAblage);
+    const state = await post("/api/release", {
+        ablage: activeAblage,
+        x: Math.round(softOffset.x),
+        y: Math.round(softOffset.y),
+        placeOnAblage
+    });
+    setStatus(state.status);
 });
 
-ablageButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-        selectAblage(button.dataset.ablage);
+bubbles.forEach((bubble) => {
+    bubble.addEventListener("pointerdown", async () => {
+        activateBubble(bubble);
         thing.classList.add("is-near");
         setStatus("Hier ablegen");
-        await post("/api/near", { ablage: activeAblage });
+        softHaptic(10);
+        await post("/api/near", { ablage: bubble.dataset.id });
     });
 });
 
 placeButton.addEventListener("click", async () => {
-    await post("/api/place", { ablage: activeAblage });
-    thing.classList.remove("is-picked", "is-near");
+    const state = activeAblage
+        ? await post("/api/place", { ablage: activeAblage })
+        : await post("/api/release", { x: Math.round(softOffset.x), y: Math.round(softOffset.y), placeOnAblage: false });
+    thing.classList.remove("is-picked", "is-carried", "is-near");
     thing.classList.add("is-placed");
-    setStatus("Abgelegt");
+    softHaptic(18);
+    setStatus(state.status);
+});
+
+cancelButton.addEventListener("click", async () => {
+    const state = await post("/api/cancel");
+    resetThingToTray();
+    softHaptic(6);
+    setStatus(state.status);
 });
 
 async function refresh() {
     const response = await fetch("/api/state");
     const state = await response.json();
     setStatus(state.status);
-    selectAblage(state.activeAblage);
+    bubbles.forEach((bubble) => {
+        const model = state.bubbles.find((candidate) => candidate.id === bubble.dataset.id);
+        if (!model) {
+            return;
+        }
+
+        bubble.style.setProperty("--bubble-scale", model.scale);
+        bubble.classList.toggle("is-active", model.state === "Active");
+        bubble.classList.toggle("is-placed", model.state === "Placed");
+    });
 }
 
-selectAblage(activeAblage);
 refresh();

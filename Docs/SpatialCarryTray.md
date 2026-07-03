@@ -1,7 +1,7 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -10,6 +10,12 @@ Datum: 2026-07-03
 Der Mensch traegt das digitale Ding nicht im Fenster.
 
 Er traegt es auf einem Geraet in seiner Hand durch seinen realen Raum.
+
+Eine Ablage zeigt sich nicht sofort als Ziel.
+
+Sie offenbart sich durch Naehe.
+
+Erst wenn der Mensch nahe genug ist, erkennt er, was dort liegt oder moeglich ist.
 
 ## Ziel
 
@@ -140,6 +146,53 @@ Nicht wie:
 Eine Datei wartet auf Upload.
 ```
 
+## Digitale Hand Und Optische Haptik
+
+Ab MA006.03-A wirkt das Ding beim Greifen nicht mehr wie ein Objekt, das am Cursor klebt.
+
+Stattdessen besitzt es eine subtile digitale Griffzone:
+
+- ein Teil des Dings wird optisch ueberdeckt
+- die Kontaktseite wird leicht abgedunkelt
+- Schatten und Kontaktflaeche veraendern sich
+- das Ding folgt weich und mit minimaler Traegheit
+- Wabern ist stark reduziert und bleibt nur noch als ruhige Lebendigkeit erhalten
+
+Das Ziel ist:
+
+```text
+Ich habe es gefasst.
+Ein Teil liegt jetzt in meiner digitalen Hand.
+```
+
+Nicht:
+
+```text
+Das Icon haengt an meinem Finger.
+```
+
+## Release Und Cancel
+
+Normales Loslassen bedeutet:
+
+```text
+Ich lege es hier hin.
+```
+
+Deshalb springt das Ding nach dem Greifen nicht automatisch auf die alte Position zurueck.
+
+Nur ein explizites Zuruecklegen bedeutet:
+
+```text
+Ich will es doch nicht nehmen.
+Zurueck auf das Tablett.
+```
+
+Der Prototyp trennt deshalb:
+
+- `Release`: hier ablegen, auch im freien Raum
+- `Cancel`: zuruecklegen
+
 ## Ablage-Kompass
 
 Der Ablage-Kompass ersetzt Bildschirmrand-Denken als Hauptgefuehl.
@@ -149,8 +202,38 @@ V1 simuliert:
 - rechts: Ablage Monitor
 - vorne: Ablage Schreibtisch
 - links: Ablage links
+- links hinten: Ablage Fenster
+- hinten: Ablage Ruhe
 
 Es gibt keine echte Raumvermessung. Die Punkte sind Wahrnehmungsanker.
+
+## Ablage-Bubbles
+
+Ab MA006.03-A sind Ablagen keine sofort lesbaren Schaltflaechen mehr.
+
+Sie erscheinen als ruhige Moeglichkeiten im Raum:
+
+- sehr weit: kleiner Punkt, Name nicht lesbar
+- weit: Bubble sichtbar, Name nicht lesbar
+- mittel: Name als Mikrotext angedeutet
+- nah: Name lesbar
+- sehr nah / aktiv: Name und `Hier ablegen`
+
+Damit entsteht Entfernung ueber Groesse, Lesbarkeit und Naehe.
+
+Die konkreten Schwellen bleiben konfigurierbar:
+
+- `NameRevealThreshold`
+- `ActivationThreshold`
+- `BubbleScaleFactor`
+- `MicroTextOpacity`
+- `SoftSnapStrength`
+
+Das Einrasten ist weich. Die Ablage zieht das Ding nicht weg, sondern zeigt nur ruhig:
+
+```text
+Hier kannst du es hinlegen.
+```
 
 ## Desktop Als Ablage
 
@@ -187,7 +270,10 @@ Minimal:
 Zusaetzlich fuer das mobile Verhalten:
 
 - `POST /api/pick`
+- `POST /api/carry`
 - `POST /api/near`
+- `POST /api/release`
+- `POST /api/cancel`
 
 Diese Endpunkte dienen nur dem lokalen Prototyp. Sie sind keine finale Produkt-API.
 
@@ -204,6 +290,14 @@ V1 verwendet:
 - Failed
 
 Das Modell ist bewusst klein und beschreibt den Human-Experience-Pfad, nicht eine technische Uebertragung.
+
+Zusaetzlich meldet der State:
+
+- `carryState`: OnTray, Picked, Carried, Placed, Cancelled, Failed
+- `bubbles`: mindestens fuenf Ablage-Bubbles mit Distanz, Lesbarkeit, Groesse und Aktivzustand
+- `motion`: reduzierte Wobble- und weiche Snap-Parameter
+- `haptics`: vorbereitete mobile Haptik und optische Haptik
+- `placement`: Ablage oder freier Raum
 
 ## Human Experience Referenz
 
@@ -251,6 +345,9 @@ Zusatzfragen:
 3. Denke ich an Geraete oder an Ablagen?
 4. Fuehlt sich `Abgelegt` natuerlicher an als technische Abschluss-Sprache?
 5. Ist das naeher an meiner Vision?
+6. Verschwindet ein Teil des Dings glaubwuerdig in meiner digitalen Hand?
+7. Offenbaren sich Ablagen erst durch Naehe?
+8. Fuehlt sich freies Ablegen besser an als automatisches Zurueckspringen?
 
 ## Bekannte Grenzen
 
@@ -263,10 +360,12 @@ Zusatzfragen:
 - Keine Kamera.
 - Keine UWB-Logik.
 - Keine native Mobile-App.
+- Keine erzwungene echte Mobile-Haptik.
 - Keine finale Produkt-UI.
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, freie Ablage und Ablage-Bubbles dokumentiert. |
 | 1.0.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Prototype dokumentiert. |

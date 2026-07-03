@@ -1,7 +1,7 @@
 # Workspace Overlay Prototype
 
 Dokument-ID: RKWS-WORKSPACE-OVERLAY-PROTOTYPE
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -18,6 +18,16 @@ Der Vollbild-Desktop-Overlay-Prototyp bleibt ein technisches Experiment.
 Er ist nicht mehr der Hauptpfad fuer das Human-Experience-Ziel. Das Raumgefuehl entsteht voraussichtlich staerker durch ein Geraet in der Hand: Handy oder Tablet als digitales Tablett, Desktop und Monitor als Ablagen im Raum.
 
 MA006.03 verfolgt diesen neuen Testpfad im Dokument `Docs/SpatialCarryTray.md`.
+
+MA006.03-A praezisiert, dass der Desktop-Overlay-Pfad nicht durch grelle Vollbildwelten gewinnen soll. Wenn Overlay-Ideen spaeter wieder aufgenommen werden, muessen sie die echte Desktop-Welt sichtbar lassen und optische Haptik nur als ruhige Kontakt-, Schatten- und Naeheantwort einsetzen.
+
+Die fuer den Spatial Carry Tray erprobten Prinzipien gelten auch fuer spaetere Overlays:
+
+- Teilverdeckung durch digitale Hand statt Comic-Hand.
+- Weiches Nachgeben statt hartem Snapping.
+- Ablagen offenbaren sich durch Naehe.
+- Freies Ablegen ist erlaubt.
+- Nur explizites Zuruecklegen kehrt zur alten Ablage zurueck.
 
 ## Projekt
 
@@ -168,5 +178,6 @@ oder immer noch wie eine App?
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-03 | MA006.03-A Prinzipien fuer digitale Hand, optische Haptik und freie Ablage in Overlay-Einordnung aufgenommen. |
 | 1.1.0 | 2026-07-03 | MA006.03 eingeordnet: Desktop-Overlay bleibt Experiment, Spatial Carry Tray wird neuer Wahrnehmungstest. |
 | 1.0.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype dokumentiert. |

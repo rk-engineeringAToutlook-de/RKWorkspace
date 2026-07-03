@@ -88,16 +88,32 @@ public sealed class SpatialTrayServer : IAsyncDisposable
             _session.Pick();
             return Results.Json(_session.Snapshot());
         });
+        app.MapPost("/api/carry", () =>
+        {
+            _session.Carry();
+            return Results.Json(_session.Snapshot());
+        });
         app.MapPost("/api/near", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<AblageRequest>();
             _session.NearAblage(payload?.Ablage ?? _configuration.DesktopAblageName);
             return Results.Json(_session.Snapshot());
         });
+        app.MapPost("/api/release", async (HttpRequest request) =>
+        {
+            var payload = await request.ReadFromJsonAsync<AblageRequest>();
+            _session.Release(payload?.X, payload?.Y, payload?.Ablage, payload?.PlaceOnAblage == true);
+            return Results.Json(_session.Snapshot());
+        });
         app.MapPost("/api/place", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<AblageRequest>();
             _session.Place(payload?.Ablage);
+            return Results.Json(_session.Snapshot());
+        });
+        app.MapPost("/api/cancel", () =>
+        {
+            _session.Cancel();
             return Results.Json(_session.Snapshot());
         });
         app.MapGet("/tray", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
@@ -119,7 +135,7 @@ public sealed class SpatialTrayServer : IAsyncDisposable
 
     private string RenderAblage()
     {
-        var placed = _session.CurrentState == SpatialTrayState.Placed;
+        var placed = _session.DesktopAblageHasThing;
         var status = placed
             ? $"Hier liegt jetzt: {_configuration.ThingName}"
             : $"{_configuration.DesktopAblageName} bereit";
@@ -173,5 +189,5 @@ public sealed class SpatialTrayServer : IAsyncDisposable
             .FirstOrDefault(address => !IPAddress.IsLoopback(IPAddress.Parse(address)));
     }
 
-    private sealed record AblageRequest(string? Ablage);
+    private sealed record AblageRequest(string? Ablage, double? X, double? Y, bool? PlaceOnAblage);
 }

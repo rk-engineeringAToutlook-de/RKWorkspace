@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.4.0
+Version: 2.5.0
 Status: Accepted  
 Datum: 2026-07-02
 
@@ -61,7 +61,7 @@ Ab MA006.01 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Shell Smoke-T
 
 Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke-Test mit `tools/run-shell.ps1 -OverlaySmokeTest`. Dieser Test initialisiert den Windows-Overlay-Prototyp ohne manuelle Bedienung und prueft Overlay-State, Carry-State-Kompatibilitaet, Demo-Ding, Ablagen und sicheren Exit-Pfad.
 
-Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte und simuliert das Ablegen.
+Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte, simuliert Pick/Release/Cancel/Place und prueft ab MA006.03-A digitale Hand, freies Ablegen, Ablage-Bubbles und weiche Bewegungsparameter.
 
 ## MA003.05 Core Integration Tests
 
@@ -345,6 +345,12 @@ Server: OK
 Tray endpoint: OK
 Ablage endpoint: OK
 Demo thing: OK
+Carry state: OK
+Free place: OK
+Cancel return: OK
+Ablage bubbles: OK
+Active bubble: OK
+Soft motion: OK
 Simulated place: OK
 RESULT: SUCCESS
 ```
@@ -355,6 +361,16 @@ Der Test prueft:
 - `/health` ist erreichbar.
 - `/tray` zeigt das mobile digitale Tablett.
 - `/api/state` meldet das Demo-Ding.
+- `/api/pick` setzt `carryState` auf `Picked`.
+- normales Loslassen ueber `/api/release` legt im freien Raum ab und springt nicht zur Startposition zurueck.
+- `/api/cancel` kehrt explizit auf das Tablett zurueck.
+- mindestens fuenf Ablage-Bubbles existieren.
+- Bubble-Groessen unterscheiden Naehe.
+- weit entfernte Bubble-Namen sind nicht lesbar.
+- nahe Bubble-Namen sind lesbar.
+- aktive Bubbles zeigen `Hier ablegen`.
+- Wobble-Parameter sind reduziert und konfigurierbar.
+- weiches Einrasten ist als konfigurierbarer `SoftSnapStrength` vorbereitet.
 - `/api/place` setzt den Zustand `Placed`.
 - `/ablage` zeigt danach `Hier liegt jetzt: Rechnung.pdf`.
 
@@ -366,6 +382,8 @@ Der Test prueft nicht:
 - Pairing.
 - Kamera, UWB oder Raumvermessung.
 - Sicherheitsschicht.
+- echte physische Mobile-Haptik.
+- finale Distanzschwellen.
 
 ## Querverweise
 
@@ -378,6 +396,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.5.0 | 2026-07-03 | MA006.03-A Smoke-Test fuer digitale Hand, freie Ablage, Ablage-Bubbles und weiche Motion-Parameter dokumentiert. |
 | 2.4.0 | 2026-07-03 | MA006.03 Spatial Carry Tray Smoke-Test dokumentiert. |
 | 2.3.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype Smoke-Test dokumentiert. |
 | 2.2.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host Smoke-Test dokumentiert. |

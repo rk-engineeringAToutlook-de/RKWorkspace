@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -149,6 +149,23 @@ Smoke-Test:
 
 MA006.03 enthaelt keine Discovery, kein Pairing, keine Cloud, keine native Mobile-App und kein echtes Payload-System.
 
+MA006.03-A verfeinert diesen Pfad:
+
+- Digitale Hand: ein Teil des Dings wird optisch umfasst.
+- Optische Haptik: Schatten, Kontaktflaeche und weiches Nachgeben ersetzen physische Haptik auf Desktop und Laptop.
+- Mobile Haptik: iPhone, iPad, Android Phone und Android Tablet sind konzeptionell vorbereitet, aber noch nicht verpflichtend.
+- Ablage-Bubbles: Ablagen erscheinen als Moeglichkeiten im Raum und werden erst durch Naehe lesbar.
+- Release und Cancel sind getrennt: normales Loslassen legt ab, nur explizites Zuruecklegen kehrt zur alten Ablage zurueck.
+- Freier Raum ist gueltig: ein Ding darf liegen bleiben, auch wenn keine Ablage aktiv ist.
+
+Der wichtigste Satz:
+
+```text
+Eine Ablage zeigt sich nicht sofort als Ziel.
+Sie offenbart sich durch Naehe.
+Erst wenn der Mensch nahe genug ist, erkennt er, was dort liegt oder moeglich ist.
+```
+
 ## Human Experience Referenz
 
 Workspace Shell verweist ausdruecklich auf:
@@ -275,11 +292,14 @@ MA006.03 baut noch nicht:
 - native iOS- oder Android-App
 - Kamera- oder UWB-Raumvermessung
 - finale Produkt-UI
+- erzwungene echte Mobile-Haptik
+- finale Distanzschwellen fuer Ablage-Bubbles
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-03 | MA006.03-A digitale Hand, optische Haptik, Ablage-Bubbles und freies Ablegen ergaenzt. |
 | 1.3.0 | 2026-07-03 | MA006.03 Spatial Carry Tray als neuen Wahrnehmungspfad dokumentiert. |
 | 1.2.0 | 2026-07-03 | MA006.02 Workspace Overlay Prototype und Overlay-States dokumentiert. |
 | 1.1.0 | 2026-07-03 | MA006.01 Workspace Shell Runtime Host und Shell-Smoke dokumentiert. |

@@ -15,3 +15,12 @@ Smoke-Test:
 ```
 
 Der Prototyp enthaelt keine Discovery, kein Pairing, keine Cloud und keine echte Payload-Uebertragung. Die URL wird manuell auf dem Handy oder Tablet geoeffnet.
+
+MA006.03-A ergaenzt:
+
+- digitale Hand mit teilweiser optischer Ueberdeckung
+- reduzierte, ruhige Bewegung statt starkem Wabern
+- weiches Annaehern an Ablagen
+- Ablage-Bubbles mit Distanz-Lesbarkeit
+- freies Ablegen beim normalen Loslassen
+- explizites `Zuruecklegen` als Abbruch
