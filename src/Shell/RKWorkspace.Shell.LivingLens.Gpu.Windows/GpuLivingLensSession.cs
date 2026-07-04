@@ -1,5 +1,15 @@
 namespace RKWorkspace.Shell.LivingLens.Gpu.Windows;
 
+public enum GpuLivingLensTransitState
+{
+    LocalReady,
+    Held,
+    InTransit,
+    PlacedRemote,
+    TunnelClosing,
+    Closed
+}
+
 public sealed class GpuLivingLensSession
 {
     private float _openTarget;
@@ -17,6 +27,8 @@ public sealed class GpuLivingLensSession
     public bool RefractionMapPrepared { get; } = true;
 
     public bool TunnelDepthPrepared { get; } = true;
+
+    public bool PremiumTunnelVisualPrepared { get; } = true;
 
     public bool HlslShaderContractPrepared { get; } = true;
 
@@ -48,9 +60,32 @@ public sealed class GpuLivingLensSession
 
     public bool CarryShadowOnlyPrepared { get; private set; } = true;
 
+    public bool TransitCountdownPrepared { get; private set; }
+
+    public bool RetakeResetsTransitTimerPrepared { get; private set; }
+
+    public bool RemotePlacementPrepared { get; private set; }
+
+    public bool TunnelAutoClosePrepared { get; private set; }
+
+    public bool TunnelClosedAfterTransitPrepared { get; private set; }
+
+    public bool RemoteGestureRequiredPrepared { get; private set; }
+
     public bool PrimaryLensHugsScreenEdge => LensX >= 0.99f && LensVisibleRatio is >= 0.85f and <= 0.90f;
 
     public bool EdgeContinuationPrepared { get; } = true;
+
+    public GpuLivingLensTransitState TransitState { get; private set; } = GpuLivingLensTransitState.LocalReady;
+
+    public int TransitTimeoutMilliseconds { get; } = 10_000;
+
+    public int TransitMilliseconds { get; private set; }
+
+    public int TransitRemainingMilliseconds => Math.Max(0, TransitTimeoutMilliseconds - TransitMilliseconds);
+
+    public bool CanPullOutFromLens => TransitState == GpuLivingLensTransitState.InTransit &&
+        TransitMilliseconds < TransitTimeoutMilliseconds;
 
     public bool IsHoldingThing { get; private set; }
 
@@ -72,7 +107,9 @@ public sealed class GpuLivingLensSession
 
     public void Pick()
     {
+        ResetTransitOnRetake();
         IsHoldingThing = true;
+        TransitState = GpuLivingLensTransitState.Held;
         LensEmergence = Math.Max(LensEmergence, 0.24f);
         Absorption = 0f;
         PullOutRecovery = 1f;
@@ -113,7 +150,10 @@ public sealed class GpuLivingLensSession
     public void PlaceIntoLens()
     {
         IsHoldingThing = false;
+        TransitState = GpuLivingLensTransitState.InTransit;
+        TransitMilliseconds = 0;
         DropRequiresRelease = true;
+        TransitCountdownPrepared = true;
         LensEmergence = 1f;
         LensOpen = 1f;
         Absorption = 0.01f;
@@ -123,6 +163,8 @@ public sealed class GpuLivingLensSession
     public void PlaceOnSurface()
     {
         IsHoldingThing = false;
+        TransitState = GpuLivingLensTransitState.LocalReady;
+        TransitMilliseconds = 0;
         Absorption = 0f;
         PullOutRecovery = 1f;
         TiltX = 0f;
@@ -135,7 +177,9 @@ public sealed class GpuLivingLensSession
 
     public void PullOutFromLens()
     {
+        ResetTransitOnRetake();
         IsHoldingThing = true;
+        TransitState = GpuLivingLensTransitState.Held;
         PullOutPrepared = true;
         PullOutRecovery = 0f;
         Absorption = 0f;
@@ -144,7 +188,36 @@ public sealed class GpuLivingLensSession
 
     public void Advance(int milliseconds)
     {
-        if (IsHoldingThing)
+        if (TransitState == GpuLivingLensTransitState.InTransit && !IsHoldingThing)
+        {
+            TransitMilliseconds = Math.Min(TransitTimeoutMilliseconds, TransitMilliseconds + milliseconds);
+            if (TransitMilliseconds >= TransitTimeoutMilliseconds)
+            {
+                CompleteRemotePlacement();
+            }
+        }
+
+        var closingAfterTransit = TransitState is GpuLivingLensTransitState.PlacedRemote or GpuLivingLensTransitState.TunnelClosing;
+        if (closingAfterTransit)
+        {
+            TransitState = GpuLivingLensTransitState.TunnelClosing;
+            _openTarget = 0f;
+            LensOpen = Math.Clamp(LensOpen - ((float)milliseconds / 440f), 0f, 1f);
+            LensEmergence = Math.Clamp(LensEmergence - ((float)milliseconds / 860f), 0f, 1f);
+            TiltX *= 0.80f;
+            TiltY *= 0.80f;
+            ShadowX *= 0.74f;
+            ShadowY *= 0.74f;
+            if (LensEmergence <= 0.001f && LensOpen <= 0.001f)
+            {
+                TransitState = GpuLivingLensTransitState.Closed;
+                LensEmergence = 0f;
+                LensOpen = 0f;
+                TunnelClosedAfterTransitPrepared = true;
+                RemoteGestureRequiredPrepared = true;
+            }
+        }
+        else if (IsHoldingThing)
         {
             LensEmergence = Math.Clamp(LensEmergence + ((float)milliseconds / 540f), 0f, 1f);
         }
@@ -157,16 +230,16 @@ public sealed class GpuLivingLensSession
             ShadowY *= 0.82f;
         }
 
-        if (_openTarget > LensOpen)
+        if (!closingAfterTransit && _openTarget > LensOpen)
         {
             LensOpen = Math.Clamp(LensOpen + ((float)milliseconds / 240f), 0f, _openTarget);
         }
-        else if (_openTarget < LensOpen && Absorption <= 0f)
+        else if (!closingAfterTransit && _openTarget < LensOpen && Absorption <= 0f)
         {
             LensOpen = Math.Clamp(LensOpen - ((float)milliseconds / 380f), _openTarget, 1f);
         }
 
-        if (Absorption > 0f && Absorption < 1f)
+        if (TransitState == GpuLivingLensTransitState.InTransit && Absorption > 0f && Absorption < 1f)
         {
             Absorption = Math.Clamp(Absorption + ((float)milliseconds / 980f), 0f, 1f);
         }
@@ -175,6 +248,27 @@ public sealed class GpuLivingLensSession
         {
             PullOutRecovery = Math.Clamp(PullOutRecovery + ((float)milliseconds / 620f), 0f, 1f);
         }
+    }
+
+    private void ResetTransitOnRetake()
+    {
+        if (TransitState == GpuLivingLensTransitState.InTransit && TransitMilliseconds > 0 &&
+            TransitMilliseconds < TransitTimeoutMilliseconds)
+        {
+            RetakeResetsTransitTimerPrepared = true;
+        }
+
+        TransitMilliseconds = 0;
+    }
+
+    private void CompleteRemotePlacement()
+    {
+        TransitState = GpuLivingLensTransitState.PlacedRemote;
+        IsHoldingThing = false;
+        Absorption = 1f;
+        RemotePlacementPrepared = true;
+        TunnelAutoClosePrepared = true;
+        DropRequiresRelease = true;
     }
 
     public void RunSmokeScenario()
@@ -192,9 +286,15 @@ public sealed class GpuLivingLensSession
         ApproachLens(0.95f);
         Advance(180);
         PlaceIntoLens();
-        Advance(720);
+        Advance(2600);
+        var countdownStarted = TransitCountdownPrepared && TransitMilliseconds > 0 && CanPullOutFromLens;
         PullOutFromLens();
-        Advance(660);
-        DropRequiresRelease = DropRequiresRelease && noAutoAbsorption;
+        var retakeReset = RetakeResetsTransitTimerPrepared && TransitMilliseconds == 0 && IsHoldingThing;
+        Advance(360);
+        PlaceIntoLens();
+        Advance(720);
+        var secondCountdownStarted = TransitMilliseconds > 0 && CanPullOutFromLens;
+        Advance(TransitTimeoutMilliseconds + 1200);
+        DropRequiresRelease = DropRequiresRelease && noAutoAbsorption && countdownStarted && retakeReset && secondCountdownStarted;
     }
 }

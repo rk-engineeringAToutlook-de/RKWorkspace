@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.13.0
+Version: 2.22.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -676,6 +676,7 @@ GentleCarryTilt: OK
 SoftShadow: OK
 PortalEdgePull: OK
 TunnelDepthLayers: OK
+PremiumTunnelVisual: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -687,6 +688,14 @@ PerspectiveTrapezoid: OK
 ShadowModel: OK
 ShadowSuction: OK
 CarryShadowOnly: OK
+TransitTimeoutMs: 10000
+TransitCountdown: OK
+RetakeResetsTransitTimer: OK
+RemotePlacement: OK
+TunnelAutoClose: OK
+TunnelClosedAfterTransit: OK
+RemoteGestureRequired: OK
+TransitState: Closed
 GpuLivingLensSmoke: SUCCESS
 RESULT: SUCCESS
 ```
@@ -708,6 +717,10 @@ Der Test prueft ausdruecklich:
 - der Schatten wird ueber weiche Schichten statt als harte Platte gezeichnet.
 - die linse-nahe Kante wird vor der Absorption lokal Richtung Tunnel gezogen.
 - Tunnel-Tiefenschichten sind vorbereitet.
+- Premium-Tunnelgrafik mit neutralen Tiefenringen, innerem Schlund und Spiegelkanten ist vorbereitet.
+- Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
+- erneutes Nehmen innerhalb dieses Fensters setzt den Countdown zurueck.
+- nach unberuehrtem Ablauf schliesst der Tunnel und der lokale Zustand gilt als auf Gegenseite abgelegt.
 - ein HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Pfad liegt im Projekt.
 
 Der Test prueft noch nicht:
@@ -716,6 +729,7 @@ Der Test prueft noch nicht:
 - finale physikalische Brechung.
 - echte Desktop-Objekterkennung.
 - echte Payload.
+- echte Zielablage auf Tablet oder iPhone.
 
 ## Querverweise
 
@@ -728,6 +742,8 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.22.0 | 2026-07-04 | GPU Living Lens Smoke-Test um PremiumTunnelVisual erweitert. |
+| 2.21.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Portal-Handover, 10-Sekunden-Ruecknahmefenster, Timer-Reset und Tunnel-Schliessen erweitert. |
 | 2.20.0 | 2026-07-04 | GPU Living Lens Smoke-Test um GentleCarryTilt, SoftShadow und PortalEdgePull erweitert. |
 | 2.19.0 | 2026-07-04 | GPU Living Lens Smoke-Test um RectangularThing und RectangularShadow fuer den Physiktest erweitert. |
 | 2.18.0 | 2026-07-04 | GPU Living Lens Smoke-Test um HlslShaderContract und ShadowSuction erweitert. |

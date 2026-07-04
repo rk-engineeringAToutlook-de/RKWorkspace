@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.7.0
+Version: 1.13.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -872,13 +872,17 @@ Geprueft wird:
 - Schatten nur im Tragezustand.
 - Schatten-Sog in Richtung Tunnel.
 - zusaetzliche Tunnel-Tiefenschichten.
+- Premium-Tunnelgrafik mit gebrochenen Desktop-Schichten, neutralen Tiefenringen, innerem Schlund und Spiegelkanten.
+- Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
+- erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
+- nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
 - HLSL-Shader-Vertrag als Vorbereitung des Direct2D-/Win2D-Pfads.
 
 Noch nicht geloest:
 
 - finale HLSL-Brechung.
 - physikalische Reflexionen.
-- mobile Zielablage mit echtem Auftauchen auf Tablet.
+- mobile Zielablage mit echtem Auftauchen auf Tablet; der aktuelle Handover ist nur eine lokale Wahrnehmungssimulation.
 - echte Payload.
 
 ## Nicht-Ziele
@@ -899,6 +903,8 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.13.0 | 2026-07-04 | Premium-Tunnelgrafik als MA006.11-Zielrichtung dokumentiert. |
+| 1.12.0 | 2026-07-04 | Portal-Handover-Regel fuer GPU Living Lens aufgenommen: 10-Sekunden-Ruecknahmefenster, Timer-Reset bei erneutem Nehmen und lokales Ablegen auf Gegenseite. |
 | 1.11.0 | 2026-07-04 | Sanfter Carry, weicher Schatten und PortalPull fuer die linse-nahe Objektkante ergaenzt. |
 | 1.10.0 | 2026-07-04 | Digital Thing Geometry Reset mit 2D-Rechteck und rechteckig-perspektivischem Schatten ergaenzt. |
 | 1.9.0 | 2026-07-04 | Shader-Sprung mit Backup-Tag, HLSL-Vertrag und Schatten-Sog fuer die Living Lens ergaenzt. |

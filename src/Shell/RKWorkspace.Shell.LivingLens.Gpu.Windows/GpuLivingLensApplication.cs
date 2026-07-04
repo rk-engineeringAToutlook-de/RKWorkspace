@@ -46,6 +46,7 @@ public static class GpuLivingLensApplication
                 session.SoftShadowPrepared &&
                 session.PortalEdgePullPrepared &&
                 session.TunnelDepthPrepared &&
+                session.PremiumTunnelVisualPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -57,6 +58,13 @@ public static class GpuLivingLensApplication
                 session.ShadowPrepared &&
                 session.ShadowSuctionPrepared &&
                 session.CarryShadowOnlyPrepared &&
+                session.TransitCountdownPrepared &&
+                session.RetakeResetsTransitTimerPrepared &&
+                session.RemotePlacementPrepared &&
+                session.TunnelAutoClosePrepared &&
+                session.TunnelClosedAfterTransitPrepared &&
+                session.RemoteGestureRequiredPrepared &&
+                session.TransitState == GpuLivingLensTransitState.Closed &&
                 desktopSampleOk;
 
             Console.WriteLine("RK Workspace GPU Living Lens Smoke Test");
@@ -76,6 +84,7 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"SoftShadow: {(session.SoftShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PortalEdgePull: {(session.PortalEdgePullPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TunnelDepthLayers: {(session.TunnelDepthPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PremiumTunnelVisual: {(session.PremiumTunnelVisualPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");
@@ -87,6 +96,14 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"ShadowModel: {(session.ShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShadowSuction: {(session.ShadowSuctionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CarryShadowOnly: {(session.CarryShadowOnlyPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TransitTimeoutMs: {session.TransitTimeoutMilliseconds}");
+            Console.WriteLine($"TransitCountdown: {(session.TransitCountdownPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"RetakeResetsTransitTimer: {(session.RetakeResetsTransitTimerPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"RemotePlacement: {(session.RemotePlacementPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TunnelAutoClose: {(session.TunnelAutoClosePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TunnelClosedAfterTransit: {(session.TunnelClosedAfterTransitPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"RemoteGestureRequired: {(session.RemoteGestureRequiredPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TransitState: {session.TransitState}");
             Console.WriteLine(success ? "GpuLivingLensSmoke: SUCCESS" : "GpuLivingLensSmoke: FAILED");
             Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
 

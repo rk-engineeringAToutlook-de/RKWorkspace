@@ -96,7 +96,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return;
         }
 
-        if (e.ChangedButton == MouseButton.Left && IsNearLens(point, 230) && _session.Absorption >= 0.98f)
+        if (e.ChangedButton == MouseButton.Left && IsNearLens(point, 230) && _session.CanPullOutFromLens)
         {
             _thingCenter = LensCenter();
             _targetCenter = point;
@@ -190,25 +190,27 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             var refracted = new Rect(bounds.X - (bounds.Width * 0.16), bounds.Y - (bounds.Height * 0.12), bounds.Width * 1.32, bounds.Height * 1.24);
             drawingContext.DrawImage(_desktopSample, refracted);
 
-            for (var index = 1; index <= 28; index++)
+            for (var index = 1; index <= 42; index++)
             {
-                var layer = index / 28.0;
-                var depthCurve = Math.Pow(layer, 1.35);
-                var tunnelScale = 1.0 - (depthCurve * 0.46);
+                var layer = index / 42.0;
+                var depthCurve = Math.Pow(layer, 1.42);
+                var tunnelScale = 1.0 - (depthCurve * 0.52);
                 var tunnelWidth = bounds.Width * tunnelScale;
-                var tunnelHeight = bounds.Height * (1.0 - (depthCurve * 0.62));
-                var tunnelShift = (open * 18.0 * depthCurve) + (Math.Sin(_phase * 1.8 + index) * 0.9);
+                var tunnelHeight = bounds.Height * (1.0 - (depthCurve * 0.70));
+                var tunnelShift = (open * 24.0 * depthCurve) + (Math.Sin(_phase * 1.35 + index) * 0.72);
                 var tunnel = new Rect(
                     center.X - (tunnelWidth / 2) + tunnelShift,
-                    center.Y - (tunnelHeight / 2) + (depthCurve * 12.0),
+                    center.Y - (tunnelHeight / 2) + (depthCurve * 16.0),
                     tunnelWidth,
                     tunnelHeight);
 
-                drawingContext.PushOpacity(0.034 + (open * 0.034));
+                drawingContext.PushOpacity(0.025 + (open * 0.040));
                 drawingContext.DrawImage(_desktopSample, tunnel);
                 drawingContext.Pop();
             }
         }
+
+        DrawTunnelVolume(drawingContext, bounds, center, open);
 
         var glass = new RadialGradientBrush
         {
@@ -249,10 +251,98 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         drawingContext.DrawEllipse(depth, null, new WPoint(bounds.X + (bounds.Width * 0.50), bounds.Y + (bounds.Height * 0.61)), bounds.Width * (0.17 + (open * 0.12)), bounds.Height * (0.06 + (open * 0.06)));
     }
 
+    private void DrawTunnelVolume(DrawingContext drawingContext, Rect bounds, WPoint center, double open)
+    {
+        var throatCenter = center + new Vector(open * 20.0, 13.0);
+        var throat = new RadialGradientBrush
+        {
+            GradientOrigin = new WPoint(0.54, 0.48),
+            Center = new WPoint(0.54, 0.52),
+            RadiusX = 0.70,
+            RadiusY = 0.54,
+            Opacity = 0.78
+        };
+        throat.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(108 + (open * 38)), 8, 11, 12), 0.0));
+        throat.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(58 + (open * 30)), 28, 34, 34), 0.42));
+        throat.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawEllipse(
+            throat,
+            null,
+            throatCenter,
+            bounds.Width * (0.20 + (open * 0.12)),
+            bounds.Height * (0.075 + (open * 0.075)));
+
+        for (var index = 0; index < 52; index++)
+        {
+            var layer = index / 51.0;
+            var depthCurve = Math.Pow(layer, 1.68);
+            var rx = (bounds.Width / 2) * (1.0 - (depthCurve * 0.60));
+            var ry = (bounds.Height / 2) * (1.0 - (depthCurve * 0.76));
+            if (rx < 5 || ry < 3)
+            {
+                continue;
+            }
+
+            var shift = new Vector(
+                (open * depthCurve * 26.0) + (Math.Sin(_phase * 0.9 + (index * 0.37)) * 0.64),
+                (depthCurve * 17.0) + (Math.Cos(_phase * 0.8 + index) * 0.36));
+            var ringCenter = center + shift;
+            var lightAlpha = (byte)Math.Clamp(40 - (index * 0.48) + (open * 28), 8, 78);
+            var darkAlpha = (byte)Math.Clamp(20 + (open * 20) - (index * 0.24), 4, 42);
+            drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(darkAlpha, 12, 16, 17)), 1.25), ringCenter + new Vector(0, 1.1), rx, ry);
+            drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(lightAlpha, 248, 252, 250)), 0.46 + (open * 0.18)), ringCenter, rx, ry);
+        }
+
+        for (var ray = 0; ray < 10; ray++)
+        {
+            var normalized = (ray / 9.0) - 0.5;
+            var angle = (normalized * 2.12) + (Math.Sin(_phase * 0.72 + ray) * 0.025);
+            var startRadiusX = bounds.Width * (0.10 + (open * 0.04));
+            var startRadiusY = bounds.Height * (0.035 + (open * 0.018));
+            var endRadiusX = bounds.Width * (0.46 - (Math.Abs(normalized) * 0.08));
+            var endRadiusY = bounds.Height * (0.34 - (Math.Abs(normalized) * 0.05));
+            var start = throatCenter + new Vector(Math.Cos(angle) * startRadiusX, Math.Sin(angle) * startRadiusY);
+            var end = center + new Vector(Math.Cos(angle) * endRadiusX, Math.Sin(angle) * endRadiusY);
+            var control = Interpolate(start, end, 0.58) + new Vector(open * 18.0, Math.Sin(_phase + ray) * 1.8);
+
+            var geometry = new StreamGeometry();
+            using (var context = geometry.Open())
+            {
+                context.BeginFigure(start, false, false);
+                context.QuadraticBezierTo(control, end, true, false);
+            }
+
+            geometry.Freeze();
+            var alpha = (byte)Math.Clamp(14 + (open * 22) - (Math.Abs(normalized) * 12), 5, 38);
+            drawingContext.DrawGeometry(null, new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 255, 255, 252)), 0.58), geometry);
+        }
+
+        var reflectedEdge = new LinearGradientBrush
+        {
+            StartPoint = new WPoint(0.06, 0.02),
+            EndPoint = new WPoint(0.74, 0.84),
+            Opacity = 0.42 + (open * 0.16)
+        };
+        reflectedEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
+        reflectedEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(72, 255, 255, 255), 0.42));
+        reflectedEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawEllipse(
+            reflectedEdge,
+            null,
+            center + new Vector(-bounds.Width * 0.06, -bounds.Height * 0.07),
+            bounds.Width * 0.48,
+            bounds.Height * 0.34);
+    }
+
     private void DrawThing(DrawingContext drawingContext)
     {
         if (_session.Absorption >= 1 && !_isHolding)
         {
+            if (_session.CanPullOutFromLens)
+            {
+                DrawTunnelRestingThing(drawingContext);
+            }
+
             return;
         }
 
@@ -308,6 +398,28 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             MaxTextHeight = bounds.Height * 0.32
         };
         drawingContext.DrawText(text, new WPoint(bounds.X + (bounds.Width * 0.13), bounds.Y + (bounds.Height * 0.36)));
+    }
+
+    private void DrawTunnelRestingThing(DrawingContext drawingContext)
+    {
+        var lensCenter = LensCenter();
+        var pulse = 0.5 + (Math.Sin(_phase * 2.2) * 0.5);
+        var remaining = _session.TransitRemainingMilliseconds / (double)_session.TransitTimeoutMilliseconds;
+        var opacity = Math.Clamp(0.24 + (remaining * 0.24) + (pulse * 0.05), 0.18, 0.52);
+        var width = 54 + (pulse * 2.5);
+        var height = 27 + (pulse * 1.2);
+        var center = lensCenter + new Vector(-18 + (pulse * 2.0), 12);
+        var bounds = new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
+        var geometry = CreateRectangularGeometry(bounds, 0.72, -2.4, 1.2, lensCenter, 0.78);
+        var fill = new LinearGradientBrush(
+            WColor.FromArgb((byte)(190 * opacity), 250, 252, 248),
+            WColor.FromArgb((byte)(118 * opacity), 144, 160, 164),
+            90);
+        var edge = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(120 * opacity), 255, 255, 255)), 0.85);
+        drawingContext.DrawGeometry(fill, edge, geometry);
+
+        var innerShadow = new RadialGradientBrush(WColor.FromArgb((byte)(64 * opacity), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
+        drawingContext.DrawEllipse(innerShadow, null, center + new Vector(6, 10), width * 0.38, height * 0.26);
     }
 
     private double GetPortalPullAmount(Rect bounds, bool lifted)

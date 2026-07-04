@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.0.0
+Version: 1.6.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -54,6 +54,11 @@ Er nutzt:
 - PortalPull: die linse-nahe Kante wird bereits vor dem Loslassen Richtung Tunnel gezogen.
 - Schatten-Sog bei der Linsenaufnahme.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
+- Premium-Tunnelgrafik mit mehr gebrochenen Desktop-Schichten, neutralen Tiefenringen, dunklerem innerem Schlund und ruhigen Spiegelkanten.
+- Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
+- erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
+- automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
+- lokale Markierung, dass das Ding danach auf der Gegenseite abgelegt ist.
 - HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Produktpfad.
 
 ## Human Experience
@@ -121,6 +126,10 @@ Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
 - Absorption.
 - TimeSeconds.
 - ShadowSuction.
+- PortalPull.
+- EdgeContact.
+- HandoverProgress.
+- TunnelClosing.
 - ObjectMotion.
 
 Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider. Der HLSL-Vertrag ist damit die Uebergangsform zum nativen Shader-Renderer.
@@ -147,6 +156,7 @@ GentleCarryTilt: OK
 SoftShadow: OK
 PortalEdgePull: OK
 TunnelDepthLayers: OK
+PremiumTunnelVisual: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -154,6 +164,14 @@ PullOutFromLens: OK
 PerspectiveTrapezoid: OK
 ShadowSuction: OK
 CarryShadowOnly: OK
+TransitTimeoutMs: 10000
+TransitCountdown: OK
+RetakeResetsTransitTimer: OK
+RemotePlacement: OK
+TunnelAutoClose: OK
+TunnelClosedAfterTransit: OK
+RemoteGestureRequired: OK
+TransitState: Closed
 GpuLivingLensSmoke: SUCCESS
 RESULT: SUCCESS
 ```
@@ -162,6 +180,8 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-04 | Premium-Tunnelgrafik mit zusaetzlichen Desktop-Schichten, Tiefenringen, innerem Schlund und Spiegelkanten dokumentiert. |
+| 1.5.0 | 2026-07-04 | Portal-Handover mit 10-Sekunden-Ruecknahmefenster, Timer-Reset bei erneutem Nehmen und Tunnel-Schliessen dokumentiert. |
 | 1.4.0 | 2026-07-04 | Carry-Neigung beruhigt, Schatten weich geschichtet und PortalPull fuer linse-nahe Kanten dokumentiert. |
 | 1.3.0 | 2026-07-04 | Digital Thing fuer den Physiktest auf klares Rechteck und rechteckig-perspektivischen Schatten umgestellt. |
 | 1.2.0 | 2026-07-04 | Backup-Tag, HLSL-Shader-Vertrag und ShadowSuction fuer den Direct2D-/Win2D-Pfad dokumentiert. |

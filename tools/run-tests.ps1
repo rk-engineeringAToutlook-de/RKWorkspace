@@ -442,6 +442,10 @@ if (-not $gpuLivingLensText.Contains('TunnelDepthLayers: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain TunnelDepthLayers: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('PremiumTunnelVisual: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PremiumTunnelVisual: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }
@@ -468,6 +472,38 @@ if (-not $gpuLivingLensText.Contains('CarryShadowOnly: OK')) {
 
 if (-not $gpuLivingLensText.Contains('ShadowSuction: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain ShadowSuction: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('TransitTimeoutMs: 10000')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain TransitTimeoutMs: 10000."
+}
+
+if (-not $gpuLivingLensText.Contains('TransitCountdown: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain TransitCountdown: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('RetakeResetsTransitTimer: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RetakeResetsTransitTimer: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('RemotePlacement: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RemotePlacement: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('TunnelAutoClose: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain TunnelAutoClose: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('TunnelClosedAfterTransit: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain TunnelClosedAfterTransit: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('RemoteGestureRequired: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RemoteGestureRequired: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('TransitState: Closed')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain TransitState: Closed."
 }
 
 if (-not $gpuLivingLensText.Contains('GpuLivingLensSmoke: SUCCESS')) {
