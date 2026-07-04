@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.12.0
+Version: 1.13.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -78,6 +78,10 @@ Er nutzt:
 - kompakteres digitales Ding beim Greifen, damit es mehr wie ein genommenes Arbeitsobjekt und weniger wie ein grosses UI-Element wirkt.
 - Look-spezifische Entfernung, Intensitaet, Refraction-Schichten, Aperture-Schichten und Carry-Skalierung.
 - sichtbare Labor-Hilfe im Overlay: aktueller Look und Tasten `1`, `2`, `3`.
+- CleanDesktopPlate: aktive Refraction verwendet vorgewärmte Desktop-Plates statt staendig das sichtbare Overlay neu einzusampeln.
+- SelfSamplingEchoSuppression: Papier, Schatten und Linsenlicht sollen beim schnellen Rein-/Rausfahren nicht als langes Echo in der Linse stehenbleiben.
+- SoftFresnelEdge: der harte weisse Blasenrand wird durch eine weichere Fresnel-Lichtkante ersetzt.
+- Premiumblock-Profile: Glasblase ist transparenter und ringaermer, Wurmloch tiefer und dunkler, Hybrid ruhiger zwischen beiden.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -206,6 +210,9 @@ WormholeLook: OK
 HybridLook: OK
 LiveLookSwitch: OK
 CompactCarryCard: OK
+CleanDesktopPlate: OK
+SelfSamplingEchoSuppression: OK
+SoftFresnelEdge: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -232,6 +239,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.13.0 | 2026-07-04 | Premiumblock mit CleanDesktopPlate, Echo-Unterdrueckung, weicher Fresnel-Kante und entschärften Look-Profilen dokumentiert. |
 | 1.12.0 | 2026-07-04 | Drei sofort testbare Premium-Looks Glasblase, Wurmloch und Hybrid mit Live-Umschaltung dokumentiert. |
 | 1.11.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt ueber dem schwarzen Schlund und frueheres Ausblenden des Papiertextes dokumentiert. |
 | 1.10.0 | 2026-07-04 | Schwarze Tunneloeffnung als einziges Sogziel, Apex-Kappung und stabiler Tunnel-Lock dokumentiert. |

@@ -63,6 +63,12 @@ public sealed class GpuLivingLensSession
 
     public bool CompactCarryCardPrepared { get; } = true;
 
+    public bool CleanDesktopPlatePrepared { get; } = true;
+
+    public bool SelfSamplingEchoSuppressionPrepared { get; } = true;
+
+    public bool SoftFresnelEdgePrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;

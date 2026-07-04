@@ -40,6 +40,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         _lastTargetCenter = _thingCenter;
         _activeLensCenter = new WPoint(screenBounds.Width - 88, screenBounds.Height * 0.50);
         _session.SetLensLook(_lensLook);
+        WarmCleanDesktopPlates();
     }
 
     public GpuLivingLensSession Session => _session;
@@ -301,6 +302,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
         var outer = new WPen(new SolidColorBrush(WColor.FromArgb(profile.OuterRimAlpha, 255, 255, 255)), profile.OuterRimWidth + (open * profile.OuterRimOpenWidth));
         var inner = new WPen(new SolidColorBrush(WColor.FromArgb(86, 18, 24, 26)), 1.0);
+        DrawSoftFresnelEdge(drawingContext, bounds, center, open, profile);
         drawingContext.DrawEllipse(null, outer, center, bounds.Width / 2, bounds.Height / 2);
         drawingContext.DrawEllipse(null, inner, throatCenter, bounds.Width * (0.18 + (open * 0.10)), bounds.Height * (0.07 + (open * 0.05)));
 
@@ -309,6 +311,23 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
         var depth = new RadialGradientBrush(WColor.FromArgb((byte)(profile.ThroatAlpha + (open * profile.ThroatOpenAlpha)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
         drawingContext.DrawEllipse(depth, null, throatCenter, bounds.Width * (0.15 + (open * 0.11)), bounds.Height * (0.05 + (open * 0.06)));
+    }
+
+    private static void DrawSoftFresnelEdge(DrawingContext drawingContext, Rect bounds, WPoint center, double open, LensVisualProfile profile)
+    {
+        var fresnel = new RadialGradientBrush
+        {
+            GradientOrigin = new WPoint(0.38, 0.30),
+            Center = new WPoint(0.50, 0.50),
+            RadiusX = 0.74,
+            RadiusY = 0.70,
+            Opacity = profile.FresnelOpacity + (open * profile.FresnelOpenBoost)
+        };
+        fresnel.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.52));
+        fresnel.GradientStops.Add(new GradientStop(WColor.FromArgb(18, 255, 255, 255), 0.78));
+        fresnel.GradientStops.Add(new GradientStop(WColor.FromArgb(74, 255, 255, 255), 0.94));
+        fresnel.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawEllipse(fresnel, null, center, bounds.Width / 2, bounds.Height / 2);
     }
 
     private void DrawTunnelVolume(DrawingContext drawingContext, Rect bounds, WPoint center, WPoint throatCenter, double open, LensVisualProfile profile)
@@ -321,10 +340,12 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             Center = new WPoint(0.54, 0.52),
             RadiusX = 0.70,
             RadiusY = 0.54,
-            Opacity = 0.78
+            Opacity = Math.Clamp(profile.ApertureOpacity + (open * 0.10), 0.12, 0.82)
         };
-        throat.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(108 + (open * 38)), 8, 11, 12), 0.0));
-        throat.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(58 + (open * 30)), 28, 34, 34), 0.42));
+        var throatCoreAlpha = (byte)Math.Clamp(profile.ThroatAlpha + (open * profile.ThroatOpenAlpha), 10, 180);
+        var throatMidAlpha = (byte)Math.Clamp((profile.ThroatAlpha * 0.42) + (open * profile.ThroatOpenAlpha * 0.54), 4, 112);
+        throat.GradientStops.Add(new GradientStop(WColor.FromArgb(throatCoreAlpha, 8, 11, 12), 0.0));
+        throat.GradientStops.Add(new GradientStop(WColor.FromArgb(throatMidAlpha, 28, 34, 34), 0.42));
         throat.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
         drawingContext.DrawEllipse(
             throat,
@@ -610,19 +631,24 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private BitmapSource? UpdateDesktopSample(Rect lensBounds, WPoint center, double activation)
     {
-        var key = $"{Math.Round(center.X)}:{Math.Round(center.Y)}";
+        var key = LensSampleKey(center);
         _sampleFrame++;
-        var refreshEvery = activation > 0.74 ? 3 : 18;
-        if (_lensSamples.TryGetValue(key, out var cached) && _sampleFrame % refreshEvery != 0)
+        var overlayIsOpticallyActive = _isHolding ||
+            _session.IsHoldingThing ||
+            _session.Absorption > 0.001f ||
+            _session.LensEmergence > 0.06f ||
+            _session.TransitState != GpuLivingLensTransitState.LocalReady;
+        if (_lensSamples.TryGetValue(key, out var cached) && overlayIsOpticallyActive)
         {
             return cached;
         }
 
-        var x = Math.Max(_screenBounds.Left, _screenBounds.Left + (int)Math.Round(lensBounds.X - 34));
-        var y = Math.Max(_screenBounds.Top, _screenBounds.Top + (int)Math.Round(lensBounds.Y - 28));
-        var width = Math.Min(Math.Max(8, (int)Math.Round(lensBounds.Width + 68)), Math.Max(8, _screenBounds.Right - x));
-        var height = Math.Min(Math.Max(8, (int)Math.Round(lensBounds.Height + 56)), Math.Max(8, _screenBounds.Bottom - y));
-        var sample = new Int32Rect(x, y, width, height);
+        if (_lensSamples.TryGetValue(key, out cached) && _sampleFrame % 180 != 0)
+        {
+            return cached;
+        }
+
+        var sample = DesktopSampleRect(lensBounds);
         var desktopSample = DesktopRefractionSampler.Capture(sample);
         if (desktopSample is not null)
         {
@@ -630,6 +656,40 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         return desktopSample;
+    }
+
+    private void WarmCleanDesktopPlates()
+    {
+        foreach (var center in LensCenters())
+        {
+            var sample = DesktopSampleRect(CleanPlateBounds(center));
+            var desktopSample = DesktopRefractionSampler.Capture(sample);
+            if (desktopSample is not null)
+            {
+                _lensSamples[LensSampleKey(center)] = desktopSample;
+            }
+        }
+    }
+
+    private Rect CleanPlateBounds(WPoint center)
+    {
+        var width = 338.0;
+        var height = 252.0;
+        return new Rect(center.X - (width / 2.0), center.Y - (height / 2.0), width, height);
+    }
+
+    private Int32Rect DesktopSampleRect(Rect lensBounds)
+    {
+        var x = Math.Max(_screenBounds.Left, _screenBounds.Left + (int)Math.Round(lensBounds.X - 54));
+        var y = Math.Max(_screenBounds.Top, _screenBounds.Top + (int)Math.Round(lensBounds.Y - 44));
+        var width = Math.Min(Math.Max(8, (int)Math.Round(lensBounds.Width + 108)), Math.Max(8, _screenBounds.Right - x));
+        var height = Math.Min(Math.Max(8, (int)Math.Round(lensBounds.Height + 88)), Math.Max(8, _screenBounds.Bottom - y));
+        return new Int32Rect(x, y, width, height);
+    }
+
+    private static string LensSampleKey(WPoint center)
+    {
+        return $"{Math.Round(center.X)}:{Math.Round(center.Y)}";
     }
 
     private WPoint ProjectThroughScreenEdge(WPoint point)
@@ -949,6 +1009,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         public byte OuterRimAlpha { get; init; }
         public double OuterRimWidth { get; init; }
         public double OuterRimOpenWidth { get; init; }
+        public double FresnelOpacity { get; init; }
+        public double FresnelOpenBoost { get; init; }
         public byte HighlightAlpha { get; init; }
         public double HighlightRadiusX { get; init; }
         public double HighlightRadiusY { get; init; }
@@ -997,67 +1059,69 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     LensScale = 0.96,
                     RefractionOverscanX = 0.22,
                     RefractionOverscanY = 0.18,
-                    BaseDesktopOpacity = 0.78,
-                    RefractionLayers = 48,
-                    RefractionCurve = 1.34,
-                    RefractionDepth = 0.34,
-                    RefractionCompression = 0.40,
-                    RefractionPull = 18.0,
-                    ShimmerSpeed = 0.76,
-                    ShimmerAmount = 0.32,
-                    RefractionLayerOpacity = 0.010,
-                    RefractionOpenBoost = 0.020,
-                    GlassOpacity = 0.42,
-                    GlassCoreAlpha = 38,
-                    GlassMidAlpha = 18,
-                    GlassEdgeAlpha = 84,
-                    GlassRingCount = 46,
-                    GlassRingAlpha = 48,
-                    GlassRingFade = 0.74,
-                    GlassRingOpenBoost = 18,
-                    GlassRingWidth = 0.34,
-                    GlassRingDepthX = 0.42,
-                    GlassRingDepthY = 0.48,
-                    GlassRingThroatPull = 0.28,
-                    OuterRimAlpha = 236,
-                    OuterRimWidth = 1.15,
-                    OuterRimOpenWidth = 0.54,
-                    HighlightAlpha = 220,
+                    BaseDesktopOpacity = 0.88,
+                    RefractionLayers = 22,
+                    RefractionCurve = 1.24,
+                    RefractionDepth = 0.24,
+                    RefractionCompression = 0.28,
+                    RefractionPull = 10.0,
+                    ShimmerSpeed = 0.44,
+                    ShimmerAmount = 0.16,
+                    RefractionLayerOpacity = 0.005,
+                    RefractionOpenBoost = 0.010,
+                    GlassOpacity = 0.28,
+                    GlassCoreAlpha = 20,
+                    GlassMidAlpha = 10,
+                    GlassEdgeAlpha = 42,
+                    GlassRingCount = 14,
+                    GlassRingAlpha = 24,
+                    GlassRingFade = 1.05,
+                    GlassRingOpenBoost = 5,
+                    GlassRingWidth = 0.22,
+                    GlassRingDepthX = 0.30,
+                    GlassRingDepthY = 0.34,
+                    GlassRingThroatPull = 0.14,
+                    OuterRimAlpha = 92,
+                    OuterRimWidth = 0.52,
+                    OuterRimOpenWidth = 0.22,
+                    FresnelOpacity = 0.36,
+                    FresnelOpenBoost = 0.08,
+                    HighlightAlpha = 170,
                     HighlightRadiusX = 0.14,
                     HighlightRadiusY = 0.085,
-                    ThroatAlpha = 44,
-                    ThroatOpenAlpha = 40,
-                    ThroatRadiusX = 0.15,
-                    ThroatRadiusY = 0.045,
-                    TunnelRingCount = 46,
-                    TunnelDepthCurve = 1.56,
-                    TunnelDepthX = 0.42,
-                    TunnelDepthY = 0.54,
-                    TunnelOpenPull = 18,
-                    TunnelBasePull = 11,
-                    TunnelShimmer = 0.28,
-                    TunnelLightAlpha = 30,
-                    TunnelLightFade = 0.28,
-                    TunnelLightOpenBoost = 18,
-                    TunnelDarkAlpha = 12,
-                    TunnelDarkOpenBoost = 10,
-                    TunnelDarkFade = 0.13,
-                    TunnelDarkWidth = 0.86,
-                    TunnelLightWidth = 0.32,
-                    LightRayCount = 10,
-                    LightRayAlpha = 8,
-                    LightRayOpenBoost = 14,
-                    LightRayWidth = 0.34,
-                    ReflectedEdgeOpacity = 0.50,
-                    ReflectedEdgeOpenBoost = 0.10,
-                    RibbonCount = 6,
-                    RibbonAlpha = 14,
-                    RibbonOpenBoost = 18,
-                    RibbonWidth = 0.30,
-                    RimShardOpacity = 0.42,
-                    ApertureOpacity = 0.36,
-                    ApertureRingCount = 4,
-                    ApertureRingAlpha = 58,
+                    ThroatAlpha = 18,
+                    ThroatOpenAlpha = 26,
+                    ThroatRadiusX = 0.12,
+                    ThroatRadiusY = 0.034,
+                    TunnelRingCount = 12,
+                    TunnelDepthCurve = 1.42,
+                    TunnelDepthX = 0.28,
+                    TunnelDepthY = 0.34,
+                    TunnelOpenPull = 8,
+                    TunnelBasePull = 4,
+                    TunnelShimmer = 0.10,
+                    TunnelLightAlpha = 13,
+                    TunnelLightFade = 0.42,
+                    TunnelLightOpenBoost = 7,
+                    TunnelDarkAlpha = 5,
+                    TunnelDarkOpenBoost = 6,
+                    TunnelDarkFade = 0.22,
+                    TunnelDarkWidth = 0.42,
+                    TunnelLightWidth = 0.18,
+                    LightRayCount = 4,
+                    LightRayAlpha = 3,
+                    LightRayOpenBoost = 6,
+                    LightRayWidth = 0.22,
+                    ReflectedEdgeOpacity = 0.34,
+                    ReflectedEdgeOpenBoost = 0.05,
+                    RibbonCount = 3,
+                    RibbonAlpha = 7,
+                    RibbonOpenBoost = 8,
+                    RibbonWidth = 0.20,
+                    RimShardOpacity = 0.22,
+                    ApertureOpacity = 0.18,
+                    ApertureRingCount = 2,
+                    ApertureRingAlpha = 28,
                     CarryScaleBase = 0.62,
                     CarryScaleRecovery = 0.14
                 },
@@ -1066,67 +1130,69 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     LensScale = 1.08,
                     RefractionOverscanX = 0.30,
                     RefractionOverscanY = 0.24,
-                    BaseDesktopOpacity = 0.64,
-                    RefractionLayers = 112,
-                    RefractionCurve = 1.72,
-                    RefractionDepth = 0.72,
-                    RefractionCompression = 0.82,
-                    RefractionPull = 48.0,
-                    ShimmerSpeed = 1.12,
-                    ShimmerAmount = 0.72,
-                    RefractionLayerOpacity = 0.016,
-                    RefractionOpenBoost = 0.046,
-                    GlassOpacity = 0.52,
-                    GlassCoreAlpha = 44,
-                    GlassMidAlpha = 22,
-                    GlassEdgeAlpha = 122,
-                    GlassRingCount = 72,
-                    GlassRingAlpha = 54,
-                    GlassRingFade = 0.54,
-                    GlassRingOpenBoost = 38,
-                    GlassRingWidth = 0.44,
+                    BaseDesktopOpacity = 0.70,
+                    RefractionLayers = 96,
+                    RefractionCurve = 1.86,
+                    RefractionDepth = 0.76,
+                    RefractionCompression = 0.86,
+                    RefractionPull = 54.0,
+                    ShimmerSpeed = 0.82,
+                    ShimmerAmount = 0.46,
+                    RefractionLayerOpacity = 0.012,
+                    RefractionOpenBoost = 0.036,
+                    GlassOpacity = 0.40,
+                    GlassCoreAlpha = 26,
+                    GlassMidAlpha = 14,
+                    GlassEdgeAlpha = 72,
+                    GlassRingCount = 54,
+                    GlassRingAlpha = 34,
+                    GlassRingFade = 0.64,
+                    GlassRingOpenBoost = 18,
+                    GlassRingWidth = 0.32,
                     GlassRingDepthX = 0.64,
                     GlassRingDepthY = 0.78,
                     GlassRingThroatPull = 0.56,
-                    OuterRimAlpha = 228,
-                    OuterRimWidth = 1.58,
-                    OuterRimOpenWidth = 1.20,
-                    HighlightAlpha = 168,
+                    OuterRimAlpha = 108,
+                    OuterRimWidth = 0.68,
+                    OuterRimOpenWidth = 0.42,
+                    FresnelOpacity = 0.24,
+                    FresnelOpenBoost = 0.06,
+                    HighlightAlpha = 118,
                     HighlightRadiusX = 0.11,
                     HighlightRadiusY = 0.065,
                     ThroatAlpha = 106,
                     ThroatOpenAlpha = 82,
                     ThroatRadiusX = 0.22,
                     ThroatRadiusY = 0.078,
-                    TunnelRingCount = 118,
+                    TunnelRingCount = 92,
                     TunnelDepthCurve = 1.92,
                     TunnelDepthX = 0.72,
                     TunnelDepthY = 0.86,
                     TunnelOpenPull = 54,
                     TunnelBasePull = 30,
-                    TunnelShimmer = 0.62,
-                    TunnelLightAlpha = 42,
-                    TunnelLightFade = 0.22,
-                    TunnelLightOpenBoost = 50,
-                    TunnelDarkAlpha = 34,
-                    TunnelDarkOpenBoost = 34,
-                    TunnelDarkFade = 0.10,
-                    TunnelDarkWidth = 1.42,
-                    TunnelLightWidth = 0.48,
-                    LightRayCount = 22,
-                    LightRayAlpha = 14,
-                    LightRayOpenBoost = 34,
-                    LightRayWidth = 0.48,
-                    ReflectedEdgeOpacity = 0.34,
-                    ReflectedEdgeOpenBoost = 0.20,
-                    RibbonCount = 14,
-                    RibbonAlpha = 24,
-                    RibbonOpenBoost = 42,
-                    RibbonWidth = 0.44,
-                    RimShardOpacity = 0.30,
-                    ApertureOpacity = 0.70,
+                    TunnelShimmer = 0.34,
+                    TunnelLightAlpha = 32,
+                    TunnelLightFade = 0.26,
+                    TunnelLightOpenBoost = 34,
+                    TunnelDarkAlpha = 38,
+                    TunnelDarkOpenBoost = 36,
+                    TunnelDarkFade = 0.12,
+                    TunnelDarkWidth = 1.12,
+                    TunnelLightWidth = 0.34,
+                    LightRayCount = 16,
+                    LightRayAlpha = 9,
+                    LightRayOpenBoost = 22,
+                    LightRayWidth = 0.34,
+                    ReflectedEdgeOpacity = 0.26,
+                    ReflectedEdgeOpenBoost = 0.12,
+                    RibbonCount = 10,
+                    RibbonAlpha = 16,
+                    RibbonOpenBoost = 28,
+                    RibbonWidth = 0.32,
+                    RimShardOpacity = 0.22,
+                    ApertureOpacity = 0.64,
                     ApertureRingCount = 7,
-                    ApertureRingAlpha = 92,
+                    ApertureRingAlpha = 72,
                     CarryScaleBase = 0.60,
                     CarryScaleRecovery = 0.13
                 },
@@ -1135,67 +1201,69 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     LensScale = 1.03,
                     RefractionOverscanX = 0.26,
                     RefractionOverscanY = 0.21,
-                    BaseDesktopOpacity = 0.70,
-                    RefractionLayers = 86,
-                    RefractionCurve = 1.58,
-                    RefractionDepth = 0.58,
-                    RefractionCompression = 0.70,
-                    RefractionPull = 38.0,
-                    ShimmerSpeed = 0.94,
-                    ShimmerAmount = 0.52,
-                    RefractionLayerOpacity = 0.014,
-                    RefractionOpenBoost = 0.038,
-                    GlassOpacity = 0.50,
-                    GlassCoreAlpha = 46,
-                    GlassMidAlpha = 22,
-                    GlassEdgeAlpha = 104,
-                    GlassRingCount = 62,
-                    GlassRingAlpha = 52,
-                    GlassRingFade = 0.62,
-                    GlassRingOpenBoost = 30,
-                    GlassRingWidth = 0.40,
+                    BaseDesktopOpacity = 0.76,
+                    RefractionLayers = 64,
+                    RefractionCurve = 1.62,
+                    RefractionDepth = 0.54,
+                    RefractionCompression = 0.64,
+                    RefractionPull = 34.0,
+                    ShimmerSpeed = 0.68,
+                    ShimmerAmount = 0.32,
+                    RefractionLayerOpacity = 0.010,
+                    RefractionOpenBoost = 0.028,
+                    GlassOpacity = 0.38,
+                    GlassCoreAlpha = 30,
+                    GlassMidAlpha = 15,
+                    GlassEdgeAlpha = 68,
+                    GlassRingCount = 34,
+                    GlassRingAlpha = 30,
+                    GlassRingFade = 0.78,
+                    GlassRingOpenBoost = 12,
+                    GlassRingWidth = 0.28,
                     GlassRingDepthX = 0.54,
                     GlassRingDepthY = 0.68,
                     GlassRingThroatPull = 0.46,
-                    OuterRimAlpha = 238,
-                    OuterRimWidth = 1.36,
-                    OuterRimOpenWidth = 0.86,
-                    HighlightAlpha = 204,
+                    OuterRimAlpha = 98,
+                    OuterRimWidth = 0.60,
+                    OuterRimOpenWidth = 0.32,
+                    FresnelOpacity = 0.30,
+                    FresnelOpenBoost = 0.08,
+                    HighlightAlpha = 156,
                     HighlightRadiusX = 0.13,
                     HighlightRadiusY = 0.078,
                     ThroatAlpha = 82,
                     ThroatOpenAlpha = 66,
                     ThroatRadiusX = 0.19,
                     ThroatRadiusY = 0.066,
-                    TunnelRingCount = 92,
+                    TunnelRingCount = 58,
                     TunnelDepthCurve = 1.78,
                     TunnelDepthX = 0.62,
                     TunnelDepthY = 0.78,
                     TunnelOpenPull = 42,
                     TunnelBasePull = 24,
-                    TunnelShimmer = 0.48,
-                    TunnelLightAlpha = 38,
-                    TunnelLightFade = 0.26,
-                    TunnelLightOpenBoost = 38,
-                    TunnelDarkAlpha = 24,
-                    TunnelDarkOpenBoost = 26,
-                    TunnelDarkFade = 0.12,
-                    TunnelDarkWidth = 1.18,
-                    TunnelLightWidth = 0.42,
-                    LightRayCount = 18,
-                    LightRayAlpha = 12,
-                    LightRayOpenBoost = 28,
-                    LightRayWidth = 0.42,
-                    ReflectedEdgeOpacity = 0.44,
-                    ReflectedEdgeOpenBoost = 0.16,
-                    RibbonCount = 11,
-                    RibbonAlpha = 20,
-                    RibbonOpenBoost = 34,
-                    RibbonWidth = 0.40,
-                    RimShardOpacity = 0.36,
-                    ApertureOpacity = 0.56,
+                    TunnelShimmer = 0.24,
+                    TunnelLightAlpha = 25,
+                    TunnelLightFade = 0.32,
+                    TunnelLightOpenBoost = 22,
+                    TunnelDarkAlpha = 22,
+                    TunnelDarkOpenBoost = 24,
+                    TunnelDarkFade = 0.16,
+                    TunnelDarkWidth = 0.86,
+                    TunnelLightWidth = 0.28,
+                    LightRayCount = 10,
+                    LightRayAlpha = 7,
+                    LightRayOpenBoost = 16,
+                    LightRayWidth = 0.28,
+                    ReflectedEdgeOpacity = 0.30,
+                    ReflectedEdgeOpenBoost = 0.10,
+                    RibbonCount = 7,
+                    RibbonAlpha = 13,
+                    RibbonOpenBoost = 20,
+                    RibbonWidth = 0.28,
+                    RimShardOpacity = 0.26,
+                    ApertureOpacity = 0.44,
                     ApertureRingCount = 6,
-                    ApertureRingAlpha = 78,
+                    ApertureRingAlpha = 58,
                     CarryScaleBase = 0.61,
                     CarryScaleRecovery = 0.14
                 }

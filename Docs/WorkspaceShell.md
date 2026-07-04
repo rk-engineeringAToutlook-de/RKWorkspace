@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.30.0
+Version: 1.31.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -322,6 +322,8 @@ Die sichtbare schwarze Tunneloeffnung ist dabei das einzige Sogziel. Papier und 
 
 Fuer den Premium-Vergleich kann der GPU-Lens-Slice live zwischen drei visuellen Raumhypothesen wechseln: `1` Glasblase, `2` Wurmloch und `3` Hybrid. Die Umschaltung aendert nur die Darstellung der Shell-Linse: Transparenz, Refraction-Schichten, Glasringe, Aperture, Tunnelribbons, Lichtkanten, Entfernungsskala und kompakte Carry-Skalierung. Core, Runtime, Agent, IPC, Transport und Discovery bleiben unveraendert.
 
+Der Premiumblock verfeinert diese Darstellung ohne neue Produktlogik: Die aktive Linse verwendet saubere Desktop-Plates gegen Selbst-Sampling-Echos, die Glasblase verliert den harten weissen UI-Rand zugunsten einer weicheren Fresnel-Kante und die drei Look-Profile werden ringaermer, ruhiger und raeumlich klarer getrennt.
+
 ## Spatial Carry Tray Prototype
 
 MA006.03 fuehrt den neuen Wahrnehmungspfad ein:
@@ -634,6 +636,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.31.0 | 2026-07-04 | GPU Living Lens Premiumblock mit sauberer Desktop-Plate, Echo-Unterdrueckung und weicher Fresnel-Kante eingeordnet. |
 | 1.30.0 | 2026-07-04 | Drei live testbare GPU-Living-Lens-Premium-Looks Glasblase, Wurmloch und Hybrid eingeordnet. |
 | 1.29.0 | 2026-07-04 | Punkt-Kollaps direkt ueber dem schwarzen Schlund fuer die GPU Living Lens eingeordnet. |
 | 1.28.0 | 2026-07-04 | Schwarze Tunneloeffnung als Sogziel, Apex-Kappung und stabiler Tunnel-Lock eingeordnet. |

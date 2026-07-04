@@ -68,6 +68,9 @@ public static class GpuLivingLensApplication
                 session.HybridLookPrepared &&
                 session.LiveLookSwitchPrepared &&
                 session.CompactCarryCardPrepared &&
+                session.CleanDesktopPlatePrepared &&
+                session.SelfSamplingEchoSuppressionPrepared &&
+                session.SoftFresnelEdgePrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -129,6 +132,9 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"HybridLook: {(session.HybridLookPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LiveLookSwitch: {(session.LiveLookSwitchPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CompactCarryCard: {(session.CompactCarryCardPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CleanDesktopPlate: {(session.CleanDesktopPlatePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"SelfSamplingEchoSuppression: {(session.SelfSamplingEchoSuppressionPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"SoftFresnelEdge: {(session.SoftFresnelEdgePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");

@@ -530,6 +530,18 @@ if (-not $gpuLivingLensText.Contains('CompactCarryCard: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain CompactCarryCard: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('CleanDesktopPlate: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CleanDesktopPlate: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('SelfSamplingEchoSuppression: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain SelfSamplingEchoSuppression: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('SoftFresnelEdge: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain SoftFresnelEdge: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }
