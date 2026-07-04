@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.16.0
+Version: 1.17.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -44,6 +44,12 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Visual Reality | Visuelle Realitaet | Wahrnehmungsziel, bei dem digitale Dinge und Ablage-Linsen im echten Arbeitsraum glaubwuerdig wirken. | Nicht mit UI-Design, App-Oberflaeche oder Web-Prototyp gleichsetzen. |
 | Visual Reality Lab | Visual Reality Lab | Isolierter nativer Windows-Spike fuer lebendige Ablage-Linsen ueber dem echten Desktop. | Kein Developer Studio, kein Web-Testpfad und kein Produkt. |
 | Living Lens | Lebendige Linse | Ablage-Linse mit subtiler Reflektion, Tiefe, Bewegung und oeffnender Wirkung. | Kein gruener Punkt, kein Button, kein Radar-Kreis. |
+| Real Bubble Lens | Reale Bubble-Linse | Sehr transparente, feine Materiallinse mit real wirkender Lichtkante und minimaler Oberflaechenbewegung. | Keine harte Bubble-Grafik, kein Kreis, kein Statuspunkt. |
+| Lens Absorption | Linsenaufnahme | Sichtbarer Effekt, bei dem eine geoeffnete Linse ein digitales Ding aufnimmt, verzerrt, verkleinert und in der Tiefe verschwinden laesst. | Kein Senden, Beamen, Upload oder harter Fade. |
+| Target Emergence | Zielauftauchen | Moment, in dem das Ding als Ghost auf der Zielablage wieder groesser und klarer wird. | Kein Empfangen und kein technischer Transferstatus. |
+| Visual Material | Visuelles Material | Wahrnehmungsqualitaet aus Transparenz, Lichtkante, Reflexion, Brechung, Schatten und Tiefe. | Nicht mit Farbe, Glow oder Styling gleichsetzen. |
+| Renderer Decision | Renderer-Entscheidung | Dokumentierte Bewertung, welche Rendering-Technik fuer ein Zielgefuehl geeignet oder ungeeignet ist. | Nicht schoenreden, wenn Technik nicht reicht. |
+| Spatial Portal | Raeumliches Portal | Ruhige Oeffnung im Arbeitsraum, durch die ein digitales Ding sichtbar in eine andere Ablage gelangt. | Kein Sci-Fi-Effekt und keine Netzwerkmetapher. |
 | Visual Reality Blueprint | Visual Reality Blueprint | Normatives Dokument fuer Linsenwirkung, Haptik, Renderer-Eignung und Abgrenzung zu Web/UI. | Kein Implementierungsdetail und keine finale Designspezifikation. |
 | Bubble Lens | Bubble-Linse | Transparente, weiche, raeumliche Bubble-Darstellung mit Tiefe und Glanz. | Kein gruener Punkt, kein Button, kein Radar-Ziel. |
 | Mini Ablage | Mini-Ablage | Kleine Zielvorschau in einer geoeffneten Bubble, auf der Positionierung angedeutet wird. | Kein technischer Empfaenger und keine Transferbox. |
@@ -129,6 +135,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.17.0 | 2026-07-04 | Begriffe fuer MA006.10R Real Bubble Lens, Lens Absorption, Target Emergence, Visual Material, Renderer Decision und Spatial Portal ergaenzt. |
 | 1.16.0 | 2026-07-04 | Begriffe fuer Visual Reality, Visual Reality Lab, Living Lens und Visual Reality Blueprint ergaenzt. |
 | 1.15.0 | 2026-07-03 | Begriffe fuer Native Spatial Overlay, nativen Overlay-Slice, Bubble-Linse und Mini-Ablage ergaenzt. |
 | 1.14.0 | 2026-07-03 | Begriffe fuer Surface Overlay Reset, periphere Moeglichkeit, leere Ablageflaeche und Standalone Surface ergaenzt. |

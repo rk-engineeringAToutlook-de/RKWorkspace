@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.30.0
+Version: 2.31.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -67,6 +67,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der erste Visual-Reality-Spike hat den technischen Smoke-Test bestanden, wurde vom Owner visuell aber verworfen: Der aktuelle WinForms/GDI+-Ansatz ist nur noch technischer Test, nicht Zieloptik.
 - Das Owner-Referenzboard fuer Visual Reality ist unter `Docs/Assets/VisualReality/` gesichert und setzt die naechste Zielrichtung auf Glaslinse, Gravitationsbrunnen und ruhiges Portal auf dem echten Desktop.
 - Der Visual-Reality-Slice baut diese Richtung erstmals sichtbar: `1` Glasbrunnen-Portal, `2` Glasmaterial, `3` Raumbrunnen, `4` ruhiges Portal, `5` minimaler Raumriss.
+- MA006.10R setzt den Living-Lens-Renderer sichtbar zurueck: eigener Windows-Slice, Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Lens Absorption, Target Emergence und Visual-Target-Export.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -111,6 +112,7 @@ flowchart TB
     ShellHost --> Overlay["Workspace Overlay Prototype"]
     ShellHost --> NativeOverlay["Native Spatial Overlay"]
     ShellHost --> VisualReality["Visual Reality Lab"]
+    ShellHost --> LivingLens["Living Lens Renderer"]
     ShellHost --> SpatialTray["Spatial Carry Tray"]
     Spec --> Core["src/Core"]
     Shell --> Adapters["Spaetere Workspace Adapter"]
@@ -138,6 +140,7 @@ src/Shell/RKWorkspace.Shell.Host/ Shell Runtime Host ohne Hauptfenster, OS-Hooks
 src/Shell/RKWorkspace.Shell.Overlay.Windows/ Windows-Prototyp fuer transparente Shell-Ebene ueber dem Desktop
 src/Shell/RKWorkspace.Shell.NativeOverlay.Windows/ Nativer Windows Spatial-Overlay-Slice ohne Browser/WebView
 src/Shell/RKWorkspace.Shell.VisualReality.Windows/ Nativer Windows Visual-Reality-Slice fuer lebendige Ablage-Linsen
+src/Shell/RKWorkspace.Shell.LivingLens.Windows/ Isolierter Windows Living-Lens-Slice fuer echtes Material, Lens Absorption und Visual Target Export
 src/Shell/RKWorkspace.Shell.SpatialTray/ Lokaler Web-Prototyp fuer Spatial Room Session und gleichberechtigte Ablagen
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
@@ -186,6 +189,8 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-shell.ps1 -OverlaySmokeTest
 .\tools\run-spatial-tray.ps1 -SmokeTest
 .\tools\run-native-overlay.ps1 -SmokeTest
+.\tools\run-living-lens.ps1 -SmokeTest
+.\tools\run-living-lens.ps1 -ExportFrames
 ```
 
 Oder gesammelt:
@@ -226,6 +231,8 @@ Der Native Spatial Overlay Slice ist ab MA006.08 der neue primaere Gefuehlspfad.
 
 Das Visual Reality Lab ist ab MA006.09 der native Wahrnehmungstest fuer lebendige Ablage-Linsen. Es startet ueber `.\tools\run-visual-reality.ps1`, zeigt keinen Browser, kein WebView und keine Weboberflaeche, sondern ein transparentes Overlay ueber dem echten Desktop. Fuenf Linsen-Hypothesen koennen im laufenden Test mit `1` bis `5` umgeschaltet werden. Der automatische Check laeuft ueber `.\tools\run-visual-reality.ps1 -SmokeTest`. Der erste konkrete C#-/WinForms-/GDI+-Spike wurde vom Owner visuell nicht akzeptiert und bleibt deshalb nur ein technischer Smoke-Test. Der naechste Schritt ist nicht weitere Politur, sondern Visual-Reality-Blueprint, Storyboard, Mockup oder Renderer-Entscheidung. Das neue Owner-Referenzboard verankert dafuer die Richtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal; der echte Desktop bleibt der sichtbare Raum. Der aktuelle Slice setzt diese Richtung erstmals als Glasbrunnen-Portal um und prueft `ReferenceDirection: OK`.
 
+Der Living Lens Renderer Reset ist ab MA006.10R der neue isolierte visuelle Material-Spike. Er startet ueber `.\tools\run-living-lens.ps1`, prueft `.\tools\run-living-lens.ps1 -SmokeTest` und exportiert Zielbilder ueber `.\tools\run-living-lens.ps1 -ExportFrames` nach `Docs/VisualTargets/MA00610R/`. Er enthaelt Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Lens Absorption, Target Emergence und Timing-Varianten 600/1200/1800 ms. WinForms/GDI+ bleibt fuer diesen Spike erlaubt, ist aber laut `Docs/RenderingDecision_LivingLens.md` nicht der finale Renderer fuer das Zielgefuehl.
+
 Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Tablet oder Handy und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur explizites Abbrechen kehrt zur Quelle zurueck. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/tablet`, `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal und liegt initial auf dem Tablet, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. MA006.06 macht diese Oeffnung erstmals zu einem Spatial Portal Carry: die Zielablage sitzt am Rand des wahrgenommenen Raums, oeffnet sich als Portal, das Ding verschwindet teilweise auf der Quelle, erscheint teilweise im Ziel, bleibt bis `ReadyToPlace` nur Preview und wird erst beim Ablegen final dort platziert. MA006.07 verwirft die sichtbare Radar-/Statusseiten-Darstellung: Empty zeigt keine Karte und keine Bubbles mehr, Bubbles erscheinen erst bei aktiver Tragehandlung peripher am Rand, und die Surface ist als Vollflaeche mit PWA-/Standalone-Vorbereitung angelegt. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
 
 Der Interactive Workspace Prototype im Studio testet erstmals das Bediengefuehl: Ein sichtbares Textobjekt wird von Workspace A nach Workspace B gezogen. Beim Ablegen nutzt das Studio die vorhandene Transfer Engine; es gibt weiterhin keine Netzwerkfunktion, keine Discovery, keine Hardware, keine Firmware und keine Cloud.
@@ -253,6 +260,10 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 - `Docs/NativeSpatialOverlay.md`
 - `Docs/VisualRealityBlueprint.md`
 - `Docs/VisualRealityLab.md`
+- `Docs/RenderingDecision_LivingLens.md`
+- `Docs/LensAbsorption.md`
+- `Docs/Development/MA006_10_LivingLens_Rejection.md`
+- `Docs/VisualTargets/MA00610R/README.md`
 - `Docs/SpatialCarryTray.md`
 - `Docs/SpatialRoomSession.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
@@ -297,6 +308,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.31.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit eigenem Windows-Slice, run-living-lens, Lens Absorption und Visual Target Export dokumentiert. |
 | 2.30.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert und ReferenceDirection-Smoke dokumentiert. |
 | 2.29.0 | 2026-07-04 | Owner-Referenzboard fuer Visual Reality gesichert und neue Zielrichtung Glaslinse, Gravitationsbrunnen und ruhiges Portal auf dem echten Desktop dokumentiert. |
 | 2.28.0 | 2026-07-04 | Owner-Bewertung des ersten Visual-Reality-Spikes als visuellen Fehlschlag dokumentiert und naechsten Schritt auf Blueprint, Storyboard, Mockup oder Renderer-Entscheidung gesetzt. |

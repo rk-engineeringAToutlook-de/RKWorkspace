@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.14.0
+Version: 1.15.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -223,6 +223,38 @@ Der aktuelle Visual-Reality-Slice baut diese Richtung erstmals sichtbar:
 - `3`: Raumbrunnen.
 - `4`: Ruhiges Portal.
 - `5`: Minimaler Raumriss.
+
+## Living Lens Renderer Reset
+
+MA006.10R fuehrt einen eigenen isolierten Windows-Slice ein:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Windows
+```
+
+Start:
+
+```powershell
+.\tools\run-living-lens.ps1
+.\tools\run-living-lens.ps1 -SmokeTest
+.\tools\run-living-lens.ps1 -ExportFrames
+```
+
+Der Slice setzt die verworfene flache Bubble-/UI-Kreis-Richtung sichtbar zurueck und prueft:
+
+- Real Bubble Lens.
+- Glass Lens.
+- Water Surface Lens.
+- Wormhole Lens.
+- Gravity Lens.
+- digitale Griffwirkung ohne stoerenden Rechteckcontainer.
+- vektorbasierte Dingantwort inklusive Diagonalen.
+- Lens Absorption.
+- Target Emergence.
+- Timing 600 ms, 1200 ms, 1800 ms.
+- Visual Target Export nach `Docs/VisualTargets/MA00610R/`.
+
+Dieser Slice bleibt ein visueller Spike. Die Renderer-Entscheidung steht in `Docs/RenderingDecision_LivingLens.md`.
 
 ## Spatial Carry Tray Prototype
 
@@ -523,10 +555,20 @@ MA006.09 baut weiterhin nicht:
 - Discovery, Pairing oder Sicherheitsschicht
 - finale Produktphysik
 
+MA006.10R baut weiterhin nicht:
+
+- finalen Shader-Renderer
+- echte Desktop-Brechung
+- echte Payload
+- Discovery, Pairing oder Sicherheitsschicht
+- globale OS-Hooks
+- finale Produktphysik
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.15.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit eigenem Slice, Lens Absorption, Timing-Varianten und Visual Target Export ergaenzt. |
 | 1.14.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert und aktuelle Linsenreihenfolge dokumentiert. |
 | 1.13.0 | 2026-07-04 | Owner-Referenzboard fuer Visual Reality und neue Zielrichtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal verankert. |
 | 1.12.0 | 2026-07-04 | Owner-Bewertung des ersten Visual-Reality-Spikes als visuellen Fehlschlag dokumentiert und naechsten HX-Schritt auf Blueprint, Storyboard und Renderer-Entscheidung korrigiert. |

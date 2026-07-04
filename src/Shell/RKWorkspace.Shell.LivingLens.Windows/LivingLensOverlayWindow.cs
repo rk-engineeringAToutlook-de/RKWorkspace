@@ -1,0 +1,326 @@
+using RKWorkspace.Shell;
+
+namespace RKWorkspace.Shell.LivingLens.Windows;
+
+public sealed class LivingLensOverlayWindow : Form
+{
+    private readonly WorkspaceShellRuntime _runtime;
+    private readonly System.Windows.Forms.Timer _timer = new();
+    private readonly Rectangle _screenBounds;
+    private PointF _thingCenter;
+    private PointF _targetCenter;
+    private PointF _velocity;
+    private PointF _lastTargetCenter;
+    private PointF _grabOffset;
+    private float _phase;
+    private bool _isHolding;
+
+    public LivingLensOverlayWindow(WorkspaceShellRuntime runtime)
+    {
+        _runtime = runtime;
+        Session = new LivingLensSession();
+        _screenBounds = Screen.PrimaryScreen?.Bounds ?? new Rectangle(80, 80, 1280, 720);
+        _thingCenter = new PointF(_screenBounds.Width * 0.36f, _screenBounds.Height * 0.50f);
+        _targetCenter = _thingCenter;
+        _lastTargetCenter = _targetCenter;
+
+        FormBorderStyle = FormBorderStyle.None;
+        StartPosition = FormStartPosition.Manual;
+        Bounds = _screenBounds;
+        TopMost = true;
+        ShowInTaskbar = false;
+        KeyPreview = true;
+        BackColor = Color.Magenta;
+        TransparencyKey = Color.Magenta;
+        Cursor = Cursors.Default;
+        DoubleBuffered = true;
+        Text = string.Empty;
+
+        SetStyle(
+            ControlStyles.AllPaintingInWmPaint |
+            ControlStyles.UserPaint |
+            ControlStyles.OptimizedDoubleBuffer |
+            ControlStyles.SupportsTransparentBackColor,
+            true);
+
+        _timer.Interval = 16;
+        _timer.Tick += (_, _) => Tick();
+        Session.Start();
+    }
+
+    public LivingLensSession Session { get; }
+
+    public bool IsNativeOverlay => true;
+
+    public bool HasBrowserSurface => false;
+
+    public bool HasWebView => false;
+
+    public bool DesktopVisiblePrepared => TransparencyKey == Color.Magenta &&
+        BackColor == Color.Magenta &&
+        FormBorderStyle == FormBorderStyle.None &&
+        !ShowInTaskbar;
+
+    public bool EscExitReady { get; private set; } = true;
+
+    public bool SmokeModelOk { get; private set; }
+
+    public bool SmokeExportOk { get; private set; }
+
+    public bool SmokeCheck()
+    {
+        SmokeModelOk = Session.CheckSmokeModel();
+        SmokeExportOk = LivingLensFrameExporter.ExportDefaultFrames();
+        return SmokeModelOk &&
+            SmokeExportOk &&
+            IsNativeOverlay &&
+            !HasBrowserSurface &&
+            !HasWebView &&
+            DesktopVisiblePrepared &&
+            EscExitReady;
+    }
+
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        Activate();
+        _timer.Start();
+    }
+
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        _timer.Stop();
+        base.OnFormClosed(e);
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Escape)
+        {
+            e.Handled = true;
+            EscExitReady = true;
+            Close();
+            return;
+        }
+
+        if (e.Control && e.Alt && e.KeyCode == Keys.Space)
+        {
+            e.Handled = true;
+            ActivatePickAt(PointToClient(Cursor.Position));
+            return;
+        }
+
+        if (e.KeyCode is >= Keys.D1 and <= Keys.D5)
+        {
+            e.Handled = true;
+            Session.SwitchVariant(e.KeyCode - Keys.D1);
+            Invalidate();
+            return;
+        }
+
+        if (e.KeyCode is >= Keys.NumPad1 and <= Keys.NumPad5)
+        {
+            e.Handled = true;
+            Session.SwitchVariant(e.KeyCode - Keys.NumPad1);
+            Invalidate();
+            return;
+        }
+
+        if (e.KeyCode == Keys.A)
+        {
+            e.Handled = true;
+            Session.PlayAbsorption();
+            _targetCenter = LensCenter(Session.ActiveLens);
+            Invalidate();
+            return;
+        }
+
+        if (e.KeyCode == Keys.O)
+        {
+            e.Handled = true;
+            Session.ReplayOpening();
+            Invalidate();
+            return;
+        }
+
+        if (e.KeyCode == Keys.T)
+        {
+            e.Handled = true;
+            Session.CycleTiming();
+            Invalidate();
+            return;
+        }
+
+        base.OnKeyDown(e);
+    }
+
+    protected override void OnMouseDown(MouseEventArgs e)
+    {
+        if (e.Button == MouseButtons.Left && LivingLensRenderer.EstimateThingBounds(_thingCenter, Session.AbsorptionProgress).Contains(e.Location))
+        {
+            _isHolding = true;
+            _grabOffset = new PointF(e.Location.X - _thingCenter.X, e.Location.Y - _thingCenter.Y);
+            Capture = true;
+            Cursor = Cursors.SizeAll;
+            Session.Pick();
+            _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
+            Invalidate();
+            return;
+        }
+
+        base.OnMouseDown(e);
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        if (!_isHolding)
+        {
+            base.OnMouseMove(e);
+            return;
+        }
+
+        _targetCenter = new PointF(e.X - _grabOffset.X, e.Y - _grabOffset.Y);
+        var movement = new PointF(_targetCenter.X - _lastTargetCenter.X, _targetCenter.Y - _lastTargetCenter.Y);
+        _lastTargetCenter = _targetCenter;
+        Session.Carry(movement.X, movement.Y);
+
+        var lens = DetectLens(_targetCenter);
+        if (lens is not null)
+        {
+            Session.ApproachLens(lens.LensId, NormalizedLensNearness(_targetCenter, LensCenter(lens)));
+        }
+
+        _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Carried, "HX-002");
+        Invalidate();
+        base.OnMouseMove(e);
+    }
+
+    protected override void OnMouseUp(MouseEventArgs e)
+    {
+        if (!_isHolding)
+        {
+            base.OnMouseUp(e);
+            return;
+        }
+
+        _isHolding = false;
+        Capture = false;
+        Cursor = Cursors.Default;
+
+        var lens = DetectLens(_targetCenter);
+        if (lens is not null)
+        {
+            Session.ApproachLens(lens.LensId, 1f);
+            Session.PlayAbsorption();
+            _targetCenter = LensCenter(lens);
+            _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
+        }
+
+        Invalidate();
+        base.OnMouseUp(e);
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        LivingLensRenderer.DrawScene(e.Graphics, ClientSize, CreateRenderState(false));
+    }
+
+    private void Tick()
+    {
+        _phase += 0.018f;
+        Session.Advance(_timer.Interval);
+
+        var dx = _targetCenter.X - _thingCenter.X;
+        var dy = _targetCenter.Y - _thingCenter.Y;
+        _velocity = new PointF(
+            (_velocity.X * 0.70f) + (dx * 0.13f),
+            (_velocity.Y * 0.70f) + (dy * 0.13f));
+        _thingCenter = new PointF(_thingCenter.X + _velocity.X, _thingCenter.Y + _velocity.Y);
+
+        if (Session.AbsorptionProgress >= 1f)
+        {
+            _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
+        }
+
+        Invalidate();
+    }
+
+    private void ActivatePickAt(Point point)
+    {
+        if (!ClientRectangle.Contains(point))
+        {
+            point = new Point(ClientSize.Width / 2, ClientSize.Height / 2);
+        }
+
+        _thingCenter = point;
+        _targetCenter = point;
+        _lastTargetCenter = point;
+        _velocity = PointF.Empty;
+        _grabOffset = PointF.Empty;
+        _isHolding = true;
+        Capture = true;
+        Cursor = Cursors.SizeAll;
+        Session.Pick();
+        _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
+        Invalidate();
+    }
+
+    private LivingLensRenderState CreateRenderState(bool drawTestBackground)
+    {
+        var lensCenter = LensCenter(Session.ActiveLens);
+        return new LivingLensRenderState
+        {
+            Variant = Session.ActiveVariant.Kind,
+            Phase = _phase,
+            EmergenceProgress = Session.LensEmergenceProgress,
+            OpenProgress = Session.LensOpenProgress,
+            AbsorptionProgress = Session.AbsorptionProgress,
+            TargetEmergenceProgress = Session.TargetEmergenceProgress,
+            TiltX = Session.TiltX,
+            TiltY = Session.TiltY,
+            ShadowX = Session.ShadowX,
+            ShadowY = Session.ShadowY,
+            ThingCompact = Session.ThingCompact,
+            ThingPartiallyOccluded = Session.ThingPartiallyOccluded,
+            GripShadowVisible = Session.GripShadowVisible,
+            ThingCenter = _thingCenter,
+            LensCenter = lensCenter,
+            LensLabel = Session.ActiveLens.Label,
+            NameVisibility = Session.NameVisibility,
+            DrawTestBackground = drawTestBackground,
+            DrawThing = true,
+            DrawLens = Session.LensesVisible,
+            DrawGhost = Session.TargetGhostVisible
+        };
+    }
+
+    private LivingLensTarget? DetectLens(PointF point)
+    {
+        foreach (var lens in Session.Lenses)
+        {
+            if (Distance(point, LensCenter(lens)) < 148)
+            {
+                return lens;
+            }
+        }
+
+        return null;
+    }
+
+    private PointF LensCenter(LivingLensTarget lens)
+    {
+        return new PointF(ClientSize.Width * lens.X, ClientSize.Height * lens.Y);
+    }
+
+    private static float NormalizedLensNearness(PointF point, PointF center)
+    {
+        return Math.Clamp(1f - (Distance(point, center) / 220f), 0f, 1f);
+    }
+
+    private static float Distance(PointF left, PointF right)
+    {
+        var dx = left.X - right.X;
+        var dy = left.Y - right.Y;
+        return MathF.Sqrt((dx * dx) + (dy * dy));
+    }
+}

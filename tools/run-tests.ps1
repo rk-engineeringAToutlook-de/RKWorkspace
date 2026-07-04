@@ -311,3 +311,46 @@ if (-not $visualRealityText.Contains('VisualRealitySmoke: SUCCESS')) {
 if (-not $visualRealityText.Contains('RESULT: SUCCESS')) {
     throw "Visual Reality Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Living Lens Smoke Test'
+Write-Host '----------------------'
+$livingLensOutput = & (Join-Path $root 'tools\run-living-lens.ps1') -SmokeTest 2>&1
+$livingLensExitCode = $LASTEXITCODE
+$livingLensOutput | ForEach-Object { Write-Host $_ }
+if ($livingLensExitCode -ne 0) {
+    throw "Living Lens Smoke Test failed with exit code $livingLensExitCode."
+}
+
+$livingLensText = $livingLensOutput -join [Environment]::NewLine
+if (-not $livingLensText.Contains('RK Workspace Living Lens Smoke Test')) {
+    throw "Living Lens Smoke Test failed because output did not contain RK Workspace Living Lens Smoke Test."
+}
+
+if (-not $livingLensText.Contains('BrowserSurface: NONE')) {
+    throw "Living Lens Smoke Test failed because output did not contain BrowserSurface: NONE."
+}
+
+if (-not $livingLensText.Contains('LensVariants: 5')) {
+    throw "Living Lens Smoke Test failed because output did not contain LensVariants: 5."
+}
+
+if (-not $livingLensText.Contains('RealBubbleLens: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain RealBubbleLens: OK."
+}
+
+if (-not $livingLensText.Contains('LensAbsorption: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain LensAbsorption: OK."
+}
+
+if (-not $livingLensText.Contains('ExportFrames: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain ExportFrames: OK."
+}
+
+if (-not $livingLensText.Contains('LivingLensSmoke: SUCCESS')) {
+    throw "Living Lens Smoke Test failed because output did not contain LivingLensSmoke: SUCCESS."
+}
+
+if (-not $livingLensText.Contains('RESULT: SUCCESS')) {
+    throw "Living Lens Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

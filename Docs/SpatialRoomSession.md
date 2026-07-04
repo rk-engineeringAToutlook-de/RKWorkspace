@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -472,6 +472,13 @@ Visual Reality Lab
 
 Das Lab prueft native lebendige Linsen ueber dem echten Desktop. Die Web-Surfaces bleiben technische Hilfsmittel.
 
+Ab MA006.10R wird der sichtbare Uebergang als `Lens Absorption` geschaerft. Die Spatial Room Session beschreibt weiterhin Raumzustand, Portalphasen und Source-/Target-Progress. Der Living-Lens-Slice prueft dazu isoliert, wie das Ding visuell in eine Linse hineingezogen, verzerrt, verkleinert und als Target Ghost wieder sichtbar wird.
+
+```text
+Spatial Room Session = Raumzustand.
+Living Lens = sichtbare Material- und Absorptionswahrnehmung.
+```
+
 ## Endpunkte
 
 MA006.04 stellt bereit:
@@ -528,6 +535,7 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-04 | MA006.10R Lens Absorption als sichtbaren Materialpfad zur Spatial Room Session eingeordnet. |
 | 1.6.0 | 2026-07-04 | MA006.09 Visual Reality Lab als nativen HX-Testpfad eingeordnet; Browser-Surfaces bleiben technische Raumtests. |
 | 1.5.1 | 2026-07-04 | Tablet als Default-Ablage fuer den mobilen Gefuehlstest dokumentiert; Handy bleibt weitere Ablage. |
 | 1.5.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als nativen Gefuehlspfad auf Basis der Spatial-Room-Regeln eingeordnet. |

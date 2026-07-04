@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.12.0
+Version: 2.13.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -68,6 +68,8 @@ Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test 
 Ab MA006.08 prueft `tools/run-tests.ps1` zusaetzlich den Native Spatial Overlay Smoke-Test mit `tools/run-native-overlay.ps1 -SmokeTest`. Dieser Test prueft den nativen Windows-Slice ohne Browser/WebView, randloses transparentes Topmost-Overlay, Demo-Ding, CarryState, digitale Hand, diagonale Vektorantwort, Bubbles nur bei Carry, Bubble-Linsen statt gruenen Punkten, Portal, Mini-Ablage, Glide, Zielposition und sicheren `Esc`-Exit.
 
 Ab MA006.09 prueft `tools/run-tests.ps1` zusaetzlich den Visual Reality Smoke-Test mit `tools/run-visual-reality.ps1 -SmokeTest`. Dieser Test prueft den nativen Visual-Reality-Slice ohne Browser/WebView, sichtbaren Desktop, fuenf Living-Lens-Varianten, Umschalten der Varianten, langsames Erscheinen, subtile Lebendigkeit, digitale Hand, vektorielle Antwort inklusive Diagonalen, geoeffnete Linse, Mini-Ablage, Glide, Ziel-Ghost und sicheren `Esc`-Exit.
+
+Ab MA006.10R prueft `tools/run-tests.ps1` zusaetzlich den Living Lens Smoke-Test mit `tools/run-living-lens.ps1 -SmokeTest`. Dieser Test prueft einen eigenen nativen Windows-Slice ohne Browser/WebView, Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Randverankerung, langsames Erscheinen, subtile Lebendigkeit, digitale Griffwirkung ohne stoerenden Rechteckcontainer, vektorielle Antwort inklusive Diagonalen, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export.
 
 ## MA003.05 Core Integration Tests
 
@@ -574,6 +576,61 @@ Der Test prueft nicht:
 - Discovery, Pairing oder Sicherheitsschicht.
 - finale Produktphysik.
 
+## MA006.10R Living Lens Tests
+
+MA006.10R fuehrt `src/Shell/RKWorkspace.Shell.LivingLens.Windows/` und `tools/run-living-lens.ps1` ein.
+
+Der Smoke-Test fuehrt aus:
+
+```powershell
+.\tools\run-living-lens.ps1 -SmokeTest
+```
+
+Erwartete Ausgabe:
+
+```text
+RK Workspace Living Lens Smoke Test
+NativeOverlay: READY
+BrowserSurface: NONE
+WebView: NONE
+NoPurpleBlob: OK
+NoGreenPoint: OK
+NoUiCircle: OK
+LensVariants: 5
+RealBubbleLens: OK
+EdgeAnchored: OK
+LensAbsorption: OK
+AbsorptionScale: OK
+AbsorptionDistortion: OK
+NotInstantGone: OK
+TargetGhost: OK
+GhostEmergence: OK
+TimingVariants: OK
+ExportFrames: OK
+LivingLensSmoke: SUCCESS
+RESULT: SUCCESS
+```
+
+Zusaetzlich erzeugt:
+
+```powershell
+.\tools\run-living-lens.ps1 -ExportFrames
+```
+
+die Zielbilder in:
+
+```text
+Docs/VisualTargets/MA00610R/
+```
+
+Der Test prueft nicht:
+
+- finale Shader-Brechung.
+- echte Desktop-Hintergrundverzerrung.
+- echte Payload.
+- Discovery, Pairing oder Sicherheitsschicht.
+- finale Produktphysik.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -585,6 +642,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.13.0 | 2026-07-04 | MA006.10R Living Lens Smoke-Test mit Real Bubble Lens, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export dokumentiert. |
 | 2.12.0 | 2026-07-04 | MA006.09 Visual Reality Smoke-Test mit fuenf Living-Lens-Varianten, langsamem Erscheinen, digitaler Hand, Mini-Ablage, Glide und Ziel-Ghost dokumentiert. |
 | 2.11.1 | 2026-07-04 | Spatial Room Smoke-Test auf Tablet als Default-Ablage umgestellt; Handy bleibt als weitere erreichbare Ablage dokumentiert. |
 | 2.11.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Smoke-Test mit nativem transparentem Overlay, No-Browser-Regel, digitaler Hand, Bubble-Linsen, Mini-Ablage, Glide und Zielposition dokumentiert. |

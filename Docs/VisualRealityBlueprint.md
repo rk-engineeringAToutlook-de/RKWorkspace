@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -778,6 +778,44 @@ Wenn die Linse nicht echt wirkt, muss die Rendering-Technik gewechselt werden. N
 
 Der erste WinForms/GDI+-Spike ist daher als visueller Human-Experience-Pfad verworfen. Er darf als technischer Test erhalten bleiben, aber nicht als Grundlage fuer die naechste visuelle Iteration dienen.
 
+## MA006.10R Living Lens Renderer Reset
+
+MA006.10R setzt den naechsten isolierten visuellen Spike auf:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Windows
+```
+
+Dieser Spike prueft nicht mehr die alte Glasbrunnen-Portal-Zwischenrichtung, sondern fuenf neue Materialvarianten:
+
+1. Real Bubble Lens.
+2. Glass Lens.
+3. Water Surface Lens.
+4. Wormhole Lens.
+5. Gravity Lens.
+
+Der wichtigste neue Effekt ist `Lens Absorption`:
+
+```text
+Das Ding wird von der Linse aufgenommen,
+wird verzerrt,
+wird kleiner,
+verschwindet nicht sofort
+und erscheint als Target Ghost wieder.
+```
+
+Visual Targets werden exportiert nach:
+
+```text
+Docs/VisualTargets/MA00610R/
+```
+
+Die Renderer-Entscheidung steht in:
+
+```text
+Docs/RenderingDecision_LivingLens.md
+```
+
 ## Nicht-Ziele
 
 MA006.09 baut noch nicht:
@@ -796,6 +834,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset, Real Bubble Lens, Lens Absorption und Visual Target Export als naechsten isolierten Material-Spike ergaenzt. |
 | 1.3.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert, Linsen-Hypothesen auf aktuelle Tastenbelegung korrigiert und alte Seifenblasen-/Wasser-Hypothesen archiviert. |
 | 1.2.0 | 2026-07-04 | Owner-Referenzboard mit sechs visuellen Referenzen gesichert, Zielrichtung auf Glaslinse plus Gravitationsbrunnen plus ruhiges Portal korrigiert und Linsenprioritaet angepasst. |
 | 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten C#-Spikes als visuellen Fehlschlag dokumentiert; fuenf Linsenrichtungen, drei digitale-Hand-Varianten, drei Storyboards, Zielvision und Implementierungs-Gate ergaenzt. |

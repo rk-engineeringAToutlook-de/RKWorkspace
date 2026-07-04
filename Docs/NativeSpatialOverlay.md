@@ -1,7 +1,7 @@
 # Native Spatial Overlay
 
 Dokument-ID: RKWS-NATIVE-SPATIAL-OVERLAY
-Version: 1.4.0
+Version: 1.5.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -192,6 +192,33 @@ ruhiges Portal
 
 Dabei bleibt der echte Desktop der Raum. Die Referenzen liefern Material, Tiefe und Oeffnung, aber keine Weltraumkulisse.
 
+## Living Lens Renderer Reset
+
+MA006.10R verlaesst die flache Bubble-/UI-Kreis-Richtung und fuehrt einen eigenen Living-Lens-Slice ein:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Windows
+```
+
+Der Slice prueft:
+
+- Real Bubble Lens.
+- Glass Lens.
+- Water Surface Lens.
+- Wormhole Lens.
+- Gravity Lens.
+- Lens Absorption.
+- Target Emergence.
+- Visual Target Export.
+
+Start:
+
+```powershell
+.\tools\run-living-lens.ps1
+.\tools\run-living-lens.ps1 -SmokeTest
+.\tools\run-living-lens.ps1 -ExportFrames
+```
+
 ## Sicherheit
 
 Pflicht:
@@ -224,10 +251,19 @@ MA006.09 baut weiterhin nicht:
 - Discovery, Pairing oder Sicherheitsschicht.
 - echte mobile Haptik.
 
+MA006.10R baut weiterhin nicht:
+
+- finalen Shader-Renderer.
+- echte Brechung des Desktop-Hintergrunds.
+- echte Payload.
+- Discovery, Pairing oder Sicherheitsschicht.
+- finale Produktphysik.
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.5.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit Real Bubble Lens, Lens Absorption und Visual Target Export eingeordnet. |
 | 1.4.0 | 2026-07-04 | Visual-Reality-Implementierung auf Glasbrunnen-Portal, Glasmaterial, Raumbrunnen, ruhiges Portal und minimalen Raumriss korrigiert. |
 | 1.3.0 | 2026-07-04 | Owner-Referenzboard fuer naechste Visual-Reality-Richtung verlinkt und Ziel auf Glaslinse, Gravitationsbrunnen und ruhiges Portal korrigiert. |
 | 1.2.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Visual-Reality-Spikes als visuellen Fehlschlag und Renderer-Grenze dokumentiert. |
