@@ -127,7 +127,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var point = ProjectThroughScreenEdge(e.GetPosition(this));
         _targetCenter = point - _grabOffset;
         _lastTargetCenter = _targetCenter;
-        _activeLensCenter = NearestLensCenter(_targetCenter);
+        _activeLensCenter = ResolveActiveLensCenter(_targetCenter);
         if (IsNearLens(_targetCenter, 210))
         {
             _session.ApproachLens((float)NormalizedLensNearness(_targetCenter));
@@ -200,11 +200,9 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return;
         }
 
-        var emergence = EaseOut(_session.LensEmergence) * (0.54 + (activation * 0.46));
         var open = EaseOut(_session.LensOpen) * activation;
-        var width = 210 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
-        var height = 150 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
-        var bounds = new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
+        var bounds = LensBounds(center, activation);
+        var throatCenter = TunnelThroatPoint(bounds, center, open);
 
         var desktopSample = UpdateDesktopSample(bounds, center, activation);
 
@@ -235,7 +233,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             }
         }
 
-        DrawTunnelVolume(drawingContext, bounds, center, open);
+        DrawTunnelVolume(drawingContext, bounds, center, throatCenter, open);
 
         var glass = new RadialGradientBrush
         {
@@ -267,18 +265,19 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var outer = new WPen(new SolidColorBrush(WColor.FromArgb(210, 255, 255, 255)), 1.8 + open);
         var inner = new WPen(new SolidColorBrush(WColor.FromArgb(86, 18, 24, 26)), 1.0);
         drawingContext.DrawEllipse(null, outer, center, bounds.Width / 2, bounds.Height / 2);
-        drawingContext.DrawEllipse(null, inner, center + new Vector(0, 3), bounds.Width * 0.43, bounds.Height * 0.42);
+        drawingContext.DrawEllipse(null, inner, throatCenter, bounds.Width * (0.18 + (open * 0.10)), bounds.Height * (0.07 + (open * 0.05)));
 
         var highlight = new RadialGradientBrush(WColor.FromArgb(190, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255));
         drawingContext.DrawEllipse(highlight, null, new WPoint(bounds.X + (bounds.Width * 0.66), bounds.Y + (bounds.Height * 0.23)), bounds.Width * 0.15, bounds.Height * 0.10);
 
         var depth = new RadialGradientBrush(WColor.FromArgb((byte)(70 + (open * 54)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
-        drawingContext.DrawEllipse(depth, null, new WPoint(bounds.X + (bounds.Width * 0.50), bounds.Y + (bounds.Height * 0.61)), bounds.Width * (0.17 + (open * 0.12)), bounds.Height * (0.06 + (open * 0.06)));
+        drawingContext.DrawEllipse(depth, null, throatCenter, bounds.Width * (0.15 + (open * 0.11)), bounds.Height * (0.05 + (open * 0.06)));
     }
 
-    private void DrawTunnelVolume(DrawingContext drawingContext, Rect bounds, WPoint center, double open)
+    private void DrawTunnelVolume(DrawingContext drawingContext, Rect bounds, WPoint center, WPoint throatCenter, double open)
     {
-        var throatCenter = center + new Vector(open * 20.0, 13.0);
+        var outward = LensOutwardDirection(center);
+        var tangent = new Vector(-outward.Y, outward.X);
         var throat = new RadialGradientBrush
         {
             GradientOrigin = new WPoint(0.54, 0.48),
@@ -308,10 +307,9 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                 continue;
             }
 
-            var shift = new Vector(
-                (open * depthCurve * 31.0) + (Math.Sin(_phase * 0.72 + (index * 0.31)) * 0.48),
-                (depthCurve * 19.0) + (Math.Cos(_phase * 0.68 + index) * 0.28));
-            var ringCenter = center + shift;
+            var depthShift = outward * ((open * depthCurve * 34.0) + (depthCurve * 22.0));
+            var shimmerShift = tangent * (Math.Sin(_phase * 0.72 + (index * 0.31)) * 0.54);
+            var ringCenter = center + depthShift + shimmerShift;
             var lightAlpha = (byte)Math.Clamp(34 - (index * 0.34) + (open * 34), 6, 82);
             var darkAlpha = (byte)Math.Clamp(22 + (open * 24) - (index * 0.18), 4, 46);
             drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(darkAlpha, 10, 13, 14)), 1.34), ringCenter + new Vector(0, 1.1), rx, ry);
@@ -326,9 +324,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             var startRadiusY = bounds.Height * (0.035 + (open * 0.018));
             var endRadiusX = bounds.Width * (0.50 - (Math.Abs(normalized) * 0.09));
             var endRadiusY = bounds.Height * (0.38 - (Math.Abs(normalized) * 0.06));
-            var start = throatCenter + new Vector(Math.Cos(angle) * startRadiusX, Math.Sin(angle) * startRadiusY);
-            var end = center + new Vector(Math.Cos(angle) * endRadiusX, Math.Sin(angle) * endRadiusY);
-            var control = Interpolate(start, end, 0.58) + new Vector(open * 22.0, Math.Sin(_phase * 0.82 + ray) * 1.4);
+            var radial = (outward * Math.Cos(angle)) + (tangent * Math.Sin(angle));
+            var start = throatCenter + new Vector(radial.X * startRadiusX, radial.Y * startRadiusY);
+            var end = center + new Vector(radial.X * endRadiusX, radial.Y * endRadiusY);
+            var control = Interpolate(start, end, 0.58) + (outward * open * 22.0) + (tangent * Math.Sin(_phase * 0.82 + ray) * 1.4);
 
             var geometry = new StreamGeometry();
             using (var context = geometry.Open())
@@ -343,7 +342,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         DrawPremiumRefractionRibbons(drawingContext, bounds, center, throatCenter, open);
-        DrawPremiumTunnelAperture(drawingContext, bounds, throatCenter, open);
+        DrawPremiumTunnelAperture(drawingContext, bounds, throatCenter, outward, open);
 
         var reflectedEdge = new LinearGradientBrush
         {
@@ -409,8 +408,9 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             bounds.Height * 0.18);
     }
 
-    private static void DrawPremiumTunnelAperture(DrawingContext drawingContext, Rect bounds, WPoint throatCenter, double open)
+    private static void DrawPremiumTunnelAperture(DrawingContext drawingContext, Rect bounds, WPoint throatCenter, Vector outward, double open)
     {
+        var tangent = new Vector(-outward.Y, outward.X);
         var apertureShadow = new RadialGradientBrush
         {
             GradientOrigin = new WPoint(0.47, 0.48),
@@ -425,7 +425,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         drawingContext.DrawEllipse(
             apertureShadow,
             null,
-            throatCenter + new Vector(open * 5.0, 1.5),
+            throatCenter + (outward * open * 5.0) + (tangent * 1.5),
             bounds.Width * (0.18 + (open * 0.105)),
             bounds.Height * (0.052 + (open * 0.052)));
 
@@ -436,7 +436,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             var rx = bounds.Width * (0.18 + (open * 0.12) + (layer * 0.035));
             var ry = bounds.Height * (0.052 + (open * 0.050) + (layer * 0.014));
             var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 244, 250, 248)), 0.42 + (open * 0.18));
-            drawingContext.DrawEllipse(null, pen, throatCenter + new Vector((open * 6.0) + (layer * 2.0), 1.0 + (layer * 0.7)), rx, ry);
+            drawingContext.DrawEllipse(null, pen, throatCenter + (outward * ((open * 6.0) + (layer * 2.0))) + (tangent * (1.0 + (layer * 0.7))), rx, ry);
         }
 
         var lowerGlass = new LinearGradientBrush
@@ -451,7 +451,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         drawingContext.DrawEllipse(
             lowerGlass,
             null,
-            throatCenter + new Vector(-bounds.Width * 0.05, bounds.Height * 0.095),
+            throatCenter - (outward * bounds.Width * 0.05) + (tangent * bounds.Height * 0.095),
             bounds.Width * 0.30,
             bounds.Height * 0.045);
     }
@@ -469,7 +469,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         var progress = SmoothStep(_session.Absorption);
-        var center = Interpolate(_thingCenter, LensCenter(), progress * 0.88);
+        var throatTarget = ActiveTunnelThroatPoint();
+        var center = Interpolate(_thingCenter, throatTarget, progress * 0.88);
         var recovery = EaseOut(_session.PullOutRecovery);
         var lifted = _session.IsHoldingThing || _isHolding || progress > 0.01;
         var carryScale = lifted ? 0.72 + (recovery * 0.18) : 1.0;
@@ -486,7 +487,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             var shadowSuction = Math.Max(SmoothStep(progress), portalSqueeze * 0.88);
             var shadowAlpha = (byte)Math.Clamp((58 + (Math.Abs(_session.TiltX) * 2.2) + (Math.Abs(_session.TiltY) * 1.8)) * opacity * (1.0 - (shadowSuction * 0.52)), 5, 96);
             var freeShadowCenter = new WPoint(center.X + _session.ShadowX, center.Y + (height * 0.48) + _session.ShadowY);
-            var shadowCenter = Interpolate(freeShadowCenter, LensCenter() + new Vector(-22, 20), shadowSuction * 0.92);
+            var shadowCenter = Interpolate(freeShadowCenter, throatTarget, shadowSuction * 0.92);
             var shadowWidth = width * (0.64 + (Math.Abs(_session.TiltX) * 0.010)) * (1.0 - (shadowSuction * 0.62));
             var shadowHeight = height * (0.28 + (Math.Abs(_session.TiltY) * 0.006)) * (1.0 - (shadowSuction * 0.38));
             for (var layer = 10; layer >= 0; layer--)
@@ -503,13 +504,13 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     Math.Max(progress * 0.46, shadowSuction * 0.22),
                     _session.TiltX * 0.14,
                     _session.TiltY * 0.14,
-                    LensCenter(),
+                    throatTarget,
                     shadowSuction * 0.74);
                 drawingContext.DrawGeometry(new SolidColorBrush(WColor.FromArgb(alpha, 0, 0, 0)), null, shadowGeometry);
             }
         }
 
-        var geometry = CreateThingGeometry(bounds, progress, _session.TiltX, _session.TiltY, portalSqueeze);
+        var geometry = CreateThingGeometry(bounds, progress, _session.TiltX, _session.TiltY, portalSqueeze, throatTarget);
         var fill = new LinearGradientBrush(WColor.FromArgb((byte)(242 * opacity), 252, 252, 246), WColor.FromArgb((byte)(216 * opacity), 214, 228, 230), 90);
         drawingContext.DrawGeometry(fill, new WPen(new SolidColorBrush(WColor.FromArgb((byte)(112 * opacity), 96, 112, 118)), 0.9), geometry);
 
@@ -532,14 +533,16 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     private void DrawTunnelRestingThing(DrawingContext drawingContext)
     {
         var lensCenter = LensCenter();
+        var throatTarget = ActiveTunnelThroatPoint();
+        var inward = LensOutwardDirection(lensCenter) * -1.0;
         var pulse = 0.5 + (Math.Sin(_phase * 2.2) * 0.5);
         var remaining = _session.TransitRemainingMilliseconds / (double)_session.TransitTimeoutMilliseconds;
         var opacity = Math.Clamp(0.24 + (remaining * 0.24) + (pulse * 0.05), 0.18, 0.52);
         var width = 46 + (pulse * 1.4);
         var height = 22 + (pulse * 0.8);
-        var center = lensCenter + new Vector(-18 + (pulse * 2.0), 12);
+        var center = throatTarget + (inward * (24 + (pulse * 2.0)));
         var bounds = new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
-        var geometry = CreateRectangularGeometry(bounds, 0.0, 0.4, -0.2, lensCenter, 0.0);
+        var geometry = CreateRectangularGeometry(bounds, 0.0, 0.4, -0.2, throatTarget, 0.0);
         var fill = new LinearGradientBrush(
             WColor.FromArgb((byte)(190 * opacity), 250, 252, 248),
             WColor.FromArgb((byte)(118 * opacity), 144, 160, 164),
@@ -558,12 +561,12 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return 0;
         }
 
-        var lensCenter = LensCenter();
+        var throatTarget = ActiveTunnelThroatPoint();
         var nearest = new WPoint(
-            Math.Clamp(lensCenter.X, bounds.Left, bounds.Right),
-            Math.Clamp(lensCenter.Y, bounds.Top, bounds.Bottom));
-        var distance = (nearest - lensCenter).Length;
-        return SmoothStep(1.0 - (distance / 214.0));
+            Math.Clamp(throatTarget.X, bounds.Left, bounds.Right),
+            Math.Clamp(throatTarget.Y, bounds.Top, bounds.Bottom));
+        var distance = (nearest - throatTarget).Length;
+        return SmoothStep(1.0 - (distance / 196.0));
     }
 
     private BitmapSource? UpdateDesktopSample(Rect lensBounds, WPoint center, double activation)
@@ -631,6 +634,56 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return _activeLensCenter;
     }
 
+    private WPoint ActiveTunnelThroatPoint()
+    {
+        var activation = LensActivation(_activeLensCenter);
+        var open = EaseOut(_session.LensOpen) * activation;
+        var bounds = LensBounds(_activeLensCenter, activation);
+        return TunnelThroatPoint(bounds, _activeLensCenter, open);
+    }
+
+    private Rect LensBounds(WPoint center, double activation)
+    {
+        var emergence = EaseOut(_session.LensEmergence) * (0.54 + (activation * 0.46));
+        var open = EaseOut(_session.LensOpen) * activation;
+        var width = 210 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
+        var height = 150 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
+        return new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
+    }
+
+    private WPoint TunnelThroatPoint(Rect bounds, WPoint center, double open)
+    {
+        var outward = LensOutwardDirection(center);
+        return center + new Vector(
+            outward.X * bounds.Width * (0.20 + (open * 0.14)),
+            outward.Y * bounds.Height * (0.18 + (open * 0.12)));
+    }
+
+    private Vector LensOutwardDirection(WPoint center)
+    {
+        var width = RenderSize.Width > 1 ? RenderSize.Width : _screenBounds.Width;
+        var height = RenderSize.Height > 1 ? RenderSize.Height : _screenBounds.Height;
+        var roomCenter = new WPoint(width / 2.0, height / 2.0);
+        var direction = center - roomCenter;
+        if (Math.Abs(direction.X) < width * 0.08)
+        {
+            direction.X = 0;
+        }
+
+        if (Math.Abs(direction.Y) < height * 0.08)
+        {
+            direction.Y = 0;
+        }
+
+        if (direction.Length <= 0.001)
+        {
+            direction = new Vector(1, 0);
+        }
+
+        direction.Normalize();
+        return direction;
+    }
+
     private bool IsNearLens(WPoint point, double radius)
     {
         return (point - NearestLensCenter(point)).Length <= radius;
@@ -683,6 +736,24 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return nearest;
     }
 
+    private WPoint ResolveActiveLensCenter(WPoint point)
+    {
+        var nearest = NearestLensCenter(point);
+        if ((nearest - _activeLensCenter).Length < 1.0)
+        {
+            return _activeLensCenter;
+        }
+
+        var activeDistance = (point - _activeLensCenter).Length;
+        var nearestDistance = (point - nearest).Length;
+        if (activeDistance < 330 && nearestDistance > activeDistance - 58)
+        {
+            return _activeLensCenter;
+        }
+
+        return nearest;
+    }
+
     private double LensActivation(WPoint center)
     {
         var isActive = (center - _activeLensCenter).Length < 1.0;
@@ -707,12 +778,12 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return new WPoint(source.X + ((target.X - source.X) * amount), source.Y + ((target.Y - source.Y) * amount));
     }
 
-    private StreamGeometry CreateThingGeometry(Rect bounds, double absorption, double tiltX, double tiltY, double portalPull)
+    private StreamGeometry CreateThingGeometry(Rect bounds, double absorption, double tiltX, double tiltY, double portalPull, WPoint suctionTarget)
     {
-        return CreateRectangularGeometry(bounds, absorption, tiltX, tiltY, LensCenter(), portalPull);
+        return CreateRectangularGeometry(bounds, absorption, tiltX, tiltY, suctionTarget, portalPull);
     }
 
-    private static StreamGeometry CreateRectangularGeometry(Rect bounds, double absorption, double tiltX, double tiltY, WPoint lensCenter, double portalPull)
+    private static StreamGeometry CreateRectangularGeometry(Rect bounds, double absorption, double tiltX, double tiltY, WPoint suctionTarget, double portalPull)
     {
         var portalAmount = SmoothStep(portalPull);
         var tiltDamping = 1.0 - (portalAmount * 0.88);
@@ -721,10 +792,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var pull = bounds.Width * 0.08 * absorption * (1.0 - (portalAmount * 0.62));
         var geometry = new StreamGeometry();
         using var context = geometry.Open();
-        var topLeft = PerspectiveCorner(bounds, -1, -1, directionX, directionY, pull, lensCenter, portalAmount);
-        var topRight = PerspectiveCorner(bounds, 1, -1, directionX, directionY, pull, lensCenter, portalAmount);
-        var bottomRight = PerspectiveCorner(bounds, 1, 1, directionX, directionY, pull, lensCenter, portalAmount);
-        var bottomLeft = PerspectiveCorner(bounds, -1, 1, directionX, directionY, pull, lensCenter, portalAmount);
+        var topLeft = PerspectiveCorner(bounds, -1, -1, directionX, directionY, pull, suctionTarget, portalAmount);
+        var topRight = PerspectiveCorner(bounds, 1, -1, directionX, directionY, pull, suctionTarget, portalAmount);
+        var bottomRight = PerspectiveCorner(bounds, 1, 1, directionX, directionY, pull, suctionTarget, portalAmount);
+        var bottomLeft = PerspectiveCorner(bounds, -1, 1, directionX, directionY, pull, suctionTarget, portalAmount);
         context.BeginFigure(topLeft, true, true);
         context.LineTo(topRight, true, false);
         context.LineTo(bottomRight, true, false);
@@ -733,7 +804,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return geometry;
     }
 
-    private static WPoint PerspectiveCorner(Rect bounds, int cornerX, int cornerY, double directionX, double directionY, double pull, WPoint lensCenter, double portalAmount)
+    private static WPoint PerspectiveCorner(Rect bounds, int cornerX, int cornerY, double directionX, double directionY, double pull, WPoint suctionTarget, double portalAmount)
     {
         const double baseInsetX = 0;
         const double baseInsetY = 0;
@@ -751,27 +822,29 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         var center = new WPoint(bounds.Left + (bounds.Width / 2.0), bounds.Top + (bounds.Height / 2.0));
-        var vectorToLens = lensCenter - center;
-        if (vectorToLens.Length > 0.001)
+        var vectorToTarget = suctionTarget - center;
+        var targetDistance = vectorToTarget.Length;
+        if (targetDistance > 0.001)
         {
-            vectorToLens.Normalize();
+            vectorToTarget.Normalize();
         }
         else
         {
-            vectorToLens = new Vector(1, 0);
+            vectorToTarget = new Vector(1, 0);
         }
 
         var cornerOffset = new Vector((bounds.Width / 2.0) * cornerX, (bounds.Height / 2.0) * cornerY);
-        var cornerProjection = (cornerOffset.X * vectorToLens.X) + (cornerOffset.Y * vectorToLens.Y);
-        var maxProjection = (Math.Abs(vectorToLens.X) * bounds.Width / 2.0) + (Math.Abs(vectorToLens.Y) * bounds.Height / 2.0);
+        var cornerProjection = (cornerOffset.X * vectorToTarget.X) + (cornerOffset.Y * vectorToTarget.Y);
+        var maxProjection = (Math.Abs(vectorToTarget.X) * bounds.Width / 2.0) + (Math.Abs(vectorToTarget.Y) * bounds.Height / 2.0);
         var leadingDistance = Math.Max(0.0, maxProjection - cornerProjection);
         var leadingBand = Math.Max(18.0, Math.Min(bounds.Width, bounds.Height) * 0.74);
         var leadWeight = SmoothStep(1.0 - (leadingDistance / leadingBand));
         var supportWeight = SmoothStep(1.0 - (leadingDistance / (leadingBand * 1.92))) * 0.18;
-        var collapseWeight = Math.Clamp(leadWeight + supportWeight, 0.0, 1.0);
-        var apexDistance = maxProjection + (bounds.Width * (0.14 + (portalAmount * 0.40)));
-        var apex = center + (vectorToLens * apexDistance);
-        var stableDrift = vectorToLens * portalAmount * bounds.Width * 0.045;
+        var pointCollapse = SmoothStep(1.0 - (targetDistance / (Math.Max(bounds.Width, bounds.Height) * 0.68))) * portalAmount;
+        var collapseWeight = Math.Clamp(Math.Max(leadWeight + supportWeight, pointCollapse), 0.0, 1.0);
+        var apex = suctionTarget;
+        var driftDistance = Math.Min(targetDistance * 0.10, bounds.Width * 0.045);
+        var stableDrift = vectorToTarget * portalAmount * driftDistance * (1.0 - pointCollapse);
         if (collapseWeight <= 0.01)
         {
             return point + stableDrift;
@@ -780,8 +853,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var collapse = Math.Clamp((portalAmount - 0.10) / 0.90, 0.0, 1.0);
         collapse = SmoothStep(collapse) * (0.965 * collapseWeight);
         var collapsed = Interpolate(point + stableDrift, apex, collapse);
-        var funnelPull = vectorToLens * portalAmount * bounds.Width * 0.11 * collapseWeight;
-        return collapsed + funnelPull;
+        return collapsed;
     }
 
     private static double EaseOut(double value)

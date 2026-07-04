@@ -58,6 +58,9 @@ public static class GpuLivingLensApplication
                 session.CornerAndEdgeTunnelPrepared &&
                 session.CenterStartObjectPrepared &&
                 session.VectorSuctionCenterPrepared &&
+                session.ThroatSuctionTargetPrepared &&
+                session.NoApexOvershootPrepared &&
+                session.StableTunnelTargetLockPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -109,6 +112,9 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"CornerAndEdgeTunnels: {(session.CornerAndEdgeTunnelPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CenterStartObject: {(session.CenterStartObjectPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"VectorSuctionCenter: {(session.VectorSuctionCenterPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ThroatSuctionTarget: {(session.ThroatSuctionTargetPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"NoApexOvershoot: {(session.NoApexOvershootPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"StableTunnelTargetLock: {(session.StableTunnelTargetLockPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");

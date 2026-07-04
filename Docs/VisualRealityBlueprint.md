@@ -882,6 +882,9 @@ Geprueft wird:
 - PremiumTunnelAperture: der innere Schlund bekommt feinere Glas-/Tiefenschichtung.
 - Acht-Tunnel-Feld fuer den Richtungstest: Ecken und Seitenmitten koennen als Durchgaenge ausprobiert werden.
 - VectorSuctionCenter: die Sogspitze richtet sich auf die jeweils naechste Tunnelmitte aus.
+- ThroatSuctionTarget: der sichtbare schwarze Schlund ist das Ziel, auf das Papier und Schatten zulaufen.
+- NoApexOvershoot: die Papier-Spitze endet am Schlund und schiesst nicht darueber hinaus.
+- StableTunnelTargetLock: der aktive Tunnel bleibt stabil, solange die Bewegung in seinem Einzugsbereich bleibt.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -912,6 +915,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.17.0 | 2026-07-04 | Schwarzer Tunnel-Schlund als echtes Sogziel, Apex-Kappung und stabiler Tunnel-Lock aufgenommen. |
 | 1.16.0 | 2026-07-04 | Acht-Tunnel-Richtungstest und VectorSuctionCenter fuer die Living Lens aufgenommen. |
 | 1.15.0 | 2026-07-04 | No-Twist-Funnel, Apex-Squeeze, Neigungsdaempfung und ruhiges Tunnelobjekt als Zielrichtung aufgenommen. |
 | 1.14.0 | 2026-07-04 | Premium-Portal-Iteration mit Edge-Squeeze, Schatten-Sog und veredelter Tunnel-Refraction dokumentiert. |

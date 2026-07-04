@@ -490,6 +490,18 @@ if (-not $gpuLivingLensText.Contains('VectorSuctionCenter: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain VectorSuctionCenter: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('ThroatSuctionTarget: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ThroatSuctionTarget: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('NoApexOvershoot: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain NoApexOvershoot: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('StableTunnelTargetLock: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain StableTunnelTargetLock: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

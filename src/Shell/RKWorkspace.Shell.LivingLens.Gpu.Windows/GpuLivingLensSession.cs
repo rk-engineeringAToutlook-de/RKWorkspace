@@ -42,6 +42,12 @@ public sealed class GpuLivingLensSession
 
     public bool VectorSuctionCenterPrepared { get; } = true;
 
+    public bool ThroatSuctionTargetPrepared { get; } = true;
+
+    public bool NoApexOvershootPrepared { get; } = true;
+
+    public bool StableTunnelTargetLockPrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;
