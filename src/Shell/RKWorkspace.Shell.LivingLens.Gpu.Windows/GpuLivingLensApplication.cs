@@ -42,6 +42,9 @@ public static class GpuLivingLensApplication
                 session.HlslShaderContractPrepared &&
                 session.RectangularThingPrepared &&
                 session.RectangularShadowPrepared &&
+                session.GentleCarryTiltPrepared &&
+                session.SoftShadowPrepared &&
+                session.PortalEdgePullPrepared &&
                 session.TunnelDepthPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
@@ -69,6 +72,9 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"HlslShaderContract: {(session.HlslShaderContractPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"RectangularThing: {(session.RectangularThingPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"RectangularShadow: {(session.RectangularShadowPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"GentleCarryTilt: {(session.GentleCarryTiltPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"SoftShadow: {(session.SoftShadowPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PortalEdgePull: {(session.PortalEdgePullPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TunnelDepthLayers: {(session.TunnelDepthPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");

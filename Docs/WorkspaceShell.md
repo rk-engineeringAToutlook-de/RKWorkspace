@@ -298,8 +298,10 @@ Geprueft werden:
 - Pull-out aus der Linse.
 - klares zweidimensionales Rechteck als digitales Test-Ding.
 - rechteckig-perspektivischer Trageschatten.
-- vektorielle Trapez-Neigung des Dings.
+- sanfte vektorielle Trapez-Neigung des Dings.
 - Schattenmodell nur fuer raeumliches Tragen.
+- weicher Schatten aus mehreren transparenten Projektionen.
+- PortalPull an der linse-nahen Kante vor der eigentlichen Aufnahme.
 - Schatten-Sog in Richtung Linse bei der Aufnahme.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
 - HLSL-Shader-Vertrag als Uebergang zum Direct2D-/Win2D-Produktpfad.
@@ -620,6 +622,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.22.0 | 2026-07-04 | GPU Living Lens Carry beruhigt, Schatten weich geschichtet und PortalPull an linse-naher Kante ergaenzt. |
 | 1.21.0 | 2026-07-04 | GPU Living Lens Digital Thing auf Rechteck-Geometrie und rechteckig-perspektivischen Schatten fuer den Physiktest umgestellt. |
 | 1.20.0 | 2026-07-04 | GPU Living Lens um Backup-Referenz, HLSL-Shader-Vertrag und Schatten-Sog beim Einsaugen erweitert. |
 | 1.19.0 | 2026-07-04 | GPU Living Lens um Pick-Emergence, 85-90 Prozent sichtbare Randlinse, Perspektiv-Trapez, CarryShadowOnly und Tunnel-Tiefe ergaenzt. |

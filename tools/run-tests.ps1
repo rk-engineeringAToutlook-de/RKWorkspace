@@ -426,6 +426,18 @@ if (-not $gpuLivingLensText.Contains('RectangularShadow: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain RectangularShadow: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('GentleCarryTilt: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GentleCarryTilt: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('SoftShadow: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain SoftShadow: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('PortalEdgePull: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PortalEdgePull: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('TunnelDepthLayers: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain TunnelDepthLayers: OK."
 }

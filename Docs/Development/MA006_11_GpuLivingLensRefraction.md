@@ -48,8 +48,10 @@ Er nutzt:
 - Pull-out aus der Linse.
 - klares zweidimensionales Rechteck als Test-Ding.
 - rechteckig-perspektivischer Trageschatten.
-- staerkere perspektivische Trapez-Neigung aus der Bewegungsrichtung.
+- sanfte perspektivische Trapez-Neigung aus der Bewegungsrichtung.
 - Schattenmodell nur unter dem getragenen Ding.
+- weicher Schatten aus mehreren transparenten Projektionen.
+- PortalPull: die linse-nahe Kante wird bereits vor dem Loslassen Richtung Tunnel gezogen.
 - Schatten-Sog bei der Linsenaufnahme.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
 - HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Produktpfad.
@@ -141,6 +143,9 @@ DesktopRefraction: OK
 HlslShaderContract: OK
 RectangularThing: OK
 RectangularShadow: OK
+GentleCarryTilt: OK
+SoftShadow: OK
+PortalEdgePull: OK
 TunnelDepthLayers: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -157,6 +162,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-04 | Carry-Neigung beruhigt, Schatten weich geschichtet und PortalPull fuer linse-nahe Kanten dokumentiert. |
 | 1.3.0 | 2026-07-04 | Digital Thing fuer den Physiktest auf klares Rechteck und rechteckig-perspektivischen Schatten umgestellt. |
 | 1.2.0 | 2026-07-04 | Backup-Tag, HLSL-Shader-Vertrag und ShadowSuction fuer den Direct2D-/Win2D-Pfad dokumentiert. |
 | 1.1.0 | 2026-07-04 | Owner-Feedback zu 85-90 Prozent sichtbarer Randlinse, Pick-Emergence, Trageschatten, Perspektiv-Trapez und Tunnel-Tiefe aufgenommen. |

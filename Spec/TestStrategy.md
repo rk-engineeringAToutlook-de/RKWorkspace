@@ -672,6 +672,9 @@ ShaderReadyMap: OK
 HlslShaderContract: OK
 RectangularThing: OK
 RectangularShadow: OK
+GentleCarryTilt: OK
+SoftShadow: OK
+PortalEdgePull: OK
 TunnelDepthLayers: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
@@ -701,6 +704,9 @@ Der Test prueft ausdruecklich:
 - der Trageschatten ist an den Carry-Zustand gekoppelt.
 - das digitale Ding ist fuer den Physiktest ein klares 2D-Rechteck.
 - der Trageschatten ist rechteckig-perspektivisch statt elliptisch.
+- die normale Trage-Neigung bleibt sanft.
+- der Schatten wird ueber weiche Schichten statt als harte Platte gezeichnet.
+- die linse-nahe Kante wird vor der Absorption lokal Richtung Tunnel gezogen.
 - Tunnel-Tiefenschichten sind vorbereitet.
 - ein HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Pfad liegt im Projekt.
 
@@ -722,6 +728,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.20.0 | 2026-07-04 | GPU Living Lens Smoke-Test um GentleCarryTilt, SoftShadow und PortalEdgePull erweitert. |
 | 2.19.0 | 2026-07-04 | GPU Living Lens Smoke-Test um RectangularThing und RectangularShadow fuer den Physiktest erweitert. |
 | 2.18.0 | 2026-07-04 | GPU Living Lens Smoke-Test um HlslShaderContract und ShadowSuction erweitert. |
 | 2.17.0 | 2026-07-04 | GPU Living Lens Smoke-Test um LensAppearsOnPick, TunnelDepthLayers, PerspectiveTrapezoid und CarryShadowOnly erweitert. |

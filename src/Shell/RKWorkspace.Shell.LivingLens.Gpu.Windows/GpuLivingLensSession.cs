@@ -24,6 +24,12 @@ public sealed class GpuLivingLensSession
 
     public bool RectangularShadowPrepared { get; } = true;
 
+    public bool GentleCarryTiltPrepared { get; private set; }
+
+    public bool SoftShadowPrepared { get; } = true;
+
+    public bool PortalEdgePullPrepared { get; private set; }
+
     public bool NoWhiteBlock { get; } = true;
 
     public bool DropRequiresRelease { get; private set; } = true;
@@ -75,19 +81,25 @@ public sealed class GpuLivingLensSession
 
     public void Carry(float movementX, float movementY)
     {
-        var targetTiltX = Math.Clamp(movementX * 0.360f, -17.0f, 17.0f);
-        var targetTiltY = Math.Clamp(-movementY * 0.340f, -17.0f, 17.0f);
-        TiltX = (TiltX * 0.24f) + (targetTiltX * 0.76f);
-        TiltY = (TiltY * 0.24f) + (targetTiltY * 0.76f);
-        ShadowX = Math.Clamp(-TiltX * 3.6f, -44f, 44f);
-        ShadowY = Math.Clamp(25f + (MathF.Abs(TiltY) * 3.4f), 20f, 64f);
-        VectorTiltPrepared = Math.Abs(TiltX) > 0.45f && Math.Abs(TiltY) > 0.45f;
+        var targetTiltX = Math.Clamp(movementX * 0.145f, -8.5f, 8.5f);
+        var targetTiltY = Math.Clamp(-movementY * 0.135f, -8.5f, 8.5f);
+        TiltX = (TiltX * 0.58f) + (targetTiltX * 0.42f);
+        TiltY = (TiltY * 0.58f) + (targetTiltY * 0.42f);
+        ShadowX = Math.Clamp(-TiltX * 2.6f, -24f, 24f);
+        ShadowY = Math.Clamp(20f + (MathF.Abs(TiltY) * 2.2f), 18f, 42f);
+        GentleCarryTiltPrepared = Math.Abs(TiltX) < 9.0f && Math.Abs(TiltY) < 9.0f;
+        VectorTiltPrepared = Math.Abs(TiltX) > 0.25f && Math.Abs(TiltY) > 0.25f;
         PerspectiveTrapezoidPrepared = VectorTiltPrepared;
         ShadowPrepared = IsHoldingThing && (ShadowY > 24f || Math.Abs(ShadowX) > 2f);
     }
 
     public void ApproachLens(float nearness)
     {
+        if (nearness > 0.20f)
+        {
+            PortalEdgePullPrepared = true;
+        }
+
         _openTarget = nearness >= 0.68f
             ? Math.Clamp((nearness - 0.68f) / 0.32f, 0f, 1f)
             : 0f;
