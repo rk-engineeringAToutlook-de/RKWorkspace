@@ -4,6 +4,8 @@ public sealed class SpatialTraySession
 {
     private const string RoomId = "rkws-spatial-room-local";
     private const string ThingId = "thing-rechnung";
+    public const string DefaultAblageId = "tablet";
+    public const string DefaultTargetAblageId = "monitor";
     private readonly object _sync = new();
     private readonly SpatialTrayConfiguration _configuration;
     private SpatialRoomState _room;
@@ -25,7 +27,7 @@ public sealed class SpatialTraySession
                     DisplayName = _configuration.ThingName,
                     Kind = "Dokument",
                     CurrentState = SpatialThingState.RestingOnAblage,
-                    CurrentAblageId = "handy",
+                    CurrentAblageId = DefaultAblageId,
                     PositionOnAblage = new SpatialPoint(0.5, 0.46),
                     Metadata = new Dictionary<string, string>
                     {
@@ -79,7 +81,7 @@ public sealed class SpatialTraySession
     {
         lock (_sync)
         {
-            var viewer = FindAblageOrDefault(surfaceAblageId ?? "handy");
+            var viewer = FindAblageOrDefault(surfaceAblageId ?? DefaultAblageId);
             var thing = MainThing();
             var surfaceThing = CreateSurfaceThingSnapshot(viewer.AblageId, thing);
             var bubblesVisible = ShouldShowBubbles(thing);
@@ -170,7 +172,7 @@ public sealed class SpatialTraySession
 
     public void Pick()
     {
-        Pick("handy");
+        Pick(DefaultAblageId);
     }
 
     public void Pick(string carrierAblageId)
@@ -207,7 +209,7 @@ public sealed class SpatialTraySession
 
     public void Carry()
     {
-        Move("handy", null, null);
+        Move(DefaultAblageId, null, null);
     }
 
     public void Move(string carrierAblageId, double? x, double? y)
@@ -242,7 +244,7 @@ public sealed class SpatialTraySession
 
     public void NearAblage(string ablage)
     {
-        Approach("handy", ablage);
+        Approach(DefaultAblageId, ablage);
     }
 
     public void Approach(string carrierAblageId, string targetAblageId)
@@ -340,7 +342,7 @@ public sealed class SpatialTraySession
         lock (_sync)
         {
             var now = DateTimeOffset.UtcNow;
-            var target = FindAblageOrDefault(ablage ?? _room.ActiveCarry?.TargetCandidateAblageId ?? "monitor");
+            var target = FindAblageOrDefault(ablage ?? _room.ActiveCarry?.TargetCandidateAblageId ?? DefaultTargetAblageId);
             var carry = _room.ActiveCarry;
             ReplaceThing(MainThing() with
             {
@@ -731,6 +733,12 @@ public sealed class SpatialTraySession
             return SpatialAblageDistance.VeryNear;
         }
 
+        if ((targetAblageId == "monitor" && viewerAblageId == "tablet") ||
+            (targetAblageId == "tablet" && viewerAblageId == "monitor"))
+        {
+            return SpatialAblageDistance.VeryNear;
+        }
+
         if (targetAblageId == "tablet")
         {
             return SpatialAblageDistance.Near;
@@ -754,7 +762,7 @@ public sealed class SpatialTraySession
         return _room.Ablagen.FirstOrDefault(ablage =>
                 string.Equals(ablage.AblageId, ablageId, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(ablage.DisplayName, ablageId, StringComparison.OrdinalIgnoreCase))
-            ?? _room.Ablagen.First(ablage => ablage.AblageId == "handy");
+            ?? _room.Ablagen.First(ablage => ablage.AblageId == DefaultAblageId);
     }
 
     private SpatialThing MainThing()
@@ -847,6 +855,7 @@ public sealed class SpatialTraySession
         {
             "monitor" => new SpatialPoint(0.62, 0.46),
             "handy" => new SpatialPoint(0.48, 0.52),
+            "tablet" => new SpatialPoint(0.54, 0.48),
             _ => new SpatialPoint(0.5, 0.5)
         };
     }

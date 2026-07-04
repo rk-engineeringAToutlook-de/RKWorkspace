@@ -1,9 +1,9 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.26.0
+Version: 2.27.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-04
 
 RK Workspace (RKWS) ist ein eigenstaendiges Software- und Hardwareprodukt fuer raeumlich gedachte digitale Arbeitsflaechen. Das Projekt ist kein Bestandteil von RKOS und wird mit eigener Roadmap, eigener Dokumentation, eigenen Releases und eigener Architektur gefuehrt.
 
@@ -63,6 +63,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA006.06 fuehrt Spatial Portal Carry ein: Ablage-Bubbles werden zu ruhigen Portalen, das Ding springt nicht, sondern geht mit Source-/Target-Progress durch einen Durchgang und erscheint als groesser werdender Ghost auf der Zielablage.
 - MA006.07 verwirft die MA006.06-Radar-/Statusdarstellung als Produktpfad und setzt die Surface zurueck: keine Karte, keine Statusseite, keine permanente Bubble-Anzeige, sondern Ablageflaeche, Ding, digitale Hand und periphere Moeglichkeiten erst beim Tragen.
 - MA006.08 fuehrt den Native Spatial Overlay Slice ein: kein Browser, kein WebView, echter Desktop bleibt sichtbar, transparentes randloses Windows-Overlay, Demo-Ding, digitale Hand, periphere Bubble-Linsen, Mini-Ablage und eigener Smoke-Test.
+- MA006.09 fuehrt das Visual Reality Lab ein: natives Overlay ohne Web, fuenf Living-Lens-Hypothesen, langsames Erscheinen, subtile Linsen-Lebendigkeit, Mini-Ablage, Glide und Ziel-Ghost.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -106,6 +107,7 @@ flowchart TB
     Shell --> ShellHost["Workspace Shell Host"]
     ShellHost --> Overlay["Workspace Overlay Prototype"]
     ShellHost --> NativeOverlay["Native Spatial Overlay"]
+    ShellHost --> VisualReality["Visual Reality Lab"]
     ShellHost --> SpatialTray["Spatial Carry Tray"]
     Spec --> Core["src/Core"]
     Shell --> Adapters["Spaetere Workspace Adapter"]
@@ -132,6 +134,7 @@ src/Shell/RKWorkspace.Shell/ Unsichtbare Workspace Shell Foundation ohne OS-, Ne
 src/Shell/RKWorkspace.Shell.Host/ Shell Runtime Host ohne Hauptfenster, OS-Hooks oder Produktoberflaeche
 src/Shell/RKWorkspace.Shell.Overlay.Windows/ Windows-Prototyp fuer transparente Shell-Ebene ueber dem Desktop
 src/Shell/RKWorkspace.Shell.NativeOverlay.Windows/ Nativer Windows Spatial-Overlay-Slice ohne Browser/WebView
+src/Shell/RKWorkspace.Shell.VisualReality.Windows/ Nativer Windows Visual-Reality-Slice fuer lebendige Ablage-Linsen
 src/Shell/RKWorkspace.Shell.SpatialTray/ Lokaler Web-Prototyp fuer Spatial Room Session und gleichberechtigte Ablagen
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
@@ -206,7 +209,7 @@ Vor Master-Arbeitsauftrag 003 duerfen keine Plattformagenten, keine GUI, keine F
 
 ## Naechster Entwicklungsschritt
 
-MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation. MA004.03 liefert den Local IPC Two Process Test. MA004.04 liefert die Transport Abstraction Layer. MA004.X liefert den Interactive Workspace Prototype im Developer Studio. MA005.00 liefert den Multi Window Workspace Prototype mit zwei echten Workspace-Fenstern. MA005.01 liefert Drag-Feedback und Randziel-Logik. MA005.02 liefert den Workspace Experience Sprint fuer ein natuerlicheres Arbeitsflaechen-Gefuehl. MA005.03 liefert den Workspace Illusion Sprint fuer Greifen, Randuebertritt und durchgehenden Arbeitsraum. UX-LAB-001 liefert ein internes Workspace Experience Lab fuer Live-Variantenvergleich und lokale Bewertung. UX Evolution Lab Sprint 1 erzeugt viele Generationen, bewertet sie ueber drei Gefuehlsbuttons und fuehrt lokal Statistik, damit der Owner die natuerlichste Kombination entscheiden kann. DP-001 Digital Physics macht Pick, Carry, Place zur verbindlichen UX-Regel und ergaenzt Trage-Generationen mit Feder, Traegheit und ruhigerem Hintergrund. MA005.04 First Contact prueft, ob eine neue Person ohne Erklaerung innerhalb von 30 Sekunden ein Ding nehmen, tragen und ablegen kann. HX-LAB-001 macht aus dem UX-Labor ein Human Experience Validation Lab, damit jede neue Interaktion zuerst einer bestaetigbaren Wahrnehmung folgt. HX-P001 liefert den Human Experience Playground mit fuenf isolierten Hypothesen fuer den ersten Magic Moment. MA006.00 fuehrt Workspace Shell als eigentliche Produktebene ein. MA006.01 macht diese Shell erstmals als eigenen Runtime-Host startbar. MA006.02 fuehrt den ersten transparenten Workspace Overlay Prototype ueber dem Desktop ein. MA006.03 fuehrt den Spatial Carry Tray Prototype ein. MA006.03-A verfeinert diesen Prototyp mit digitaler Hand, optischer Haptik, Ablage-Bubbles und freiem Ablegen. MA006.04 fuehrt die Spatial Room Session mit gemeinsamen Raumzustand, Remote Preview und gleichberechtigten Ablagen ein. MA006.08 fuehrt den nativen Spatial Overlay Slice ueber dem echten Windows-Desktop ein.
+MA003 entwickelt den plattformneutralen Core und erste produktive Komponenten auf Grundlage der freigegebenen Architecture Baseline v1.0. MA003.01 liefert den Plugin Manager. MA003.02 liefert den Capability Manager. MA003.03 liefert die Workspace Registry mit logischer Zielauswahl V1. MA003.04 liefert den Transfer Object Manager. MA003.05 liefert den ersten vollstaendigen Core Integration Test ohne Netzwerk und ohne Betriebssystemabhaengigkeit. MA003.06 liefert den Core Demo Runner als sichtbaren Konsolenablauf. MA003.07 liefert die Transfer Engine Runtime und den Core Runtime Orchestrator. MA003.08 liefert das Developer Workspace Studio. MA004.01 liefert die Workspace Agent Runtime. MA004.02 liefert die Dual Local Agent Simulation. MA004.03 liefert den Local IPC Two Process Test. MA004.04 liefert die Transport Abstraction Layer. MA004.X liefert den Interactive Workspace Prototype im Developer Studio. MA005.00 liefert den Multi Window Workspace Prototype mit zwei echten Workspace-Fenstern. MA005.01 liefert Drag-Feedback und Randziel-Logik. MA005.02 liefert den Workspace Experience Sprint fuer ein natuerlicheres Arbeitsflaechen-Gefuehl. MA005.03 liefert den Workspace Illusion Sprint fuer Greifen, Randuebertritt und durchgehenden Arbeitsraum. UX-LAB-001 liefert ein internes Workspace Experience Lab fuer Live-Variantenvergleich und lokale Bewertung. UX Evolution Lab Sprint 1 erzeugt viele Generationen, bewertet sie ueber drei Gefuehlsbuttons und fuehrt lokal Statistik, damit der Owner die natuerlichste Kombination entscheiden kann. DP-001 Digital Physics macht Pick, Carry, Place zur verbindlichen UX-Regel und ergaenzt Trage-Generationen mit Feder, Traegheit und ruhigerem Hintergrund. MA005.04 First Contact prueft, ob eine neue Person ohne Erklaerung innerhalb von 30 Sekunden ein Ding nehmen, tragen und ablegen kann. HX-LAB-001 macht aus dem UX-Labor ein Human Experience Validation Lab, damit jede neue Interaktion zuerst einer bestaetigbaren Wahrnehmung folgt. HX-P001 liefert den Human Experience Playground mit fuenf isolierten Hypothesen fuer den ersten Magic Moment. MA006.00 fuehrt Workspace Shell als eigentliche Produktebene ein. MA006.01 macht diese Shell erstmals als eigenen Runtime-Host startbar. MA006.02 fuehrt den ersten transparenten Workspace Overlay Prototype ueber dem Desktop ein. MA006.03 fuehrt den Spatial Carry Tray Prototype ein. MA006.03-A verfeinert diesen Prototyp mit digitaler Hand, optischer Haptik, Ablage-Bubbles und freiem Ablegen. MA006.04 fuehrt die Spatial Room Session mit gemeinsamen Raumzustand, Remote Preview und gleichberechtigten Ablagen ein. MA006.08 fuehrt den nativen Spatial Overlay Slice ueber dem echten Windows-Desktop ein. MA006.09 fuehrt das Visual Reality Lab fuer lebendige Ablage-Linsen ein.
 
 Der Core Demo Runner ist kein Produktagent, keine GUI, kein Netzwerkdienst und kein Plattformadapter. Er startet die plattformneutrale Runtime Engine und fuehrt danach nur den aktuellen Core-Ablauf sichtbar ueber die Transfer Engine aus.
 
@@ -218,7 +221,9 @@ Der Workspace Overlay Prototype ist ab MA006.02 der erste sichtbare Produkttest 
 
 Der Native Spatial Overlay Slice ist ab MA006.08 der neue primaere Gefuehlspfad. Er startet ueber `.\tools\run-native-overlay.ps1`, nutzt ein randloses, transparentes, topmost Windows-Overlay und zeigt keinen Browser und kein WebView. Die Testgeste `Ctrl+Alt+Space` erzeugt das Demo-Ding `Rechnung.pdf`; Bubbles erscheinen erst beim Halten. Der automatische Check laeuft ueber `.\tools\run-native-overlay.ps1 -SmokeTest`.
 
-Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Handy oder Tablet und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur explizites Abbrechen kehrt zur Quelle zurueck. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. MA006.06 macht diese Oeffnung erstmals zu einem Spatial Portal Carry: die Zielablage sitzt am Rand des wahrgenommenen Raums, oeffnet sich als Portal, das Ding verschwindet teilweise auf der Quelle, erscheint teilweise im Ziel, bleibt bis `ReadyToPlace` nur Preview und wird erst beim Ablegen final dort platziert. MA006.07 verwirft die sichtbare Radar-/Statusseiten-Darstellung: Empty zeigt keine Karte und keine Bubbles mehr, Bubbles erscheinen erst bei aktiver Tragehandlung peripher am Rand, und die Surface ist als Vollflaeche mit PWA-/Standalone-Vorbereitung angelegt. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
+Das Visual Reality Lab ist ab MA006.09 der native Wahrnehmungstest fuer lebendige Ablage-Linsen. Es startet ueber `.\tools\run-visual-reality.ps1`, zeigt keinen Browser, kein WebView und keine Weboberflaeche, sondern ein transparentes Overlay ueber dem echten Desktop. Fuenf Linsen-Hypothesen koennen im laufenden Test mit `1` bis `5` umgeschaltet werden. Der automatische Check laeuft ueber `.\tools\run-visual-reality.ps1 -SmokeTest`.
+
+Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Tablet oder Handy und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur explizites Abbrechen kehrt zur Quelle zurueck. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/tablet`, `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal und liegt initial auf dem Tablet, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. MA006.06 macht diese Oeffnung erstmals zu einem Spatial Portal Carry: die Zielablage sitzt am Rand des wahrgenommenen Raums, oeffnet sich als Portal, das Ding verschwindet teilweise auf der Quelle, erscheint teilweise im Ziel, bleibt bis `ReadyToPlace` nur Preview und wird erst beim Ablegen final dort platziert. MA006.07 verwirft die sichtbare Radar-/Statusseiten-Darstellung: Empty zeigt keine Karte und keine Bubbles mehr, Bubbles erscheinen erst bei aktiver Tragehandlung peripher am Rand, und die Surface ist als Vollflaeche mit PWA-/Standalone-Vorbereitung angelegt. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
 
 Der Interactive Workspace Prototype im Studio testet erstmals das Bediengefuehl: Ein sichtbares Textobjekt wird von Workspace A nach Workspace B gezogen. Beim Ablegen nutzt das Studio die vorhandene Transfer Engine; es gibt weiterhin keine Netzwerkfunktion, keine Discovery, keine Hardware, keine Firmware und keine Cloud.
 
@@ -232,7 +237,7 @@ Der Local IPC Two Process Test ist die erste echte Prozesskommunikation. Seit MA
 
 Nach dem Multi Window Workspace Prototype wird zuerst die Bedienung ueber echte Fenster gemeinsam geprueft. Danach wird entschieden, ob echte Monitor-/Rand-Erkennung, Local Discovery oder echter Netzwerktransfer begonnen wird. Discovery kommt weiterhin nach der TAL, damit Agenten spaeter einen Transport auswaehlen koennen, ohne an Named Pipes, TCP, WebSocket, USB, BLE oder Cloud Relay gekoppelt zu sein.
 
-Nach MA006.08 entscheidet der Owner anhand des Gefuehls, ob das native transparente Overlay den echten Desktop bewahrt und trotzdem einen Moment von digitalem Raum erzeugt. Erst danach wird entschieden, ob HX-003 normativ ausformuliert wird, ob Portal Carry vertieft wird oder ob ein neuer Wahrnehmungsansatz noetig ist.
+Nach MA006.09 entscheidet der Owner anhand des Gefuehls, ob eine der Living-Lens-Hypothesen wenigstens einen Moment echten Raum erzeugt. Wenn nicht, wird nicht an der Animation gefeilt, sondern ein neuer visueller Ansatz oder Renderer geprueft.
 
 ## Querverweise
 
@@ -243,6 +248,8 @@ Nach MA006.08 entscheidet der Owner anhand des Gefuehls, ob das native transpare
 - `Docs/WorkspaceAdapterModel.md`
 - `Docs/WorkspaceOverlayPrototype.md`
 - `Docs/NativeSpatialOverlay.md`
+- `Docs/VisualRealityBlueprint.md`
+- `Docs/VisualRealityLab.md`
 - `Docs/SpatialCarryTray.md`
 - `Docs/SpatialRoomSession.md`
 - `Spec/HumanExperienceSpecification_HX001.md`
@@ -287,6 +294,7 @@ Nach MA006.08 entscheidet der Owner anhand des Gefuehls, ob das native transpare
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.27.0 | 2026-07-04 | MA006.09 Visual Reality Lab mit fuenf Living-Lens-Hypothesen, Visual-Reality-Blueprint und neuem Smoke-Test dokumentiert. |
 | 2.26.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice mit transparentem Desktop-Overlay ohne Browser/WebView dokumentiert. |
 | 2.25.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit verworfener Radar-/Statusdarstellung, Empty-ohne-Bubbles, peripheren Bubbles und PWA-Vorbereitung dokumentiert. |
 | 2.24.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Ghost vor Place und No-Jump-Regel dokumentiert. |

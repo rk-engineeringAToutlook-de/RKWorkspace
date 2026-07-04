@@ -276,3 +276,34 @@ if (-not $nativeOverlayText.Contains('NativeOverlaySmoke: SUCCESS')) {
 if (-not $nativeOverlayText.Contains('RESULT: SUCCESS')) {
     throw "Native Spatial Overlay Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Visual Reality Smoke Test'
+Write-Host '-------------------------'
+$visualRealityOutput = & (Join-Path $root 'tools\run-visual-reality.ps1') -SmokeTest 2>&1
+$visualRealityExitCode = $LASTEXITCODE
+$visualRealityOutput | ForEach-Object { Write-Host $_ }
+if ($visualRealityExitCode -ne 0) {
+    throw "Visual Reality Smoke Test failed with exit code $visualRealityExitCode."
+}
+
+$visualRealityText = $visualRealityOutput -join [Environment]::NewLine
+if (-not $visualRealityText.Contains('RK Workspace Visual Reality Smoke Test')) {
+    throw "Visual Reality Smoke Test failed because output did not contain RK Workspace Visual Reality Smoke Test."
+}
+
+if (-not $visualRealityText.Contains('BrowserSurface: NONE')) {
+    throw "Visual Reality Smoke Test failed because output did not contain BrowserSurface: NONE."
+}
+
+if (-not $visualRealityText.Contains('LensVariants: 5')) {
+    throw "Visual Reality Smoke Test failed because output did not contain LensVariants: 5."
+}
+
+if (-not $visualRealityText.Contains('VisualRealitySmoke: SUCCESS')) {
+    throw "Visual Reality Smoke Test failed because output did not contain VisualRealitySmoke: SUCCESS."
+}
+
+if (-not $visualRealityText.Contains('RESULT: SUCCESS')) {
+    throw "Visual Reality Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

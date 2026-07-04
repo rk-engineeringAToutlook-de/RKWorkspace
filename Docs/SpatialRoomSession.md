@@ -1,9 +1,9 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted
-Datum: 2026-07-03
+Datum: 2026-07-04
 
 ## Wichtigster Satz
 
@@ -62,6 +62,8 @@ MA006.04 fuehrt Oberflaechen ein:
 Jede Surface ist eine Ablage im Raum.
 
 Handy, Tablet, Monitor, Desktop und Beamer sind in der Wahrnehmung keine Geraete. Sie sind Orte, auf denen ein Ding liegen, ankommen oder genommen werden kann.
+
+Ab dem Tablet-Testpfad ist `/surface/tablet` die Default-Ablage. Das erste digitale Ding liegt initial auf dem Tablet, damit der Owner den mobilen Gefuehlstest auf der groesseren Handflaeche fortsetzen kann. Handy bleibt eine normale Ablage im selben Raum.
 
 ## Ablage-Modell
 
@@ -267,7 +269,7 @@ Es gibt noch kein echtes Handover-Protokoll, keine Discovery, kein Pairing und k
 MA006.05 reduziert den Prototyp bewusst auf einen einzigen Ablauf:
 
 ```text
-Ablage Handy
+Ablage Tablet
 Ding nehmen
 Ding in digitaler Hand halten
 Ablage Monitor oeffnet sich
@@ -447,6 +449,29 @@ Das gewuenschte Gefuehl benoetigt jedoch:
 
 Der native Slice implementiert noch keinen echten Mehrgeraete-Raumzustand. Er uebernimmt die Wahrnehmungsregeln als lokalen Windows-Slice.
 
+## Visual Reality Lab
+
+MA006.09 trennt technische Raumtests und Human-Experience-Tests noch schaerfer.
+
+Die Spatial Room Session bleibt der richtige Ort fuer:
+
+- Raumzustand.
+- Ablagen.
+- Things.
+- Portalphasen.
+- Source-/Target-Progress.
+- Smoke-Tests.
+
+Sie ist aber kein gueltiger Gefuehlspfad mehr, wenn sie im Browser betrachtet wird.
+
+Fuer die Frage, ob eine Ablage-Linse echt, lebendig und raeumlich wirkt, gilt ab MA006.09:
+
+```text
+Visual Reality Lab
+```
+
+Das Lab prueft native lebendige Linsen ueber dem echten Desktop. Die Web-Surfaces bleiben technische Hilfsmittel.
+
 ## Endpunkte
 
 MA006.04 stellt bereit:
@@ -462,7 +487,7 @@ MA006.04 stellt bereit:
 
 Alte Einstiege bleiben nur als Komfort-Weiterleitungen:
 
-- `/tray` -> `/surface/handy`
+- `/tray` -> `/surface/tablet`
 - `/ablage` -> `/surface/monitor`
 
 ## Nicht-Ziele
@@ -487,13 +512,14 @@ Der Owner oeffnet:
 ```text
 /surface/handy
 /surface/monitor
+/surface/tablet
 ```
 
 Testfragen:
 
 1. Fuehlt es sich weniger wie Senden und mehr wie Tragen an?
 2. Fuehlt sich der Monitor jetzt wie eine echte Ablage an?
-3. Ist klar, dass das Ding nicht mehr auf dem Handy liegt, sobald ich es nehme?
+3. Ist klar, dass das Ding nicht mehr auf dem Tablet liegt, sobald ich es nehme?
 4. Ist es gut, dass der Monitor das Ding schon kommen sieht?
 5. Fuehlt sich freies Ablegen richtig an?
 6. Denke ich noch an Geraete oder schon an Ablagen im Raum?
@@ -502,6 +528,8 @@ Testfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-04 | MA006.09 Visual Reality Lab als nativen HX-Testpfad eingeordnet; Browser-Surfaces bleiben technische Raumtests. |
+| 1.5.1 | 2026-07-04 | Tablet als Default-Ablage fuer den mobilen Gefuehlstest dokumentiert; Handy bleibt weitere Ablage. |
 | 1.5.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als nativen Gefuehlspfad auf Basis der Spatial-Room-Regeln eingeordnet. |
 | 1.4.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit Empty-ohne-Bubbles, peripheren Moeglichkeiten und verworfener Radar-/Statusdarstellung dokumentiert. |
 | 1.3.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit Portalphasen, SpatialPortalTransition, Source-/Target-Progress und No-Jump-Regel dokumentiert. |

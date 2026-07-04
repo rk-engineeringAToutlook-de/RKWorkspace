@@ -28,8 +28,8 @@ public sealed class SpatialTrayServer : IAsyncDisposable
         return new SpatialTrayDiagnostics
         {
             Port = _configuration.Port,
-            TrayUrl = $"http://{ip}:{_configuration.Port}/surface/handy",
-            LocalTrayUrl = $"http://localhost:{_configuration.Port}/surface/handy",
+            TrayUrl = $"http://{ip}:{_configuration.Port}/surface/{SpatialTraySession.DefaultAblageId}",
+            LocalTrayUrl = $"http://localhost:{_configuration.Port}/surface/{SpatialTraySession.DefaultAblageId}",
             AblageUrl = $"http://localhost:{_configuration.Port}/surface/monitor",
             State = _session.CurrentState,
             ThingName = _configuration.ThingName,
@@ -80,7 +80,7 @@ public sealed class SpatialTrayServer : IAsyncDisposable
 
     private void MapEndpoints(WebApplication app)
     {
-        app.MapGet("/", () => Results.Redirect("/surface/handy"));
+        app.MapGet("/", () => Results.Redirect($"/surface/{SpatialTraySession.DefaultAblageId}"));
         app.MapGet("/health", () => Results.Json(new { status = "OK" }));
         app.MapGet("/api/state", (HttpRequest request) =>
         {
@@ -90,62 +90,62 @@ public sealed class SpatialTrayServer : IAsyncDisposable
         app.MapPost("/api/pick", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
             _session.Pick(carrier);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/move", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
             _session.Move(carrier, payload.X, payload.Y);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/carry", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
             _session.Move(carrier, payload.X, payload.Y);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/approach", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
-            var target = payload.TargetAblageId ?? payload.Ablage ?? "monitor";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
+            var target = payload.TargetAblageId ?? payload.Ablage ?? SpatialTraySession.DefaultTargetAblageId;
             _session.Approach(carrier, target);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/near", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
-            var target = payload.TargetAblageId ?? payload.Ablage ?? "monitor";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
+            var target = payload.TargetAblageId ?? payload.Ablage ?? SpatialTraySession.DefaultTargetAblageId;
             _session.Approach(carrier, target);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/release", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
             _session.Release(payload.X, payload.Y, payload.TargetAblageId ?? payload.Ablage, payload.PlaceOnAblage == true);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/place", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? payload.TargetAblageId ?? "handy";
+            var carrier = payload.CarrierAblageId ?? payload.AblageId ?? payload.TargetAblageId ?? SpatialTraySession.DefaultAblageId;
             _session.Place(payload.TargetAblageId ?? payload.Ablage, payload.X, payload.Y);
             return Results.Json(_session.Snapshot(carrier));
         });
         app.MapPost("/api/cancel", async (HttpRequest request) =>
         {
             var payload = await request.ReadFromJsonAsync<SpatialRoomRequest>() ?? new SpatialRoomRequest();
-            var viewer = payload.CarrierAblageId ?? payload.AblageId ?? "handy";
+            var viewer = payload.CarrierAblageId ?? payload.AblageId ?? SpatialTraySession.DefaultAblageId;
             _session.Cancel();
             return Results.Json(_session.Snapshot(viewer));
         });
-        app.MapGet("/tray", () => Results.Redirect("/surface/handy"));
+        app.MapGet("/tray", () => Results.Redirect($"/surface/{SpatialTraySession.DefaultAblageId}"));
         app.MapGet("/ablage", () => Results.Redirect("/surface/monitor"));
         app.MapGet("/surface/{ablageId}", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
         app.MapGet("/manifest.webmanifest", () => ServeWebFile("manifest.webmanifest", "application/manifest+json; charset=utf-8"));

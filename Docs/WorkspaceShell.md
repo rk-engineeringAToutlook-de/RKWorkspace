@@ -1,9 +1,9 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.10.0
+Version: 1.11.0
 Status: Accepted
-Datum: 2026-07-03
+Datum: 2026-07-04
 
 ## Wichtigster Satz
 
@@ -154,6 +154,42 @@ Start:
 ```
 
 Der Web-/Browser-Prototyp bleibt technisches Experiment. Fuer das echte Gefuehl ist ab MA006.08 das native Overlay der primaere Pfad.
+
+## Visual Reality Lab
+
+MA006.09 fuehrt einen isolierten nativen Wahrnehmungsslice ein:
+
+```text
+src/Shell/RKWorkspace.Shell.VisualReality.Windows
+```
+
+Das Lab ist kein Produkt und kein Developer Studio. Es ist ein Visual-Reality-Spike fuer hochwertige Ablage-Linsen ueber dem echten Desktop.
+
+Start:
+
+```powershell
+.\tools\run-visual-reality.ps1
+.\tools\run-visual-reality.ps1 -SmokeTest
+```
+
+Das Lab prueft:
+
+- fuenf Linsen-Hypothesen.
+- Umschalten per `1` bis `5`.
+- langsames Erscheinen der Linsen.
+- subtile Lebendigkeit.
+- digitale Griffwirkung.
+- vektorielle Dingbewegung inklusive Diagonalen.
+- geoeffnete Linse mit Mini-Ablage.
+- Gleiten in die Linse.
+- Ghost auf der Zielseite.
+
+Die Shell-Grundregel bleibt:
+
+```text
+Web-/Browser-Prototypen sind technische Tests.
+Native Visual Reality ist der gueltige HX-Testpfad fuer das Linsengefuehl.
+```
 
 ## Spatial Carry Tray Prototype
 
@@ -445,10 +481,20 @@ MA006.08 baut weiterhin nicht:
 - Discovery, Pairing oder Sicherheitsschicht
 - finale Produktphysik
 
+MA006.09 baut weiterhin nicht:
+
+- finalen Renderer
+- echte Shader- oder Brechungsphysik
+- echte Desktop-Objekterkennung
+- echte Payload
+- Discovery, Pairing oder Sicherheitsschicht
+- finale Produktphysik
+
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.11.0 | 2026-07-04 | MA006.09 Visual Reality Lab als nativen HX-Testpfad fuer lebendige Ablage-Linsen ergaenzt. |
 | 1.10.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als neuen primaeren Gefuehlspfad ohne Browser/WebView dokumentiert. |
 | 1.9.0 | 2026-07-03 | MA006.07 Surface Overlay Reset als Korrektur von Radar-/Statusseite zu ruhiger Ablageflaeche mit Bubbles nur beim Tragen eingeordnet. |
 | 1.8.0 | 2026-07-03 | MA006.06 Spatial Portal Carry als Shell-Wahrnehmungspfad mit Source-/Target-Progress und ReadyToPlace eingeordnet. |

@@ -1,9 +1,9 @@
 # Spatial Carry Tray
 
 Dokument-ID: RKWS-SPATIAL-CARRY-TRAY
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted
-Datum: 2026-07-03
+Datum: 2026-07-04
 
 ## Wichtigster Satz
 
@@ -51,13 +51,14 @@ Kanonisch sind jetzt:
 ```text
 /surface/handy
 /surface/monitor
+/surface/tablet
 ```
 
 Alle Oberflaechen sehen denselben Raumzustand.
 
 Das Ding existiert nur einmal:
 
-- liegt initial auf Ablage Handy
+- liegt initial auf Ablage Tablet
 - verschwindet dort beim Greifen
 - befindet sich waehrend Carry in der digitalen Hand
 - erscheint als Preview auf der Zielablage
@@ -75,6 +76,8 @@ MA006.06 erweitert die geoeffnete Bubble zum Spatial Portal Carry. Die Ablage am
 MA006.07 setzt die sichtbare Surface zurueck. Die Radar-/Statusseiten-Darstellung aus MA006.06 war technisch nuetzlich, fuehlte sich aber zu sehr wie Web-App und Raumkarte an. Deshalb zeigt Empty keine Bubbles mehr. Die Surface ist zuerst nur Ablageflaeche. Moeglichkeiten erscheinen erst, wenn ein Ding getragen wird.
 
 MA006.08 stoppt den Web-/Browser-Prototyp als primaeren Gefuehlspfad. Er bleibt technisches Experiment fuer Zustand und Portalregeln. Fuer echtes Raumgefuehl wird ein natives transparentes Overlay ueber dem echten Desktop eingefuehrt.
+
+MA006.09 bestaetigt diese Richtung: Web-/Browser-Prototypen duerfen weiterhin technische Tests sein, aber sie sind kein gueltiger Human-Experience-Testpfad mehr. Das Raumgefuehl wird ab jetzt ueber native Visual-Reality-Spikes geprueft, insbesondere ueber lebendige Ablage-Linsen statt gruener UI-Punkte.
 
 ## Projekt
 
@@ -395,6 +398,37 @@ Grund:
 - keine Seitenstruktur.
 - digitale Dinge liegen ueber der realen Arbeitsumgebung.
 
+## Einordnung Nach MA006.09
+
+Der Spatial Carry Tray bleibt als lokaler Browser-Test erhalten, aber nicht als Gefuehlstest.
+
+Er bleibt sinnvoll fuer:
+
+- Raumzustand.
+- API- und Smoke-Test-Verifikation.
+- Tablet-/Handy-Erreichbarkeit.
+- Portal- und Preview-Regeln.
+
+Er ist nicht mehr geeignet fuer:
+
+- finale Wahrnehmung von Ablage-Linsen.
+- echtes Desktop-Raumgefuehl.
+- Bewertung, ob eine Linse hochwertig und lebendig wirkt.
+
+Der visuelle HX-Testpfad ist jetzt:
+
+```text
+Visual Reality Lab
+```
+
+Grund:
+
+- kein Browser.
+- kein WebView.
+- kein HTML.
+- echter Desktop bleibt sichtbar.
+- Linsen werden als lebendige raeumliche Oeffnungen getestet.
+
 ## Desktop Als Ablage
 
 Der Desktop zeigt nur ein ruhiges Empfangssignal:
@@ -534,6 +568,7 @@ Zusatzfragen:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-04 | MA006.09 eingeordnet: Web bleibt technischer Testpfad, Visual Reality Lab wird visueller HX-Testpfad fuer lebendige Ablage-Linsen. |
 | 1.7.0 | 2026-07-03 | MA006.08 eingeordnet: Web-Prototyp bleibt technisches Experiment, nativer Spatial Overlay Slice wird primaerer Gefuehlspfad. |
 | 1.6.0 | 2026-07-03 | MA006.07 Surface Overlay Reset mit Empty-ohne-Bubbles, peripheren Bubbles, entfernter Status-/Radarwirkung und PWA-Vorbereitung dokumentiert. |
 | 1.5.0 | 2026-07-03 | MA006.06 Spatial Portal Carry mit ruhigem Ablage-Portal, Source-/Target-Progress, ReadyToPlace und No-Jump-Regel dokumentiert. |

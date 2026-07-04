@@ -1,6 +1,6 @@
 # RK Workspace Spatial Carry Tray
 
-Lokaler MA006.03-Web-Prototyp fuer Handy oder Tablet.
+Lokaler MA006.03-Web-Prototyp fuer Tablet oder Handy. Das Tablet ist die Default-Ablage fuer den Gefuehlstest.
 
 Start:
 
@@ -27,6 +27,7 @@ MA006.03-A ergaenzt:
 
 MA006.04 ergaenzt die Spatial Room Session:
 
+- `/surface/tablet`
 - `/surface/handy`
 - `/surface/monitor`
 - gemeinsamer Raumzustand fuer alle Ablagen

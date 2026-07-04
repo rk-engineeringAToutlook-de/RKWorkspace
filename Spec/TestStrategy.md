@@ -1,9 +1,9 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.11.0
+Version: 2.12.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-04
 
 ## Zweck
 
@@ -63,9 +63,11 @@ Ab MA006.02 prueft `tools/run-tests.ps1` zusaetzlich den Workspace Overlay Smoke
 
 Ab MA006.03 prueft `tools/run-tests.ps1` zusaetzlich den Spatial Carry Tray Smoke-Test mit `tools/run-spatial-tray.ps1 -SmokeTest`. Dieser Test startet einen lokalen Web-Prototyp, prueft Tray-, Ablage- und State-Endpunkte, simuliert Pick/Release/Cancel/Place und prueft ab MA006.03-A digitale Hand, freies Ablegen, Ablage-Bubbles und weiche Bewegungsparameter.
 
-Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/handy` und `/surface/monitor`, simuliert Pick von Handy, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Handy, Rueckweg, freies Ablegen und Cancel. Die verfeinerte Fassung prueft zusaetzlich mindestens fuenf vorbereitete Ablagen, Distanz-Lesbarkeit, `OpeningAblage`, aktive Ablage-Linse und sichtbare menschliche Sprache ohne Transport- oder Geraetejargon. Ab MA006.05 prueft der Smoke-Test zusaetzlich taktile UI-Vorbereitung, Vektor-Neigung, reduzierte Wobble-Werte, weiches Snap, digitale Hand, Ghost vor Place, Glide und gespeicherte Zielposition. Ab MA006.06 prueft er Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Edge-Portal, ReadyToPlace und der Regel, dass das Ding vor `Place` nicht sofort auf die Zielablage springt. Ab MA006.07 prueft er zusaetzlich Surface Overlay Reset: keine zentrale Statuskarte, keine Radarstruktur, keine Empty-Bubbles, Bubbles erst beim Tragen, periphere Bubbles, kein sichtbares `Zuruecklegen` und Standalone-/PWA-Vorbereitung.
+Ab MA006.04 prueft derselbe Skriptpfad die Spatial Room Session. Der Smoke-Test startet den lokalen Raum, prueft `/surface/tablet`, `/surface/handy` und `/surface/monitor`, simuliert Pick von Tablet, Preview auf Monitor, Place auf Monitor, Pick von Monitor, Preview auf Tablet, Rueckweg, freies Ablegen und Cancel. Die verfeinerte Fassung prueft zusaetzlich mindestens fuenf vorbereitete Ablagen, Distanz-Lesbarkeit, `OpeningAblage`, aktive Ablage-Linse und sichtbare menschliche Sprache ohne Transport- oder Geraetejargon. Ab MA006.05 prueft der Smoke-Test zusaetzlich taktile UI-Vorbereitung, Vektor-Neigung, reduzierte Wobble-Werte, weiches Snap, digitale Hand, Ghost vor Place, Glide und gespeicherte Zielposition. Ab MA006.06 prueft er Spatial Portal Carry mit Portalphasen, Source-/Target-Progress, Edge-Portal, ReadyToPlace und der Regel, dass das Ding vor `Place` nicht sofort auf die Zielablage springt. Ab MA006.07 prueft er zusaetzlich Surface Overlay Reset: keine zentrale Statuskarte, keine Radarstruktur, keine Empty-Bubbles, Bubbles erst beim Tragen, periphere Bubbles, kein sichtbares `Zuruecklegen` und Standalone-/PWA-Vorbereitung.
 
 Ab MA006.08 prueft `tools/run-tests.ps1` zusaetzlich den Native Spatial Overlay Smoke-Test mit `tools/run-native-overlay.ps1 -SmokeTest`. Dieser Test prueft den nativen Windows-Slice ohne Browser/WebView, randloses transparentes Topmost-Overlay, Demo-Ding, CarryState, digitale Hand, diagonale Vektorantwort, Bubbles nur bei Carry, Bubble-Linsen statt gruenen Punkten, Portal, Mini-Ablage, Glide, Zielposition und sicheren `Esc`-Exit.
+
+Ab MA006.09 prueft `tools/run-tests.ps1` zusaetzlich den Visual Reality Smoke-Test mit `tools/run-visual-reality.ps1 -SmokeTest`. Dieser Test prueft den nativen Visual-Reality-Slice ohne Browser/WebView, sichtbaren Desktop, fuenf Living-Lens-Varianten, Umschalten der Varianten, langsames Erscheinen, subtile Lebendigkeit, digitale Hand, vektorielle Antwort inklusive Diagonalen, geoeffnete Linse, Mini-Ablage, Glide, Ziel-Ghost und sicheren `Esc`-Exit.
 
 ## MA003.05 Core Integration Tests
 
@@ -349,6 +351,7 @@ Erwartete Ausgabe:
 Spatial Room Smoke Test
 Health: OK
 Handy surface: OK
+Tablet surface: OK
 Monitor surface: OK
 Tactile UI: OK
 Surface reset UI: OK
@@ -379,9 +382,9 @@ Active bubble: OK
 Place on monitor: OK
 Target position: OK
 Pick from monitor: OK
-Handy preview: OK
+Tablet preview: OK
 Return portal: OK
-Place on handy: OK
+Place on tablet: OK
 Free place: OK
 Cancel return: OK
 Human words: OK
@@ -394,11 +397,12 @@ Der Test prueft:
 
 - lokaler Raum startet mit Timeout-Schutz.
 - `/health` ist erreichbar.
+- `/surface/tablet` ist erreichbar.
 - `/surface/handy` ist erreichbar.
 - `/surface/monitor` ist erreichbar.
-- mindestens zwei Ablagen existieren: Handy und Monitor.
+- mindestens drei Ablagen existieren: Tablet, Handy und Monitor.
 - mindestens fuenf Ablagen sind vorbereitet.
-- das Ding liegt initial auf Ablage Handy.
+- das Ding liegt initial auf Ablage Tablet.
 - Empty zeigt keine Bubbles und keine zentrale Raumkarte.
 - `/api/pick` setzt `carryState` auf `Picked`.
 - Pick entfernt das Ding aus der Ursprungslage.
@@ -420,10 +424,10 @@ Der Test prueft:
 - die Zielablage meldet `ReadyToPlace`.
 - Place legt das Ding auf Monitor ab.
 - Place speichert eine relative Zielposition.
-- das Ding liegt danach nicht mehr auf Handy.
+- das Ding liegt danach nicht mehr auf Tablet.
 - das Ding kann vom Monitor wieder genommen werden.
-- Annaherung an Handy erzeugt Preview auf Handy.
-- Place legt das Ding zurueck auf Handy.
+- Annaherung an Tablet erzeugt Preview auf Tablet.
+- Place legt das Ding zurueck auf Tablet.
 - freies Ablegen ohne aktive Ablage bleibt an aktueller Position.
 - Cancel bringt das Ding zur Quelle zurueck.
 - entfernte Bubbles haben keinen lesbaren Namen.
@@ -507,6 +511,69 @@ Der Test prueft nicht:
 - Discovery, Pairing oder Sicherheitsschicht.
 - finale Produktphysik.
 
+## MA006.09 Visual Reality Tests
+
+MA006.09 fuehrt `src/Shell/RKWorkspace.Shell.VisualReality.Windows/` und `tools/run-visual-reality.ps1` ein.
+
+Der Smoke-Test fuehrt aus:
+
+```powershell
+.\tools\run-visual-reality.ps1 -SmokeTest
+```
+
+Erwartete Ausgabe:
+
+```text
+RK Workspace Visual Reality Smoke Test
+NativeOverlay: READY
+BrowserSurface: NONE
+DesktopVisible: OK
+LensVariants: 5
+VariantSwitching: OK
+SlowEmergence: OK
+LensLiving: OK
+DigitalHand: OK
+VectorResponse: OK
+DiagonalVector: OK
+LensOpen: OK
+MiniAblage: OK
+GlideIntoLens: OK
+TargetGhost: OK
+EscExit: OK
+VisualRealitySmoke: SUCCESS
+RESULT: SUCCESS
+```
+
+Der Test prueft:
+
+- natives Windows-Projekt startet.
+- kein Browser und kein WebView sind Teil des Erlebnisses.
+- Desktop bleibt als Hintergrund sichtbar vorbereitet.
+- fuenf Linsen-Hypothesen existieren.
+- Varianten sind umschaltbar.
+- Linsen erscheinen weich ueber ca. 1 bis 2 Sekunden.
+- Linsen besitzen subtile Lebendigkeit.
+- gruene Punkte, Button-Optik und Dropzones sind verworfen.
+- Ding wird kompakter und teilverdeckt.
+- optische Haptik ist vorbereitet.
+- Ding reagiert vektorbasiert.
+- diagonale Bewegung beeinflusst beide Achsen.
+- Linse wird bei Naehe lesbar.
+- Linse oeffnet sich mit Tiefe.
+- Mini-Ablage wird sichtbar.
+- Ding gleitet in die Linse.
+- Ghost kommt auf Zielseite heraus.
+- `Esc` beendet sicher.
+
+Der Test prueft nicht:
+
+- echte Shader-Brechung.
+- echte Per-Pixel-Desktopkomposition.
+- echte Desktop-Objekterkennung.
+- echte Payload.
+- Discovery, Pairing oder Sicherheitsschicht.
+- finale Produktphysik.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -518,6 +585,8 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.12.0 | 2026-07-04 | MA006.09 Visual Reality Smoke-Test mit fuenf Living-Lens-Varianten, langsamem Erscheinen, digitaler Hand, Mini-Ablage, Glide und Ziel-Ghost dokumentiert. |
+| 2.11.1 | 2026-07-04 | Spatial Room Smoke-Test auf Tablet als Default-Ablage umgestellt; Handy bleibt als weitere erreichbare Ablage dokumentiert. |
 | 2.11.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Smoke-Test mit nativem transparentem Overlay, No-Browser-Regel, digitaler Hand, Bubble-Linsen, Mini-Ablage, Glide und Zielposition dokumentiert. |
 | 2.10.0 | 2026-07-03 | MA006.07 Smoke-Test um Surface Overlay Reset, Empty-ohne-Bubbles, periphere Bubbles, keine Radar-/Statusstruktur, kein sichtbares Zuruecklegen und PWA-Vorbereitung erweitert. |
 | 2.9.0 | 2026-07-03 | MA006.06 Smoke-Test um Spatial Portal Carry, PortalTransition, Source-/Target-Progress, Edge-Portal, ReadyToPlace und No-Jump-Regel erweitert. |

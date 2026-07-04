@@ -28,62 +28,64 @@ public static class SpatialTraySmokeTest
 
             var healthOk = await GetContainsAsync(client, "/health", "OK", timeout.Token);
             var handySurfaceOk = await GetContainsAsync(client, "/surface/handy", "Ablage im Raum", timeout.Token);
+            var tabletSurfaceOk = await GetContainsAsync(client, "/surface/tablet", "Ablage im Raum", timeout.Token);
             var monitorSurfaceOk = await GetContainsAsync(client, "/surface/monitor", "Ablage im Raum", timeout.Token);
             var languageOk = await VisibleLanguageIsHumanAsync(client, timeout.Token);
             var tactileUiOk = await StaticTactileUiIsPreparedAsync(client, timeout.Token);
             var surfaceResetUiOk = await StaticSurfaceResetUiIsPreparedAsync(client, timeout.Token);
 
-            var initialHandy = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
-            var tactileConfigOk = initialHandy.RootElement.GetProperty("motion").GetProperty("tiltSource").GetString() == "movement-vector" &&
-                initialHandy.RootElement.GetProperty("motion").GetProperty("initialResistanceDistancePx").GetDouble() > 0 &&
-                initialHandy.RootElement.GetProperty("motion").GetProperty("heldCompactScale").GetDouble() < 1 &&
-                initialHandy.RootElement.GetProperty("motion").GetProperty("liftDepthPx").GetDouble() > 0;
-            var wobbleReducedOk = initialHandy.RootElement.GetProperty("motion").GetProperty("wobbleAmplitude").GetDouble() <= 0.01 &&
-                initialHandy.RootElement.GetProperty("motion").GetProperty("wobbleFrequency").GetDouble() <= 0.03;
-            var softSnapOk = initialHandy.RootElement.GetProperty("motion").GetProperty("softSnapStrength").GetDouble() <= 0.15 &&
-                initialHandy.RootElement.GetProperty("motion").GetProperty("snapMode").GetString() == "soft-invitation";
-            var hapticsPreparedOk = initialHandy.RootElement.GetProperty("haptics").GetProperty("mobilePrepared").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("haptics").GetProperty("opticalPrepared").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("haptics").GetProperty("partialOcclusion").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("haptics").GetProperty("contactShadow").GetBoolean();
-            var transitionPreparedOk = initialHandy.RootElement.GetProperty("transition").GetProperty("targetGhostBeforePlace").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("transition").GetProperty("glideIntoBubble").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("transition").GetProperty("targetPositioning").GetString() == "relative-on-ablage";
-            var portalPreparedOk = initialHandy.RootElement.GetProperty("transition").GetProperty("portalPhases").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("transition").GetProperty("portalTransition").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("transition").GetProperty("objectEmerges").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("transition").GetProperty("enteringProgress").GetDouble() > 0 &&
-                initialHandy.RootElement.GetProperty("transition").GetProperty("emergingProgress").GetDouble() < 1;
-            var roomHasAblagenOk = HasAblage(initialHandy.RootElement, "handy") &&
-                HasAblage(initialHandy.RootElement, "monitor");
-            var preparedAblagenOk = initialHandy.RootElement.GetProperty("ablagen").GetArrayLength() >= 5;
-            var initialThingOk = Thing(initialHandy.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
-                Thing(initialHandy.RootElement).GetProperty("currentState").GetString() == "RestingOnAblage";
-            var emptyBubblesHiddenOk = !initialHandy.RootElement.GetProperty("bubblesVisible").GetBoolean() &&
-                initialHandy.RootElement.GetProperty("bubbles").GetArrayLength() == 0;
+            var initialTablet = await GetJsonAsync(client, "/api/state?ablage=tablet", timeout.Token);
+            var tactileConfigOk = initialTablet.RootElement.GetProperty("motion").GetProperty("tiltSource").GetString() == "movement-vector" &&
+                initialTablet.RootElement.GetProperty("motion").GetProperty("initialResistanceDistancePx").GetDouble() > 0 &&
+                initialTablet.RootElement.GetProperty("motion").GetProperty("heldCompactScale").GetDouble() < 1 &&
+                initialTablet.RootElement.GetProperty("motion").GetProperty("liftDepthPx").GetDouble() > 0;
+            var wobbleReducedOk = initialTablet.RootElement.GetProperty("motion").GetProperty("wobbleAmplitude").GetDouble() <= 0.01 &&
+                initialTablet.RootElement.GetProperty("motion").GetProperty("wobbleFrequency").GetDouble() <= 0.03;
+            var softSnapOk = initialTablet.RootElement.GetProperty("motion").GetProperty("softSnapStrength").GetDouble() <= 0.15 &&
+                initialTablet.RootElement.GetProperty("motion").GetProperty("snapMode").GetString() == "soft-invitation";
+            var hapticsPreparedOk = initialTablet.RootElement.GetProperty("haptics").GetProperty("mobilePrepared").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("haptics").GetProperty("opticalPrepared").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("haptics").GetProperty("partialOcclusion").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("haptics").GetProperty("contactShadow").GetBoolean();
+            var transitionPreparedOk = initialTablet.RootElement.GetProperty("transition").GetProperty("targetGhostBeforePlace").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("transition").GetProperty("glideIntoBubble").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("transition").GetProperty("targetPositioning").GetString() == "relative-on-ablage";
+            var portalPreparedOk = initialTablet.RootElement.GetProperty("transition").GetProperty("portalPhases").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("transition").GetProperty("portalTransition").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("transition").GetProperty("objectEmerges").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("transition").GetProperty("enteringProgress").GetDouble() > 0 &&
+                initialTablet.RootElement.GetProperty("transition").GetProperty("emergingProgress").GetDouble() < 1;
+            var roomHasAblagenOk = HasAblage(initialTablet.RootElement, "tablet") &&
+                HasAblage(initialTablet.RootElement, "handy") &&
+                HasAblage(initialTablet.RootElement, "monitor");
+            var preparedAblagenOk = initialTablet.RootElement.GetProperty("ablagen").GetArrayLength() >= 5;
+            var initialThingOk = Thing(initialTablet.RootElement).GetProperty("currentAblageId").GetString() == "tablet" &&
+                Thing(initialTablet.RootElement).GetProperty("currentState").GetString() == "RestingOnAblage";
+            var emptyBubblesHiddenOk = !initialTablet.RootElement.GetProperty("bubblesVisible").GetBoolean() &&
+                initialTablet.RootElement.GetProperty("bubbles").GetArrayLength() == 0;
 
-            using var pickHandy = await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token);
-            var pickRemovesFromHandyOk = Thing(pickHandy.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
-                pickHandy.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "Picked" &&
-                pickHandy.RootElement.GetProperty("activeCarry").GetProperty("sourceAblageId").GetString() == "handy";
-            var digitalHandOk = pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("isCarriedHere").GetBoolean() &&
-                pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("heldCompact").GetBoolean() &&
-                pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("partialOcclusion").GetBoolean() &&
-                pickHandy.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "Held";
-            var bubblesOnHandyOk = pickHandy.RootElement.GetProperty("bubblesVisible").GetBoolean() &&
-                pickHandy.RootElement.GetProperty("bubbles").GetArrayLength() >= 2;
-            var distanceLanguageOk = !Bubble(pickHandy.RootElement, "beamer").GetProperty("nameReadable").GetBoolean() &&
-                Bubble(pickHandy.RootElement, "monitor").GetProperty("nameReadable").GetBoolean();
-            var peripheralBubblesOk = Bubble(pickHandy.RootElement, "monitor").GetProperty("x").GetDouble() > 0.85 &&
-                Bubble(pickHandy.RootElement, "desktop").GetProperty("x").GetDouble() < 0.15;
-            using var handyAfterPick = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
-            var sourceTraceOk = !handyAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
-                handyAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("sourceWasHere").GetBoolean();
+            using var pickTablet = await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "tablet" }, timeout.Token);
+            var pickRemovesFromTabletOk = Thing(pickTablet.RootElement).GetProperty("currentAblageId").ValueKind == JsonValueKind.Null &&
+                pickTablet.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "Picked" &&
+                pickTablet.RootElement.GetProperty("activeCarry").GetProperty("sourceAblageId").GetString() == "tablet";
+            var digitalHandOk = pickTablet.RootElement.GetProperty("surfaceThing").GetProperty("isCarriedHere").GetBoolean() &&
+                pickTablet.RootElement.GetProperty("surfaceThing").GetProperty("heldCompact").GetBoolean() &&
+                pickTablet.RootElement.GetProperty("surfaceThing").GetProperty("partialOcclusion").GetBoolean() &&
+                pickTablet.RootElement.GetProperty("surfaceThing").GetProperty("glidePhase").GetString() == "Held";
+            var bubblesOnTabletOk = pickTablet.RootElement.GetProperty("bubblesVisible").GetBoolean() &&
+                pickTablet.RootElement.GetProperty("bubbles").GetArrayLength() >= 2;
+            var distanceLanguageOk = !Bubble(pickTablet.RootElement, "beamer").GetProperty("nameReadable").GetBoolean() &&
+                Bubble(pickTablet.RootElement, "monitor").GetProperty("nameReadable").GetBoolean();
+            var peripheralBubblesOk = Bubble(pickTablet.RootElement, "monitor").GetProperty("x").GetDouble() > 0.85 &&
+                Bubble(pickTablet.RootElement, "desktop").GetProperty("x").GetDouble() < 0.15;
+            using var tabletAfterPick = await GetJsonAsync(client, "/api/state?ablage=tablet", timeout.Token);
+            var sourceTraceOk = !tabletAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
+                tabletAfterPick.RootElement.GetProperty("surfaceThing").GetProperty("sourceWasHere").GetBoolean();
 
             using var approachMonitor = await PostJsonAsync(
                 client,
                 "/api/approach",
-                new { carrierAblageId = "handy", targetAblageId = "monitor" },
+                new { carrierAblageId = "tablet", targetAblageId = "monitor" },
                 timeout.Token);
             using var monitorPreview = await GetJsonAsync(client, "/api/state?ablage=monitor", timeout.Token);
             var monitorPreviewOk = Thing(approachMonitor.RootElement).GetProperty("previewAblageId").GetString() == "monitor" &&
@@ -97,7 +99,7 @@ public static class SpatialTraySmokeTest
             var portalTransitionOk = portalTransition.ValueKind == JsonValueKind.Object &&
                 portalTransition.GetProperty("transitionId").GetString()?.StartsWith("portal-", StringComparison.Ordinal) == true &&
                 portalTransition.GetProperty("thingId").GetString() == "thing-rechnung" &&
-                portalTransition.GetProperty("sourceAblageId").GetString() == "handy" &&
+                portalTransition.GetProperty("sourceAblageId").GetString() == "tablet" &&
                 portalTransition.GetProperty("targetAblageId").GetString() == "monitor" &&
                 portalTransition.GetProperty("state").GetString() == "ReadyToPlace" &&
                 portalTransition.GetProperty("progress").GetDouble() > 0 &&
@@ -121,14 +123,14 @@ public static class SpatialTraySmokeTest
             using var placeMonitor = await PostJsonAsync(
                 client,
                 "/api/place",
-                new { carrierAblageId = "handy", targetAblageId = "monitor", x = 0.64, y = 0.42 },
+                new { carrierAblageId = "tablet", targetAblageId = "monitor", x = 0.64, y = 0.42 },
                 timeout.Token);
-            using var handyAfterMonitorPlace = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
+            using var tabletAfterMonitorPlace = await GetJsonAsync(client, "/api/state?ablage=tablet", timeout.Token);
             using var monitorAfterPlace = await GetJsonAsync(client, "/api/state?ablage=monitor", timeout.Token);
             var placeMonitorOk = Thing(placeMonitor.RootElement).GetProperty("currentAblageId").GetString() == "monitor" &&
                 Thing(placeMonitor.RootElement).GetProperty("currentState").GetString() == "PlacedOnAblage" &&
                 monitorAfterPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean() &&
-                !handyAfterMonitorPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean();
+                !tabletAfterMonitorPlace.RootElement.GetProperty("surfaceThing").GetProperty("isHere").GetBoolean();
             var targetPositionOk = Thing(placeMonitor.RootElement).GetProperty("positionOnAblage").GetProperty("x").GetDouble() == 0.64 &&
                 Thing(placeMonitor.RootElement).GetProperty("positionOnAblage").GetProperty("y").GetDouble() == 0.42;
 
@@ -140,46 +142,47 @@ public static class SpatialTraySmokeTest
             using var approachHandy = await PostJsonAsync(
                 client,
                 "/api/approach",
-                new { carrierAblageId = "monitor", targetAblageId = "handy" },
+                new { carrierAblageId = "monitor", targetAblageId = "tablet" },
                 timeout.Token);
-            using var handyPreview = await GetJsonAsync(client, "/api/state?ablage=handy", timeout.Token);
-            var handyPreviewOk = Thing(approachHandy.RootElement).GetProperty("previewAblageId").GetString() == "handy" &&
-                handyPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean();
+            using var tabletPreview = await GetJsonAsync(client, "/api/state?ablage=tablet", timeout.Token);
+            var tabletPreviewOk = Thing(approachHandy.RootElement).GetProperty("previewAblageId").GetString() == "tablet" &&
+                tabletPreview.RootElement.GetProperty("surfaceThing").GetProperty("isPreviewHere").GetBoolean();
             var returnPortalOk = approachHandy.RootElement.GetProperty("portalTransition").GetProperty("sourceAblageId").GetString() == "monitor" &&
-                approachHandy.RootElement.GetProperty("portalTransition").GetProperty("targetAblageId").GetString() == "handy";
+                approachHandy.RootElement.GetProperty("portalTransition").GetProperty("targetAblageId").GetString() == "tablet";
 
-            using var placeHandy = await PostJsonAsync(
+            using var placeTablet = await PostJsonAsync(
                 client,
                 "/api/place",
-                new { carrierAblageId = "monitor", targetAblageId = "handy", x = 0.5, y = 0.5 },
+                new { carrierAblageId = "monitor", targetAblageId = "tablet", x = 0.5, y = 0.5 },
                 timeout.Token);
-            var placeHandyOk = Thing(placeHandy.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
-                Thing(placeHandy.RootElement).GetProperty("currentState").GetString() == "PlacedOnAblage";
+            var placeTabletOk = Thing(placeTablet.RootElement).GetProperty("currentAblageId").GetString() == "tablet" &&
+                Thing(placeTablet.RootElement).GetProperty("currentState").GetString() == "PlacedOnAblage";
 
-            using (await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token))
+            using (await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "tablet" }, timeout.Token))
             {
             }
 
             using var freePlace = await PostJsonAsync(
                 client,
                 "/api/release",
-                new { carrierAblageId = "handy", x = 0.25, y = 0.66, placeOnAblage = false },
+                new { carrierAblageId = "tablet", x = 0.25, y = 0.66, placeOnAblage = false },
                 timeout.Token);
             var freePlaceOk = Thing(freePlace.RootElement).GetProperty("currentState").GetString() == "FreePlaced" &&
-                Thing(freePlace.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
+                Thing(freePlace.RootElement).GetProperty("currentAblageId").GetString() == "tablet" &&
                 Thing(freePlace.RootElement).GetProperty("positionOnAblage").GetProperty("x").GetDouble() == 0.25;
 
-            using (await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "handy" }, timeout.Token))
+            using (await PostJsonAsync(client, "/api/pick", new { carrierAblageId = "tablet" }, timeout.Token))
             {
             }
 
-            using var cancel = await PostJsonAsync(client, "/api/cancel", new { carrierAblageId = "handy" }, timeout.Token);
-            var cancelOk = Thing(cancel.RootElement).GetProperty("currentAblageId").GetString() == "handy" &&
+            using var cancel = await PostJsonAsync(client, "/api/cancel", new { carrierAblageId = "tablet" }, timeout.Token);
+            var cancelOk = Thing(cancel.RootElement).GetProperty("currentAblageId").GetString() == "tablet" &&
                 Thing(cancel.RootElement).GetProperty("currentState").GetString() == "Cancelled" &&
                 cancel.RootElement.GetProperty("activeCarry").GetProperty("state").GetString() == "Cancelled";
 
             var success = healthOk &&
                 handySurfaceOk &&
+                tabletSurfaceOk &&
                 monitorSurfaceOk &&
                 tactileUiOk &&
                 surfaceResetUiOk &&
@@ -193,7 +196,7 @@ public static class SpatialTraySmokeTest
                 preparedAblagenOk &&
                 initialThingOk &&
                 emptyBubblesHiddenOk &&
-                pickRemovesFromHandyOk &&
+                pickRemovesFromTabletOk &&
                 digitalHandOk &&
                 peripheralBubblesOk &&
                 sourceTraceOk &&
@@ -210,19 +213,20 @@ public static class SpatialTraySmokeTest
                 placeMonitorOk &&
                 targetPositionOk &&
                 pickFromMonitorOk &&
-                handyPreviewOk &&
+                tabletPreviewOk &&
                 returnPortalOk &&
-                placeHandyOk &&
+                placeTabletOk &&
                 freePlaceOk &&
                 cancelOk &&
                 languageOk &&
                 distanceLanguageOk &&
-                bubblesOnHandyOk;
+                bubblesOnTabletOk;
 
             Console.WriteLine("Spatial Room Smoke Test");
             Console.WriteLine("-----------------------");
             Console.WriteLine($"Health: {(healthOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Handy surface: {(handySurfaceOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Tablet surface: {(tabletSurfaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Monitor surface: {(monitorSurfaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Tactile UI: {(tactileUiOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Surface reset UI: {(surfaceResetUiOk ? "OK" : "FAILED")}");
@@ -236,7 +240,7 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Prepared ablagen: {(preparedAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Initial thing: {(initialThingOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Empty hides bubbles: {(emptyBubblesHiddenOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Pick removes source: {(pickRemovesFromHandyOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Pick removes source: {(pickRemovesFromTabletOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Digital hand: {(digitalHandOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Peripheral bubbles: {(peripheralBubblesOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Source trace: {(sourceTraceOk ? "OK" : "FAILED")}");
@@ -253,14 +257,14 @@ public static class SpatialTraySmokeTest
             Console.WriteLine($"Place on monitor: {(placeMonitorOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Target position: {(targetPositionOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Pick from monitor: {(pickFromMonitorOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Handy preview: {(handyPreviewOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Tablet preview: {(tabletPreviewOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Return portal: {(returnPortalOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Place on handy: {(placeHandyOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Place on tablet: {(placeTabletOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Free place: {(freePlaceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Cancel return: {(cancelOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Human words: {(languageOk ? "OK" : "FAILED")}");
             Console.WriteLine($"Bubble distance: {(distanceLanguageOk ? "OK" : "FAILED")}");
-            Console.WriteLine($"Surface bubbles: {(bubblesOnHandyOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"Surface bubbles: {(bubblesOnTabletOk ? "OK" : "FAILED")}");
             Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
 
             return success ? 0 : 1;
@@ -291,7 +295,7 @@ public static class SpatialTraySmokeTest
 
     private static async Task<bool> VisibleLanguageIsHumanAsync(HttpClient client, CancellationToken cancellationToken)
     {
-        var text = await client.GetStringAsync("/surface/handy", cancellationToken);
+        var text = await client.GetStringAsync("/surface/tablet", cancellationToken);
         var forbidden = new[]
         {
             "Transfer",
@@ -344,7 +348,7 @@ public static class SpatialTraySmokeTest
 
     private static async Task<bool> StaticSurfaceResetUiIsPreparedAsync(HttpClient client, CancellationToken cancellationToken)
     {
-        var html = await client.GetStringAsync("/surface/handy", cancellationToken);
+        var html = await client.GetStringAsync("/surface/tablet", cancellationToken);
         var css = await client.GetStringAsync("/tray.css", cancellationToken);
         var js = await client.GetStringAsync("/tray.js", cancellationToken);
         var manifest = await client.GetStringAsync("/manifest.webmanifest", cancellationToken);

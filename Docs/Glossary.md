@@ -1,9 +1,9 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.15.0
+Version: 1.16.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-04
 
 ## Zweck
 
@@ -41,6 +41,10 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Surface Overlay Reset | Surface Overlay Reset | MA006.07-Korrektur, die Radar-/Statusseiten-UI verwirft und die Surface auf Ablage, Ding, Hand und periphere Moeglichkeiten reduziert. | Keine Karte, keine Statusseite, keine App als Erlebnis. |
 | Native Spatial Overlay | Natives Spatial Overlay | Windows-spezifischer transparenter Overlay-Slice ueber dem echten Desktop ohne Browser oder WebView. | Nicht als App-Fenster, Web-Prototyp oder Statusseite verstehen. |
 | Native Overlay Slice | Nativer Overlay-Slice | Erste isolierte native Umsetzung fuer digitale Hand, Bubble-Linsen, Portal und Zielposition ueber dem echten Desktop. | Noch keine finale Shell und keine globale OS-Integration. |
+| Visual Reality | Visuelle Realitaet | Wahrnehmungsziel, bei dem digitale Dinge und Ablage-Linsen im echten Arbeitsraum glaubwuerdig wirken. | Nicht mit UI-Design, App-Oberflaeche oder Web-Prototyp gleichsetzen. |
+| Visual Reality Lab | Visual Reality Lab | Isolierter nativer Windows-Spike fuer lebendige Ablage-Linsen ueber dem echten Desktop. | Kein Developer Studio, kein Web-Testpfad und kein Produkt. |
+| Living Lens | Lebendige Linse | Ablage-Linse mit subtiler Reflektion, Tiefe, Bewegung und oeffnender Wirkung. | Kein gruener Punkt, kein Button, kein Radar-Kreis. |
+| Visual Reality Blueprint | Visual Reality Blueprint | Normatives Dokument fuer Linsenwirkung, Haptik, Renderer-Eignung und Abgrenzung zu Web/UI. | Kein Implementierungsdetail und keine finale Designspezifikation. |
 | Bubble Lens | Bubble-Linse | Transparente, weiche, raeumliche Bubble-Darstellung mit Tiefe und Glanz. | Kein gruener Punkt, kein Button, kein Radar-Ziel. |
 | Mini Ablage | Mini-Ablage | Kleine Zielvorschau in einer geoeffneten Bubble, auf der Positionierung angedeutet wird. | Kein technischer Empfaenger und keine Transferbox. |
 | Peripheral Possibility | Periphere Moeglichkeit | Ablage-Hinweis am Rand der Surface, der erst bei aktiver Tragehandlung erscheint. | Nicht dauerhaft sichtbares Ziel und keine Raumkarte. |
@@ -125,6 +129,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.16.0 | 2026-07-04 | Begriffe fuer Visual Reality, Visual Reality Lab, Living Lens und Visual Reality Blueprint ergaenzt. |
 | 1.15.0 | 2026-07-03 | Begriffe fuer Native Spatial Overlay, nativen Overlay-Slice, Bubble-Linse und Mini-Ablage ergaenzt. |
 | 1.14.0 | 2026-07-03 | Begriffe fuer Surface Overlay Reset, periphere Moeglichkeit, leere Ablageflaeche und Standalone Surface ergaenzt. |
 | 1.13.0 | 2026-07-03 | Begriffe fuer Spatial Portal Carry, Ablage-Portal, Portalphase, SpatialPortalTransition, Source-/Target-Progress und ReadyToPlace ergaenzt. |

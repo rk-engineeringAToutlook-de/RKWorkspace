@@ -9,7 +9,7 @@ const cancelButton = document.querySelector("#cancel");
 const compass = document.querySelector("#compass");
 const possibilities = document.querySelector("#possibilities");
 
-const surfaceId = window.location.pathname.split("/").filter(Boolean).pop() || "handy";
+const surfaceId = window.location.pathname.split("/").filter(Boolean).pop() || "tablet";
 let activeAblage = null;
 let activeBubbleId = null;
 let canPickHere = false;

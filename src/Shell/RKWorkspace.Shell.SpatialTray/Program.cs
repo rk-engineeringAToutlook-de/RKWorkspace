@@ -33,7 +33,7 @@ try
 
     Console.WriteLine("RK Workspace Spatial Room Session");
     Console.WriteLine("Raumzustand: aktiv");
-    Console.WriteLine("Ablage Handy oeffnen:");
+    Console.WriteLine("Ablage Tablet oeffnen:");
     Console.WriteLine(diagnostics.TrayUrl);
     Console.WriteLine("Ablage Monitor oeffnen:");
     Console.WriteLine(diagnostics.AblageUrl);
