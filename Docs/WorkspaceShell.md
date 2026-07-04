@@ -290,11 +290,15 @@ Geprueft werden:
 - GPU-Kompositionspfad vorbereitet.
 - Desktop-Sampling unter der Linse.
 - transparente Randlinse als Durchgang.
+- etwa 85 bis 90 Prozent sichtbare Randlinse.
 - Edge-Continuation statt harter Bildschirmwand.
+- Linse erscheint direkt beim Greifen.
 - kontrolliertes Loslassen statt automatischem Einrasten.
+- flaches Ablegen ohne Trageschatten.
 - Pull-out aus der Linse.
-- vektorielle Neigung des Dings.
-- Schattenmodell fuer raeumliches Tragen.
+- vektorielle Trapez-Neigung des Dings.
+- Schattenmodell nur fuer raeumliches Tragen.
+- zusaetzliche Tunnel-Tiefenschichten in der Linse.
 
 MA006.11 ist noch kein finaler HLSL-Shader. Die Stufe beweist den naechsten Produktpfad: reale Desktopdaten werden in die Linsenkomposition einbezogen. Fuer maximale Brillanz, physikalisch glaubwuerdige Verzerrung, Blur und Reflexe bleibt ein Direct2D-/Win2D-/HLSL-Renderer die naechste technische Stufe.
 
@@ -610,6 +614,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.19.0 | 2026-07-04 | GPU Living Lens um Pick-Emergence, 85-90 Prozent sichtbare Randlinse, Perspektiv-Trapez, CarryShadowOnly und Tunnel-Tiefe ergaenzt. |
 | 1.18.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype mit Desktop-Sampling, Rand-Durchgang und Shader-Grenze dokumentiert. |
 | 1.17.0 | 2026-07-04 | Living Lens Randlinse, Pull-out, Frame-Pacing, Brillanz und weiche Tiefe nach Owner-Video-Feedback ergaenzt. |
 | 1.16.0 | 2026-07-04 | Living Lens mit Per-Pixel-Alpha, ohne Color-Key-Artefakte, Relax und kontrolliertem Loslassen ergaenzt. |

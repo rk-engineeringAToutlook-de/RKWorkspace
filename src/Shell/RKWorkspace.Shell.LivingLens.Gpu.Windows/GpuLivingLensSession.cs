@@ -8,11 +8,15 @@ public sealed class GpuLivingLensSession
 
     public float LensY { get; } = 0.50f;
 
+    public float LensVisibleRatio { get; } = 0.87f;
+
     public bool GpuCompositionPrepared { get; } = true;
 
     public bool DesktopRefractionPrepared { get; } = true;
 
     public bool RefractionMapPrepared { get; } = true;
+
+    public bool TunnelDepthPrepared { get; } = true;
 
     public bool NoWhiteBlock { get; } = true;
 
@@ -24,7 +28,13 @@ public sealed class GpuLivingLensSession
 
     public bool ShadowPrepared { get; private set; }
 
-    public bool PrimaryLensHugsScreenEdge => LensX >= 0.99f;
+    public bool PerspectiveTrapezoidPrepared { get; private set; }
+
+    public bool LensAppearsOnPickPrepared { get; private set; }
+
+    public bool CarryShadowOnlyPrepared { get; private set; } = true;
+
+    public bool PrimaryLensHugsScreenEdge => LensX >= 0.99f && LensVisibleRatio is >= 0.85f and <= 0.90f;
 
     public bool EdgeContinuationPrepared { get; } = true;
 
@@ -49,21 +59,23 @@ public sealed class GpuLivingLensSession
     public void Pick()
     {
         IsHoldingThing = true;
-        LensEmergence = Math.Max(LensEmergence, 0.01f);
+        LensEmergence = Math.Max(LensEmergence, 0.24f);
         Absorption = 0f;
         PullOutRecovery = 1f;
+        LensAppearsOnPickPrepared = LensEmergence >= 0.20f;
     }
 
     public void Carry(float movementX, float movementY)
     {
-        var targetTiltX = Math.Clamp(movementX * 0.070f, -8.5f, 8.5f);
-        var targetTiltY = Math.Clamp(-movementY * 0.066f, -8.5f, 8.5f);
-        TiltX = (TiltX * 0.50f) + (targetTiltX * 0.50f);
-        TiltY = (TiltY * 0.50f) + (targetTiltY * 0.50f);
-        ShadowX = Math.Clamp(-TiltX * 2.2f, -18f, 18f);
-        ShadowY = Math.Clamp(21f + (MathF.Abs(TiltY) * 2.0f), 18f, 38f);
-        VectorTiltPrepared = Math.Abs(TiltX) > 0.2f && Math.Abs(TiltY) > 0.2f;
-        ShadowPrepared = ShadowY > 22f || Math.Abs(ShadowX) > 1f;
+        var targetTiltX = Math.Clamp(movementX * 0.105f, -12.0f, 12.0f);
+        var targetTiltY = Math.Clamp(-movementY * 0.100f, -12.0f, 12.0f);
+        TiltX = (TiltX * 0.42f) + (targetTiltX * 0.58f);
+        TiltY = (TiltY * 0.42f) + (targetTiltY * 0.58f);
+        ShadowX = Math.Clamp(-TiltX * 2.8f, -28f, 28f);
+        ShadowY = Math.Clamp(24f + (MathF.Abs(TiltY) * 2.6f), 20f, 50f);
+        VectorTiltPrepared = Math.Abs(TiltX) > 0.35f && Math.Abs(TiltY) > 0.35f;
+        PerspectiveTrapezoidPrepared = VectorTiltPrepared;
+        ShadowPrepared = IsHoldingThing && (ShadowY > 24f || Math.Abs(ShadowX) > 2f);
     }
 
     public void ApproachLens(float nearness)
@@ -87,6 +99,19 @@ public sealed class GpuLivingLensSession
         Absorption = 0.01f;
     }
 
+    public void PlaceOnSurface()
+    {
+        IsHoldingThing = false;
+        Absorption = 0f;
+        PullOutRecovery = 1f;
+        TiltX = 0f;
+        TiltY = 0f;
+        ShadowX = 0f;
+        ShadowY = 0f;
+        _openTarget = 0f;
+        CarryShadowOnlyPrepared = true;
+    }
+
     public void PullOutFromLens()
     {
         IsHoldingThing = true;
@@ -100,11 +125,15 @@ public sealed class GpuLivingLensSession
     {
         if (IsHoldingThing)
         {
-            LensEmergence = Math.Clamp(LensEmergence + ((float)milliseconds / 1000f), 0f, 1f);
+            LensEmergence = Math.Clamp(LensEmergence + ((float)milliseconds / 540f), 0f, 1f);
         }
         else if (Absorption <= 0f)
         {
             LensEmergence = Math.Clamp(LensEmergence - ((float)milliseconds / 520f), 0f, 1f);
+            TiltX *= 0.86f;
+            TiltY *= 0.86f;
+            ShadowX *= 0.82f;
+            ShadowY *= 0.82f;
         }
 
         if (_openTarget > LensOpen)
@@ -135,6 +164,12 @@ public sealed class GpuLivingLensSession
         ApproachLens(0.95f);
         Advance(360);
         var noAutoAbsorption = Absorption <= 0f && IsHoldingThing;
+        PlaceOnSurface();
+        Advance(220);
+        Pick();
+        Carry(42f, -36f);
+        ApproachLens(0.95f);
+        Advance(180);
         PlaceIntoLens();
         Advance(720);
         PullOutFromLens();

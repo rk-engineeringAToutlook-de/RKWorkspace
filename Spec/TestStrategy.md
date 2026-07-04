@@ -669,13 +669,17 @@ GpuComposition: READY
 DesktopSampling: OK
 DesktopRefraction: OK
 ShaderReadyMap: OK
+TunnelDepthLayers: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
+LensAppearsOnPick: OK
 NoWhiteBlock: OK
 DropRequiresRelease: OK
 PullOutFromLens: OK
 VectorTilt: OK
+PerspectiveTrapezoid: OK
 ShadowModel: OK
+CarryShadowOnly: OK
 GpuLivingLensSmoke: SUCCESS
 RESULT: SUCCESS
 ```
@@ -685,9 +689,12 @@ Der Test prueft ausdruecklich:
 - Desktop-Sampling unter der Linse ist moeglich.
 - der GPU-komponierte Slice startet ohne Browser/WebView.
 - der rechte Rand ist Durchgang, nicht Zielscheibe.
+- die Linse erscheint direkt beim Greifen.
 - das Ding rastet nicht automatisch ein.
 - Pull-out bleibt moeglich.
-- vektorielle Neigung und Schattenmodell sind vorbereitet.
+- vektorielle Trapez-Neigung und Schattenmodell sind vorbereitet.
+- der Trageschatten ist an den Carry-Zustand gekoppelt.
+- Tunnel-Tiefenschichten sind vorbereitet.
 
 Der Test prueft noch nicht:
 
@@ -707,6 +714,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.17.0 | 2026-07-04 | GPU Living Lens Smoke-Test um LensAppearsOnPick, TunnelDepthLayers, PerspectiveTrapezoid und CarryShadowOnly erweitert. |
 | 2.16.0 | 2026-07-04 | MA006.11 GPU Living Lens Smoke-Test mit Desktop-Sampling, Refraction-Vorbereitung und EdgeContinuation dokumentiert. |
 | 2.15.0 | 2026-07-04 | Living Lens Smoke-Test um PrimaryEdgeLens, NoWhiteAblageFrame und PullOutFromLens erweitert. |
 | 2.14.0 | 2026-07-04 | Living Lens Smoke-Test um Per-Pixel-Alpha, Color-Key-Ausschluss, NoAutoAbsorption und LensRelaxAway erweitert. |

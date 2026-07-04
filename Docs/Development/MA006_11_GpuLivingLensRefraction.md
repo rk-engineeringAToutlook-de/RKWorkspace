@@ -40,11 +40,15 @@ Er nutzt:
 - Desktop-Sampling per `CopyFromScreen`.
 - Refraction-Map-Vorbereitung durch gebrochene Darstellung des Desktop-Samples innerhalb der Linse.
 - Randlinse am rechten Bildschirmrand.
+- etwa 85 bis 90 Prozent sichtbare Linse, weiterhin am Rand klebend.
 - Edge-Continuation, damit der Rand als Durchgang wirkt.
+- Linse erscheint direkt beim Greifen.
 - kontrolliertes Loslassen statt automatischer Absorption.
+- flaches Ablegen auf der Arbeitsflaeche ohne Trageschatten.
 - Pull-out aus der Linse.
-- vektorielle Ding-Neigung.
-- Schattenmodell unter dem getragenen Ding.
+- staerkere perspektivische Trapez-Neigung aus der Bewegungsrichtung.
+- Schattenmodell nur unter dem getragenen Ding.
+- zusaetzliche Tunnel-Tiefenschichten in der Linse.
 
 ## Human Experience
 
@@ -98,8 +102,11 @@ GpuComposition: READY
 DesktopSampling: OK
 DesktopRefraction: OK
 EdgeContinuation: OK
+LensAppearsOnPick: OK
 DropRequiresRelease: OK
 PullOutFromLens: OK
+PerspectiveTrapezoid: OK
+CarryShadowOnly: OK
 GpuLivingLensSmoke: SUCCESS
 RESULT: SUCCESS
 ```
@@ -108,4 +115,5 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-04 | Owner-Feedback zu 85-90 Prozent sichtbarer Randlinse, Pick-Emergence, Trageschatten, Perspektiv-Trapez und Tunnel-Tiefe aufgenommen. |
 | 1.0.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype dokumentiert. |

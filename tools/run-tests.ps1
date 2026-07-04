@@ -414,8 +414,16 @@ if (-not $gpuLivingLensText.Contains('DesktopRefraction: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain DesktopRefraction: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('TunnelDepthLayers: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain TunnelDepthLayers: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('LensAppearsOnPick: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain LensAppearsOnPick: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('DropRequiresRelease: OK')) {
@@ -424,6 +432,14 @@ if (-not $gpuLivingLensText.Contains('DropRequiresRelease: OK')) {
 
 if (-not $gpuLivingLensText.Contains('PullOutFromLens: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain PullOutFromLens: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('PerspectiveTrapezoid: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PerspectiveTrapezoid: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('CarryShadowOnly: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CarryShadowOnly: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('GpuLivingLensSmoke: SUCCESS')) {
