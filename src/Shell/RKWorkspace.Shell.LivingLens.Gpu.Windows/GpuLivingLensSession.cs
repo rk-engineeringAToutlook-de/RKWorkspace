@@ -86,6 +86,18 @@ public sealed class GpuLivingLensSession
 
     public bool MicroGlassHighlightsPrepared { get; } = true;
 
+    public bool PhysicalGlassMaterialPrepared { get; } = true;
+
+    public bool GlassThicknessPrepared { get; } = true;
+
+    public bool ChromaticEdgePrepared { get; } = true;
+
+    public bool LensContactShadowPrepared { get; } = true;
+
+    public bool GlassCausticsPrepared { get; } = true;
+
+    public bool SpecularGlassSweepsPrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;

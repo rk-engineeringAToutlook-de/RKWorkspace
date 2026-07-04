@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.31.0
+Version: 2.32.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -71,7 +71,7 @@ Ab MA006.09 prueft `tools/run-tests.ps1` zusaetzlich den Visual Reality Smoke-Te
 
 Ab MA006.10R prueft `tools/run-tests.ps1` zusaetzlich den Living Lens Smoke-Test mit `tools/run-living-lens.ps1 -SmokeTest`. Dieser Test prueft einen eigenen nativen Windows-Slice ohne Browser/WebView, Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Randverankerung, langsames Erscheinen, subtile Lebendigkeit, digitale Griffwirkung ohne stoerenden Rechteckcontainer, vektorielle Antwort inklusive Diagonalen, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export.
 
-Ab MA006.11 prueft `tools/run-tests.ps1` zusaetzlich den GPU Living Lens Smoke-Test mit `tools/run-gpu-lens.ps1 -SmokeTest`. Dieser Test prueft den GPU-komponierten Slice ohne Browser/WebView, Desktop-Sampling, Refraction-Vorbereitung, acht Tunnel, Schlund-zentrierten Sog, 10-Sekunden-Handover und ab der Premium-Look-Stufe die drei live umschaltbaren Looks Glasblase, Wurmloch und Hybrid.
+Ab MA006.11 prueft `tools/run-tests.ps1` zusaetzlich den GPU Living Lens Smoke-Test mit `tools/run-gpu-lens.ps1 -SmokeTest`. Dieser Test prueft den GPU-komponierten Slice ohne Browser/WebView, Desktop-Sampling, Refraction-Vorbereitung, acht Tunnel, Schlund-zentrierten Sog, 10-Sekunden-Handover und ab der Premium-Look-Stufe die drei live umschaltbaren Looks Glasblase, Wurmloch und Hybrid. Ab dem Physical-Glass-Premiumblock prueft er zusaetzlich Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps.
 
 Der Premiumblock ergaenzt diesen Test um saubere Desktop-Plates, Selbst-Sampling-Echo-Unterdrueckung und weichere Fresnel-Kante. Damit wird festgehalten, dass Papier, Schatten und Linsenlicht beim aktiven Tragen nicht als langes optisches Echo wieder in die Refraction zurueckgesampelt werden sollen.
 
@@ -717,6 +717,12 @@ LiveDesktopRefraction: OK
 CaptureExclusion: OK
 LensCenterLock: OK
 MicroGlassHighlights: OK
+PhysicalGlassMaterial: OK
+GlassThickness: OK
+ChromaticEdge: OK
+LensContactShadow: OK
+GlassCaustics: OK
+SpecularGlassSweeps: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -785,6 +791,8 @@ Der Test prueft ausdruecklich:
 - das Overlay wird fuer Screen-Capture ausgeschlossen, damit keine Selbst-Echos entstehen.
 - staerkere Lens-Center-Hysterese reduziert sichtbares Hin- und Herspringen.
 - Mikro-Highlights staerken Glaswirkung ohne technische Ringoptik.
+- Physical Glass Material macht die Linse als transparenten Glas-/Tunnelkoerper lesbar.
+- Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps sind vorbereitet.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
 - im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
@@ -811,6 +819,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.32.0 | 2026-07-04 | GPU Living Lens Smoke-Test um PhysicalGlassMaterial, GlassThickness, ChromaticEdge, LensContactShadow, GlassCaustics und SpecularGlassSweeps erweitert. |
 | 2.31.0 | 2026-07-04 | GPU Living Lens Smoke-Test um LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights erweitert. |
 | 2.30.0 | 2026-07-04 | GPU Living Lens Smoke-Test um SmoothPickupScale, SmoothLensApproach, UltraFineGlassOptics und HighResolutionVectorOptics erweitert. |
 | 2.29.0 | 2026-07-04 | GPU Living Lens Smoke-Test um CleanDesktopPlate, SelfSamplingEchoSuppression und SoftFresnelEdge erweitert. |

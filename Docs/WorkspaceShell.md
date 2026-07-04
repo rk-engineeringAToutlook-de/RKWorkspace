@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.33.0
+Version: 1.34.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -307,6 +307,8 @@ Geprueft werden:
 - HLSL-Shader-Vertrag als Uebergang zum Direct2D-/Win2D-Produktpfad.
 
 MA006.11 ist noch kein finaler HLSL-Shader. Die Stufe beweist den naechsten Produktpfad: reale Desktopdaten werden in die Linsenkomposition einbezogen. Fuer maximale Brillanz, physikalisch glaubwuerdige Verzerrung, Blur und Reflexe bleibt ein Direct2D-/Win2D-/HLSL-Renderer die naechste technische Stufe.
+
+Der aktuelle Premium-Glasstand fuehrt dennoch bewusst eine Materialschicht ein: Physical Glass Material, Glasdicke, chromatische Randdispersion, Kontakt-Schatten, Caustics und weiche Specular-Sweeps. Diese Schicht soll die Linse aus der gezeichneten Kreisoptik herausheben und als transparenten, raeumlichen Glas-/Tunnelkoerper ueber dem echten Desktop lesbar machen.
 
 Vor dem Shader-Sprung wurde der akzeptierte Stand mit `gpu-living-lens-depth-freeze-v1` und `backup/gpu-living-lens-depth-freeze-v1` eingefroren.
 
@@ -640,6 +642,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.34.0 | 2026-07-04 | GPU Living Lens Physical Glass Material mit Glasdicke, chromatischen Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps eingeordnet. |
 | 1.33.0 | 2026-07-04 | GPU Living Lens LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights eingeordnet. |
 | 1.32.0 | 2026-07-04 | GPU Living Lens um fließende Pickup-Skalierung, geglaettete Blasenannaeherung und hochaufloesende Vektoroptik eingeordnet. |
 | 1.31.0 | 2026-07-04 | GPU Living Lens Premiumblock mit sauberer Desktop-Plate, Echo-Unterdrueckung und weicher Fresnel-Kante eingeordnet. |

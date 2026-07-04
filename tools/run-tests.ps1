@@ -574,6 +574,30 @@ if (-not $gpuLivingLensText.Contains('MicroGlassHighlights: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain MicroGlassHighlights: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('PhysicalGlassMaterial: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PhysicalGlassMaterial: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('GlassThickness: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GlassThickness: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('ChromaticEdge: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ChromaticEdge: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('LensContactShadow: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain LensContactShadow: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('GlassCaustics: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GlassCaustics: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('SpecularGlassSweeps: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain SpecularGlassSweeps: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

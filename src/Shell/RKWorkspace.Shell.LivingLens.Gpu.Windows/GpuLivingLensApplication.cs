@@ -79,6 +79,12 @@ public static class GpuLivingLensApplication
                 session.CaptureExclusionPrepared &&
                 session.LensCenterLockPrepared &&
                 session.MicroGlassHighlightsPrepared &&
+                session.PhysicalGlassMaterialPrepared &&
+                session.GlassThicknessPrepared &&
+                session.ChromaticEdgePrepared &&
+                session.LensContactShadowPrepared &&
+                session.GlassCausticsPrepared &&
+                session.SpecularGlassSweepsPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -151,6 +157,12 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"CaptureExclusion: {(session.CaptureExclusionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensCenterLock: {(session.LensCenterLockPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"MicroGlassHighlights: {(session.MicroGlassHighlightsPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PhysicalGlassMaterial: {(session.PhysicalGlassMaterialPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"GlassThickness: {(session.GlassThicknessPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ChromaticEdge: {(session.ChromaticEdgePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"LensContactShadow: {(session.LensContactShadowPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"GlassCaustics: {(session.GlassCausticsPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"SpecularGlassSweeps: {(session.SpecularGlassSweepsPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");

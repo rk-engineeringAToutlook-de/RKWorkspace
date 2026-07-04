@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.15.0
+Version: 1.16.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -90,6 +90,12 @@ Er nutzt:
 - CaptureExclusion: Das Overlay wird fuer Screen-Capture ausgeschlossen, damit Live-Refraction nicht wieder Papier, Schatten oder die eigene Blase als Echo einfängt.
 - LensCenterLock: Der aktive Tunnel-/Blasenpunkt besitzt staerkere Hysterese gegen sichtbares Hin- und Herspringen.
 - MicroGlassHighlights: Sehr feine bewegliche Lichtpunkte erhoehen den Glascharakter ohne neue Zielscheibenringe.
+- PhysicalGlassMaterial: Die Linse wird als transparenter Glas-/Tunnelkoerper behandelt, nicht als gezeichneter UI-Kreis.
+- GlassThickness: Mehrere sehr feine Rand- und Volumenschichten geben der Linse sichtbare Glasdicke.
+- ChromaticEdge: Minimal versetzte Rot-/Cyan-Kanten simulieren subtile optische Dispersion ohne lila/cyan Flaechen.
+- LensContactShadow: Die Linse bekommt einen ruhigen Kontakt-Schatten auf dem Desktop, damit sie sich vom Hintergrund absetzt.
+- GlassCaustics: Feine, langsam bewegte Lichtlinien geben dem Material mehr Tiefe, ohne technische Zielringe zu erzeugen.
+- SpecularGlassSweeps: Breite, weiche Reflex-Baender laufen durch die Linse und erzeugen eine hochwertigere Glaswirkung.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -112,7 +118,7 @@ MA006.11 ist noch kein finaler Renderer.
 Noch nicht enthalten:
 
 - finaler HLSL-Shader.
-- echte physikalische Glasbrechung.
+- finale physikalische Glasbrechung im nativen Shader.
 - Blur-/Chromatic-Aberration-Shader.
 - echte Desktop-Objekterkennung.
 - echte Payload.
@@ -170,6 +176,12 @@ Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
 - ShadowTunnelSuction.
 - PremiumRefraction.
 - TunnelAperture.
+- PhysicalGlass.
+- GlassThickness.
+- ChromaticEdge.
+- LensContactShadow.
+- GlassCaustics.
+- SpecularGlassSweeps.
 - ObjectMotion.
 
 Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider. Der HLSL-Vertrag ist damit die Uebergangsform zum nativen Shader-Renderer.
@@ -229,6 +241,12 @@ LiveDesktopRefraction: OK
 CaptureExclusion: OK
 LensCenterLock: OK
 MicroGlassHighlights: OK
+PhysicalGlassMaterial: OK
+GlassThickness: OK
+ChromaticEdge: OK
+LensContactShadow: OK
+GlassCaustics: OK
+SpecularGlassSweeps: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -255,6 +273,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.16.0 | 2026-07-04 | Physical Glass Material mit Glasdicke, chromatischer Kante, Kontakt-Schatten, Caustics und Specular-Sweeps dokumentiert. |
 | 1.15.0 | 2026-07-04 | Live-Desktop-Refraction, Capture-Ausschluss, stabileren Lens-Lock und Mikro-Highlights dokumentiert. |
 | 1.14.0 | 2026-07-04 | Fließendes Nehmen, geglaettete Blasenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik dokumentiert. |
 | 1.13.0 | 2026-07-04 | Premiumblock mit CleanDesktopPlate, Echo-Unterdrueckung, weicher Fresnel-Kante und entschärften Look-Profilen dokumentiert. |
