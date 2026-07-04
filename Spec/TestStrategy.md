@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.30.0
+Version: 2.31.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -76,6 +76,8 @@ Ab MA006.11 prueft `tools/run-tests.ps1` zusaetzlich den GPU Living Lens Smoke-T
 Der Premiumblock ergaenzt diesen Test um saubere Desktop-Plates, Selbst-Sampling-Echo-Unterdrueckung und weichere Fresnel-Kante. Damit wird festgehalten, dass Papier, Schatten und Linsenlicht beim aktiven Tragen nicht als langes optisches Echo wieder in die Refraction zurueckgesampelt werden sollen.
 
 Der zweite Premiumblock ergaenzt fließende Pickup-Skalierung, geglaettete Linsenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik. Damit wird getestet, dass das Ding beim Greifen nicht sprunghaft kleiner wird und die Blase nicht hart anspringt.
+
+Der dritte Premiumblock ergaenzt Live-Desktop-Refraction, Capture-Ausschluss, stabileren Lens-Center-Lock und Mikro-Highlights. Damit wird festgehalten, dass die Blase wieder auf den aktuellen Hintergrund reagieren soll, ohne das eigene Overlay als Echo einzusampeln.
 
 ## MA003.05 Core Integration Tests
 
@@ -711,6 +713,10 @@ SmoothPickupScale: OK
 SmoothLensApproach: OK
 UltraFineGlassOptics: OK
 HighResolutionVectorOptics: OK
+LiveDesktopRefraction: OK
+CaptureExclusion: OK
+LensCenterLock: OK
+MicroGlassHighlights: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -775,6 +781,10 @@ Der Test prueft ausdruecklich:
 - das Ding skaliert beim Greifen fließend ueber `PickProgress`.
 - die Linse oeffnet durch geglaettete Annaeherung statt durch einen sichtbaren Sprung.
 - die Glasoptik wird feiner und ringaermer gezeichnet.
+- aktive Linsen samplen den echten Hintergrund wieder live.
+- das Overlay wird fuer Screen-Capture ausgeschlossen, damit keine Selbst-Echos entstehen.
+- staerkere Lens-Center-Hysterese reduziert sichtbares Hin- und Herspringen.
+- Mikro-Highlights staerken Glaswirkung ohne technische Ringoptik.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
 - im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
@@ -801,6 +811,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.31.0 | 2026-07-04 | GPU Living Lens Smoke-Test um LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights erweitert. |
 | 2.30.0 | 2026-07-04 | GPU Living Lens Smoke-Test um SmoothPickupScale, SmoothLensApproach, UltraFineGlassOptics und HighResolutionVectorOptics erweitert. |
 | 2.29.0 | 2026-07-04 | GPU Living Lens Smoke-Test um CleanDesktopPlate, SelfSamplingEchoSuppression und SoftFresnelEdge erweitert. |
 | 2.28.0 | 2026-07-04 | GPU Living Lens Smoke-Test um drei Premium-Looks, LiveLookSwitch und CompactCarryCard erweitert. |

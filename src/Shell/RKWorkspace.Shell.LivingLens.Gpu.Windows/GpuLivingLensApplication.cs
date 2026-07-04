@@ -75,6 +75,10 @@ public static class GpuLivingLensApplication
                 session.SmoothLensApproachPrepared &&
                 session.UltraFineGlassOpticsPrepared &&
                 session.HighResolutionVectorOpticsPrepared &&
+                session.LiveDesktopRefractionPrepared &&
+                session.CaptureExclusionPrepared &&
+                session.LensCenterLockPrepared &&
+                session.MicroGlassHighlightsPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -143,6 +147,10 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"SmoothLensApproach: {(session.SmoothLensApproachPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"UltraFineGlassOptics: {(session.UltraFineGlassOpticsPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"HighResolutionVectorOptics: {(session.HighResolutionVectorOpticsPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"LiveDesktopRefraction: {(session.LiveDesktopRefractionPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CaptureExclusion: {(session.CaptureExclusionPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"LensCenterLock: {(session.LensCenterLockPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"MicroGlassHighlights: {(session.MicroGlassHighlightsPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");

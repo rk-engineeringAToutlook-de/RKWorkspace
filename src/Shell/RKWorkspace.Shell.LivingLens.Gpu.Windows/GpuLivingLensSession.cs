@@ -78,6 +78,14 @@ public sealed class GpuLivingLensSession
 
     public bool HighResolutionVectorOpticsPrepared { get; } = true;
 
+    public bool LiveDesktopRefractionPrepared { get; private set; } = true;
+
+    public bool CaptureExclusionPrepared { get; private set; } = true;
+
+    public bool LensCenterLockPrepared { get; private set; } = true;
+
+    public bool MicroGlassHighlightsPrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;
@@ -174,6 +182,11 @@ public sealed class GpuLivingLensSession
     public void SetLensLook(GpuLivingLensLook lensLook)
     {
         _testedLooks.Add(lensLook);
+    }
+
+    public void MarkCaptureExclusion(bool enabled)
+    {
+        CaptureExclusionPrepared = CaptureExclusionPrepared || enabled;
     }
 
     public void Pick()

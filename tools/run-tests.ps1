@@ -558,6 +558,22 @@ if (-not $gpuLivingLensText.Contains('HighResolutionVectorOptics: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain HighResolutionVectorOptics: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('LiveDesktopRefraction: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain LiveDesktopRefraction: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('CaptureExclusion: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CaptureExclusion: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('LensCenterLock: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain LensCenterLock: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('MicroGlassHighlights: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain MicroGlassHighlights: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

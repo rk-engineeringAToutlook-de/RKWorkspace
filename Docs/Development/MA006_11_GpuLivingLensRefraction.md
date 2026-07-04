@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.14.0
+Version: 1.15.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -86,6 +86,10 @@ Er nutzt:
 - SmoothLensApproach: Die Blase reagiert ueber geglaettete Annaeherung, nicht durch ploetzliches Anspringen.
 - UltraFineGlassOptics: Ringe, Lichtkante und Ereignishorizont werden nochmals feiner und schwächer gezeichnet.
 - HighResolutionVectorOptics: Der aktuelle Slice nutzt vektorbasierte WPF-/DirectX-Komposition mit hochwertiger Skalierung als Zwischenstufe vor echtem Shader-Rendering.
+- LiveDesktopRefraction: Die aktive Linse sampled den echten Hintergrund wieder live, damit weisse oder farbige Flaechen unmittelbar durch die Blase wirken.
+- CaptureExclusion: Das Overlay wird fuer Screen-Capture ausgeschlossen, damit Live-Refraction nicht wieder Papier, Schatten oder die eigene Blase als Echo einfängt.
+- LensCenterLock: Der aktive Tunnel-/Blasenpunkt besitzt staerkere Hysterese gegen sichtbares Hin- und Herspringen.
+- MicroGlassHighlights: Sehr feine bewegliche Lichtpunkte erhoehen den Glascharakter ohne neue Zielscheibenringe.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -221,6 +225,10 @@ SmoothPickupScale: OK
 SmoothLensApproach: OK
 UltraFineGlassOptics: OK
 HighResolutionVectorOptics: OK
+LiveDesktopRefraction: OK
+CaptureExclusion: OK
+LensCenterLock: OK
+MicroGlassHighlights: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -247,6 +255,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.15.0 | 2026-07-04 | Live-Desktop-Refraction, Capture-Ausschluss, stabileren Lens-Lock und Mikro-Highlights dokumentiert. |
 | 1.14.0 | 2026-07-04 | Fließendes Nehmen, geglaettete Blasenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik dokumentiert. |
 | 1.13.0 | 2026-07-04 | Premiumblock mit CleanDesktopPlate, Echo-Unterdrueckung, weicher Fresnel-Kante und entschärften Look-Profilen dokumentiert. |
 | 1.12.0 | 2026-07-04 | Drei sofort testbare Premium-Looks Glasblase, Wurmloch und Hybrid mit Live-Umschaltung dokumentiert. |

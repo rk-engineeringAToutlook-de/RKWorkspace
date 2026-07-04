@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.32.0
+Version: 1.33.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -326,6 +326,8 @@ Der Premiumblock verfeinert diese Darstellung ohne neue Produktlogik: Die aktive
 
 Der zweite Premiumblock koppelt das Greifen und die Blasenreaktion zeitlich: Das Ding wird ueber `PickProgress` fließend kompakter, waehrend die Linse ueber eine geglaettete Annaeherung reagiert. Ziel ist Kontinuitaet statt Sprung: erst nehmen, dann tragen, dann in den Raum hineinlegen.
 
+Der dritte Premiumblock stellt den Materialbezug zum echten Desktop wieder her: Aktive Linsen samplen den Hintergrund live, das Overlay wird aus Screen-Capture ausgeschlossen und die saubere Desktop-Plate dient nur noch als Fallback gegen Selbst-Echos. Staerkere Lens-Center-Hysterese reduziert sichtbares Springen zwischen Nachbartunneln.
+
 ## Spatial Carry Tray Prototype
 
 MA006.03 fuehrt den neuen Wahrnehmungspfad ein:
@@ -638,6 +640,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.33.0 | 2026-07-04 | GPU Living Lens LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights eingeordnet. |
 | 1.32.0 | 2026-07-04 | GPU Living Lens um fließende Pickup-Skalierung, geglaettete Blasenannaeherung und hochaufloesende Vektoroptik eingeordnet. |
 | 1.31.0 | 2026-07-04 | GPU Living Lens Premiumblock mit sauberer Desktop-Plate, Echo-Unterdrueckung und weicher Fresnel-Kante eingeordnet. |
 | 1.30.0 | 2026-07-04 | Drei live testbare GPU-Living-Lens-Premium-Looks Glasblase, Wurmloch und Hybrid eingeordnet. |

@@ -406,6 +406,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
         DrawPremiumRefractionRibbons(drawingContext, bounds, center, throatCenter, open, profile);
         DrawPremiumTunnelAperture(drawingContext, bounds, throatCenter, outward, open, profile);
+        DrawMicroGlassHighlights(drawingContext, bounds, center, open, profile);
 
         var reflectedEdge = new LinearGradientBrush
         {
@@ -469,6 +470,33 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             center + new Vector(-bounds.Width * 0.12, -bounds.Height * 0.16),
             bounds.Width * 0.36,
             bounds.Height * 0.18);
+    }
+
+    private void DrawMicroGlassHighlights(DrawingContext drawingContext, Rect bounds, WPoint center, double open, LensVisualProfile profile)
+    {
+        for (var index = 0; index < profile.MicroHighlightCount; index++)
+        {
+            var seed = index * 1.61803398875;
+            var angle = seed + (_phase * profile.MicroHighlightSpeed * (0.18 + (index * 0.012)));
+            var radius = 0.16 + ((index % 5) * 0.055);
+            var x = center.X + (Math.Cos(angle) * bounds.Width * radius);
+            var y = center.Y + (Math.Sin(angle * 0.82) * bounds.Height * radius * 0.68);
+            var alpha = (byte)Math.Clamp(profile.MicroHighlightAlpha + (open * profile.MicroHighlightOpenBoost) - ((index % 4) * 2.2), 0, 48);
+            if (alpha <= 1)
+            {
+                continue;
+            }
+
+            var glint = new RadialGradientBrush(WColor.FromArgb(alpha, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255))
+            {
+                RadiusX = 0.62,
+                RadiusY = 0.62,
+                Opacity = 0.82
+            };
+            var rx = 1.2 + ((index % 3) * 0.55);
+            var ry = 0.7 + ((index % 2) * 0.40);
+            drawingContext.DrawEllipse(glint, null, new WPoint(x, y), rx, ry);
+        }
     }
 
     private static void DrawPremiumTunnelAperture(DrawingContext drawingContext, Rect bounds, WPoint throatCenter, Vector outward, double open, LensVisualProfile profile)
@@ -645,12 +673,16 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             _session.Absorption > 0.001f ||
             _session.LensEmergence > 0.06f ||
             _session.TransitState != GpuLivingLensTransitState.LocalReady;
-        if (_lensSamples.TryGetValue(key, out var cached) && overlayIsOpticallyActive)
+        var isActiveLens = (center - _activeLensCenter).Length < 1.0;
+        if (_lensSamples.TryGetValue(key, out var cached) && overlayIsOpticallyActive && !isActiveLens)
         {
             return cached;
         }
 
-        if (_lensSamples.TryGetValue(key, out cached) && _sampleFrame % 180 != 0)
+        var refreshEvery = overlayIsOpticallyActive
+            ? (isActiveLens ? 5 : 48)
+            : 96;
+        if (_lensSamples.TryGetValue(key, out cached) && _sampleFrame % refreshEvery != 0)
         {
             return cached;
         }
@@ -854,7 +886,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
         var activeDistance = (point - _activeLensCenter).Length;
         var nearestDistance = (point - nearest).Length;
-        if (activeDistance < 330 && nearestDistance > activeDistance - 58)
+        if (activeDistance < 460 && nearestDistance > activeDistance - 142)
         {
             return _activeLensCenter;
         }
@@ -1052,6 +1084,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         public double RibbonOpenBoost { get; init; }
         public double RibbonWidth { get; init; }
         public double RimShardOpacity { get; init; }
+        public int MicroHighlightCount { get; init; }
+        public double MicroHighlightAlpha { get; init; }
+        public double MicroHighlightOpenBoost { get; init; }
+        public double MicroHighlightSpeed { get; init; }
         public double ApertureOpacity { get; init; }
         public int ApertureRingCount { get; init; }
         public double ApertureRingAlpha { get; init; }
@@ -1127,6 +1163,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     RibbonOpenBoost = 4,
                     RibbonWidth = 0.14,
                     RimShardOpacity = 0.14,
+                    MicroHighlightCount = 18,
+                    MicroHighlightAlpha = 15,
+                    MicroHighlightOpenBoost = 10,
+                    MicroHighlightSpeed = 0.62,
                     ApertureOpacity = 0.10,
                     ApertureRingCount = 1,
                     ApertureRingAlpha = 12,
@@ -1198,6 +1238,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     RibbonOpenBoost = 28,
                     RibbonWidth = 0.32,
                     RimShardOpacity = 0.22,
+                    MicroHighlightCount = 8,
+                    MicroHighlightAlpha = 7,
+                    MicroHighlightOpenBoost = 6,
+                    MicroHighlightSpeed = 0.42,
                     ApertureOpacity = 0.52,
                     ApertureRingCount = 7,
                     ApertureRingAlpha = 56,
@@ -1269,6 +1313,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     RibbonOpenBoost = 12,
                     RibbonWidth = 0.20,
                     RimShardOpacity = 0.18,
+                    MicroHighlightCount = 12,
+                    MicroHighlightAlpha = 10,
+                    MicroHighlightOpenBoost = 8,
+                    MicroHighlightSpeed = 0.52,
                     ApertureOpacity = 0.32,
                     ApertureRingCount = 4,
                     ApertureRingAlpha = 40,

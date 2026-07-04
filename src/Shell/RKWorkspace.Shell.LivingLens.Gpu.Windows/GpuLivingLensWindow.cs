@@ -30,6 +30,10 @@ public sealed class GpuLivingLensWindow : Window
         _surface = new GpuLivingLensSurface(runtime, bounds);
         Content = _surface;
         KeyDown += OnKeyDown;
+        SourceInitialized += (_, _) =>
+        {
+            _surface.Session.MarkCaptureExclusion(NativeCaptureExclusion.TryEnable(this));
+        };
         Loaded += (_, _) =>
         {
             Activate();

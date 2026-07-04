@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.48.0
+Version: 2.49.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -75,6 +75,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der GPU Living Lens Prototype besitzt jetzt drei sofort testbare Premium-Looks: `1` Glasblase, `2` Wurmloch und `3` Hybrid. Alle Looks nutzen Desktop-Refraction, transparente Glas-/Tunnel-Schichten, kompakteres Carry-Ding und unterschiedliche Tiefen-/Intensitaetsprofile.
 - Der GPU Living Lens Premiumblock reduziert Selbst-Sampling-Echos, nutzt saubere Desktop-Plates fuer aktive Refraction, schwaecht harte weisse Glasraender ab und trennt Glasblase, Wurmloch und Hybrid visuell praeziser.
 - Der GPU Living Lens Premiumblock 2 fuehrt fließendes Nehmen ein: Das digitale Ding wird nicht mehr sprunghaft kleiner, sondern skaliert ueber `PickProgress`; die Blase reagiert ueber geglaettete Annaeherung und feinere Glasoptik mit weniger sichtbaren Ringen und schwaecherem Ereignishorizont.
+- Der GPU Living Lens Premiumblock 3 holt Live-Desktop-Refraction zurueck: Das Overlay wird fuer Screen-Capture ausgeschlossen, aktive Linsen samplen wieder live den echten Hintergrund und Glas bekommt Mikro-Highlights statt technischer Ringe.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -321,6 +322,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.49.0 | 2026-07-04 | GPU Living Lens um LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights erweitert. |
 | 2.48.0 | 2026-07-04 | GPU Living Lens um SmoothPickupScale, SmoothLensApproach, UltraFineGlassOptics und HighResolutionVectorOptics erweitert. |
 | 2.47.0 | 2026-07-04 | GPU Living Lens Premiumblock mit CleanDesktopPlate, Echo-Unterdrueckung, weicherem Fresnel-Rand und entschärften Look-Profilen dokumentiert. |
 | 2.46.0 | 2026-07-04 | GPU Living Lens um drei sofort umschaltbare Premium-Looks Glasblase, Wurmloch und Hybrid erweitert. |
