@@ -3,6 +3,7 @@ namespace RKWorkspace.Shell.LivingLens.Windows;
 public sealed class LivingLensSession
 {
     private readonly List<string> _events = new();
+    private float _lensOpenTarget;
 
     public LivingLensSession()
     {
@@ -87,7 +88,7 @@ public sealed class LivingLensSession
 
     public LivingLensVariant ActiveVariant => Variants[ActiveVariantIndex];
 
-    public int ActiveVariantIndex { get; private set; }
+    public int ActiveVariantIndex { get; private set; } = 1;
 
     public LivingLensTarget ActiveLens => Lenses.First(lens => string.Equals(lens.LensId, ActiveLensId, StringComparison.Ordinal));
 
@@ -133,6 +134,8 @@ public sealed class LivingLensSession
 
     public bool RealBubbleLensExists => Variants.Any(variant => variant.Kind == LivingLensVariantKind.RealBubble);
 
+    public bool StartsWithGlassLens => ActiveVariant.Kind == LivingLensVariantKind.Glass;
+
     public bool LensesAtEdges => Lenses.All(lens => lens.X <= 0.09f || lens.X >= 0.82f || lens.Y <= 0.17f || lens.Y >= 0.90f);
 
     public bool LensesVisible => LensEmergenceProgress > 0;
@@ -168,6 +171,12 @@ public sealed class LivingLensSession
 
     public bool SmokeGhostEmergenceObserved { get; private set; }
 
+    public bool SmokeNoAutoAbsorptionObserved { get; private set; }
+
+    public bool SmokeLensRelaxObserved { get; private set; }
+
+    public bool SmokeDefaultGlassObserved { get; private set; }
+
     public float TiltX { get; private set; }
 
     public float TiltY { get; private set; }
@@ -191,12 +200,16 @@ public sealed class LivingLensSession
         ActiveLensId = "right";
         LensEmergenceProgress = 0;
         LensOpenProgress = 0;
+        _lensOpenTarget = 0;
         AbsorptionProgress = 0;
         TargetEmergenceProgress = 0;
         SmokeAbsorptionScaleObserved = false;
         SmokeAbsorptionDistortionObserved = false;
         SmokeNotInstantGoneObserved = false;
         SmokeGhostEmergenceObserved = false;
+        SmokeNoAutoAbsorptionObserved = false;
+        SmokeLensRelaxObserved = false;
+        SmokeDefaultGlassObserved = false;
         ResetThingVisuals();
         _events.Add("Living Lens listening");
     }
@@ -230,16 +243,37 @@ public sealed class LivingLensSession
         {
             LensEmergenceProgress = Math.Clamp(LensEmergenceProgress + ((float)milliseconds / LensEmergenceDurationMs), 0f, 1f);
         }
-
-        if (LensOpenProgress > 0)
+        else if (!AbsorptionActive && AbsorptionProgress <= 0)
         {
-            LensOpenProgress = Math.Clamp(LensOpenProgress + ((float)milliseconds / 620f), 0f, 1f);
+            LensEmergenceProgress = Math.Clamp(LensEmergenceProgress - ((float)milliseconds / 780f), 0f, 1f);
+        }
+
+        if (AbsorptionProgress > 0)
+        {
+            _lensOpenTarget = 1f;
+        }
+
+        if (_lensOpenTarget > LensOpenProgress)
+        {
+            LensOpenProgress = Math.Clamp(LensOpenProgress + ((float)milliseconds / 420f), 0f, _lensOpenTarget);
+        }
+        else if (_lensOpenTarget < LensOpenProgress)
+        {
+            LensOpenProgress = Math.Clamp(LensOpenProgress - ((float)milliseconds / 560f), _lensOpenTarget, 1f);
         }
 
         if (AbsorptionProgress > 0 && AbsorptionProgress < 1)
         {
             AbsorptionProgress = Math.Clamp(AbsorptionProgress + ((float)milliseconds / AbsorptionDurationMs), 0f, 1f);
             TargetEmergenceProgress = Math.Clamp((AbsorptionProgress - 0.42f) / 0.58f, 0f, 1f);
+        }
+
+        if (!IsHoldingThing && AbsorptionProgress <= 0)
+        {
+            TiltX *= 0.86f;
+            TiltY *= 0.86f;
+            ShadowX *= 0.82f;
+            ShadowY = 18f + ((ShadowY - 18f) * 0.84f);
         }
     }
 
@@ -260,7 +294,11 @@ public sealed class LivingLensSession
             _ => LivingLensNameVisibility.Hidden
         };
 
-        if (normalizedDistance >= 0.84f)
+        _lensOpenTarget = normalizedDistance >= 0.84f
+            ? Math.Clamp(0.18f + ((normalizedDistance - 0.84f) / 0.16f * 0.82f), 0.18f, 1f)
+            : 0f;
+
+        if (_lensOpenTarget > 0)
         {
             OpenLens();
         }
@@ -270,12 +308,14 @@ public sealed class LivingLensSession
 
     public void OpenLens()
     {
+        _lensOpenTarget = Math.Max(_lensOpenTarget, 1f);
         LensOpenProgress = Math.Max(LensOpenProgress, 0.12f);
         _events.Add("Living Lens opens");
     }
 
     public void ReplayOpening()
     {
+        _lensOpenTarget = 1f;
         LensOpenProgress = 0.12f;
         _events.Add("Living Lens opening replayed");
     }
@@ -284,10 +324,31 @@ public sealed class LivingLensSession
     {
         IsHoldingThing = false;
         LensEmergenceProgress = 1f;
+        _lensOpenTarget = 1f;
         LensOpenProgress = 1f;
         AbsorptionProgress = 0.01f;
         TargetEmergenceProgress = 0f;
         _events.Add("Lens absorption started");
+    }
+
+    public void LeaveLens()
+    {
+        _lensOpenTarget = 0f;
+        NameVisibility = LivingLensNameVisibility.Hidden;
+        _events.Add("Living Lens relaxes");
+    }
+
+    public void DropFree()
+    {
+        IsHoldingThing = false;
+        ThingCompact = false;
+        ThingPartiallyOccluded = false;
+        GripShadowVisible = false;
+        AbsorptionProgress = 0;
+        TargetEmergenceProgress = 0;
+        _lensOpenTarget = 0f;
+        NameVisibility = LivingLensNameVisibility.Hidden;
+        _events.Add("Thing placed back on desktop");
     }
 
     public void CycleTiming()
@@ -358,6 +419,7 @@ public sealed class LivingLensSession
     {
         Start();
         var hiddenBeforePick = !LensesVisible;
+        SmokeDefaultGlassObserved = StartsWithGlassLens;
         var variantsOk = Variants.Count == 5 &&
             RealBubbleLensExists &&
             Variants.All(variant =>
@@ -387,6 +449,12 @@ public sealed class LivingLensSession
         ApproachLens("right", 0.96f);
         Advance(620);
         var openOk = LensOpen && MiniAblageVisible && NameVisibility == LivingLensNameVisibility.ActionReadable;
+        SmokeNoAutoAbsorptionObserved = !AbsorptionStarted && IsHoldingThing;
+        LeaveLens();
+        Advance(620);
+        SmokeLensRelaxObserved = !LensOpen && NameVisibility == LivingLensNameVisibility.Hidden;
+        ApproachLens("right", 0.96f);
+        Advance(620);
         PlayAbsorption();
         Advance(240);
         SmokeAbsorptionScaleObserved = AbsorptionShrinksThing;
@@ -407,10 +475,13 @@ public sealed class LivingLensSession
             switchOk &&
             LensesAtEdges &&
             LensesLivingSubtly &&
+            SmokeDefaultGlassObserved &&
             emergenceOk &&
             handOk &&
             vectorOk &&
             openOk &&
+            SmokeNoAutoAbsorptionObserved &&
+            SmokeLensRelaxObserved &&
             absorptionEarlyOk &&
             ghostOk &&
             TimingVariantsExist;

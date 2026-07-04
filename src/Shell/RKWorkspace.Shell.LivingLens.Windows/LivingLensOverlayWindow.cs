@@ -4,6 +4,9 @@ namespace RKWorkspace.Shell.LivingLens.Windows;
 
 public sealed class LivingLensOverlayWindow : Form
 {
+    private const int WsExLayered = 0x00080000;
+    private const int WsExToolWindow = 0x00000080;
+
     private readonly WorkspaceShellRuntime _runtime;
     private readonly System.Windows.Forms.Timer _timer = new();
     private readonly Rectangle _screenBounds;
@@ -30,17 +33,15 @@ public sealed class LivingLensOverlayWindow : Form
         TopMost = true;
         ShowInTaskbar = false;
         KeyPreview = true;
-        BackColor = Color.Magenta;
-        TransparencyKey = Color.Magenta;
+        BackColor = Color.Black;
+        TransparencyKey = Color.Empty;
         Cursor = Cursors.Default;
-        DoubleBuffered = true;
+        DoubleBuffered = false;
         Text = string.Empty;
 
         SetStyle(
             ControlStyles.AllPaintingInWmPaint |
-            ControlStyles.UserPaint |
-            ControlStyles.OptimizedDoubleBuffer |
-            ControlStyles.SupportsTransparentBackColor,
+            ControlStyles.UserPaint,
             true);
 
         _timer.Interval = 16;
@@ -56,8 +57,12 @@ public sealed class LivingLensOverlayWindow : Form
 
     public bool HasWebView => false;
 
-    public bool DesktopVisiblePrepared => TransparencyKey == Color.Magenta &&
-        BackColor == Color.Magenta &&
+    public bool UsesPerPixelAlphaOverlay => true;
+
+    public bool UsesColorKeyTransparency => TransparencyKey != Color.Empty;
+
+    public bool DesktopVisiblePrepared => UsesPerPixelAlphaOverlay &&
+        !UsesColorKeyTransparency &&
         FormBorderStyle == FormBorderStyle.None &&
         !ShowInTaskbar;
 
@@ -66,6 +71,16 @@ public sealed class LivingLensOverlayWindow : Form
     public bool SmokeModelOk { get; private set; }
 
     public bool SmokeExportOk { get; private set; }
+
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var createParams = base.CreateParams;
+            createParams.ExStyle |= WsExLayered | WsExToolWindow;
+            return createParams;
+        }
+    }
 
     public bool SmokeCheck()
     {
@@ -84,6 +99,7 @@ public sealed class LivingLensOverlayWindow : Form
     {
         base.OnShown(e);
         Activate();
+        RenderFrame();
         _timer.Start();
     }
 
@@ -114,7 +130,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.SwitchVariant(e.KeyCode - Keys.D1);
-            Invalidate();
+            RenderFrame();
             return;
         }
 
@@ -122,7 +138,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.SwitchVariant(e.KeyCode - Keys.NumPad1);
-            Invalidate();
+            RenderFrame();
             return;
         }
 
@@ -131,7 +147,7 @@ public sealed class LivingLensOverlayWindow : Form
             e.Handled = true;
             Session.PlayAbsorption();
             _targetCenter = LensCenter(Session.ActiveLens);
-            Invalidate();
+            RenderFrame();
             return;
         }
 
@@ -139,7 +155,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.ReplayOpening();
-            Invalidate();
+            RenderFrame();
             return;
         }
 
@@ -147,7 +163,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.CycleTiming();
-            Invalidate();
+            RenderFrame();
             return;
         }
 
@@ -164,7 +180,7 @@ public sealed class LivingLensOverlayWindow : Form
             Cursor = Cursors.SizeAll;
             Session.Pick();
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
-            Invalidate();
+            RenderFrame();
             return;
         }
 
@@ -189,9 +205,13 @@ public sealed class LivingLensOverlayWindow : Form
         {
             Session.ApproachLens(lens.LensId, NormalizedLensNearness(_targetCenter, LensCenter(lens)));
         }
+        else
+        {
+            Session.LeaveLens();
+        }
 
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Carried, "HX-002");
-        Invalidate();
+        RenderFrame();
         base.OnMouseMove(e);
     }
 
@@ -215,14 +235,35 @@ public sealed class LivingLensOverlayWindow : Form
             _targetCenter = LensCenter(lens);
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
         }
+        else
+        {
+            Session.DropFree();
+            _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
+        }
 
-        Invalidate();
+        RenderFrame();
         base.OnMouseUp(e);
+    }
+
+    protected override void OnPaintBackground(PaintEventArgs e)
+    {
     }
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        LivingLensRenderer.DrawScene(e.Graphics, ClientSize, CreateRenderState(false));
+        RenderFrame();
+    }
+
+    protected override void OnMove(EventArgs e)
+    {
+        base.OnMove(e);
+        RenderFrame();
+    }
+
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        RenderFrame();
     }
 
     private void Tick()
@@ -242,7 +283,7 @@ public sealed class LivingLensOverlayWindow : Form
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
         }
 
-        Invalidate();
+        RenderFrame();
     }
 
     private void ActivatePickAt(Point point)
@@ -262,7 +303,7 @@ public sealed class LivingLensOverlayWindow : Form
         Cursor = Cursors.SizeAll;
         Session.Pick();
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
-        Invalidate();
+        RenderFrame();
     }
 
     private LivingLensRenderState CreateRenderState(bool drawTestBackground)
@@ -292,6 +333,19 @@ public sealed class LivingLensOverlayWindow : Form
             DrawLens = Session.LensesVisible,
             DrawGhost = Session.TargetGhostVisible
         };
+    }
+
+    private void RenderFrame()
+    {
+        if (!IsHandleCreated || IsDisposed)
+        {
+            return;
+        }
+
+        PerPixelAlphaWindowRenderer.Render(this, (graphics, size) =>
+        {
+            LivingLensRenderer.DrawScene(graphics, size, CreateRenderState(false));
+        });
     }
 
     private LivingLensTarget? DetectLens(PointF point)

@@ -117,8 +117,8 @@ public static class LivingLensRenderer
         using var path = CreateOrganicOval(ambientBounds, state.Phase, 0.018f);
         using var glow = new PathGradientBrush(path)
         {
-            CenterColor = Color.FromArgb(Alpha(32 + (open * 34), emergence), 208, 230, 238),
-            SurroundColors = [Color.FromArgb(0, 208, 230, 238)]
+            CenterColor = Color.FromArgb(Alpha(10 + (open * 12), emergence), 248, 250, 248),
+            SurroundColors = [Color.FromArgb(0, 248, 250, 248)]
         };
         graphics.FillPath(glow, path);
 
@@ -140,8 +140,8 @@ public static class LivingLensRenderer
         using var path = CreateOrganicOval(bounds, state.Phase, 0.026f);
         using var material = new PathGradientBrush(path)
         {
-            CenterColor = Color.FromArgb(Alpha(34 + (open * 26), emergence), 246, 252, 252),
-            SurroundColors = [Color.FromArgb(Alpha(92 + (open * 38), emergence), 132, 156, 160)],
+            CenterColor = Color.FromArgb(Alpha(24 + (open * 18), emergence), 250, 252, 250),
+            SurroundColors = [Color.FromArgb(Alpha(72 + (open * 28), emergence), 132, 142, 142)],
             FocusScales = new PointF(0.44f, 0.32f)
         };
         graphics.FillPath(material, path);
@@ -156,8 +156,8 @@ public static class LivingLensRenderer
         using var path = CreateOrganicOval(bounds, state.Phase, 0.012f);
         using var material = new PathGradientBrush(path)
         {
-            CenterColor = Color.FromArgb(Alpha(72 + (open * 20), emergence), 220, 236, 242),
-            SurroundColors = [Color.FromArgb(Alpha(132 + (open * 38), emergence), 80, 102, 112)],
+            CenterColor = Color.FromArgb(Alpha(42 + (open * 18), emergence), 246, 248, 246),
+            SurroundColors = [Color.FromArgb(Alpha(96 + (open * 28), emergence), 104, 112, 112)],
             FocusScales = new PointF(0.34f, 0.24f)
         };
         graphics.FillPath(material, path);
@@ -435,7 +435,7 @@ public static class LivingLensRenderer
         graphics.TranslateTransform(-center.X, -center.Y);
 
         DrawThingShadow(graphics, bounds, state, progress, opacity);
-        using var thingPath = CreateThingPath(bounds, state.LensCenter, distortion);
+        using var thingPath = CreateThingPath(bounds, state.LensCenter, distortion, state.TiltX, state.TiltY);
         using var thingFill = new LinearGradientBrush(
             Rectangle.Round(bounds),
             Color.FromArgb(Alpha(238, opacity), 250, 250, 244),
@@ -447,7 +447,7 @@ public static class LivingLensRenderer
 
         if (state.ThingPartiallyOccluded || progress > 0)
         {
-            DrawDigitalGrip(graphics, bounds, opacity, progress);
+            DrawDigitalGrip(graphics, thingPath, bounds, opacity, progress);
         }
 
         using var titleFont = new Font(FontFamily.GenericSansSerif, Math.Max(7f, 11f * scale), FontStyle.Bold);
@@ -475,15 +475,19 @@ public static class LivingLensRenderer
         graphics.FillEllipse(brush, shadow);
     }
 
-    private static void DrawDigitalGrip(Graphics graphics, RectangleF bounds, float opacity, float progress)
+    private static void DrawDigitalGrip(Graphics graphics, GraphicsPath thingPath, RectangleF bounds, float opacity, float progress)
     {
         var gripBounds = new RectangleF(bounds.X - (bounds.Width * 0.08f), bounds.Y - 4, bounds.Width * (0.48f + (progress * 0.18f)), bounds.Height + 8);
+        var previousClip = graphics.Clip;
+        graphics.SetClip(thingPath, CombineMode.Intersect);
         using var grip = new LinearGradientBrush(
             Rectangle.Round(gripBounds),
-            Color.FromArgb(Alpha(76 + (progress * 48), opacity), 20, 28, 30),
+            Color.FromArgb(Alpha(52 + (progress * 42), opacity), 22, 26, 26),
             Color.FromArgb(0, 20, 28, 30),
             LinearGradientMode.Horizontal);
-        graphics.FillRectangle(grip, gripBounds);
+        graphics.FillEllipse(grip, gripBounds);
+        graphics.Clip = previousClip;
+        previousClip.Dispose();
     }
 
     private static void DrawTargetGhost(Graphics graphics, LivingLensRenderState state)
@@ -501,7 +505,7 @@ public static class LivingLensRenderer
         var width = BaseThingSize.Width * (0.22f + (progress * 0.64f));
         var height = BaseThingSize.Height * (0.20f + (progress * 0.62f));
         var bounds = new RectangleF(center.X - (width / 2f), center.Y - (height / 2f), width, height);
-        using var path = CreateThingPath(bounds, state.LensCenter, Math.Max(0, 0.36f - (progress * 0.36f)));
+        using var path = CreateThingPath(bounds, state.LensCenter, Math.Max(0, 0.36f - (progress * 0.36f)), 0f, 0f);
         using var fill = new SolidBrush(Color.FromArgb(Alpha(36 + (progress * 138), 1f), 250, 252, 250));
         using var edge = new Pen(Color.FromArgb(Alpha(44 + (progress * 78), 1f), 168, 202, 214), 0.9f);
         graphics.FillPath(fill, path);
@@ -516,7 +520,7 @@ public static class LivingLensRenderer
             source.Y + ((lens.Y - source.Y) * pull));
     }
 
-    private static GraphicsPath CreateThingPath(RectangleF bounds, PointF lensCenter, float distortion)
+    private static GraphicsPath CreateThingPath(RectangleF bounds, PointF lensCenter, float distortion, float tiltX, float tiltY)
     {
         var pullRight = lensCenter.X >= bounds.X + (bounds.Width / 2f);
         var frontPull = bounds.Width * 0.18f * distortion;
@@ -525,12 +529,18 @@ public static class LivingLensRenderer
         var bottomCurve = bounds.Height * 0.12f * distortion;
         var left = bounds.Left + (pullRight ? backLag : -frontPull);
         var right = bounds.Right + (pullRight ? frontPull : -backLag);
+        var perspectiveX = Math.Clamp(tiltX, -4f, 4f) * bounds.Width * 0.014f;
+        var perspectiveY = Math.Clamp(tiltY, -4f, 4f) * bounds.Height * 0.020f;
+        var topLeft = new PointF(left + 12 - (perspectiveX * 0.40f), bounds.Top + topCurve - (perspectiveY * 0.62f));
+        var topRight = new PointF(right - 12 - (perspectiveX * 0.18f), bounds.Top + topCurve + (perspectiveY * 0.22f));
+        var bottomRight = new PointF(right - 10 + (perspectiveX * 0.62f), bounds.Bottom - bottomCurve + (perspectiveY * 0.72f));
+        var bottomLeft = new PointF(left + 12 + (perspectiveX * 0.16f), bounds.Bottom - bottomCurve - (perspectiveY * 0.24f));
         var path = new GraphicsPath();
         path.StartFigure();
-        path.AddBezier(left + 12, bounds.Top + topCurve, bounds.Left + bounds.Width * 0.32f, bounds.Top - topCurve, bounds.Left + bounds.Width * 0.68f, bounds.Top + topCurve, right - 12, bounds.Top + topCurve);
-        path.AddBezier(right, bounds.Top + 18, right + (frontPull * 0.34f), bounds.Top + bounds.Height * 0.42f, right + (frontPull * 0.22f), bounds.Bottom - 18, right - 10, bounds.Bottom - bottomCurve);
-        path.AddBezier(right - (bounds.Width * 0.28f), bounds.Bottom + bottomCurve, bounds.Left + (bounds.Width * 0.64f), bounds.Bottom + bottomCurve, bounds.Left + (bounds.Width * 0.34f), bounds.Bottom - bottomCurve, left + 12, bounds.Bottom - bottomCurve);
-        path.AddBezier(left, bounds.Bottom - 18, left - (backLag * 0.4f), bounds.Top + bounds.Height * 0.55f, left - (backLag * 0.2f), bounds.Top + 18, left + 12, bounds.Top + topCurve);
+        path.AddBezier(topLeft, new PointF(bounds.Left + bounds.Width * 0.32f, bounds.Top - topCurve - (perspectiveY * 0.48f)), new PointF(bounds.Left + bounds.Width * 0.68f, bounds.Top + topCurve + (perspectiveY * 0.18f)), topRight);
+        path.AddBezier(topRight, new PointF(right + (frontPull * 0.34f) + (perspectiveX * 0.24f), bounds.Top + bounds.Height * 0.42f), new PointF(right + (frontPull * 0.22f) + (perspectiveX * 0.34f), bounds.Bottom - 18), bottomRight);
+        path.AddBezier(bottomRight, new PointF(right - (bounds.Width * 0.28f), bounds.Bottom + bottomCurve + (perspectiveY * 0.54f)), new PointF(bounds.Left + (bounds.Width * 0.34f), bounds.Bottom - bottomCurve - (perspectiveY * 0.22f)), bottomLeft);
+        path.AddBezier(bottomLeft, new PointF(left - (backLag * 0.4f) - (perspectiveX * 0.18f), bounds.Top + bounds.Height * 0.55f), new PointF(left - (backLag * 0.2f) - (perspectiveX * 0.14f), bounds.Top + 18), topLeft);
         path.CloseFigure();
         return path;
     }

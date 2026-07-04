@@ -207,7 +207,11 @@ Der Slice prueft:
 - Water Surface Lens.
 - Wormhole Lens.
 - Gravity Lens.
+- Per-Pixel-Alpha statt Color-Key-Transparenz.
+- keine lila/cyan Artefaktflaeche hinter der Linse.
 - Lens Absorption.
+- keine automatische Absorption beim Stillstehen.
+- Relax der Linse beim Wegbewegen.
 - Target Emergence.
 - Visual Target Export.
 
@@ -228,6 +232,8 @@ Pflicht:
 - kein Browser.
 - kein WebView.
 - keine blockierende Vollbildfalle.
+
+Die naechste visuelle Stufe ist ein GPU-/Shader-Pfad fuer echte Desktop-Brechung. Die aktuelle Fassung ist eine saubere transparente Overlay-Schicht mit simulierter Glaswirkung.
 
 ## Nicht-Ziele
 
@@ -263,6 +269,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-04 | Living Lens Per-Pixel-Alpha, Color-Key-Entfernung und kontrolliertes Loslassen eingeordnet. |
 | 1.5.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit Real Bubble Lens, Lens Absorption und Visual Target Export eingeordnet. |
 | 1.4.0 | 2026-07-04 | Visual-Reality-Implementierung auf Glasbrunnen-Portal, Glasmaterial, Raumbrunnen, ruhiges Portal und minimalen Raumriss korrigiert. |
 | 1.3.0 | 2026-07-04 | Owner-Referenzboard fuer naechste Visual-Reality-Richtung verlinkt und Ziel auf Glaslinse, Gravitationsbrunnen und ruhiges Portal korrigiert. |

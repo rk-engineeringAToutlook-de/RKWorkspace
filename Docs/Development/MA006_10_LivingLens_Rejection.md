@@ -1,7 +1,7 @@
 # MA006.10R Living Lens Renderer Reset
 
 Dokument-ID: RKWS-MA006-10R-LIVING-LENS-REJECTION
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -71,10 +71,19 @@ Start:
 - Dropzone-Rechtecke.
 - Browser/WebView.
 - technische Begriffe im Erlebnis.
+- Magenta-/Color-Key-Hintergrund als scheinbarer Raum.
+- automatische Absorption ohne Loslassen.
 
 ## Abgrenzung
 
-Dieser Spike ist noch kein finaler Renderer. WinForms/GDI+ reicht fuer den isolierten Smoke- und Frame-Export, aber nicht fuer das finale Zielgefuehl echter Brechung, Shader, Blur und per-pixel genauer Komposition.
+Dieser Spike ist noch kein finaler Renderer. Die sichtbare Overlay-Flaeche nutzt jetzt Per-Pixel-Alpha und laesst den echten Desktop ohne Magenta-/Color-Key-Artefakte sichtbar. WinForms/GDI+ reicht damit fuer den korrigierten isolierten Smoke- und Frame-Export, aber nicht fuer das finale Zielgefuehl echter Desktop-Brechung, Shader, Blur und physikalischer Materialkomposition.
+
+Die aktuelle Interaktion ist normativ:
+
+- Naehe darf die Linse oeffnen.
+- Wegbewegen muss die Linse beruhigen.
+- Das Ding bleibt unter Kontrolle des Benutzers.
+- Absorption startet erst beim Loslassen oder expliziten Replay.
 
 Die ehrliche Renderer-Bewertung steht in:
 
@@ -82,3 +91,9 @@ Die ehrliche Renderer-Bewertung steht in:
 Docs/RenderingDecision_LivingLens.md
 ```
 
+## Aenderungsverlauf
+
+| Version | Datum | Aenderung |
+| --- | --- | --- |
+| 1.1.0 | 2026-07-04 | Per-Pixel-Alpha, Color-Key-Verbot, Relax und kontrolliertes Loslassen ergaenzt. |
+| 1.0.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset dokumentiert. |

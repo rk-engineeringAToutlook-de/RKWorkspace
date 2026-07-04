@@ -331,8 +331,20 @@ if (-not $livingLensText.Contains('BrowserSurface: NONE')) {
     throw "Living Lens Smoke Test failed because output did not contain BrowserSurface: NONE."
 }
 
+if (-not $livingLensText.Contains('PerPixelAlpha: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain PerPixelAlpha: OK."
+}
+
+if (-not $livingLensText.Contains('ColorKeyTransparency: NONE')) {
+    throw "Living Lens Smoke Test failed because output did not contain ColorKeyTransparency: NONE."
+}
+
 if (-not $livingLensText.Contains('LensVariants: 5')) {
     throw "Living Lens Smoke Test failed because output did not contain LensVariants: 5."
+}
+
+if (-not $livingLensText.Contains('DefaultGlassLens: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain DefaultGlassLens: OK."
 }
 
 if (-not $livingLensText.Contains('RealBubbleLens: OK')) {
@@ -341,6 +353,14 @@ if (-not $livingLensText.Contains('RealBubbleLens: OK')) {
 
 if (-not $livingLensText.Contains('LensAbsorption: OK')) {
     throw "Living Lens Smoke Test failed because output did not contain LensAbsorption: OK."
+}
+
+if (-not $livingLensText.Contains('NoAutoAbsorption: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain NoAutoAbsorption: OK."
+}
+
+if (-not $livingLensText.Contains('LensRelaxAway: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain LensRelaxAway: OK."
 }
 
 if (-not $livingLensText.Contains('ExportFrames: OK')) {

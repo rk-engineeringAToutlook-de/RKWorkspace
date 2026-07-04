@@ -1,7 +1,7 @@
 # Lens Absorption
 
 Dokument-ID: RKWS-LENS-ABSORPTION
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -31,16 +31,17 @@ Das Ding wurde gesendet.
 
 1. Ding naehert sich der geoeffneten Linse.
 2. Linse reagiert und vertieft sich.
-3. Ding wird vom Zentrum angezogen.
-4. Vorderkante bewegt sich staerker zur Linse.
-5. Rueckkante folgt verzoegert.
-6. Ding wird kleiner und perspektivisch verzerrt.
-7. Opacity sinkt erst spaet.
-8. Schatten wird in die Linse gezogen.
-9. Ding verschwindet in der Tiefe.
-10. Target Ghost erscheint.
-11. Ghost wird groesser und klarer.
-12. Ding liegt auf der Zielablage.
+3. Der Benutzer behaelt die Kontrolle, solange er nicht loslaesst.
+4. Erst beim Loslassen wird das Ding vom Zentrum angezogen.
+5. Vorderkante bewegt sich staerker zur Linse.
+6. Rueckkante folgt verzoegert.
+7. Ding wird kleiner und perspektivisch verzerrt.
+8. Opacity sinkt erst spaet.
+9. Schatten wird in die Linse gezogen.
+10. Ding verschwindet in der Tiefe.
+11. Target Ghost erscheint.
+12. Ghost wird groesser und klarer.
+13. Ding liegt auf der Zielablage.
 
 ## Timing
 
@@ -66,6 +67,9 @@ A = Absorption erneut abspielen
 - lineares Drag-and-drop.
 - ploetzliches Empfangen.
 - Sprung auf Ziel.
+- automatisches Einrasten beim Stillstehen.
+- Absorption ohne Loslassen.
+- farbige Hilfsflaeche hinter der Blase.
 
 ## Smoke-Kriterien
 
@@ -78,4 +82,5 @@ Der Smoke-Test prueft:
 - Ghost erscheint.
 - Ghost wird groesser und klarer.
 - Timing-Varianten existieren.
-
+- Absorption startet nicht automatisch durch Naehe.
+- Die Linse beruhigt sich wieder, wenn der Benutzer weggeht.

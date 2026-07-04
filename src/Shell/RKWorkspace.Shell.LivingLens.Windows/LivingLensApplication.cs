@@ -38,6 +38,8 @@ public static class LivingLensApplication
             Console.WriteLine($"NativeOverlay: {(window.IsNativeOverlay ? "READY" : "FAILED")}");
             Console.WriteLine($"BrowserSurface: {(window.HasBrowserSurface ? "FAILED" : "NONE")}");
             Console.WriteLine($"WebView: {(window.HasWebView ? "FAILED" : "NONE")}");
+            Console.WriteLine($"PerPixelAlpha: {(window.UsesPerPixelAlphaOverlay ? "OK" : "FAILED")}");
+            Console.WriteLine($"ColorKeyTransparency: {(window.UsesColorKeyTransparency ? "FAILED" : "NONE")}");
             Console.WriteLine($"DesktopVisible: {(window.DesktopVisiblePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"NoPurpleBlob: {(session.PurpleBlobRejected ? "OK" : "FAILED")}");
             Console.WriteLine($"NoGreenPoint: {(session.GreenPointRejected ? "OK" : "FAILED")}");
@@ -45,6 +47,7 @@ public static class LivingLensApplication
             Console.WriteLine($"NoButtonShape: {(session.ButtonShapeRejected ? "OK" : "FAILED")}");
             Console.WriteLine($"NoTechnicalWords: {(session.TechnicalWordsRejected ? "OK" : "FAILED")}");
             Console.WriteLine($"LensVariants: {session.Variants.Count}");
+            Console.WriteLine($"DefaultGlassLens: {(session.SmokeDefaultGlassObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"RealBubbleLens: {(session.RealBubbleLensExists ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeAnchored: {(session.LensesAtEdges ? "OK" : "FAILED")}");
             Console.WriteLine($"SlowEmergence: {(session.LensEmergenceDurationMs is >= 1000 and <= 2000 ? "OK" : "FAILED")}");
@@ -55,6 +58,8 @@ public static class LivingLensApplication
             Console.WriteLine($"ThingCompact: {(session.ThingCompact ? "OK" : "FAILED")}");
             Console.WriteLine($"PartialOcclusion: {(session.ThingPartiallyOccluded ? "OK" : "FAILED")}");
             Console.WriteLine($"VectorDiagonal: {(session.CheckDiagonalVectorResponses() ? "OK" : "FAILED")}");
+            Console.WriteLine($"NoAutoAbsorption: {(session.SmokeNoAutoAbsorptionObserved ? "OK" : "FAILED")}");
+            Console.WriteLine($"LensRelaxAway: {(session.SmokeLensRelaxObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAbsorption: {(session.AbsorptionStarted ? "OK" : "FAILED")}");
             Console.WriteLine($"AbsorptionScale: {(session.SmokeAbsorptionScaleObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"AbsorptionDistortion: {(session.SmokeAbsorptionDistortionObserved ? "OK" : "FAILED")}");

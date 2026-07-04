@@ -1,7 +1,7 @@
 # MA006.10R Visual Targets
 
 Dokument-ID: RKWS-MA006-10R-VISUAL-TARGETS
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -12,6 +12,8 @@ Dieses Verzeichnis enthaelt exportierte Zielbilder des Living-Lens-Spikes.
 Sie sind keine finalen Produktgrafiken.
 
 Sie pruefen, ob der neue Spike die verworfene UI-Kreis-/Bubble-Richtung sichtbar verlaesst.
+
+Die exportierten Bilder besitzen weiterhin einen Testhintergrund, damit Material, Schatten und Oeffnung in Dateien beurteilbar sind. Die laufende Overlay-App nutzt dagegen eine Per-Pixel-Alpha-Schicht ohne Magenta-/Color-Key-Hintergrund; der echte Desktop bleibt sichtbar.
 
 ## Erzeugung
 
@@ -40,3 +42,8 @@ Sie pruefen, ob der neue Spike die verworfene UI-Kreis-/Bubble-Richtung sichtbar
 Wirkt es naeher an lebendigem Material als an UI?
 ```
 
+Zweite Bewertungsfrage:
+
+```text
+Bleibt der Desktop der Raum, und ist die Blase nur Material darin?
+```

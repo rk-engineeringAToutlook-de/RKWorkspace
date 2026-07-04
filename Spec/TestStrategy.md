@@ -593,12 +593,17 @@ RK Workspace Living Lens Smoke Test
 NativeOverlay: READY
 BrowserSurface: NONE
 WebView: NONE
+PerPixelAlpha: OK
+ColorKeyTransparency: NONE
 NoPurpleBlob: OK
 NoGreenPoint: OK
 NoUiCircle: OK
 LensVariants: 5
+DefaultGlassLens: OK
 RealBubbleLens: OK
 EdgeAnchored: OK
+NoAutoAbsorption: OK
+LensRelaxAway: OK
 LensAbsorption: OK
 AbsorptionScale: OK
 AbsorptionDistortion: OK
@@ -628,6 +633,8 @@ Der Test prueft nicht:
 - finale Shader-Brechung.
 - echte Desktop-Hintergrundverzerrung.
 - echte Payload.
+
+Der Test prueft ausdruecklich, dass die sichtbare Living-Lens-Schicht nicht mehr ueber Magenta-/Color-Key-Transparenz arbeitet. Damit wird verhindert, dass lila/cyan Artefakte wieder als scheinbarer Linsenraum sichtbar werden.
 - Discovery, Pairing oder Sicherheitsschicht.
 - finale Produktphysik.
 
@@ -642,6 +649,7 @@ Der Test prueft nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.14.0 | 2026-07-04 | Living Lens Smoke-Test um Per-Pixel-Alpha, Color-Key-Ausschluss, NoAutoAbsorption und LensRelaxAway erweitert. |
 | 2.13.0 | 2026-07-04 | MA006.10R Living Lens Smoke-Test mit Real Bubble Lens, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export dokumentiert. |
 | 2.12.0 | 2026-07-04 | MA006.09 Visual Reality Smoke-Test mit fuenf Living-Lens-Varianten, langsamem Erscheinen, digitaler Hand, Mini-Ablage, Glide und Ziel-Ghost dokumentiert. |
 | 2.11.1 | 2026-07-04 | Spatial Room Smoke-Test auf Tablet als Default-Ablage umgestellt; Handy bleibt als weitere erreichbare Ablage dokumentiert. |
