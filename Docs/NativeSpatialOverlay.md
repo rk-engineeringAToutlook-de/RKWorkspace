@@ -1,7 +1,7 @@
 # Native Spatial Overlay
 
 Dokument-ID: RKWS-NATIVE-SPATIAL-OVERLAY
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -156,11 +156,21 @@ Der Visual-Reality-Slice prueft fuenf Living-Lens-Hypothesen:
 
 Alle Varianten sind native Windows-Darstellung ohne Browser, WebView, HTML, Statusseite oder gruene Punkte.
 
+Der erste konkrete WinForms/GDI+-Spike wurde nach Owner-Test als visuelle Richtung verworfen. Er bleibt als technischer Smoke-Test erhalten, ist aber nicht die Grundlage fuer die naechste Linsen-Iteration.
+
 ## Renderer-Einschaetzung
 
-Das bestehende WinForms/GDI+-Rendering ist fuer einen ersten nativen Spike ausreichend.
+Das bestehende WinForms/GDI+-Rendering war fuer einen ersten nativen Smoke-Spike ausreichend.
 
-Es ist wahrscheinlich nicht ausreichend fuer das finale Zielgefuehl hochwertiger lebendiger Linsen mit echter Brechung, Blur, Shadern und per-pixel genauer Transparenz.
+Nach Owner-Test ist es fuer das Zielgefuehl hochwertiger lebendiger Linsen mit echter Brechung, Blur, Shadern und per-pixel genauer Transparenz nicht ausreichend.
+
+Bewertung:
+
+```text
+Technisch lauffaehig.
+Visuell nicht glaubwuerdig genug.
+Nicht weiter polieren.
+```
 
 Moegliche naechste Renderer sind in `Docs/VisualRealityBlueprint.md` dokumentiert.
 
@@ -200,5 +210,6 @@ MA006.09 baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Visual-Reality-Spikes als visuellen Fehlschlag und Renderer-Grenze dokumentiert. |
 | 1.1.0 | 2026-07-04 | MA006.09 Visual Reality Lab und Renderer-Einschaetzung fuer lebendige Ablage-Linsen ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice dokumentiert. |

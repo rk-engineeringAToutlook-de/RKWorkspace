@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -28,6 +28,42 @@ Dort geht mein Raum weiter.
 ```
 
 Der Web-/Browser-Prototyp bleibt als technische Testumgebung nuetzlich. Er ist aber kein gueltiger Human-Experience-Testpfad mehr, weil der Owner in Webflaechen kein echtes Raumgefuehl wahrnimmt.
+
+## Owner-Bewertung Des Ersten C#-Spikes
+
+Der erste native Visual-Reality-Spike mit WinForms/GDI+ hat den technischen Smoke-Test bestanden, aber den visuellen Owner-Test nicht bestanden.
+
+Owner-Bewertung:
+
+```text
+Totale grafische Katastrophe.
+```
+
+Diese Bewertung ist verbindlich. Sie bedeutet nicht:
+
+```text
+Noch etwas besser stylen.
+```
+
+Sie bedeutet:
+
+```text
+Der aktuelle visuelle Ansatz erzeugt das Zielgefuehl nicht.
+```
+
+Ab diesem Punkt darf nicht weiter an demselben C#-UI-Bild poliert werden. Der naechste Schritt ist zuerst visuelle Richtung, Storyboard und Renderer-Entscheidung.
+
+## Verbindlicher Naechster Schritt
+
+Vor weiterer Implementierung muessen vorliegen:
+
+- fuenf ernsthafte Varianten einer echten Ablage-Linse.
+- drei Varianten des Dings in der digitalen Hand.
+- drei Storyboards fuer Hineingleiten und Herauskommen.
+- eine klare Zielvision fuer den Portaluebergang.
+- eine ehrliche Renderer-Entscheidung.
+
+Wenn die aktuelle UI-Umgebung diese Qualitaet nicht erzeugen kann, wird nicht die Vision reduziert. Dann wird das visuelle Werkzeug gewechselt.
 
 ## Was Ist Eine Ablage-Linse?
 
@@ -248,6 +284,270 @@ MA006.09 prueft fuenf Ansaetze:
 
 Keine dieser Varianten ist final. Sie sind Wahrnehmungshypothesen.
 
+### Linse A: Seifenblase
+
+Zielgefuehl:
+
+```text
+Da ist etwas Zartes im Raum, das sich oeffnen kann.
+```
+
+Merkmale:
+
+- sehr transparente Kante.
+- feiner irisierender Lichtsaum.
+- kaum sichtbare Flaeche.
+- ein kleiner Lichtreflex als Hinweis auf Volumen.
+- minimale Formveraenderung bei Naehe.
+
+Risiko:
+
+- wirkt schnell kindlich oder dekorativ.
+- darf nicht wie Sticker oder Symbol aussehen.
+
+Akzeptanzkriterium:
+
+Die Linse muss wie ein optisches Phaenomen wirken, nicht wie eine gezeichnete Blase.
+
+### Linse B: Wasserlinse
+
+Zielgefuehl:
+
+```text
+Die Oberflaeche meines Raums wird weich und gibt nach.
+```
+
+Merkmale:
+
+- ruhige Wasseroberflaeche.
+- sanfte Welle am Rand.
+- dezente Brechung.
+- innere Tiefe statt Kreisflaeche.
+- Oeffnung wirkt wie Wasser, das kurz Platz macht.
+
+Risiko:
+
+- zu viel Welle wirkt nervoes.
+- zu wenig Brechung wirkt flach.
+
+Akzeptanzkriterium:
+
+Die Linse muss eine physische Oberflaeche andeuten, durch die das Ding hindurchgehen kann.
+
+### Linse C: Glaslinse
+
+Zielgefuehl:
+
+```text
+Da liegt eine echte optische Linse ueber meinem Arbeitsraum.
+```
+
+Merkmale:
+
+- klare Lichtkante.
+- leichte Verzeichnung des Hintergrunds.
+- glaeserne Tiefe.
+- kaum Bewegung, eher optische Praesenz.
+- oeffnet sich durch innere Dunkelheit und Mini-Ablage.
+
+Risiko:
+
+- kann wie ein technisches HUD wirken.
+- braucht sehr gutes Rendering fuer Brechung.
+
+Akzeptanzkriterium:
+
+Der Owner muss Tiefe wahrnehmen, ohne an ein UI-Element zu denken.
+
+### Linse D: Portal-Linse
+
+Zielgefuehl:
+
+```text
+Die andere Ablage ist dort drueben schon sichtbar.
+```
+
+Merkmale:
+
+- Rand wird tiefer.
+- Mitte oeffnet sich.
+- Mini-Ablage erscheint als perspektivische Flaeche.
+- Ding kann teilweise hineingleiten.
+- Ziel-Ghost wird auf der anderen Seite sichtbar.
+
+Risiko:
+
+- kann schnell nach Science-Fiction-Effekt oder Spiel aussehen.
+- muss ruhig bleiben.
+
+Akzeptanzkriterium:
+
+Die Linse muss wie ein weicher Durchgang wirken, nicht wie Teleport oder Effekt.
+
+### Linse E: Minimaler Raumriss
+
+Zielgefuehl:
+
+```text
+Der Raum hat an dieser Stelle eine fast unsichtbare Oeffnung.
+```
+
+Merkmale:
+
+- kein sichtbarer Kreis.
+- nur Lichtkante und Tiefe.
+- schwacher Schimmer am Rand.
+- Name erscheint erst sehr spaet.
+- stark reduzierte Form.
+
+Risiko:
+
+- zu subtil, um als Moeglichkeit erkannt zu werden.
+- kann wie Grafikfehler wirken.
+
+Akzeptanzkriterium:
+
+Die Linse muss trotz Minimalismus absichtlich und raeumlich wirken.
+
+## Drei Varianten Des Dings In Der Digitalen Hand
+
+Das Ding darf nicht am Cursor kleben. Es muss in der digitalen Hand liegen.
+
+### Hand-Variante 1: Kontaktmaske
+
+Das Ding wird an einer Seite teilweise verdeckt. Eine dunkle, weiche Kontaktzone vermittelt:
+
+```text
+Meine Hand umfasst einen Teil davon.
+```
+
+Merkmale:
+
+- Teilverdeckung links/unten je nach Greifpunkt.
+- Griffschatten.
+- geringe Kompression.
+- keine sichtbare Handgrafik.
+
+### Hand-Variante 2: Gefasstes Objekt
+
+Das Ding wird kompakter und bekommt mehr Tiefe. Es wirkt nicht kleiner als Icon, sondern gefasster.
+
+Merkmale:
+
+- 8 bis 12 Prozent kompakter.
+- staerkerer Objektschatten.
+- klare Vorder-/Rueckseite.
+- vektorielle Neigung sofort bei Bewegung.
+
+### Hand-Variante 3: Eingesetzte Handflaeche
+
+Eine kaum sichtbare, matte Griffzone liegt ueber einem Teil des Dings. Das Gehirn ergaenzt die digitale Hand.
+
+Merkmale:
+
+- halbtransparente Kontaktflaeche.
+- Kante des Dings verschwindet teilweise.
+- Schatten wandert mit Bewegungsvektor.
+- kurze optische Haptik beim Loesen.
+
+## Drei Storyboards Fuer Hineingleiten Und Herauskommen
+
+### Storyboard 1: Nehmen Und Raum Wird Sichtbar
+
+```text
+Ausgang:
+Echter Desktop bleibt sichtbar.
+
+Geste:
+Der Mensch nimmt Rechnung.pdf.
+
+Antwort:
+Das Ding wird kompakter, teilweise verdeckt und bekommt Griffschatten.
+
+Raum:
+Linsen tauchen innerhalb von 1 bis 2 Sekunden am Rand auf.
+
+Gefuehl:
+Ich habe etwas in der Hand und der Raum zeigt mir Moeglichkeiten.
+```
+
+### Storyboard 2: Linse Oeffnet Sich
+
+```text
+Annaeherung:
+Das Ding bewegt sich direkt kontrollierbar zur Linse.
+
+Distanz:
+Die Linse wird erst langsam lesbar.
+
+Kontakt:
+Die Linse bekommt Tiefe und oeffnet die Mitte.
+
+Mini-Ablage:
+Eine kleine perspektivische Zielablage wird sichtbar.
+
+Gefuehl:
+Ich sehe, wohin ich es legen kann.
+```
+
+### Storyboard 3: Durchgang Und Herauskommen
+
+```text
+Eintritt:
+Das Ding wird leicht kleiner und verschwindet teilweise in der Linse.
+
+Uebergang:
+Die Linse nimmt das Ding weich auf.
+
+Ziel:
+Auf der anderen Ablage erscheint ein Ghost.
+
+Herauskommen:
+Der Ghost wird groesser und klarer.
+
+Ablegen:
+Das Ding liegt an der gewaehlten Position auf der Zielablage.
+
+Gefuehl:
+Das Ding ging durch den Raum, nicht durch ein Netzwerk.
+```
+
+## Klare Zielvision Fuer Den Portaluebergang
+
+Der finale Zielmoment lautet:
+
+```text
+Ich halte ein digitales Ding.
+Ich fuehre es an eine lebendige Linse am Rand meiner Ablage.
+Die Linse oeffnet sich wie eine raeumliche Oeffnung.
+Das Ding gleitet hinein, bleibt kurz als mein Ding erkennbar
+und kommt auf der anderen Ablage als Ghost heraus.
+Erst wenn ich es dort loslasse, liegt es dort.
+```
+
+Der Benutzer soll dabei nicht denken:
+
+```text
+Ich uebertrage eine Datei.
+```
+
+Sondern:
+
+```text
+Ich lege es dort drueben hin.
+```
+
+## Entscheidungs-Gate Vor Neuer Implementierung
+
+Vor dem naechsten Code-Sprint muss mindestens eine der folgenden Grundlagen vorliegen:
+
+- gerenderte visuelle Mockups der fuenf Linsenrichtungen.
+- ein kurzer Motion-Prototyp in einem geeigneten visuellen Werkzeug.
+- eine Renderer-Auswahl mit Begruendung.
+- eine Owner-Entscheidung, welche Linsenrichtung weiterverfolgt wird.
+
+Ohne diese Entscheidung wird kein weiterer C#-UI-Spike fuer das Linsengefuehl begonnen.
+
 ## Renderer-Eignung
 
 MA006.09 nutzt fuer den nativen Spike WinForms/GDI+ mit transparentem Topmost-Fenster.
@@ -265,11 +565,11 @@ Bewertung:
 | Portal-Effekt | Als 2D-Spike ja, als hochwertiges Gefuehl nur begrenzt. |
 | Performance | Fuer V1 ausreichend, fuer Shader-/Blur-/Refraction-Effekte nicht final. |
 
-Ehrliche Einschaetzung:
+Ehrliche Einschaetzung nach Owner-Test:
 
 ```text
-Diese Rendering-Technik reicht fuer einen ersten nativen Wahrnehmungs-Spike.
-Sie reicht wahrscheinlich nicht fuer das finale Zielgefuehl hochwertiger lebendiger Linsen aus.
+Diese Rendering-Technik reicht fuer technische Smoke-Tests.
+Sie reicht fuer das Zielgefuehl hochwertiger lebendiger Linsen nicht aus.
 ```
 
 Moegliche naechste Renderer:
@@ -284,6 +584,8 @@ Moegliche naechste Renderer:
 - separater Visual Prototype ausserhalb der aktuellen App.
 
 Wenn die Linse nicht echt wirkt, muss die Rendering-Technik gewechselt werden. Nicht die Vision.
+
+Der erste WinForms/GDI+-Spike ist daher als visueller Human-Experience-Pfad verworfen. Er darf als technischer Test erhalten bleiben, aber nicht als Grundlage fuer die naechste visuelle Iteration dienen.
 
 ## Nicht-Ziele
 
@@ -303,4 +605,5 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten C#-Spikes als visuellen Fehlschlag dokumentiert; fuenf Linsenrichtungen, drei digitale-Hand-Varianten, drei Storyboards, Zielvision und Implementierungs-Gate ergaenzt. |
 | 1.0.0 | 2026-07-04 | MA006.09 Visual Reality Blueprint mit Ablage-Linse, Haptik-Konzept und Renderer-Eignung definiert. |

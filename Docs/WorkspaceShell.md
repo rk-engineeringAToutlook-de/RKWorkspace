@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.11.0
+Version: 1.12.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -184,11 +184,18 @@ Das Lab prueft:
 - Gleiten in die Linse.
 - Ghost auf der Zielseite.
 
-Die Shell-Grundregel bleibt:
+Der erste WinForms/GDI+-Spike hat den technischen Smoke-Test bestanden, wurde aber nach Owner-Test als visuelle Richtung verworfen:
+
+```text
+Totale grafische Katastrophe.
+```
+
+Die Shell-Grundregel wird dadurch geschaerft:
 
 ```text
 Web-/Browser-Prototypen sind technische Tests.
-Native Visual Reality ist der gueltige HX-Testpfad fuer das Linsengefuehl.
+Der aktuelle WinForms/GDI+-Spike ist ebenfalls nur noch ein technischer Test.
+Der naechste gueltige HX-Schritt ist visuelle Richtung, Storyboard und Renderer-Entscheidung.
 ```
 
 ## Spatial Carry Tray Prototype
@@ -494,6 +501,7 @@ MA006.09 baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.12.0 | 2026-07-04 | Owner-Bewertung des ersten Visual-Reality-Spikes als visuellen Fehlschlag dokumentiert und naechsten HX-Schritt auf Blueprint, Storyboard und Renderer-Entscheidung korrigiert. |
 | 1.11.0 | 2026-07-04 | MA006.09 Visual Reality Lab als nativen HX-Testpfad fuer lebendige Ablage-Linsen ergaenzt. |
 | 1.10.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als neuen primaeren Gefuehlspfad ohne Browser/WebView dokumentiert. |
 | 1.9.0 | 2026-07-03 | MA006.07 Surface Overlay Reset als Korrektur von Radar-/Statusseite zu ruhiger Ablageflaeche mit Bubbles nur beim Tragen eingeordnet. |

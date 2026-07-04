@@ -1,7 +1,7 @@
 # Visual Reality Lab
 
 Dokument-ID: RKWS-VISUAL-REALITY-LAB
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -20,6 +20,8 @@ Es testet nur eine Frage:
 ```text
 Wirkt eine Ablage-Linse wie eine raeumliche Oeffnung?
 ```
+
+Der erste WinForms/GDI+-Spike hat diese Frage fuer den Owner nicht positiv beantwortet. Er bleibt als technischer Smoke-Test erhalten, ist aber kein gueltiger visueller Zielpfad mehr.
 
 ## Projekt
 
@@ -94,6 +96,36 @@ VisualRealitySmoke: SUCCESS
 RESULT: SUCCESS
 ```
 
+## Owner-Bewertung Nach Ersttest
+
+Der technische Smoke-Test war erfolgreich.
+
+Der visuelle Owner-Test war nicht erfolgreich.
+
+Owner-Bewertung:
+
+```text
+Totale grafische Katastrophe.
+```
+
+Diese Bewertung ist verbindlich. Sie bedeutet:
+
+- nicht weiter an derselben C#-Darstellung polieren.
+- nicht den Anspruch an die Linse reduzieren.
+- zuerst Blueprint, visuelle Mockups, Storyboards oder Renderer-Entscheidung klaeren.
+
+Der aktuelle Spike beweist nur:
+
+```text
+Ein natives transparentes Testfenster kann gestartet und automatisch geprueft werden.
+```
+
+Er beweist nicht:
+
+```text
+Die Ablage-Linse fuehlt sich echt an.
+```
+
 ## Abgrenzung
 
 Das Lab ersetzt nicht:
@@ -103,7 +135,9 @@ Das Lab ersetzt nicht:
 - Developer Studio.
 - Shell Runtime Host.
 
-Das Lab ist der neue Human-Experience-Pfad fuer visuelle Realitaet. Web-/Browser-Prototypen bleiben nur technische Tests.
+Das Lab bleibt als technischer Experimentierraum erhalten. Nach dem Owner-Test ist der konkrete WinForms/GDI+-Spike aber kein akzeptierter Human-Experience-Pfad fuer visuelle Realitaet.
+
+Der naechste gueltige Schritt ist in `Docs/VisualRealityBlueprint.md` definiert: fuenf ernsthafte Linsenrichtungen, drei digitale-Hand-Varianten, drei Storyboards, Zielvision fuer den Portaluebergang und eine Renderer-Entscheidung.
 
 ## Owner-Test
 
@@ -122,6 +156,8 @@ Der Owner prueft ausschliesslich:
 ## Bekannte Grenzen
 
 - Renderer ist WinForms/GDI+ und nicht final.
+- Visueller Owner-Test des ersten Spikes nicht bestanden.
+- Keine weitere C#-UI-Politur ohne vorheriges Entscheidungs-Gate.
 - Per-Pixel-Transparenz, echte Brechung, Blur und Shader sind nur angedeutet.
 - Linsenpositionen sind simuliert.
 - Keine echte Monitor- oder Raumvermessung.
@@ -133,4 +169,5 @@ Der Owner prueft ausschliesslich:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Spikes als visuellen Fehlschlag dokumentiert und naechstes Entscheidungs-Gate auf den Visual Reality Blueprint verlagert. |
 | 1.0.0 | 2026-07-04 | MA006.09 Visual Reality Lab mit fuenf Living-Lens-Hypothesen dokumentiert. |
