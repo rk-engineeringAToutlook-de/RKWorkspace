@@ -13,5 +13,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\LivingLensRefraction.hlsl" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Shaders\LivingLensMaterial.hlsl" CopyToOutputDirectory="PreserveNewest" />
+    <Resource Include="Shaders\LivingLensMaterial.ps" />
+    <Content Include="Shaders\LivingLensMaterial.ps" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

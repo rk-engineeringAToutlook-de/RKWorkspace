@@ -1,7 +1,7 @@
 # Rendering Decision Living Lens
 
 Dokument-ID: RKWS-RENDERING-DECISION-LIVING-LENS
-Version: 1.5.0
+Version: 1.6.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -15,7 +15,7 @@ MA006.10R baut einen isolierten Living-Lens-Spike. Ziel ist nicht UI-Design, son
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | WinForms/GDI+ mit Per-Pixel-Alpha Layer | Echt per-pixel fuer Overlay-Elemente | Ja, ohne Magenta-/Color-Key-Artefakte | Nur simuliert | Einfach moeglich | Begrenzt | CPU-basiert | Ausreichend fuer den korrigierten Spike und Export, nicht final. |
 | WinForms/GDI+ mit TransparencyKey | Begrenzt ueber TransparencyKey | Visuell fehleranfaellig | Nur simuliert | Einfach moeglich | Begrenzt | CPU-basiert | Verworfen fuer sichtbare Living Lens, weil lila/cyan Artefakte entstehen. |
-| WPF mit Desktop-Sampling | Gut fuer transparentes Overlay | Ja, echter Desktop wird unter der Linse abgetastet | Erste Refraction-Map-Vorbereitung, noch kein HLSL | Gut, inklusive Physical-Glass-Zwischenschicht | Gut | GPU-komponiert | MA006.11 Slice: richtiger naechster Produktpfad, aber noch nicht finale Shader-Qualitaet. |
+| WPF mit Desktop-Sampling und ShaderEffect | Gut fuer transparentes Overlay | Ja, echter Desktop wird unter der Linse abgetastet | Aktive HLSL/WPF-PixelShader-Layer fuer erste Materialbrechung | Gut, inklusive Physical-Glass-Zwischenschicht | Gut | GPU-komponiert | MA006.11 Slice: richtiger naechster Produktpfad, aber noch nicht vollstaendiger Direct2D-/Win2D-Renderer. |
 | Win2D / Direct2D | Sehr gut | Ja | Shader-/Effektpfad moeglich | Sehr gut | Sehr gut | GPU | Starker Kandidat fuer Windows-Prototyp. |
 | Windows Composition API | Sehr gut | Ja | Effekte/Blur/Layering gut | Sehr gut | Gut | GPU | Starker Kandidat fuer Produkt-Overlay. |
 | SkiaSharp | Gut | Ja | Simulierbar, Shader moeglich | Gut | Gut | GPU je nach Backend | Guter plattformnaher Prototypkandidat. |
@@ -69,6 +69,8 @@ Der Vertrag wurde um `portalPull` und `edgeContact` erweitert. Damit ist die spa
 
 Der sichtbare Premium-Zwischenschritt fuegt Physical Glass Material hinzu: Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps. Das verbessert die Materiallesbarkeit deutlich, ersetzt aber nicht den finalen nativen Shader mit echter Brechung, Blur und physikalischer Lichtfuehrung.
 
+Der erste aktive Shader-Schritt ist nun umgesetzt: `LivingLensMaterial.hlsl` wird mit `fxc` als `LivingLensMaterial.ps` kompiliert und ueber `LivingLensMaterialEffect` als WPF `ShaderEffect` geladen. `GpuLivingLensShaderLayer` versorgt den Shader mit der aktuellen Desktop-Textur unter der aktiven Linse. Das ist der erste echte PixelShader im sichtbaren Pfad, bleibt aber bewusst eine Zwischenstufe vor Direct2D/Win2D.
+
 Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
@@ -83,6 +85,7 @@ Die Vision wird nicht reduziert, nur weil WinForms/GDI+ begrenzt ist.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer mit kompiliertem LivingLensMaterial-Shader als naechsten Renderer-Schritt eingeordnet. |
 | 1.5.0 | 2026-07-04 | Physical-Glass-Zwischenschicht mit Glasdicke, chromatischen Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps eingeordnet. |
 | 1.4.0 | 2026-07-04 | HLSL-Vertrag um portalPull und edgeContact fuer lokale Kantenverzerrung erweitert. |
 | 1.3.0 | 2026-07-04 | HLSL-Shader-Vertrag und ShadowSuction als Uebergang zum nativen Direct2D-/Win2D-Renderer ergaenzt. |

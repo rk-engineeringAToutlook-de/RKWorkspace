@@ -35,6 +35,7 @@ public static class GpuLivingLensApplication
             var session = new GpuLivingLensSession();
             session.RunSmokeScenario();
             var desktopSampleOk = DesktopRefractionSampler.TryCheckSample();
+            var compiledShaderOk = GpuLivingLensShaderAvailability.CompiledMaterialShaderExists();
             var success = runtime.State == WorkspaceShellRuntimeState.Running &&
                 session.GpuCompositionPrepared &&
                 session.DesktopRefractionPrepared &&
@@ -85,6 +86,10 @@ public static class GpuLivingLensApplication
                 session.LensContactShadowPrepared &&
                 session.GlassCausticsPrepared &&
                 session.SpecularGlassSweepsPrepared &&
+                session.CompiledPixelShaderPrepared &&
+                compiledShaderOk &&
+                session.NativeShaderLayerPrepared &&
+                session.ShaderMaterialRefractionPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -163,6 +168,9 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"LensContactShadow: {(session.LensContactShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"GlassCaustics: {(session.GlassCausticsPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"SpecularGlassSweeps: {(session.SpecularGlassSweepsPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CompiledPixelShader: {(session.CompiledPixelShaderPrepared && compiledShaderOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"NativeShaderLayer: {(session.NativeShaderLayerPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ShaderMaterialRefraction: {(session.ShaderMaterialRefractionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");

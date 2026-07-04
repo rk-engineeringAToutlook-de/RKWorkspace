@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.16.0
+Version: 1.17.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -96,6 +96,9 @@ Er nutzt:
 - LensContactShadow: Die Linse bekommt einen ruhigen Kontakt-Schatten auf dem Desktop, damit sie sich vom Hintergrund absetzt.
 - GlassCaustics: Feine, langsam bewegte Lichtlinien geben dem Material mehr Tiefe, ohne technische Zielringe zu erzeugen.
 - SpecularGlassSweeps: Breite, weiche Reflex-Baender laufen durch die Linse und erzeugen eine hochwertigere Glaswirkung.
+- CompiledPixelShader: `LivingLensMaterial.hlsl` wird mit `fxc` als `LivingLensMaterial.ps` kompiliert und als WPF-Resource eingebunden.
+- NativeShaderLayer: Das Fenster besitzt eine eigene Shader-Layer, die die echte Desktop-Textur mit einem WPF-PixelShader bricht.
+- ShaderMaterialRefraction: Der aktive Shader bekommt Lens-Zentrum, Radius, Oeffnung, Look und Zeit als Materialparameter.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -115,9 +118,15 @@ MA006.11 unterstuetzt:
 
 MA006.11 ist noch kein finaler Renderer.
 
+Enthalten:
+
+- aktiver HLSL/WPF-PixelShader fuer die Linsen-Materialbrechung.
+- pro Frame aktualisierte Desktop-Textur als Shader-Input fuer die aktive Linse.
+- C#-Komposition als Interaktions-, Fallback- und Zusatzmaterialschicht.
+
 Noch nicht enthalten:
 
-- finaler HLSL-Shader.
+- vollstaendiger Direct2D-/Win2D-Renderer.
 - finale physikalische Glasbrechung im nativen Shader.
 - Blur-/Chromatic-Aberration-Shader.
 - echte Desktop-Objekterkennung.
@@ -158,7 +167,14 @@ Der Shader-Vertrag liegt in:
 src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/Shaders/LivingLensRefraction.hlsl
 ```
 
-Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
+Der erste aktive Materialshader liegt in:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/Shaders/LivingLensMaterial.hlsl
+src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/Shaders/LivingLensMaterial.ps
+```
+
+`LivingLensRefraction.hlsl` definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
 
 - Desktop-Input.
 - LensCenter.
@@ -184,7 +200,7 @@ Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
 - SpecularGlassSweeps.
 - ObjectMotion.
 
-Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider. Der HLSL-Vertrag ist damit die Uebergangsform zum nativen Shader-Renderer.
+Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider und ergaenzt sie jetzt durch eine echte WPF-PixelShader-Layer. Der HLSL-Vertrag bleibt die Uebergangsform zum vollstaendigen nativen Direct2D-/Win2D-Renderer.
 
 ## Verifikation
 
@@ -247,6 +263,9 @@ ChromaticEdge: OK
 LensContactShadow: OK
 GlassCaustics: OK
 SpecularGlassSweeps: OK
+CompiledPixelShader: OK
+NativeShaderLayer: OK
+ShaderMaterialRefraction: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -273,6 +292,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.17.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer mit kompiliertem LivingLensMaterial-Shader dokumentiert. |
 | 1.16.0 | 2026-07-04 | Physical Glass Material mit Glasdicke, chromatischer Kante, Kontakt-Schatten, Caustics und Specular-Sweeps dokumentiert. |
 | 1.15.0 | 2026-07-04 | Live-Desktop-Refraction, Capture-Ausschluss, stabileren Lens-Lock und Mikro-Highlights dokumentiert. |
 | 1.14.0 | 2026-07-04 | Fließendes Nehmen, geglaettete Blasenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik dokumentiert. |

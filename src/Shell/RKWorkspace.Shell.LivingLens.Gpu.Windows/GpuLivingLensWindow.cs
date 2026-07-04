@@ -1,5 +1,6 @@
 using RKWorkspace.Shell;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using FormsScreen = System.Windows.Forms.Screen;
@@ -10,6 +11,7 @@ public sealed class GpuLivingLensWindow : Window
 {
     private readonly WorkspaceShellRuntime _runtime;
     private readonly GpuLivingLensSurface _surface;
+    private readonly GpuLivingLensShaderLayer _shaderLayer;
 
     public GpuLivingLensWindow(WorkspaceShellRuntime runtime)
     {
@@ -28,7 +30,11 @@ public sealed class GpuLivingLensWindow : Window
         Title = string.Empty;
 
         _surface = new GpuLivingLensSurface(runtime, bounds);
-        Content = _surface;
+        _shaderLayer = new GpuLivingLensShaderLayer(_surface, bounds);
+        var root = new Grid();
+        root.Children.Add(_surface);
+        root.Children.Add(_shaderLayer);
+        Content = root;
         KeyDown += OnKeyDown;
         SourceInitialized += (_, _) =>
         {
@@ -45,6 +51,7 @@ public sealed class GpuLivingLensWindow : Window
     private void OnRendering(object? sender, EventArgs e)
     {
         _surface.Tick();
+        _shaderLayer.Tick();
     }
 
     private void OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)

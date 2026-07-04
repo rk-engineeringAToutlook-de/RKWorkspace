@@ -98,6 +98,12 @@ public sealed class GpuLivingLensSession
 
     public bool SpecularGlassSweepsPrepared { get; } = true;
 
+    public bool CompiledPixelShaderPrepared { get; } = true;
+
+    public bool NativeShaderLayerPrepared { get; } = true;
+
+    public bool ShaderMaterialRefractionPrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;

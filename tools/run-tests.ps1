@@ -598,6 +598,18 @@ if (-not $gpuLivingLensText.Contains('SpecularGlassSweeps: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain SpecularGlassSweeps: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('CompiledPixelShader: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CompiledPixelShader: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('NativeShaderLayer: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain NativeShaderLayer: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('ShaderMaterialRefraction: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ShaderMaterialRefraction: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

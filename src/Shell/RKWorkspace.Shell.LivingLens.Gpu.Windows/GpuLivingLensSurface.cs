@@ -226,6 +226,56 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
     }
 
+    public GpuLivingLensShaderSnapshot CreateShaderSnapshot()
+    {
+        if (_session.LensEmergence <= 0.001f)
+        {
+            return default;
+        }
+
+        var activation = LensActivation(_activeLensCenter);
+        if (activation <= 0.02)
+        {
+            return default;
+        }
+
+        var open = EaseOut(_session.LensOpen) * activation;
+        var bounds = LensBounds(_activeLensCenter, activation);
+        var captureRect = DesktopSampleRect(bounds);
+        var renderRect = new Rect(
+            captureRect.X - _screenBounds.Left,
+            captureRect.Y - _screenBounds.Top,
+            captureRect.Width,
+            captureRect.Height);
+
+        if (renderRect.Width <= 1 || renderRect.Height <= 1)
+        {
+            return default;
+        }
+
+        var emergence = EaseOut(_session.LensEmergence);
+        var intensity = Math.Clamp((emergence * 0.48) + (activation * 0.36) + (open * 0.22), 0.0, 1.0);
+        var lookMode = _lensLook switch
+        {
+            GpuLivingLensLook.GlassBubble => 0.0,
+            GpuLivingLensLook.Wormhole => 1.0,
+            _ => 2.0
+        };
+
+        return new GpuLivingLensShaderSnapshot(
+            true,
+            captureRect,
+            renderRect,
+            (_activeLensCenter.X - renderRect.X) / renderRect.Width,
+            (_activeLensCenter.Y - renderRect.Y) / renderRect.Height,
+            (bounds.Width / 2.0) / renderRect.Width,
+            (bounds.Height / 2.0) / renderRect.Height,
+            Math.Clamp(open, 0.0, 1.0),
+            intensity,
+            lookMode,
+            _phase);
+    }
+
     private void DrawLens(DrawingContext drawingContext, WPoint center, double activation)
     {
         if (_session.LensEmergence <= 0)
