@@ -418,6 +418,10 @@ if (-not $gpuLivingLensText.Contains('HlslShaderContract: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain HlslShaderContract: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('NoPaperAxisSpin: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain NoPaperAxisSpin: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('RectangularThing: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain RectangularThing: OK."
 }
@@ -438,12 +442,20 @@ if (-not $gpuLivingLensText.Contains('PortalEdgePull: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain PortalEdgePull: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('PortalEdgeSqueeze: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PortalEdgeSqueeze: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('TunnelDepthLayers: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain TunnelDepthLayers: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('PremiumTunnelVisual: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain PremiumTunnelVisual: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('PremiumTunnelRefraction: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PremiumTunnelRefraction: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
@@ -472,6 +484,10 @@ if (-not $gpuLivingLensText.Contains('CarryShadowOnly: OK')) {
 
 if (-not $gpuLivingLensText.Contains('ShadowSuction: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain ShadowSuction: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('ShadowTunnelSuction: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ShadowTunnelSuction: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('TransitTimeoutMs: 10000')) {

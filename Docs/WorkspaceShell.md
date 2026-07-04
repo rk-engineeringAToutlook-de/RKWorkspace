@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.24.0
+Version: 1.25.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -313,6 +313,8 @@ Vor dem Shader-Sprung wurde der akzeptierte Stand mit `gpu-living-lens-depth-fre
 Der Portal-Handover bleibt in MA006.11 eine lokale Wahrnehmungssimulation, keine echte Uebertragung. Nach dem Ablegen im Tunnel startet ein 10-Sekunden-Fenster. Innerhalb dieses Fensters kann der Mensch das Ding wieder aus dem Tunnel nehmen; dadurch wird der Timer verworfen und beim naechsten Drop neu gestartet. Wenn das Ding 10 Sekunden unberuehrt im Tunnel bleibt, gilt es lokal als auf der Gegenseite abgelegt, die Linse schliesst sich und oeffnet sich nicht automatisch neu.
 
 Die Tunneloptik wird in dieser Stufe ebenfalls bewusst veredelt: mehr gebrochene Desktop-Schichten, neutrale Tiefenringe, ein dunklerer innerer Schlund und ruhige Spiegelkanten sollen Tiefe erzeugen, ohne eine farbige UI-Flaeche oder einen Sci-Fi-Hintergrund einzufuehren.
+
+Die Premium-Portal-Iteration korrigiert ausserdem die Objektphysik am Tunnel. Das digitale Ding soll nicht wie eine Vektorgrafik um seine eigene Mitte rotieren. Stattdessen zieht der Tunnel lokal an der tunnelnahen Kante: die beiden naechsten Ecken laufen aufeinander zu, die Gegenseite bleibt laenger stabil und der Schatten wird als `ShadowTunnelSuction` mit in die Oeffnung gezogen.
 
 ## Spatial Carry Tray Prototype
 
@@ -626,6 +628,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.25.0 | 2026-07-04 | GPU Living Lens Premium-Portal mit PortalEdgeSqueeze, NoPaperAxisSpin, ShadowTunnelSuction und PremiumTunnelRefraction eingeordnet. |
 | 1.24.0 | 2026-07-04 | GPU Living Lens Tunnelgrafik mit Premium-Tiefenringen, innerem Schlund und ruhigen Spiegelkanten ergaenzt. |
 | 1.23.0 | 2026-07-04 | GPU Living Lens Portal-Handover mit Ruecknahmefenster, Timer-Reset und automatischem Tunnel-Schliessen eingeordnet. |
 | 1.22.0 | 2026-07-04 | GPU Living Lens Carry beruhigt, Schatten weich geschichtet und PortalPull an linse-naher Kante ergaenzt. |

@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.13.0
+Version: 1.14.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -873,6 +873,9 @@ Geprueft wird:
 - Schatten-Sog in Richtung Tunnel.
 - zusaetzliche Tunnel-Tiefenschichten.
 - Premium-Tunnelgrafik mit gebrochenen Desktop-Schichten, neutralen Tiefenringen, innerem Schlund und Spiegelkanten.
+- PortalEdgeSqueeze statt Eigenrotation: die tunnelnahe Kante wird zusammengezogen, die Gegenseite bleibt laenger als Papier lesbar.
+- ShadowTunnelSuction: der Schatten arbeitet mit und wird zur Oeffnung hin komprimiert.
+- PremiumTunnelRefraction mit ruhigen Refraction-Ribbons und neutraler Glasbrillanz.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -903,6 +906,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.14.0 | 2026-07-04 | Premium-Portal-Iteration mit Edge-Squeeze, Schatten-Sog und veredelter Tunnel-Refraction dokumentiert. |
 | 1.13.0 | 2026-07-04 | Premium-Tunnelgrafik als MA006.11-Zielrichtung dokumentiert. |
 | 1.12.0 | 2026-07-04 | Portal-Handover-Regel fuer GPU Living Lens aufgenommen: 10-Sekunden-Ruecknahmefenster, Timer-Reset bei erneutem Nehmen und lokales Ablegen auf Gegenseite. |
 | 1.11.0 | 2026-07-04 | Sanfter Carry, weicher Schatten und PortalPull fuer die linse-nahe Objektkante ergaenzt. |

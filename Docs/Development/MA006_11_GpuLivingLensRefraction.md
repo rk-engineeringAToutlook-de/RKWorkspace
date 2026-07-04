@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -52,9 +52,12 @@ Er nutzt:
 - Schattenmodell nur unter dem getragenen Ding.
 - weicher Schatten aus mehreren transparenten Projektionen.
 - PortalPull: die linse-nahe Kante wird bereits vor dem Loslassen Richtung Tunnel gezogen.
+- PortalEdgeSqueeze: die tunnelnahe Kante und ihre Ecken laufen aufeinander zu, statt das ganze Papier um die eigene Achse zu drehen.
 - Schatten-Sog bei der Linsenaufnahme.
+- ShadowTunnelSuction: der Schatten wird mit zur Tunneloeffnung gezogen und perspektivisch komprimiert.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
 - Premium-Tunnelgrafik mit mehr gebrochenen Desktop-Schichten, neutralen Tiefenringen, dunklerem innerem Schlund und ruhigen Spiegelkanten.
+- PremiumTunnelRefraction mit ruhigen Refraction-Ribbons und neutralen Glas-/Caustic-Spuren.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -128,8 +131,11 @@ Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
 - ShadowSuction.
 - PortalPull.
 - EdgeContact.
+- EdgeSqueeze.
 - HandoverProgress.
 - TunnelClosing.
+- ShadowTunnelSuction.
+- PremiumRefraction.
 - ObjectMotion.
 
 Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider. Der HLSL-Vertrag ist damit die Uebergangsform zum nativen Shader-Renderer.
@@ -150,19 +156,24 @@ GpuComposition: READY
 DesktopSampling: OK
 DesktopRefraction: OK
 HlslShaderContract: OK
+NoPaperAxisSpin: OK
 RectangularThing: OK
 RectangularShadow: OK
 GentleCarryTilt: OK
 SoftShadow: OK
 PortalEdgePull: OK
+PortalEdgeSqueeze: OK
 TunnelDepthLayers: OK
 PremiumTunnelVisual: OK
+PremiumTunnelRefraction: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
 PullOutFromLens: OK
 PerspectiveTrapezoid: OK
+ShadowModel: OK
 ShadowSuction: OK
+ShadowTunnelSuction: OK
 CarryShadowOnly: OK
 TransitTimeoutMs: 10000
 TransitCountdown: OK
@@ -180,6 +191,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-04 | Premium-Portal-Iteration mit PortalEdgeSqueeze, NoPaperAxisSpin, ShadowTunnelSuction und PremiumTunnelRefraction dokumentiert. |
 | 1.6.0 | 2026-07-04 | Premium-Tunnelgrafik mit zusaetzlichen Desktop-Schichten, Tiefenringen, innerem Schlund und Spiegelkanten dokumentiert. |
 | 1.5.0 | 2026-07-04 | Portal-Handover mit 10-Sekunden-Ruecknahmefenster, Timer-Reset bei erneutem Nehmen und Tunnel-Schliessen dokumentiert. |
 | 1.4.0 | 2026-07-04 | Carry-Neigung beruhigt, Schatten weich geschichtet und PortalPull fuer linse-nahe Kanten dokumentiert. |

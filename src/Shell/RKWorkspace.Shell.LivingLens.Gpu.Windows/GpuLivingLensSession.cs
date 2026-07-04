@@ -30,6 +30,8 @@ public sealed class GpuLivingLensSession
 
     public bool PremiumTunnelVisualPrepared { get; } = true;
 
+    public bool PremiumTunnelRefractionPrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;
@@ -42,7 +44,11 @@ public sealed class GpuLivingLensSession
 
     public bool PortalEdgePullPrepared { get; private set; }
 
+    public bool PortalEdgeSqueezePrepared { get; private set; }
+
     public bool NoWhiteBlock { get; } = true;
+
+    public bool NoPaperAxisSpinPrepared { get; } = true;
 
     public bool DropRequiresRelease { get; private set; } = true;
 
@@ -53,6 +59,8 @@ public sealed class GpuLivingLensSession
     public bool ShadowPrepared { get; private set; }
 
     public bool ShadowSuctionPrepared { get; private set; }
+
+    public bool ShadowTunnelSuctionPrepared { get; private set; }
 
     public bool PerspectiveTrapezoidPrepared { get; private set; }
 
@@ -137,6 +145,16 @@ public sealed class GpuLivingLensSession
             PortalEdgePullPrepared = true;
         }
 
+        if (nearness > 0.46f)
+        {
+            PortalEdgeSqueezePrepared = true;
+        }
+
+        if (nearness > 0.62f)
+        {
+            ShadowTunnelSuctionPrepared = true;
+        }
+
         _openTarget = nearness >= 0.68f
             ? Math.Clamp((nearness - 0.68f) / 0.32f, 0f, 1f)
             : 0f;
@@ -158,6 +176,8 @@ public sealed class GpuLivingLensSession
         LensOpen = 1f;
         Absorption = 0.01f;
         ShadowSuctionPrepared = true;
+        PortalEdgeSqueezePrepared = true;
+        ShadowTunnelSuctionPrepared = true;
     }
 
     public void PlaceOnSurface()
