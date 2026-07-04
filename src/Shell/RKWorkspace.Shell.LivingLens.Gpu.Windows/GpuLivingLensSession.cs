@@ -20,6 +20,10 @@ public sealed class GpuLivingLensSession
 
     public bool HlslShaderContractPrepared { get; } = true;
 
+    public bool RectangularThingPrepared { get; } = true;
+
+    public bool RectangularShadowPrepared { get; } = true;
+
     public bool NoWhiteBlock { get; } = true;
 
     public bool DropRequiresRelease { get; private set; } = true;
@@ -71,13 +75,13 @@ public sealed class GpuLivingLensSession
 
     public void Carry(float movementX, float movementY)
     {
-        var targetTiltX = Math.Clamp(movementX * 0.220f, -14.0f, 14.0f);
-        var targetTiltY = Math.Clamp(-movementY * 0.210f, -14.0f, 14.0f);
-        TiltX = (TiltX * 0.34f) + (targetTiltX * 0.66f);
-        TiltY = (TiltY * 0.34f) + (targetTiltY * 0.66f);
-        ShadowX = Math.Clamp(-TiltX * 3.2f, -36f, 36f);
-        ShadowY = Math.Clamp(25f + (MathF.Abs(TiltY) * 3.0f), 20f, 58f);
-        VectorTiltPrepared = Math.Abs(TiltX) > 0.75f && Math.Abs(TiltY) > 0.75f;
+        var targetTiltX = Math.Clamp(movementX * 0.360f, -17.0f, 17.0f);
+        var targetTiltY = Math.Clamp(-movementY * 0.340f, -17.0f, 17.0f);
+        TiltX = (TiltX * 0.24f) + (targetTiltX * 0.76f);
+        TiltY = (TiltY * 0.24f) + (targetTiltY * 0.76f);
+        ShadowX = Math.Clamp(-TiltX * 3.6f, -44f, 44f);
+        ShadowY = Math.Clamp(25f + (MathF.Abs(TiltY) * 3.4f), 20f, 64f);
+        VectorTiltPrepared = Math.Abs(TiltX) > 0.45f && Math.Abs(TiltY) > 0.45f;
         PerspectiveTrapezoidPrepared = VectorTiltPrepared;
         ShadowPrepared = IsHoldingThing && (ShadowY > 24f || Math.Abs(ShadowX) > 2f);
     }

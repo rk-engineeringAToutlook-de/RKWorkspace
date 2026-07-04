@@ -40,6 +40,8 @@ public static class GpuLivingLensApplication
                 session.DesktopRefractionPrepared &&
                 session.RefractionMapPrepared &&
                 session.HlslShaderContractPrepared &&
+                session.RectangularThingPrepared &&
+                session.RectangularShadowPrepared &&
                 session.TunnelDepthPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
@@ -65,6 +67,8 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"DesktopRefraction: {(session.DesktopRefractionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShaderReadyMap: {(session.RefractionMapPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"HlslShaderContract: {(session.HlslShaderContractPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"RectangularThing: {(session.RectangularThingPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"RectangularShadow: {(session.RectangularShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TunnelDepthLayers: {(session.TunnelDepthPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");

@@ -296,6 +296,8 @@ Geprueft werden:
 - kontrolliertes Loslassen statt automatischem Einrasten.
 - flaches Ablegen ohne Trageschatten.
 - Pull-out aus der Linse.
+- klares zweidimensionales Rechteck als digitales Test-Ding.
+- rechteckig-perspektivischer Trageschatten.
 - vektorielle Trapez-Neigung des Dings.
 - Schattenmodell nur fuer raeumliches Tragen.
 - Schatten-Sog in Richtung Linse bei der Aufnahme.
@@ -618,6 +620,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.21.0 | 2026-07-04 | GPU Living Lens Digital Thing auf Rechteck-Geometrie und rechteckig-perspektivischen Schatten fuer den Physiktest umgestellt. |
 | 1.20.0 | 2026-07-04 | GPU Living Lens um Backup-Referenz, HLSL-Shader-Vertrag und Schatten-Sog beim Einsaugen erweitert. |
 | 1.19.0 | 2026-07-04 | GPU Living Lens um Pick-Emergence, 85-90 Prozent sichtbare Randlinse, Perspektiv-Trapez, CarryShadowOnly und Tunnel-Tiefe ergaenzt. |
 | 1.18.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype mit Desktop-Sampling, Rand-Durchgang und Shader-Grenze dokumentiert. |

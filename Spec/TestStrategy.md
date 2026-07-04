@@ -670,6 +670,8 @@ DesktopSampling: OK
 DesktopRefraction: OK
 ShaderReadyMap: OK
 HlslShaderContract: OK
+RectangularThing: OK
+RectangularShadow: OK
 TunnelDepthLayers: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
@@ -697,6 +699,8 @@ Der Test prueft ausdruecklich:
 - vektorielle Trapez-Neigung und Schattenmodell sind vorbereitet.
 - der Schatten wird bei Absorption zur Linse gezogen.
 - der Trageschatten ist an den Carry-Zustand gekoppelt.
+- das digitale Ding ist fuer den Physiktest ein klares 2D-Rechteck.
+- der Trageschatten ist rechteckig-perspektivisch statt elliptisch.
 - Tunnel-Tiefenschichten sind vorbereitet.
 - ein HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Pfad liegt im Projekt.
 
@@ -718,6 +722,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.19.0 | 2026-07-04 | GPU Living Lens Smoke-Test um RectangularThing und RectangularShadow fuer den Physiktest erweitert. |
 | 2.18.0 | 2026-07-04 | GPU Living Lens Smoke-Test um HlslShaderContract und ShadowSuction erweitert. |
 | 2.17.0 | 2026-07-04 | GPU Living Lens Smoke-Test um LensAppearsOnPick, TunnelDepthLayers, PerspectiveTrapezoid und CarryShadowOnly erweitert. |
 | 2.16.0 | 2026-07-04 | MA006.11 GPU Living Lens Smoke-Test mit Desktop-Sampling, Refraction-Vorbereitung und EdgeContinuation dokumentiert. |

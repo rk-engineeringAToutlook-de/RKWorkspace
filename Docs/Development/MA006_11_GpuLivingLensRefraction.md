@@ -46,6 +46,8 @@ Er nutzt:
 - kontrolliertes Loslassen statt automatischer Absorption.
 - flaches Ablegen auf der Arbeitsflaeche ohne Trageschatten.
 - Pull-out aus der Linse.
+- klares zweidimensionales Rechteck als Test-Ding.
+- rechteckig-perspektivischer Trageschatten.
 - staerkere perspektivische Trapez-Neigung aus der Bewegungsrichtung.
 - Schattenmodell nur unter dem getragenen Ding.
 - Schatten-Sog bei der Linsenaufnahme.
@@ -137,6 +139,8 @@ GpuComposition: READY
 DesktopSampling: OK
 DesktopRefraction: OK
 HlslShaderContract: OK
+RectangularThing: OK
+RectangularShadow: OK
 TunnelDepthLayers: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -153,6 +157,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-04 | Digital Thing fuer den Physiktest auf klares Rechteck und rechteckig-perspektivischen Schatten umgestellt. |
 | 1.2.0 | 2026-07-04 | Backup-Tag, HLSL-Shader-Vertrag und ShadowSuction fuer den Direct2D-/Win2D-Pfad dokumentiert. |
 | 1.1.0 | 2026-07-04 | Owner-Feedback zu 85-90 Prozent sichtbarer Randlinse, Pick-Emergence, Trageschatten, Perspektiv-Trapez und Tunnel-Tiefe aufgenommen. |
 | 1.0.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype dokumentiert. |

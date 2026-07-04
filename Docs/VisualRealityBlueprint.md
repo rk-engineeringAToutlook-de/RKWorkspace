@@ -862,6 +862,8 @@ Geprueft wird:
 - Edge-Continuation statt harter Randblockade.
 - Linse erscheint beim Greifen.
 - Ding bleibt in menschlicher Kontrolle bis zum Loslassen.
+- Digital Thing wird fuer den Physiktest als klares 2D-Rechteck dargestellt.
+- Trageschatten ist ein rechteckig-perspektivischer Schatten.
 - Pull-out aus der Linse.
 - vektorielle Trapez-Neigung aus der Bewegungsrichtung.
 - Schatten nur im Tragezustand.
@@ -894,6 +896,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.10.0 | 2026-07-04 | Digital Thing Geometry Reset mit 2D-Rechteck und rechteckig-perspektivischem Schatten ergaenzt. |
 | 1.9.0 | 2026-07-04 | Shader-Sprung mit Backup-Tag, HLSL-Vertrag und Schatten-Sog fuer die Living Lens ergaenzt. |
 | 1.8.0 | 2026-07-04 | GPU Living Lens Owner-Feedback zu Randanteil, Pick-Emergence, Perspektiv-Trapez, CarryShadowOnly und Tunnel-Tiefe ergaenzt. |
 | 1.7.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction mit Desktop-Sampling, Refraction-Map und EdgeContinuation ergaenzt. |

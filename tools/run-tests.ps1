@@ -418,6 +418,14 @@ if (-not $gpuLivingLensText.Contains('HlslShaderContract: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain HlslShaderContract: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('RectangularThing: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RectangularThing: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('RectangularShadow: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RectangularShadow: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('TunnelDepthLayers: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain TunnelDepthLayers: OK."
 }
