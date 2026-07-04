@@ -16,6 +16,8 @@ public sealed record LivingLensRenderState
 
     public float TargetEmergenceProgress { get; init; }
 
+    public float ThingRecoveryProgress { get; init; } = 1f;
+
     public float TiltX { get; init; }
 
     public float TiltY { get; init; }

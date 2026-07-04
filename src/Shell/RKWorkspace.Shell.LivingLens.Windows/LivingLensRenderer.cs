@@ -68,8 +68,8 @@ public static class LivingLensRenderer
         var open = EaseOut(state.OpenProgress);
         var absorption = EaseOut(state.AbsorptionProgress);
         var pulse = MathF.Sin(state.Phase * 0.72f) * 0.018f;
-        var width = 164f * (0.42f + (0.58f * emergence)) * (1f + pulse + (open * 0.08f));
-        var height = 118f * (0.42f + (0.58f * emergence)) * (1f - (pulse * 0.6f) + (open * 0.04f));
+        var width = 176f * (0.42f + (0.58f * emergence)) * (1f + pulse + (open * 0.08f));
+        var height = 126f * (0.42f + (0.58f * emergence)) * (1f - (pulse * 0.6f) + (open * 0.04f));
         if (state.Variant == LivingLensVariantKind.Gravity)
         {
             width *= 1.18f;
@@ -105,7 +105,7 @@ public static class LivingLensRenderer
 
         if (open > 0.45f)
         {
-            DrawMiniAblage(graphics, lensBounds, open, state.TargetEmergenceProgress);
+            DrawSoftReceivingDepth(graphics, lensBounds, open, state.TargetEmergenceProgress);
         }
 
         DrawLensText(graphics, lensBounds, state);
@@ -148,6 +148,7 @@ public static class LivingLensRenderer
         DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.62f);
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(250, 255, 255));
         DrawBubbleHighlights(graphics, bounds, emergence, open);
+        DrawLensBrilliance(graphics, bounds, emergence, open, state.Phase);
         DrawSoftAperture(graphics, bounds, emergence, open, absorption, 0.34f);
     }
 
@@ -164,7 +165,8 @@ public static class LivingLensRenderer
         DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.9f);
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(246, 252, 255));
         DrawGlassHighlights(graphics, bounds, emergence, open);
-        DrawSoftAperture(graphics, bounds, emergence, open, absorption, 0.44f);
+        DrawLensBrilliance(graphics, bounds, emergence, open, state.Phase);
+        DrawSoftAperture(graphics, bounds, emergence, open, absorption, 0.34f);
     }
 
     private static void DrawWaterSurfaceLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
@@ -321,6 +323,35 @@ public static class LivingLensRenderer
         graphics.FillEllipse(main, bounds.X + (bounds.Width * 0.50f), bounds.Y + (bounds.Height * 0.12f), bounds.Width * 0.34f, bounds.Height * 0.36f);
     }
 
+    private static void DrawLensBrilliance(Graphics graphics, RectangleF bounds, float emergence, float open, float phase)
+    {
+        var shimmer = 0.5f + (MathF.Sin(phase * 0.9f) * 0.5f);
+        using var outerCrescent = new Pen(Color.FromArgb(Alpha(180 + (open * 48), emergence), 255, 255, 255), 1.8f + (open * 0.8f));
+        using var innerCrescent = new Pen(Color.FromArgb(Alpha(64 + (open * 42), emergence), 34, 38, 38), 0.9f);
+        using var movingGlint = new Pen(Color.FromArgb(Alpha(72 + (shimmer * 54), emergence), 255, 255, 255), 0.9f);
+
+        graphics.DrawArc(outerCrescent, Inflate(bounds, -4f, -5f), 206, 122);
+        graphics.DrawArc(innerCrescent, Inflate(bounds, -12f, -11f), 24, 118);
+        graphics.DrawBezier(
+            movingGlint,
+            bounds.Left + (bounds.Width * 0.22f),
+            bounds.Top + (bounds.Height * (0.37f + (shimmer * 0.035f))),
+            bounds.Left + (bounds.Width * 0.38f),
+            bounds.Top + (bounds.Height * 0.26f),
+            bounds.Right - (bounds.Width * 0.30f),
+            bounds.Top + (bounds.Height * 0.31f),
+            bounds.Right - (bounds.Width * 0.18f),
+            bounds.Top + (bounds.Height * (0.46f - (shimmer * 0.035f))));
+
+        using var pinLight = new SolidBrush(Color.FromArgb(Alpha(42 + (shimmer * 44), emergence), 255, 255, 255));
+        graphics.FillEllipse(
+            pinLight,
+            bounds.X + (bounds.Width * (0.68f + (shimmer * 0.03f))),
+            bounds.Y + (bounds.Height * 0.18f),
+            bounds.Width * 0.07f,
+            bounds.Height * 0.05f);
+    }
+
     private static void DrawSoftAperture(Graphics graphics, RectangleF bounds, float emergence, float open, float absorption, float baseStrength)
     {
         var strength = Math.Clamp(baseStrength + (open * 0.58f) + (absorption * 0.44f), 0f, 1.35f);
@@ -349,47 +380,37 @@ public static class LivingLensRenderer
         graphics.DrawArc(edge, aperture, 202, 136);
     }
 
-    private static void DrawMiniAblage(Graphics graphics, RectangleF lensBounds, float open, float targetProgress)
+    private static void DrawSoftReceivingDepth(Graphics graphics, RectangleF lensBounds, float open, float targetProgress)
     {
-        var topY = lensBounds.Y + (lensBounds.Height * 0.55f);
-        var bottomY = lensBounds.Y + (lensBounds.Height * 0.74f);
-        var leftTop = lensBounds.X + (lensBounds.Width * 0.38f);
-        var rightTop = lensBounds.X + (lensBounds.Width * 0.62f);
-        var leftBottom = lensBounds.X + (lensBounds.Width * 0.25f);
-        var rightBottom = lensBounds.X + (lensBounds.Width * 0.75f);
-        var points = new[]
+        var alpha = Alpha(44 + (targetProgress * 36), open);
+        var depth = new RectangleF(
+            lensBounds.X + (lensBounds.Width * 0.34f),
+            lensBounds.Y + (lensBounds.Height * 0.57f),
+            lensBounds.Width * 0.32f,
+            lensBounds.Height * 0.12f);
+        using var depthPath = new GraphicsPath();
+        depthPath.AddEllipse(depth);
+        using var depthBrush = new PathGradientBrush(depthPath)
         {
-            new PointF(leftTop, topY),
-            new PointF(rightTop, topY),
-            new PointF(rightBottom, bottomY),
-            new PointF(leftBottom, bottomY)
+            CenterColor = Color.FromArgb(alpha, 10, 14, 16),
+            SurroundColors = [Color.FromArgb(0, 10, 14, 16)],
+            FocusScales = new PointF(0.48f, 0.22f)
         };
-        using var path = new GraphicsPath();
-        path.AddPolygon(points);
-        using var fill = new PathGradientBrush(path)
-        {
-            CenterColor = Color.FromArgb(Alpha(80 + (open * 42), 1f), 222, 236, 232),
-            SurroundColors = [Color.FromArgb(Alpha(34 + (open * 22), 1f), 88, 116, 124)]
-        };
-        using var border = new Pen(Color.FromArgb(Alpha(126, open), 230, 246, 242), 0.9f);
-        graphics.FillPath(fill, path);
-        graphics.DrawPath(border, path);
+        graphics.FillPath(depthBrush, depthPath);
 
-        if (targetProgress > 0)
+        if (targetProgress <= 0)
         {
-            var ghostWidth = (rightTop - leftTop) * (0.34f + (targetProgress * 0.36f));
-            var ghostHeight = (bottomY - topY) * (0.26f + (targetProgress * 0.24f));
-            var ghost = new RectangleF(
-                leftTop + ((rightTop - leftTop - ghostWidth) / 2f),
-                topY + ((bottomY - topY - ghostHeight) / 2f),
-                ghostWidth,
-                ghostHeight);
-            using var ghostPath = RoundedRectangle(ghost, 5f);
-            using var ghostBrush = new SolidBrush(Color.FromArgb(Alpha(42 + (targetProgress * 128), 1f), 255, 255, 255));
-            using var ghostBorder = new Pen(Color.FromArgb(Alpha(70 + (targetProgress * 70), 1f), 178, 214, 226), 0.8f);
-            graphics.FillPath(ghostBrush, ghostPath);
-            graphics.DrawPath(ghostBorder, ghostPath);
+            return;
         }
+
+        var ghost = new RectangleF(
+            lensBounds.X + (lensBounds.Width * (0.43f - (targetProgress * 0.05f))),
+            lensBounds.Y + (lensBounds.Height * (0.59f - (targetProgress * 0.03f))),
+            lensBounds.Width * (0.14f + (targetProgress * 0.18f)),
+            lensBounds.Height * (0.05f + (targetProgress * 0.07f)));
+        using var ghostPath = RoundedRectangle(ghost, 6f);
+        using var ghostBrush = new SolidBrush(Color.FromArgb(Alpha(26 + (targetProgress * 66), 1f), 255, 255, 252));
+        graphics.FillPath(ghostBrush, ghostPath);
     }
 
     private static void DrawLensText(Graphics graphics, RectangleF lensBounds, LivingLensRenderState state)
@@ -415,14 +436,18 @@ public static class LivingLensRenderer
 
     private static void DrawDigitalThing(Graphics graphics, LivingLensRenderState state)
     {
-        var progress = EaseOut(state.AbsorptionProgress);
+        var progress = SmoothStep(state.AbsorptionProgress);
         if (progress >= 1f && state.TargetEmergenceProgress >= 0.95f)
         {
             return;
         }
 
         var center = AbsorbedThingCenter(state.ThingCenter, state.LensCenter, progress);
-        var scale = (state.ThingCompact ? 0.88f : 1.0f) * Math.Clamp(1f - (progress * 0.62f), 0.34f, 1f);
+        var recovery = EaseOut(state.ThingRecoveryProgress);
+        var carryScale = state.ThingCompact
+            ? 0.70f + (0.18f * recovery)
+            : 1.0f;
+        var scale = carryScale * Math.Clamp(1f - (progress * 0.62f), 0.34f, 1f);
         var width = BaseThingSize.Width * scale;
         var height = BaseThingSize.Height * scale * (1f - (progress * 0.16f));
         var bounds = new RectangleF(center.X - (width / 2f), center.Y - (height / 2f), width, height);
@@ -430,11 +455,11 @@ public static class LivingLensRenderer
         var opacity = progress < 0.78f ? 1f : Math.Clamp(1f - ((progress - 0.78f) / 0.22f), 0.12f, 1f);
 
         var previous = graphics.Transform;
+        DrawThingShadow(graphics, bounds, state, progress, opacity);
         graphics.TranslateTransform(center.X, center.Y);
-        graphics.RotateTransform(state.TiltX * 0.42f);
+        graphics.RotateTransform(state.TiltX * 0.36f);
         graphics.TranslateTransform(-center.X, -center.Y);
 
-        DrawThingShadow(graphics, bounds, state, progress, opacity);
         using var thingPath = CreateThingPath(bounds, state.LensCenter, distortion, state.TiltX, state.TiltY);
         using var thingFill = new LinearGradientBrush(
             Rectangle.Round(bounds),
@@ -466,13 +491,16 @@ public static class LivingLensRenderer
 
     private static void DrawThingShadow(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float progress, float opacity)
     {
+        var baseAlpha = state.GripShadowVisible ? 92 : 42;
         var shadow = new RectangleF(
             bounds.X + state.ShadowX + (progress * 8f),
             bounds.Y + state.ShadowY - (progress * 4f),
             bounds.Width * (1f - (progress * 0.18f)),
             bounds.Height * (0.30f - (progress * 0.08f)));
-        using var brush = new SolidBrush(Color.FromArgb(Alpha(state.GripShadowVisible ? 86 : 42, opacity), 0, 0, 0));
-        graphics.FillEllipse(brush, shadow);
+        using var soft = new SolidBrush(Color.FromArgb(Alpha(baseAlpha * 0.44f, opacity), 0, 0, 0));
+        using var core = new SolidBrush(Color.FromArgb(Alpha(baseAlpha, opacity), 0, 0, 0));
+        graphics.FillEllipse(soft, Inflate(shadow, 12f, 6f));
+        graphics.FillEllipse(core, shadow);
     }
 
     private static void DrawDigitalGrip(Graphics graphics, GraphicsPath thingPath, RectangleF bounds, float opacity, float progress)
@@ -529,8 +557,8 @@ public static class LivingLensRenderer
         var bottomCurve = bounds.Height * 0.12f * distortion;
         var left = bounds.Left + (pullRight ? backLag : -frontPull);
         var right = bounds.Right + (pullRight ? frontPull : -backLag);
-        var perspectiveX = Math.Clamp(tiltX, -4f, 4f) * bounds.Width * 0.014f;
-        var perspectiveY = Math.Clamp(tiltY, -4f, 4f) * bounds.Height * 0.020f;
+        var perspectiveX = Math.Clamp(tiltX, -6.5f, 6.5f) * bounds.Width * 0.024f;
+        var perspectiveY = Math.Clamp(tiltY, -6.5f, 6.5f) * bounds.Height * 0.035f;
         var topLeft = new PointF(left + 12 - (perspectiveX * 0.40f), bounds.Top + topCurve - (perspectiveY * 0.62f));
         var topRight = new PointF(right - 12 - (perspectiveX * 0.18f), bounds.Top + topCurve + (perspectiveY * 0.22f));
         var bottomRight = new PointF(right - 10 + (perspectiveX * 0.62f), bounds.Bottom - bottomCurve + (perspectiveY * 0.72f));
@@ -621,6 +649,12 @@ public static class LivingLensRenderer
     {
         var clamped = Math.Clamp(value, 0f, 1f);
         return 1f - MathF.Pow(1f - clamped, 3f);
+    }
+
+    private static float SmoothStep(float value)
+    {
+        var clamped = Math.Clamp(value, 0f, 1f);
+        return clamped * clamped * (3f - (2f * clamped));
     }
 
     private static int Alpha(float value, float multiplier)

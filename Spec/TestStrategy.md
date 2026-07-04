@@ -602,6 +602,8 @@ LensVariants: 5
 DefaultGlassLens: OK
 RealBubbleLens: OK
 EdgeAnchored: OK
+PrimaryEdgeLens: OK
+NoWhiteAblageFrame: OK
 NoAutoAbsorption: OK
 LensRelaxAway: OK
 LensAbsorption: OK
@@ -610,6 +612,7 @@ AbsorptionDistortion: OK
 NotInstantGone: OK
 TargetGhost: OK
 GhostEmergence: OK
+PullOutFromLens: OK
 TimingVariants: OK
 ExportFrames: OK
 LivingLensSmoke: SUCCESS
@@ -635,6 +638,13 @@ Der Test prueft nicht:
 - echte Payload.
 
 Der Test prueft ausdruecklich, dass die sichtbare Living-Lens-Schicht nicht mehr ueber Magenta-/Color-Key-Transparenz arbeitet. Damit wird verhindert, dass lila/cyan Artefakte wieder als scheinbarer Linsenraum sichtbar werden.
+
+Nach dem Owner-Video-Feedback prueft der Smoke-Test zusaetzlich:
+
+- primaere Linse sitzt am Bildschirmrand.
+- kein weisser Innenrahmen als UI-Ziel.
+- Pull-out aus der Linse bleibt moeglich.
+- Absorption bleibt an Loslassen gekoppelt.
 - Discovery, Pairing oder Sicherheitsschicht.
 - finale Produktphysik.
 
@@ -649,6 +659,7 @@ Der Test prueft ausdruecklich, dass die sichtbare Living-Lens-Schicht nicht mehr
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.15.0 | 2026-07-04 | Living Lens Smoke-Test um PrimaryEdgeLens, NoWhiteAblageFrame und PullOutFromLens erweitert. |
 | 2.14.0 | 2026-07-04 | Living Lens Smoke-Test um Per-Pixel-Alpha, Color-Key-Ausschluss, NoAutoAbsorption und LensRelaxAway erweitert. |
 | 2.13.0 | 2026-07-04 | MA006.10R Living Lens Smoke-Test mit Real Bubble Lens, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export dokumentiert. |
 | 2.12.0 | 2026-07-04 | MA006.09 Visual Reality Smoke-Test mit fuenf Living-Lens-Varianten, langsamem Erscheinen, digitaler Hand, Mini-Ablage, Glide und Ziel-Ghost dokumentiert. |

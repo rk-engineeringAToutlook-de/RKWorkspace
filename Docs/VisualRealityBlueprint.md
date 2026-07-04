@@ -812,6 +812,14 @@ Nach Owner-Feedback zur lila/cyan Zwischenflaeche gilt fuer die laufende Living-
 - Linse beruhigt sich beim Wegbewegen.
 - Absorption startet nicht durch Stillstand, sondern erst durch Loslassen oder Replay.
 
+Nach Owner-Video-Feedback vom 2026-07-04 gilt zusaetzlich:
+
+- Die primaere Blase gehoert an den Bildschirmrand und darf daran kleben.
+- Der innere weisse Rahmen wird nicht als Ziel verstanden und wird durch weiche Tiefe ersetzt.
+- Das Ding muss aus der Linse wieder herausgezogen werden koennen.
+- Das Objekt braucht sichtbaren Desktop-Schatten und staerkere vektorielle Neigung.
+- Fluessigkeit und Brillanz sind hoeher zu gewichten als weitere Varianten.
+
 Das ist noch keine finale echte Desktop-Brechung. Fuer praezisere Glasphysik bleibt ein GPU-/Shader-Renderer der naechste Zielpfad.
 
 Visual Targets werden exportiert nach:
@@ -844,6 +852,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.6.0 | 2026-07-04 | Owner-Video-Feedback zu Randlinse, Pull-out, Schatten, vektorieller Neigung, Brillanz und Performance aufgenommen. |
 | 1.5.0 | 2026-07-04 | Living Lens Per-Pixel-Alpha, Color-Key-Verbot, kontrolliertes Loslassen und Renderer-Grenze ergaenzt. |
 | 1.4.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset, Real Bubble Lens, Lens Absorption und Visual Target Export als naechsten isolierten Material-Spike ergaenzt. |
 | 1.3.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert, Linsen-Hypothesen auf aktuelle Tastenbelegung korrigiert und alte Seifenblasen-/Wasser-Hypothesen archiviert. |

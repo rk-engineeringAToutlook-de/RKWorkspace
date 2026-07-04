@@ -249,16 +249,20 @@ Der Slice setzt die verworfene flache Bubble-/UI-Kreis-Richtung sichtbar zurueck
 - Gravity Lens.
 - Per-Pixel-Alpha-Overlay ohne Magenta-/Color-Key-Hintergrund.
 - echten Desktop als sichtbaren Raum unter der Linse.
+- Primaerlinse direkt am Bildschirmrand.
+- getaktetes Frame-Pacing statt Rendering pro Mausereignis.
 - digitale Griffwirkung ohne stoerenden Rechteckcontainer.
 - vektorbasierte Dingantwort inklusive Diagonalen.
 - Linse oeffnet durch Naehe und beruhigt sich beim Wegbewegen.
 - Absorption startet erst durch Loslassen oder explizites Replay.
+- erneutes Herausziehen aus der Linse.
+- weiche Tiefen-Andeutung statt weissem Innenrahmen.
 - Lens Absorption.
 - Target Emergence.
 - Timing 600 ms, 1200 ms, 1800 ms.
 - Visual Target Export nach `Docs/VisualTargets/MA00610R/`.
 
-Die aktuelle Fassung ist noch kein finaler Glas-Shader. Sie beseitigt die farbige Zwischenflaeche und legt die Blase als transparente ARGB-Ebene ueber den Desktop. Echte Brechung des realen Desktop-Inhalts bleibt ein eigener Renderer-Schritt.
+Die aktuelle Fassung ist noch kein finaler Glas-Shader. Sie beseitigt die farbige Zwischenflaeche und legt die Blase als transparente ARGB-Ebene ueber den Desktop. Die Performance ist fuer den Wahrnehmungstest verbessert, bleibt aber CPU/GDI-basiert. Echte Brechung des realen Desktop-Inhalts und hochpraezise Blasenbrillanz bleiben ein eigener GPU-/Shader-Renderer-Schritt.
 
 Dieser Slice bleibt ein visueller Spike. Die Renderer-Entscheidung steht in `Docs/RenderingDecision_LivingLens.md`.
 
@@ -574,6 +578,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.17.0 | 2026-07-04 | Living Lens Randlinse, Pull-out, Frame-Pacing, Brillanz und weiche Tiefe nach Owner-Video-Feedback ergaenzt. |
 | 1.16.0 | 2026-07-04 | Living Lens mit Per-Pixel-Alpha, ohne Color-Key-Artefakte, Relax und kontrolliertem Loslassen ergaenzt. |
 | 1.15.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit eigenem Slice, Lens Absorption, Timing-Varianten und Visual Target Export ergaenzt. |
 | 1.14.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert und aktuelle Linsenreihenfolge dokumentiert. |

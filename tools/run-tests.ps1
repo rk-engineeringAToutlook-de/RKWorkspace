@@ -351,6 +351,14 @@ if (-not $livingLensText.Contains('RealBubbleLens: OK')) {
     throw "Living Lens Smoke Test failed because output did not contain RealBubbleLens: OK."
 }
 
+if (-not $livingLensText.Contains('PrimaryEdgeLens: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain PrimaryEdgeLens: OK."
+}
+
+if (-not $livingLensText.Contains('NoWhiteAblageFrame: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain NoWhiteAblageFrame: OK."
+}
+
 if (-not $livingLensText.Contains('LensAbsorption: OK')) {
     throw "Living Lens Smoke Test failed because output did not contain LensAbsorption: OK."
 }
@@ -361,6 +369,10 @@ if (-not $livingLensText.Contains('NoAutoAbsorption: OK')) {
 
 if (-not $livingLensText.Contains('LensRelaxAway: OK')) {
     throw "Living Lens Smoke Test failed because output did not contain LensRelaxAway: OK."
+}
+
+if (-not $livingLensText.Contains('PullOutFromLens: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain PullOutFromLens: OK."
 }
 
 if (-not $livingLensText.Contains('ExportFrames: OK')) {

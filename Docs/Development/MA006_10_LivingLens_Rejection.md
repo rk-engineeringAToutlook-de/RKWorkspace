@@ -1,7 +1,7 @@
 # MA006.10R Living Lens Renderer Reset
 
 Dokument-ID: RKWS-MA006-10R-LIVING-LENS-REJECTION
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -84,6 +84,10 @@ Die aktuelle Interaktion ist normativ:
 - Wegbewegen muss die Linse beruhigen.
 - Das Ding bleibt unter Kontrolle des Benutzers.
 - Absorption startet erst beim Loslassen oder expliziten Replay.
+- Die primaere Linse sitzt am Bildschirmrand.
+- Das Ding kann aus der Linse wieder herausgezogen werden.
+- Weisse Innenrahmen sind zu vermeiden, wenn sie wie UI-Ziele wirken.
+- Fluessigkeit und Blasenbrillanz haben Vorrang vor weiteren Varianten.
 
 Die ehrliche Renderer-Bewertung steht in:
 
@@ -95,5 +99,6 @@ Docs/RenderingDecision_LivingLens.md
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-04 | Owner-Video-Feedback zu Randlinse, Pull-out, Innenrahmen, Brillanz und Fluessigkeit aufgenommen. |
 | 1.1.0 | 2026-07-04 | Per-Pixel-Alpha, Color-Key-Verbot, Relax und kontrolliertes Loslassen ergaenzt. |
 | 1.0.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset dokumentiert. |

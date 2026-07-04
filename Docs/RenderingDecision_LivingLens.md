@@ -35,8 +35,11 @@ Der aktuelle Spike darf beweisen:
 - Variantenlogik.
 - echter Overlay-Transparenzpfad ohne Color-Key-Artefakte.
 - Randverankerung.
+- primaere Randlinse als Durchgang am Bildschirmrand.
+- besseres Frame-Pacing im CPU-Prototyp.
 - subtile Materialbewegung.
 - kontrolliertes Loslassen statt automatischer Absorption.
+- erneutes Herausziehen aus der Linse.
 - Lens Absorption.
 - Target Emergence.
 - ExportFrames.
@@ -57,6 +60,8 @@ Windows Composition API oder Win2D / Direct2D.
 ```
 
 Der naechste Qualitaetssprung ist nicht eine weitere Farbpolitur. Er ist echte Hintergrundaufnahme plus Shader-/Effektpfad, damit der reale Desktop durch die Blase gebrochen, gestaucht und optisch glaubwuerdig verdichtet werden kann.
+
+Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
 

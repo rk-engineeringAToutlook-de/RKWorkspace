@@ -1,7 +1,7 @@
 # MA006.10R Visual Targets
 
 Dokument-ID: RKWS-MA006-10R-VISUAL-TARGETS
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -14,6 +14,8 @@ Sie sind keine finalen Produktgrafiken.
 Sie pruefen, ob der neue Spike die verworfene UI-Kreis-/Bubble-Richtung sichtbar verlaesst.
 
 Die exportierten Bilder besitzen weiterhin einen Testhintergrund, damit Material, Schatten und Oeffnung in Dateien beurteilbar sind. Die laufende Overlay-App nutzt dagegen eine Per-Pixel-Alpha-Schicht ohne Magenta-/Color-Key-Hintergrund; der echte Desktop bleibt sichtbar.
+
+Die Bilder wurden nach dem Owner-Video-Feedback mit mehr Glasbrillanz, weicherer Tiefen-Andeutung und ohne weissen Innenrahmen neu exportiert.
 
 ## Erzeugung
 

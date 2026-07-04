@@ -1,7 +1,7 @@
 # Lens Absorption
 
 Dokument-ID: RKWS-LENS-ABSORPTION
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -43,6 +43,19 @@ Das Ding wurde gesendet.
 12. Ghost wird groesser und klarer.
 13. Ding liegt auf der Zielablage.
 
+## Rueckholen
+
+Ein Ding, das in der Linse abgelegt wurde, darf nicht endgueltig verschwinden.
+
+Der Benutzer muss es wieder herausnehmen koennen:
+
+1. Hand naehert sich der Linse.
+2. Ding loest sich von der Zielablage.
+3. Ding wird langsam wieder groesser.
+4. Ding wird wieder zum getragenen Gegenstand.
+5. Linse beruhigt sich, wenn der Benutzer weggeht.
+6. Freies Ablegen legt das Ding wieder auf die aktuelle Ablage.
+
 ## Timing
 
 MA006.10R prueft:
@@ -70,6 +83,8 @@ A = Absorption erneut abspielen
 - automatisches Einrasten beim Stillstehen.
 - Absorption ohne Loslassen.
 - farbige Hilfsflaeche hinter der Blase.
+- Einbahnstrasse ohne Rueckholen.
+- weisser Innenrahmen, der wie ein UI-Element wirkt.
 
 ## Smoke-Kriterien
 
@@ -84,3 +99,4 @@ Der Smoke-Test prueft:
 - Timing-Varianten existieren.
 - Absorption startet nicht automatisch durch Naehe.
 - Die Linse beruhigt sich wieder, wenn der Benutzer weggeht.
+- Pull-out aus der Linse ist vorbereitet.

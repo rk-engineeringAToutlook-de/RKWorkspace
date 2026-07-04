@@ -17,6 +17,7 @@ public sealed class LivingLensOverlayWindow : Form
     private PointF _grabOffset;
     private float _phase;
     private bool _isHolding;
+    private bool _renderRequested = true;
 
     public LivingLensOverlayWindow(WorkspaceShellRuntime runtime)
     {
@@ -130,7 +131,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.SwitchVariant(e.KeyCode - Keys.D1);
-            RenderFrame();
+            RequestRender();
             return;
         }
 
@@ -138,7 +139,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.SwitchVariant(e.KeyCode - Keys.NumPad1);
-            RenderFrame();
+            RequestRender();
             return;
         }
 
@@ -147,7 +148,7 @@ public sealed class LivingLensOverlayWindow : Form
             e.Handled = true;
             Session.PlayAbsorption();
             _targetCenter = LensCenter(Session.ActiveLens);
-            RenderFrame();
+            RequestRender();
             return;
         }
 
@@ -155,7 +156,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.ReplayOpening();
-            RenderFrame();
+            RequestRender();
             return;
         }
 
@@ -163,7 +164,7 @@ public sealed class LivingLensOverlayWindow : Form
         {
             e.Handled = true;
             Session.CycleTiming();
-            RenderFrame();
+            RequestRender();
             return;
         }
 
@@ -180,7 +181,27 @@ public sealed class LivingLensOverlayWindow : Form
             Cursor = Cursors.SizeAll;
             Session.Pick();
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
-            RenderFrame();
+            RequestRender();
+            return;
+        }
+
+        var pullOutLens = DetectLens(e.Location, 224f);
+        if (e.Button == MouseButtons.Left &&
+            pullOutLens is not null &&
+            Session.AbsorptionProgress >= 1f &&
+            Session.TargetGhostVisible)
+        {
+            _isHolding = true;
+            _thingCenter = LensCenter(pullOutLens);
+            _targetCenter = new PointF(e.X, e.Y);
+            _lastTargetCenter = _targetCenter;
+            _grabOffset = PointF.Empty;
+            _velocity = PointF.Empty;
+            Capture = true;
+            Cursor = Cursors.SizeAll;
+            Session.PullOutFromLens();
+            _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
+            RequestRender();
             return;
         }
 
@@ -200,7 +221,7 @@ public sealed class LivingLensOverlayWindow : Form
         _lastTargetCenter = _targetCenter;
         Session.Carry(movement.X, movement.Y);
 
-        var lens = DetectLens(_targetCenter);
+        var lens = DetectLens(_targetCenter, 176f);
         if (lens is not null)
         {
             Session.ApproachLens(lens.LensId, NormalizedLensNearness(_targetCenter, LensCenter(lens)));
@@ -211,7 +232,7 @@ public sealed class LivingLensOverlayWindow : Form
         }
 
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Carried, "HX-002");
-        RenderFrame();
+        RequestRender();
         base.OnMouseMove(e);
     }
 
@@ -227,12 +248,11 @@ public sealed class LivingLensOverlayWindow : Form
         Capture = false;
         Cursor = Cursors.Default;
 
-        var lens = DetectLens(_targetCenter);
+        var lens = DetectLens(_targetCenter, 176f);
         if (lens is not null)
         {
             Session.ApproachLens(lens.LensId, 1f);
             Session.PlayAbsorption();
-            _targetCenter = LensCenter(lens);
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
         }
         else
@@ -241,7 +261,7 @@ public sealed class LivingLensOverlayWindow : Form
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
         }
 
-        RenderFrame();
+        RequestRender();
         base.OnMouseUp(e);
     }
 
@@ -273,9 +293,11 @@ public sealed class LivingLensOverlayWindow : Form
 
         var dx = _targetCenter.X - _thingCenter.X;
         var dy = _targetCenter.Y - _thingCenter.Y;
+        var spring = _isHolding ? 0.30f : 0.13f;
+        var damping = _isHolding ? 0.48f : 0.70f;
         _velocity = new PointF(
-            (_velocity.X * 0.70f) + (dx * 0.13f),
-            (_velocity.Y * 0.70f) + (dy * 0.13f));
+            (_velocity.X * damping) + (dx * spring),
+            (_velocity.Y * damping) + (dy * spring));
         _thingCenter = new PointF(_thingCenter.X + _velocity.X, _thingCenter.Y + _velocity.Y);
 
         if (Session.AbsorptionProgress >= 1f)
@@ -283,7 +305,16 @@ public sealed class LivingLensOverlayWindow : Form
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
         }
 
-        RenderFrame();
+        if (_renderRequested ||
+            _isHolding ||
+            Session.LensesVisible ||
+            Session.AbsorptionProgress > 0 ||
+            Math.Abs(_velocity.X) > 0.05f ||
+            Math.Abs(_velocity.Y) > 0.05f)
+        {
+            RenderFrame();
+            _renderRequested = false;
+        }
     }
 
     private void ActivatePickAt(Point point)
@@ -303,7 +334,7 @@ public sealed class LivingLensOverlayWindow : Form
         Cursor = Cursors.SizeAll;
         Session.Pick();
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
-        RenderFrame();
+        RequestRender();
     }
 
     private LivingLensRenderState CreateRenderState(bool drawTestBackground)
@@ -317,6 +348,7 @@ public sealed class LivingLensOverlayWindow : Form
             OpenProgress = Session.LensOpenProgress,
             AbsorptionProgress = Session.AbsorptionProgress,
             TargetEmergenceProgress = Session.TargetEmergenceProgress,
+            ThingRecoveryProgress = Session.ThingRecoveryProgress,
             TiltX = Session.TiltX,
             TiltY = Session.TiltY,
             ShadowX = Session.ShadowX,
@@ -348,11 +380,16 @@ public sealed class LivingLensOverlayWindow : Form
         });
     }
 
-    private LivingLensTarget? DetectLens(PointF point)
+    private void RequestRender()
+    {
+        _renderRequested = true;
+    }
+
+    private LivingLensTarget? DetectLens(PointF point, float radius)
     {
         foreach (var lens in Session.Lenses)
         {
-            if (Distance(point, LensCenter(lens)) < 148)
+            if (Distance(point, LensCenter(lens)) < radius)
             {
                 return lens;
             }
