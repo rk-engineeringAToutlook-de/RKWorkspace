@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.23.0
+Version: 2.24.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -677,9 +677,13 @@ GentleCarryTilt: OK
 SoftShadow: OK
 PortalEdgePull: OK
 PortalEdgeSqueeze: OK
+PortalEdgeApexSqueeze: OK
+NoTwistPortalFunnel: OK
+TiltDampingNearTunnel: OK
 TunnelDepthLayers: OK
 PremiumTunnelVisual: OK
 PremiumTunnelRefraction: OK
+PremiumTunnelAperture: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -691,6 +695,7 @@ PerspectiveTrapezoid: OK
 ShadowModel: OK
 ShadowSuction: OK
 ShadowTunnelSuction: OK
+CalmRestingObjectInTunnel: OK
 CarryShadowOnly: OK
 TransitTimeoutMs: 10000
 TransitCountdown: OK
@@ -721,10 +726,15 @@ Der Test prueft ausdruecklich:
 - der Schatten wird ueber weiche Schichten statt als harte Platte gezeichnet.
 - die linse-nahe Kante wird vor der Absorption lokal Richtung Tunnel gezogen.
 - die tunnelnahe Kante und ihre Ecken werden mit `PortalEdgeSqueeze` lokal zusammengezogen, statt das Ding als Ganzes rotieren zu lassen.
+- `PortalEdgeApexSqueeze` laesst die tunnelnahe Kante symmetrisch zu einer Spitze zusammenlaufen.
+- `NoTwistPortalFunnel` verhindert die per-Ecke-Verdrehung des Papiers.
+- `TiltDampingNearTunnel` reduziert die normale Neigung direkt an der Oeffnung.
 - Tunnel-Tiefenschichten sind vorbereitet.
 - Premium-Tunnelgrafik mit neutralen Tiefenringen, innerem Schlund und Spiegelkanten ist vorbereitet.
 - PremiumTunnelRefraction mit ruhigen Refraction-Ribbons ist vorbereitet.
+- PremiumTunnelAperture mit feiner innerer Glas-/Tiefenschichtung ist vorbereitet.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
+- im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Countdown zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und der lokale Zustand gilt als auf Gegenseite abgelegt.
@@ -749,6 +759,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.24.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Apex-Squeeze, NoTwistPortalFunnel, TiltDampingNearTunnel, CalmRestingObjectInTunnel und PremiumTunnelAperture erweitert. |
 | 2.23.0 | 2026-07-04 | GPU Living Lens Smoke-Test um NoPaperAxisSpin, PortalEdgeSqueeze, ShadowTunnelSuction und PremiumTunnelRefraction erweitert. |
 | 2.22.0 | 2026-07-04 | GPU Living Lens Smoke-Test um PremiumTunnelVisual erweitert. |
 | 2.21.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Portal-Handover, 10-Sekunden-Ruecknahmefenster, Timer-Reset und Tunnel-Schliessen erweitert. |

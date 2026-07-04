@@ -32,6 +32,8 @@ public sealed class GpuLivingLensSession
 
     public bool PremiumTunnelRefractionPrepared { get; } = true;
 
+    public bool PremiumTunnelAperturePrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;
@@ -45,6 +47,12 @@ public sealed class GpuLivingLensSession
     public bool PortalEdgePullPrepared { get; private set; }
 
     public bool PortalEdgeSqueezePrepared { get; private set; }
+
+    public bool PortalEdgeApexSqueezePrepared { get; private set; }
+
+    public bool NoTwistPortalFunnelPrepared { get; private set; }
+
+    public bool TiltDampingNearTunnelPrepared { get; private set; }
 
     public bool NoWhiteBlock { get; } = true;
 
@@ -61,6 +69,8 @@ public sealed class GpuLivingLensSession
     public bool ShadowSuctionPrepared { get; private set; }
 
     public bool ShadowTunnelSuctionPrepared { get; private set; }
+
+    public bool CalmRestingObjectInTunnelPrepared { get; private set; }
 
     public bool PerspectiveTrapezoidPrepared { get; private set; }
 
@@ -148,6 +158,9 @@ public sealed class GpuLivingLensSession
         if (nearness > 0.46f)
         {
             PortalEdgeSqueezePrepared = true;
+            PortalEdgeApexSqueezePrepared = true;
+            NoTwistPortalFunnelPrepared = true;
+            TiltDampingNearTunnelPrepared = true;
         }
 
         if (nearness > 0.62f)
@@ -177,6 +190,9 @@ public sealed class GpuLivingLensSession
         Absorption = 0.01f;
         ShadowSuctionPrepared = true;
         PortalEdgeSqueezePrepared = true;
+        PortalEdgeApexSqueezePrepared = true;
+        NoTwistPortalFunnelPrepared = true;
+        TiltDampingNearTunnelPrepared = true;
         ShadowTunnelSuctionPrepared = true;
     }
 
@@ -230,12 +246,13 @@ public sealed class GpuLivingLensSession
             ShadowY *= 0.74f;
             if (LensEmergence <= 0.001f && LensOpen <= 0.001f)
             {
-                TransitState = GpuLivingLensTransitState.Closed;
-                LensEmergence = 0f;
-                LensOpen = 0f;
-                TunnelClosedAfterTransitPrepared = true;
-                RemoteGestureRequiredPrepared = true;
-            }
+            TransitState = GpuLivingLensTransitState.Closed;
+            LensEmergence = 0f;
+            LensOpen = 0f;
+            CalmRestingObjectInTunnelPrepared = true;
+            TunnelClosedAfterTransitPrepared = true;
+            RemoteGestureRequiredPrepared = true;
+        }
         }
         else if (IsHoldingThing)
         {

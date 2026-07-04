@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.25.0
+Version: 1.26.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -314,7 +314,7 @@ Der Portal-Handover bleibt in MA006.11 eine lokale Wahrnehmungssimulation, keine
 
 Die Tunneloptik wird in dieser Stufe ebenfalls bewusst veredelt: mehr gebrochene Desktop-Schichten, neutrale Tiefenringe, ein dunklerer innerer Schlund und ruhige Spiegelkanten sollen Tiefe erzeugen, ohne eine farbige UI-Flaeche oder einen Sci-Fi-Hintergrund einzufuehren.
 
-Die Premium-Portal-Iteration korrigiert ausserdem die Objektphysik am Tunnel. Das digitale Ding soll nicht wie eine Vektorgrafik um seine eigene Mitte rotieren. Stattdessen zieht der Tunnel lokal an der tunnelnahen Kante: die beiden naechsten Ecken laufen aufeinander zu, die Gegenseite bleibt laenger stabil und der Schatten wird als `ShadowTunnelSuction` mit in die Oeffnung gezogen.
+Die Premium-Portal-Iteration korrigiert ausserdem die Objektphysik am Tunnel. Das digitale Ding soll nicht wie eine Vektorgrafik um seine eigene Mitte rotieren. Stattdessen zieht der Tunnel lokal an der tunnelnahen Kante: die beiden naechsten Ecken laufen symmetrisch zu einer Spitze zusammen, die Gegenseite bleibt laenger stabil und der Schatten wird als `ShadowTunnelSuction` mit in die Oeffnung gezogen. Direkt am Tunnel wird die normale Neigung gedaempft, damit keine Verdrehung entsteht. Im Tunnel liegt nur ein kleines ruhiges Papierstueck.
 
 ## Spatial Carry Tray Prototype
 
@@ -628,6 +628,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.26.0 | 2026-07-04 | GPU Living Lens No-Twist-Funnel mit Apex-Squeeze, Neigungsdaempfung, ruhigem Tunnelobjekt und Aperture-Schichtung dokumentiert. |
 | 1.25.0 | 2026-07-04 | GPU Living Lens Premium-Portal mit PortalEdgeSqueeze, NoPaperAxisSpin, ShadowTunnelSuction und PremiumTunnelRefraction eingeordnet. |
 | 1.24.0 | 2026-07-04 | GPU Living Lens Tunnelgrafik mit Premium-Tiefenringen, innerem Schlund und ruhigen Spiegelkanten ergaenzt. |
 | 1.23.0 | 2026-07-04 | GPU Living Lens Portal-Handover mit Ruecknahmefenster, Timer-Reset und automatischem Tunnel-Schliessen eingeordnet. |

@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -53,11 +53,16 @@ Er nutzt:
 - weicher Schatten aus mehreren transparenten Projektionen.
 - PortalPull: die linse-nahe Kante wird bereits vor dem Loslassen Richtung Tunnel gezogen.
 - PortalEdgeSqueeze: die tunnelnahe Kante und ihre Ecken laufen aufeinander zu, statt das ganze Papier um die eigene Achse zu drehen.
+- PortalEdgeApexSqueeze: die tunnelnahe Kante laeuft symmetrisch zu einer Spitze zusammen.
+- NoTwistPortalFunnel: keine per-Ecke-Distanzverzerrung, die das Papier verdreht.
+- TiltDampingNearTunnel: normale Trage-Neigung wird direkt am Tunnel stark gedaempft.
 - Schatten-Sog bei der Linsenaufnahme.
 - ShadowTunnelSuction: der Schatten wird mit zur Tunneloeffnung gezogen und perspektivisch komprimiert.
+- CalmRestingObjectInTunnel: im Tunnel liegt ein kleines ruhiges Papierstueck statt eines verdrehten Restobjekts.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
 - Premium-Tunnelgrafik mit mehr gebrochenen Desktop-Schichten, neutralen Tiefenringen, dunklerem innerem Schlund und ruhigen Spiegelkanten.
 - PremiumTunnelRefraction mit ruhigen Refraction-Ribbons und neutralen Glas-/Caustic-Spuren.
+- PremiumTunnelAperture mit feiner innerer Glas-/Tiefenschichtung.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -132,10 +137,12 @@ Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
 - PortalPull.
 - EdgeContact.
 - EdgeSqueeze.
+- ApexSqueeze.
 - HandoverProgress.
 - TunnelClosing.
 - ShadowTunnelSuction.
 - PremiumRefraction.
+- TunnelAperture.
 - ObjectMotion.
 
 Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider. Der HLSL-Vertrag ist damit die Uebergangsform zum nativen Shader-Renderer.
@@ -163,9 +170,13 @@ GentleCarryTilt: OK
 SoftShadow: OK
 PortalEdgePull: OK
 PortalEdgeSqueeze: OK
+PortalEdgeApexSqueeze: OK
+NoTwistPortalFunnel: OK
+TiltDampingNearTunnel: OK
 TunnelDepthLayers: OK
 PremiumTunnelVisual: OK
 PremiumTunnelRefraction: OK
+PremiumTunnelAperture: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -174,6 +185,7 @@ PerspectiveTrapezoid: OK
 ShadowModel: OK
 ShadowSuction: OK
 ShadowTunnelSuction: OK
+CalmRestingObjectInTunnel: OK
 CarryShadowOnly: OK
 TransitTimeoutMs: 10000
 TransitCountdown: OK
@@ -191,6 +203,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-04 | No-Twist-Funnel mit Apex-Squeeze, Neigungsdaempfung, ruhigem Tunnelobjekt und Aperture-Schichtung dokumentiert. |
 | 1.7.0 | 2026-07-04 | Premium-Portal-Iteration mit PortalEdgeSqueeze, NoPaperAxisSpin, ShadowTunnelSuction und PremiumTunnelRefraction dokumentiert. |
 | 1.6.0 | 2026-07-04 | Premium-Tunnelgrafik mit zusaetzlichen Desktop-Schichten, Tiefenringen, innerem Schlund und Spiegelkanten dokumentiert. |
 | 1.5.0 | 2026-07-04 | Portal-Handover mit 10-Sekunden-Ruecknahmefenster, Timer-Reset bei erneutem Nehmen und Tunnel-Schliessen dokumentiert. |

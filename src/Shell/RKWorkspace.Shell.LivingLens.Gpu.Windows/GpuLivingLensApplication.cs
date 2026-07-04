@@ -47,9 +47,13 @@ public static class GpuLivingLensApplication
                 session.SoftShadowPrepared &&
                 session.PortalEdgePullPrepared &&
                 session.PortalEdgeSqueezePrepared &&
+                session.PortalEdgeApexSqueezePrepared &&
+                session.NoTwistPortalFunnelPrepared &&
+                session.TiltDampingNearTunnelPrepared &&
                 session.TunnelDepthPrepared &&
                 session.PremiumTunnelVisualPrepared &&
                 session.PremiumTunnelRefractionPrepared &&
+                session.PremiumTunnelAperturePrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -61,6 +65,7 @@ public static class GpuLivingLensApplication
                 session.ShadowPrepared &&
                 session.ShadowSuctionPrepared &&
                 session.ShadowTunnelSuctionPrepared &&
+                session.CalmRestingObjectInTunnelPrepared &&
                 session.CarryShadowOnlyPrepared &&
                 session.TransitCountdownPrepared &&
                 session.RetakeResetsTransitTimerPrepared &&
@@ -89,9 +94,13 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"SoftShadow: {(session.SoftShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PortalEdgePull: {(session.PortalEdgePullPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PortalEdgeSqueeze: {(session.PortalEdgeSqueezePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PortalEdgeApexSqueeze: {(session.PortalEdgeApexSqueezePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"NoTwistPortalFunnel: {(session.NoTwistPortalFunnelPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TiltDampingNearTunnel: {(session.TiltDampingNearTunnelPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TunnelDepthLayers: {(session.TunnelDepthPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PremiumTunnelVisual: {(session.PremiumTunnelVisualPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PremiumTunnelRefraction: {(session.PremiumTunnelRefractionPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PremiumTunnelAperture: {(session.PremiumTunnelAperturePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");
@@ -103,6 +112,7 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"ShadowModel: {(session.ShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShadowSuction: {(session.ShadowSuctionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShadowTunnelSuction: {(session.ShadowTunnelSuctionPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CalmRestingObjectInTunnel: {(session.CalmRestingObjectInTunnelPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CarryShadowOnly: {(session.CarryShadowOnlyPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TransitTimeoutMs: {session.TransitTimeoutMilliseconds}");
             Console.WriteLine($"TransitCountdown: {(session.TransitCountdownPrepared ? "OK" : "FAILED")}");

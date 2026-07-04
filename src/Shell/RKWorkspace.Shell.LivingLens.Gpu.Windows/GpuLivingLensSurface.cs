@@ -318,6 +318,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         DrawPremiumRefractionRibbons(drawingContext, bounds, center, throatCenter, open);
+        DrawPremiumTunnelAperture(drawingContext, bounds, throatCenter, open);
 
         var reflectedEdge = new LinearGradientBrush
         {
@@ -381,6 +382,53 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             center + new Vector(-bounds.Width * 0.12, -bounds.Height * 0.16),
             bounds.Width * 0.36,
             bounds.Height * 0.18);
+    }
+
+    private static void DrawPremiumTunnelAperture(DrawingContext drawingContext, Rect bounds, WPoint throatCenter, double open)
+    {
+        var apertureShadow = new RadialGradientBrush
+        {
+            GradientOrigin = new WPoint(0.47, 0.48),
+            Center = new WPoint(0.50, 0.52),
+            RadiusX = 0.64,
+            RadiusY = 0.46,
+            Opacity = 0.50 + (open * 0.18)
+        };
+        apertureShadow.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(118 + (open * 34)), 5, 7, 8), 0.0));
+        apertureShadow.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(72 + (open * 26)), 16, 20, 21), 0.46));
+        apertureShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawEllipse(
+            apertureShadow,
+            null,
+            throatCenter + new Vector(open * 5.0, 1.5),
+            bounds.Width * (0.18 + (open * 0.105)),
+            bounds.Height * (0.052 + (open * 0.052)));
+
+        for (var ring = 0; ring < 5; ring++)
+        {
+            var layer = ring / 4.0;
+            var alpha = (byte)Math.Clamp(72 - (ring * 12) + (open * 28), 18, 110);
+            var rx = bounds.Width * (0.18 + (open * 0.12) + (layer * 0.035));
+            var ry = bounds.Height * (0.052 + (open * 0.050) + (layer * 0.014));
+            var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 244, 250, 248)), 0.42 + (open * 0.18));
+            drawingContext.DrawEllipse(null, pen, throatCenter + new Vector((open * 6.0) + (layer * 2.0), 1.0 + (layer * 0.7)), rx, ry);
+        }
+
+        var lowerGlass = new LinearGradientBrush
+        {
+            StartPoint = new WPoint(0.08, 0.30),
+            EndPoint = new WPoint(0.94, 0.70),
+            Opacity = 0.22 + (open * 0.14)
+        };
+        lowerGlass.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
+        lowerGlass.GradientStops.Add(new GradientStop(WColor.FromArgb(70, 255, 255, 255), 0.48));
+        lowerGlass.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawEllipse(
+            lowerGlass,
+            null,
+            throatCenter + new Vector(-bounds.Width * 0.05, bounds.Height * 0.095),
+            bounds.Width * 0.30,
+            bounds.Height * 0.045);
     }
 
     private void DrawThing(DrawingContext drawingContext)
@@ -462,11 +510,11 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var pulse = 0.5 + (Math.Sin(_phase * 2.2) * 0.5);
         var remaining = _session.TransitRemainingMilliseconds / (double)_session.TransitTimeoutMilliseconds;
         var opacity = Math.Clamp(0.24 + (remaining * 0.24) + (pulse * 0.05), 0.18, 0.52);
-        var width = 54 + (pulse * 2.5);
-        var height = 27 + (pulse * 1.2);
+        var width = 46 + (pulse * 1.4);
+        var height = 22 + (pulse * 0.8);
         var center = lensCenter + new Vector(-18 + (pulse * 2.0), 12);
         var bounds = new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
-        var geometry = CreateRectangularGeometry(bounds, 0.72, -2.4, 1.2, lensCenter, 0.78);
+        var geometry = CreateRectangularGeometry(bounds, 0.0, 0.4, -0.2, lensCenter, 0.0);
         var fill = new LinearGradientBrush(
             WColor.FromArgb((byte)(190 * opacity), 250, 252, 248),
             WColor.FromArgb((byte)(118 * opacity), 144, 160, 164),
@@ -563,15 +611,17 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private static StreamGeometry CreateRectangularGeometry(Rect bounds, double absorption, double tiltX, double tiltY, WPoint lensCenter, double portalPull)
     {
-        var directionX = Math.Clamp(tiltX / 8.5, -1.0, 1.0);
-        var directionY = Math.Clamp(-tiltY / 8.5, -1.0, 1.0);
-        var pull = bounds.Width * 0.20 * absorption;
+        var portalAmount = SmoothStep(portalPull);
+        var tiltDamping = 1.0 - (portalAmount * 0.88);
+        var directionX = Math.Clamp(tiltX / 8.5, -1.0, 1.0) * tiltDamping;
+        var directionY = Math.Clamp(-tiltY / 8.5, -1.0, 1.0) * tiltDamping;
+        var pull = bounds.Width * 0.08 * absorption * (1.0 - (portalAmount * 0.62));
         var geometry = new StreamGeometry();
         using var context = geometry.Open();
-        var topLeft = PerspectiveCorner(bounds, -1, -1, directionX, directionY, pull * 0.04, lensCenter, portalPull);
-        var topRight = PerspectiveCorner(bounds, 1, -1, directionX, directionY, pull, lensCenter, portalPull);
-        var bottomRight = PerspectiveCorner(bounds, 1, 1, directionX, directionY, pull * 0.58, lensCenter, portalPull);
-        var bottomLeft = PerspectiveCorner(bounds, -1, 1, directionX, directionY, pull * 0.02, lensCenter, portalPull);
+        var topLeft = PerspectiveCorner(bounds, -1, -1, directionX, directionY, pull, lensCenter, portalAmount);
+        var topRight = PerspectiveCorner(bounds, 1, -1, directionX, directionY, pull, lensCenter, portalAmount);
+        var bottomRight = PerspectiveCorner(bounds, 1, 1, directionX, directionY, pull, lensCenter, portalAmount);
+        var bottomLeft = PerspectiveCorner(bounds, -1, 1, directionX, directionY, pull, lensCenter, portalAmount);
         context.BeginFigure(topLeft, true, true);
         context.LineTo(topRight, true, false);
         context.LineTo(bottomRight, true, false);
@@ -580,7 +630,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return geometry;
     }
 
-    private static WPoint PerspectiveCorner(Rect bounds, int cornerX, int cornerY, double directionX, double directionY, double pull, WPoint lensCenter, double portalPull)
+    private static WPoint PerspectiveCorner(Rect bounds, int cornerX, int cornerY, double directionX, double directionY, double pull, WPoint lensCenter, double portalAmount)
     {
         const double baseInsetX = 0;
         const double baseInsetY = 0;
@@ -592,37 +642,34 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var offsetX = (-cornerX * recede * bounds.Width * 0.070) + (cornerX * forward * bounds.Width * 0.045);
         var offsetY = (-cornerY * recede * bounds.Height * 0.105) + (cornerY * forward * bounds.Height * 0.060);
         var point = new WPoint(x + offsetX + pull, y + offsetY);
-        if (portalPull <= 0)
-        {
-            return point;
-        }
-
-        var distance = (point - lensCenter).Length;
-        var localPull = portalPull * SmoothStep(1.0 - (distance / (bounds.Width * 1.70)));
-        if (localPull <= 0)
+        if (portalAmount <= 0)
         {
             return point;
         }
 
         var center = new WPoint(bounds.Left + (bounds.Width / 2), bounds.Top + (bounds.Height / 2));
         var lensSide = lensCenter.X >= center.X ? 1 : -1;
-        var edgeWeight = cornerX == lensSide ? 1.0 : 0.16;
-        var vectorToLens = lensCenter - point;
+        var vectorToLens = lensCenter - center;
         if (vectorToLens.Length > 0.001)
         {
             vectorToLens.Normalize();
         }
 
-        var towardCenter = center - point;
-        var squeeze = localPull * edgeWeight;
-        var edgeCenter = new WPoint(
-            cornerX == lensSide ? (lensSide > 0 ? bounds.Right : bounds.Left) : point.X,
-            center.Y);
-        var edgeConvergence = edgeCenter - point;
-        return point +
-            (vectorToLens * squeeze * (30.0 + (bounds.Width * 0.28))) +
-            (edgeConvergence * squeeze * 0.44) +
-            (towardCenter * localPull * 0.055);
+        var edgeX = lensSide > 0 ? bounds.Right : bounds.Left;
+        var apex = new WPoint(
+            edgeX + (lensSide * bounds.Width * (0.12 + (portalAmount * 0.34))),
+            center.Y + ((lensCenter.Y - center.Y) * 0.10 * portalAmount));
+        var stableDrift = vectorToLens * portalAmount * bounds.Width * 0.045;
+        if (cornerX != lensSide)
+        {
+            return point + stableDrift;
+        }
+
+        var collapse = Math.Clamp((portalAmount - 0.10) / 0.90, 0.0, 1.0);
+        collapse = SmoothStep(collapse) * 0.985;
+        var collapsed = Interpolate(point, apex, collapse);
+        var funnelPull = vectorToLens * portalAmount * bounds.Width * 0.16;
+        return collapsed + funnelPull;
     }
 
     private static double EaseOut(double value)
