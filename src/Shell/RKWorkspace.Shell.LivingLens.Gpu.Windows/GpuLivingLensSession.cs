@@ -34,6 +34,14 @@ public sealed class GpuLivingLensSession
 
     public bool PremiumTunnelAperturePrepared { get; } = true;
 
+    public bool EightTunnelFieldPrepared { get; } = true;
+
+    public bool CornerAndEdgeTunnelPrepared { get; } = true;
+
+    public bool CenterStartObjectPrepared { get; } = true;
+
+    public bool VectorSuctionCenterPrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;
@@ -246,13 +254,13 @@ public sealed class GpuLivingLensSession
             ShadowY *= 0.74f;
             if (LensEmergence <= 0.001f && LensOpen <= 0.001f)
             {
-            TransitState = GpuLivingLensTransitState.Closed;
-            LensEmergence = 0f;
-            LensOpen = 0f;
-            CalmRestingObjectInTunnelPrepared = true;
-            TunnelClosedAfterTransitPrepared = true;
-            RemoteGestureRequiredPrepared = true;
-        }
+                TransitState = GpuLivingLensTransitState.Closed;
+                LensEmergence = 0f;
+                LensOpen = 0f;
+                CalmRestingObjectInTunnelPrepared = true;
+                TunnelClosedAfterTransitPrepared = true;
+                RemoteGestureRequiredPrepared = true;
+            }
         }
         else if (IsHoldingThing)
         {

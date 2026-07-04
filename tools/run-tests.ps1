@@ -474,6 +474,22 @@ if (-not $gpuLivingLensText.Contains('PremiumTunnelAperture: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain PremiumTunnelAperture: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('EightTunnelField: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain EightTunnelField: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('CornerAndEdgeTunnels: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CornerAndEdgeTunnels: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('CenterStartObject: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CenterStartObject: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('VectorSuctionCenter: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain VectorSuctionCenter: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

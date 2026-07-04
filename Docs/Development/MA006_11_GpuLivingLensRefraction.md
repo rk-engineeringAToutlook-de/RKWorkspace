@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.8.0
+Version: 1.9.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -63,6 +63,10 @@ Er nutzt:
 - Premium-Tunnelgrafik mit mehr gebrochenen Desktop-Schichten, neutralen Tiefenringen, dunklerem innerem Schlund und ruhigen Spiegelkanten.
 - PremiumTunnelRefraction mit ruhigen Refraction-Ribbons und neutralen Glas-/Caustic-Spuren.
 - PremiumTunnelAperture mit feiner innerer Glas-/Tiefenschichtung.
+- Acht-Tunnel-Testfeld: vier Ecken und vier Seitenmitten koennen als Sogziele getestet werden.
+- digitales Test-Ding startet fuer diesen Versuch in der Mitte der Arbeitsflaeche.
+- VectorSuctionCenter: jede Tunnelmitte ist ein eigener Sogmittelpunkt.
+- die fuehrenden Ecken/Kanten des Rechtecks werden aus der Richtung zum aktiven Tunnel berechnet, nicht mehr aus einer festen Rechtsrand-Annahme.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -177,6 +181,10 @@ TunnelDepthLayers: OK
 PremiumTunnelVisual: OK
 PremiumTunnelRefraction: OK
 PremiumTunnelAperture: OK
+EightTunnelField: OK
+CornerAndEdgeTunnels: OK
+CenterStartObject: OK
+VectorSuctionCenter: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -203,6 +211,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.9.0 | 2026-07-04 | Acht-Tunnel-Testfeld mit Vektor-Sogmitte fuer Ecken und Seitenmitten dokumentiert. |
 | 1.8.0 | 2026-07-04 | No-Twist-Funnel mit Apex-Squeeze, Neigungsdaempfung, ruhigem Tunnelobjekt und Aperture-Schichtung dokumentiert. |
 | 1.7.0 | 2026-07-04 | Premium-Portal-Iteration mit PortalEdgeSqueeze, NoPaperAxisSpin, ShadowTunnelSuction und PremiumTunnelRefraction dokumentiert. |
 | 1.6.0 | 2026-07-04 | Premium-Tunnelgrafik mit zusaetzlichen Desktop-Schichten, Tiefenringen, innerem Schlund und Spiegelkanten dokumentiert. |

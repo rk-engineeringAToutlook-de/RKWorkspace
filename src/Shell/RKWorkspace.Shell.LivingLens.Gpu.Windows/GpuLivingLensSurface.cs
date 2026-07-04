@@ -17,10 +17,11 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     private readonly System.Drawing.Rectangle _screenBounds;
     private readonly GpuLivingLensSession _session = new();
     private readonly StopwatchClock _clock = new();
-    private BitmapSource? _desktopSample;
+    private readonly Dictionary<string, BitmapSource> _lensSamples = new();
     private WPoint _thingCenter;
     private WPoint _targetCenter;
     private WPoint _lastTargetCenter;
+    private WPoint _activeLensCenter;
     private Vector _velocity;
     private Vector _grabOffset;
     private bool _isHolding;
@@ -33,9 +34,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         _screenBounds = screenBounds;
         Focusable = true;
         Cursor = WCursors.Arrow;
-        _thingCenter = new WPoint(screenBounds.Width * 0.34, screenBounds.Height * 0.52);
+        _thingCenter = new WPoint(screenBounds.Width * 0.50, screenBounds.Height * 0.50);
         _targetCenter = _thingCenter;
         _lastTargetCenter = _thingCenter;
+        _activeLensCenter = new WPoint(screenBounds.Width - 88, screenBounds.Height * 0.50);
     }
 
     public GpuLivingLensSession Session => _session;
@@ -45,6 +47,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         _thingCenter = point;
         _targetCenter = point;
         _lastTargetCenter = point;
+        _activeLensCenter = NearestLensCenter(point);
         _velocity = default;
         _grabOffset = default;
         _isHolding = true;
@@ -96,9 +99,11 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return;
         }
 
+        var nearestLens = NearestLensCenter(point);
         if (e.ChangedButton == MouseButton.Left && IsNearLens(point, 230) && _session.CanPullOutFromLens)
         {
-            _thingCenter = LensCenter();
+            _activeLensCenter = nearestLens;
+            _thingCenter = _activeLensCenter;
             _targetCenter = point;
             _lastTargetCenter = point;
             _velocity = default;
@@ -122,6 +127,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var point = ProjectThroughScreenEdge(e.GetPosition(this));
         _targetCenter = point - _grabOffset;
         _lastTargetCenter = _targetCenter;
+        _activeLensCenter = NearestLensCenter(_targetCenter);
         if (IsNearLens(_targetCenter, 210))
         {
             _session.ApproachLens((float)NormalizedLensNearness(_targetCenter));
@@ -146,6 +152,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         Cursor = WCursors.Arrow;
         if (IsNearLens(_targetCenter, 210))
         {
+            _activeLensCenter = NearestLensCenter(_targetCenter);
             _session.ApproachLens(1f);
             _session.PlaceIntoLens();
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
@@ -163,32 +170,50 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
-        DrawLens(drawingContext);
+        DrawLenses(drawingContext);
         DrawThing(drawingContext);
     }
 
-    private void DrawLens(DrawingContext drawingContext)
+    private void DrawLenses(DrawingContext drawingContext)
     {
         if (_session.LensEmergence <= 0)
         {
             return;
         }
 
-        var center = LensCenter();
-        var emergence = EaseOut(_session.LensEmergence);
-        var open = EaseOut(_session.LensOpen);
+        foreach (var center in LensCenters())
+        {
+            var activation = LensActivation(center);
+            if (activation <= 0.02)
+            {
+                continue;
+            }
+
+            DrawLens(drawingContext, center, activation);
+        }
+    }
+
+    private void DrawLens(DrawingContext drawingContext, WPoint center, double activation)
+    {
+        if (_session.LensEmergence <= 0)
+        {
+            return;
+        }
+
+        var emergence = EaseOut(_session.LensEmergence) * (0.54 + (activation * 0.46));
+        var open = EaseOut(_session.LensOpen) * activation;
         var width = 210 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
         var height = 150 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
         var bounds = new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
 
-        UpdateDesktopSample(bounds);
+        var desktopSample = UpdateDesktopSample(bounds, center, activation);
 
         var clip = new EllipseGeometry(bounds);
         drawingContext.PushClip(clip);
-        if (_desktopSample is not null)
+        if (desktopSample is not null)
         {
             var refracted = new Rect(bounds.X - (bounds.Width * 0.16), bounds.Y - (bounds.Height * 0.12), bounds.Width * 1.32, bounds.Height * 1.24);
-            drawingContext.DrawImage(_desktopSample, refracted);
+            drawingContext.DrawImage(desktopSample, refracted);
 
             for (var index = 1; index <= 56; index++)
             {
@@ -205,7 +230,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
                     tunnelHeight);
 
                 drawingContext.PushOpacity(0.020 + (open * 0.038));
-                drawingContext.DrawImage(_desktopSample, tunnel);
+                drawingContext.DrawImage(desktopSample, tunnel);
                 drawingContext.Pop();
             }
         }
@@ -541,12 +566,14 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return SmoothStep(1.0 - (distance / 214.0));
     }
 
-    private void UpdateDesktopSample(Rect lensBounds)
+    private BitmapSource? UpdateDesktopSample(Rect lensBounds, WPoint center, double activation)
     {
+        var key = $"{Math.Round(center.X)}:{Math.Round(center.Y)}";
         _sampleFrame++;
-        if (_desktopSample is not null && _sampleFrame % 3 != 0)
+        var refreshEvery = activation > 0.74 ? 3 : 18;
+        if (_lensSamples.TryGetValue(key, out var cached) && _sampleFrame % refreshEvery != 0)
         {
-            return;
+            return cached;
         }
 
         var x = Math.Max(_screenBounds.Left, _screenBounds.Left + (int)Math.Round(lensBounds.X - 34));
@@ -554,7 +581,13 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var width = Math.Min(Math.Max(8, (int)Math.Round(lensBounds.Width + 68)), Math.Max(8, _screenBounds.Right - x));
         var height = Math.Min(Math.Max(8, (int)Math.Round(lensBounds.Height + 56)), Math.Max(8, _screenBounds.Bottom - y));
         var sample = new Int32Rect(x, y, width, height);
-        _desktopSample = DesktopRefractionSampler.Capture(sample);
+        var desktopSample = DesktopRefractionSampler.Capture(sample);
+        if (desktopSample is not null)
+        {
+            _lensSamples[key] = desktopSample;
+        }
+
+        return desktopSample;
     }
 
     private WPoint ProjectThroughScreenEdge(WPoint point)
@@ -573,7 +606,19 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             x -= amount * continuation;
         }
 
-        return new WPoint(x, point.Y);
+        var y = point.Y;
+        if (point.Y > RenderSize.Height - edgeBand)
+        {
+            var amount = SmoothStep((point.Y - (RenderSize.Height - edgeBand)) / edgeBand);
+            y += amount * continuation;
+        }
+        else if (point.Y < edgeBand)
+        {
+            var amount = SmoothStep((edgeBand - point.Y) / edgeBand);
+            y -= amount * continuation;
+        }
+
+        return new WPoint(x, y);
     }
 
     private Rect ThingBounds()
@@ -583,20 +628,78 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private WPoint LensCenter()
     {
-        const double fullLensWidth = 236;
-        var outside = fullLensWidth * (1.0 - _session.LensVisibleRatio);
-        var inset = (fullLensWidth / 2.0) - outside;
-        return new WPoint(RenderSize.Width - inset, RenderSize.Height * _session.LensY);
+        return _activeLensCenter;
     }
 
     private bool IsNearLens(WPoint point, double radius)
     {
-        return (point - LensCenter()).Length <= radius;
+        return (point - NearestLensCenter(point)).Length <= radius;
     }
 
     private double NormalizedLensNearness(WPoint point)
     {
-        return Math.Clamp(1.0 - ((point - LensCenter()).Length / 240.0), 0.0, 1.0);
+        return Math.Clamp(1.0 - ((point - NearestLensCenter(point)).Length / 240.0), 0.0, 1.0);
+    }
+
+    private WPoint[] LensCenters()
+    {
+        var width = RenderSize.Width > 1 ? RenderSize.Width : _screenBounds.Width;
+        var height = RenderSize.Height > 1 ? RenderSize.Height : _screenBounds.Height;
+        const double fullLensWidth = 236;
+        const double fullLensHeight = 168;
+        var outsideX = fullLensWidth * (1.0 - _session.LensVisibleRatio);
+        var outsideY = fullLensHeight * (1.0 - _session.LensVisibleRatio);
+        var insetX = (fullLensWidth / 2.0) - outsideX;
+        var insetY = (fullLensHeight / 2.0) - outsideY;
+
+        return
+        [
+            new WPoint(insetX, insetY),
+            new WPoint(width / 2.0, insetY),
+            new WPoint(width - insetX, insetY),
+            new WPoint(insetX, height / 2.0),
+            new WPoint(width - insetX, height / 2.0),
+            new WPoint(insetX, height - insetY),
+            new WPoint(width / 2.0, height - insetY),
+            new WPoint(width - insetX, height - insetY)
+        ];
+    }
+
+    private WPoint NearestLensCenter(WPoint point)
+    {
+        var centers = LensCenters();
+        var nearest = centers[0];
+        var nearestDistance = double.MaxValue;
+        foreach (var center in centers)
+        {
+            var distance = (point - center).LengthSquared;
+            if (distance < nearestDistance)
+            {
+                nearest = center;
+                nearestDistance = distance;
+            }
+        }
+
+        return nearest;
+    }
+
+    private double LensActivation(WPoint center)
+    {
+        var isActive = (center - _activeLensCenter).Length < 1.0;
+        if (_isHolding || _session.IsHoldingThing)
+        {
+            var nearness = SmoothStep(1.0 - ((_targetCenter - center).Length / 300.0));
+            return isActive
+                ? 0.74 + (nearness * 0.26)
+                : 0.28 + (nearness * 0.26);
+        }
+
+        if (_session.Absorption > 0 || _session.CanPullOutFromLens || _session.TransitState != GpuLivingLensTransitState.LocalReady)
+        {
+            return isActive ? 1.0 : 0.0;
+        }
+
+        return isActive ? 0.22 : 0.0;
     }
 
     private static WPoint Interpolate(WPoint source, WPoint target, double amount)
@@ -647,28 +750,37 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return point;
         }
 
-        var center = new WPoint(bounds.Left + (bounds.Width / 2), bounds.Top + (bounds.Height / 2));
-        var lensSide = lensCenter.X >= center.X ? 1 : -1;
+        var center = new WPoint(bounds.Left + (bounds.Width / 2.0), bounds.Top + (bounds.Height / 2.0));
         var vectorToLens = lensCenter - center;
         if (vectorToLens.Length > 0.001)
         {
             vectorToLens.Normalize();
         }
+        else
+        {
+            vectorToLens = new Vector(1, 0);
+        }
 
-        var edgeX = lensSide > 0 ? bounds.Right : bounds.Left;
-        var apex = new WPoint(
-            edgeX + (lensSide * bounds.Width * (0.12 + (portalAmount * 0.34))),
-            center.Y + ((lensCenter.Y - center.Y) * 0.10 * portalAmount));
+        var cornerOffset = new Vector((bounds.Width / 2.0) * cornerX, (bounds.Height / 2.0) * cornerY);
+        var cornerProjection = (cornerOffset.X * vectorToLens.X) + (cornerOffset.Y * vectorToLens.Y);
+        var maxProjection = (Math.Abs(vectorToLens.X) * bounds.Width / 2.0) + (Math.Abs(vectorToLens.Y) * bounds.Height / 2.0);
+        var leadingDistance = Math.Max(0.0, maxProjection - cornerProjection);
+        var leadingBand = Math.Max(18.0, Math.Min(bounds.Width, bounds.Height) * 0.74);
+        var leadWeight = SmoothStep(1.0 - (leadingDistance / leadingBand));
+        var supportWeight = SmoothStep(1.0 - (leadingDistance / (leadingBand * 1.92))) * 0.18;
+        var collapseWeight = Math.Clamp(leadWeight + supportWeight, 0.0, 1.0);
+        var apexDistance = maxProjection + (bounds.Width * (0.14 + (portalAmount * 0.40)));
+        var apex = center + (vectorToLens * apexDistance);
         var stableDrift = vectorToLens * portalAmount * bounds.Width * 0.045;
-        if (cornerX != lensSide)
+        if (collapseWeight <= 0.01)
         {
             return point + stableDrift;
         }
 
         var collapse = Math.Clamp((portalAmount - 0.10) / 0.90, 0.0, 1.0);
-        collapse = SmoothStep(collapse) * 0.985;
-        var collapsed = Interpolate(point, apex, collapse);
-        var funnelPull = vectorToLens * portalAmount * bounds.Width * 0.16;
+        collapse = SmoothStep(collapse) * (0.965 * collapseWeight);
+        var collapsed = Interpolate(point + stableDrift, apex, collapse);
+        var funnelPull = vectorToLens * portalAmount * bounds.Width * 0.11 * collapseWeight;
         return collapsed + funnelPull;
     }
 

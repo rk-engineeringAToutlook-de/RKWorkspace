@@ -684,6 +684,10 @@ TunnelDepthLayers: OK
 PremiumTunnelVisual: OK
 PremiumTunnelRefraction: OK
 PremiumTunnelAperture: OK
+EightTunnelField: OK
+CornerAndEdgeTunnels: OK
+CenterStartObject: OK
+VectorSuctionCenter: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -733,6 +737,9 @@ Der Test prueft ausdruecklich:
 - Premium-Tunnelgrafik mit neutralen Tiefenringen, innerem Schlund und Spiegelkanten ist vorbereitet.
 - PremiumTunnelRefraction mit ruhigen Refraction-Ribbons ist vorbereitet.
 - PremiumTunnelAperture mit feiner innerer Glas-/Tiefenschichtung ist vorbereitet.
+- Acht-Tunnel-Feld mit vier Ecken und vier Seitenmitten ist vorbereitet.
+- das digitale Ding startet fuer diesen Test in der Mitte der Arbeitsflaeche.
+- die Sogmitte wird vektorbasiert aus dem jeweils naechsten Tunnel bestimmt.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
 - im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
@@ -759,6 +766,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.25.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Acht-Tunnel-Feld, Seiten-/Ecktunnel, Center-Start und VectorSuctionCenter erweitert. |
 | 2.24.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Apex-Squeeze, NoTwistPortalFunnel, TiltDampingNearTunnel, CalmRestingObjectInTunnel und PremiumTunnelAperture erweitert. |
 | 2.23.0 | 2026-07-04 | GPU Living Lens Smoke-Test um NoPaperAxisSpin, PortalEdgeSqueeze, ShadowTunnelSuction und PremiumTunnelRefraction erweitert. |
 | 2.22.0 | 2026-07-04 | GPU Living Lens Smoke-Test um PremiumTunnelVisual erweitert. |

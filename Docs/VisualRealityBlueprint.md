@@ -880,6 +880,8 @@ Geprueft wird:
 - PremiumTunnelRefraction mit ruhigen Refraction-Ribbons und neutraler Glasbrillanz.
 - CalmRestingObjectInTunnel: im Tunnel liegt nur ein kleines, ruhiges Papierstueck.
 - PremiumTunnelAperture: der innere Schlund bekommt feinere Glas-/Tiefenschichtung.
+- Acht-Tunnel-Feld fuer den Richtungstest: Ecken und Seitenmitten koennen als Durchgaenge ausprobiert werden.
+- VectorSuctionCenter: die Sogspitze richtet sich auf die jeweils naechste Tunnelmitte aus.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -910,6 +912,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.16.0 | 2026-07-04 | Acht-Tunnel-Richtungstest und VectorSuctionCenter fuer die Living Lens aufgenommen. |
 | 1.15.0 | 2026-07-04 | No-Twist-Funnel, Apex-Squeeze, Neigungsdaempfung und ruhiges Tunnelobjekt als Zielrichtung aufgenommen. |
 | 1.14.0 | 2026-07-04 | Premium-Portal-Iteration mit Edge-Squeeze, Schatten-Sog und veredelter Tunnel-Refraction dokumentiert. |
 | 1.13.0 | 2026-07-04 | Premium-Tunnelgrafik als MA006.11-Zielrichtung dokumentiert. |

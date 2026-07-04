@@ -316,6 +316,8 @@ Die Tunneloptik wird in dieser Stufe ebenfalls bewusst veredelt: mehr gebrochene
 
 Die Premium-Portal-Iteration korrigiert ausserdem die Objektphysik am Tunnel. Das digitale Ding soll nicht wie eine Vektorgrafik um seine eigene Mitte rotieren. Stattdessen zieht der Tunnel lokal an der tunnelnahen Kante: die beiden naechsten Ecken laufen symmetrisch zu einer Spitze zusammen, die Gegenseite bleibt laenger stabil und der Schatten wird als `ShadowTunnelSuction` mit in die Oeffnung gezogen. Direkt am Tunnel wird die normale Neigung gedaempft, damit keine Verdrehung entsteht. Im Tunnel liegt nur ein kleines ruhiges Papierstueck.
 
+Fuer den aktuellen Wahrnehmungstest kann die GPU Living Lens acht Tunnel gleichzeitig zeigen: vier an den Ecken und vier in den Seitenmitten. Das digitale Ding startet in der Mitte der Arbeitsflaeche. Der aktive Tunnel wird ueber die naechste Tunnelmitte bestimmt; die Papier-Geometrie zieht ihre fuehrenden Ecken/Kanten vektorbasiert zu diesem Sogzentrum. Damit laesst sich pruefen, ob ein Ablegen nach oben, unten, links, rechts und in die Ecken gleich natuerlich wirkt.
+
 ## Spatial Carry Tray Prototype
 
 MA006.03 fuehrt den neuen Wahrnehmungspfad ein:
@@ -628,6 +630,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.27.0 | 2026-07-04 | GPU Living Lens Acht-Tunnel-Testfeld mit vektorbasiertem Sogzentrum eingeordnet. |
 | 1.26.0 | 2026-07-04 | GPU Living Lens No-Twist-Funnel mit Apex-Squeeze, Neigungsdaempfung, ruhigem Tunnelobjekt und Aperture-Schichtung dokumentiert. |
 | 1.25.0 | 2026-07-04 | GPU Living Lens Premium-Portal mit PortalEdgeSqueeze, NoPaperAxisSpin, ShadowTunnelSuction und PremiumTunnelRefraction eingeordnet. |
 | 1.24.0 | 2026-07-04 | GPU Living Lens Tunnelgrafik mit Premium-Tiefenringen, innerem Schlund und ruhigen Spiegelkanten ergaenzt. |

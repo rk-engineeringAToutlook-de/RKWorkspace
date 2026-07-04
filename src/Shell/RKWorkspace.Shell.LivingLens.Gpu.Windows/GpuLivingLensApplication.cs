@@ -54,6 +54,10 @@ public static class GpuLivingLensApplication
                 session.PremiumTunnelVisualPrepared &&
                 session.PremiumTunnelRefractionPrepared &&
                 session.PremiumTunnelAperturePrepared &&
+                session.EightTunnelFieldPrepared &&
+                session.CornerAndEdgeTunnelPrepared &&
+                session.CenterStartObjectPrepared &&
+                session.VectorSuctionCenterPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -101,6 +105,10 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"PremiumTunnelVisual: {(session.PremiumTunnelVisualPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PremiumTunnelRefraction: {(session.PremiumTunnelRefractionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PremiumTunnelAperture: {(session.PremiumTunnelAperturePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"EightTunnelField: {(session.EightTunnelFieldPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CornerAndEdgeTunnels: {(session.CornerAndEdgeTunnelPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CenterStartObject: {(session.CenterStartObjectPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"VectorSuctionCenter: {(session.VectorSuctionCenterPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");
