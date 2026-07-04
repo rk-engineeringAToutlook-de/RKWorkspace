@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.10.0
+Version: 1.11.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -70,6 +70,7 @@ Er nutzt:
 - ThroatSuctionTarget: die sichtbare schwarze Tunneloeffnung ist das einzige Sogziel.
 - NoApexOvershoot: die Papier-Spitze darf nicht ueber den schwarzen Schlund hinauslaufen.
 - StableTunnelTargetLock: der aktive Tunnel wird mit Hysterese stabilisiert, damit kein unruhiges Ausloten zwischen Nachbartunneln entsteht.
+- ThroatPointCollapse: wenn das Ding direkt ueber dem schwarzen Schlund liegt, kollabiert es staerker zu einem Punkt und der Schriftzug verschwindet frueher.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -191,6 +192,7 @@ VectorSuctionCenter: OK
 ThroatSuctionTarget: OK
 NoApexOvershoot: OK
 StableTunnelTargetLock: OK
+ThroatPointCollapse: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -217,6 +219,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.11.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt ueber dem schwarzen Schlund und frueheres Ausblenden des Papiertextes dokumentiert. |
 | 1.10.0 | 2026-07-04 | Schwarze Tunneloeffnung als einziges Sogziel, Apex-Kappung und stabiler Tunnel-Lock dokumentiert. |
 | 1.9.0 | 2026-07-04 | Acht-Tunnel-Testfeld mit Vektor-Sogmitte fuer Ecken und Seitenmitten dokumentiert. |
 | 1.8.0 | 2026-07-04 | No-Twist-Funnel mit Apex-Squeeze, Neigungsdaempfung, ruhigem Tunnelobjekt und Aperture-Schichtung dokumentiert. |

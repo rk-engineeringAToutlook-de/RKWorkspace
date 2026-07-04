@@ -691,6 +691,7 @@ VectorSuctionCenter: OK
 ThroatSuctionTarget: OK
 NoApexOvershoot: OK
 StableTunnelTargetLock: OK
+ThroatPointCollapse: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -746,6 +747,7 @@ Der Test prueft ausdruecklich:
 - der sichtbare schwarze Schlund ist das einzige Sogziel fuer Papier und Schatten.
 - die Papier-Spitze wird am Schlund gekappt und darf nicht ueber das Ziel hinauslaufen.
 - der aktive Tunnel ist gegen unruhiges Umschalten stabilisiert.
+- direkt ueber dem Schlund kollabiert das Ding staerker zu einem Punkt.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
 - im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
@@ -772,6 +774,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.27.0 | 2026-07-04 | GPU Living Lens Smoke-Test um ThroatPointCollapse erweitert. |
 | 2.26.0 | 2026-07-04 | GPU Living Lens Smoke-Test um ThroatSuctionTarget, NoApexOvershoot und StableTunnelTargetLock erweitert. |
 | 2.25.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Acht-Tunnel-Feld, Seiten-/Ecktunnel, Center-Start und VectorSuctionCenter erweitert. |
 | 2.24.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Apex-Squeeze, NoTwistPortalFunnel, TiltDampingNearTunnel, CalmRestingObjectInTunnel und PremiumTunnelAperture erweitert. |

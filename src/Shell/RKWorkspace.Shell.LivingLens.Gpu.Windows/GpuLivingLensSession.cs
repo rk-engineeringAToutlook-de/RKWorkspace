@@ -48,6 +48,8 @@ public sealed class GpuLivingLensSession
 
     public bool StableTunnelTargetLockPrepared { get; } = true;
 
+    public bool ThroatPointCollapsePrepared { get; } = true;
+
     public bool HlslShaderContractPrepared { get; } = true;
 
     public bool RectangularThingPrepared { get; } = true;

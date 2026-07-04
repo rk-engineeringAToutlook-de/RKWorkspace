@@ -502,6 +502,10 @@ if (-not $gpuLivingLensText.Contains('StableTunnelTargetLock: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain StableTunnelTargetLock: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('ThroatPointCollapse: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ThroatPointCollapse: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

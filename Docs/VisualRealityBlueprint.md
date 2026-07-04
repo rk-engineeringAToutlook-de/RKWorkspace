@@ -885,6 +885,7 @@ Geprueft wird:
 - ThroatSuctionTarget: der sichtbare schwarze Schlund ist das Ziel, auf das Papier und Schatten zulaufen.
 - NoApexOvershoot: die Papier-Spitze endet am Schlund und schiesst nicht darueber hinaus.
 - StableTunnelTargetLock: der aktive Tunnel bleibt stabil, solange die Bewegung in seinem Einzugsbereich bleibt.
+- ThroatPointCollapse: direkt ueber dem schwarzen Schlund wird das Ding staerker zu einem Punkt und der Schriftzug tritt zurueck.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -915,6 +916,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.18.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt am schwarzen Schlund fuer die Living Lens aufgenommen. |
 | 1.17.0 | 2026-07-04 | Schwarzer Tunnel-Schlund als echtes Sogziel, Apex-Kappung und stabiler Tunnel-Lock aufgenommen. |
 | 1.16.0 | 2026-07-04 | Acht-Tunnel-Richtungstest und VectorSuctionCenter fuer die Living Lens aufgenommen. |
 | 1.15.0 | 2026-07-04 | No-Twist-Funnel, Apex-Squeeze, Neigungsdaempfung und ruhiges Tunnelobjekt als Zielrichtung aufgenommen. |

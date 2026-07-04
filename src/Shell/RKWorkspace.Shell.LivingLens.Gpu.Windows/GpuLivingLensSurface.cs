@@ -481,6 +481,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var opacity = progress < 0.78 ? 1.0 : Math.Clamp(1.0 - ((progress - 0.78) / 0.22), 0.12, 1.0);
         var portalPull = GetPortalPullAmount(bounds, lifted);
         var portalSqueeze = Math.Max(portalPull, SmoothStep(progress) * 0.84);
+        var throatPointCollapse = SmoothStep(1.0 - ((throatTarget - center).Length / (Math.Max(width, height) * 0.74))) * portalSqueeze;
 
         if (lifted)
         {
@@ -520,7 +521,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             System.Windows.FlowDirection.LeftToRight,
             new Typeface("Segoe UI"),
             Math.Max(8, 11 * scale),
-            new SolidColorBrush(WColor.FromArgb((byte)(70 * opacity * (1.0 - (portalSqueeze * 0.48))), 34, 42, 48)),
+            new SolidColorBrush(WColor.FromArgb((byte)(70 * opacity * (1.0 - Math.Max(portalSqueeze * 0.48, throatPointCollapse * 0.92))), 34, 42, 48)),
             VisualTreeHelper.GetDpi(this).PixelsPerDip)
         {
             TextAlignment = TextAlignment.Center,
@@ -840,7 +841,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var leadingBand = Math.Max(18.0, Math.Min(bounds.Width, bounds.Height) * 0.74);
         var leadWeight = SmoothStep(1.0 - (leadingDistance / leadingBand));
         var supportWeight = SmoothStep(1.0 - (leadingDistance / (leadingBand * 1.92))) * 0.18;
-        var pointCollapse = SmoothStep(1.0 - (targetDistance / (Math.Max(bounds.Width, bounds.Height) * 0.68))) * portalAmount;
+        var pointCollapse = SmoothStep(1.0 - (targetDistance / (Math.Max(bounds.Width, bounds.Height) * 0.74))) * portalAmount;
         var collapseWeight = Math.Clamp(Math.Max(leadWeight + supportWeight, pointCollapse), 0.0, 1.0);
         var apex = suctionTarget;
         var driftDistance = Math.Min(targetDistance * 0.10, bounds.Width * 0.045);
@@ -851,7 +852,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         var collapse = Math.Clamp((portalAmount - 0.10) / 0.90, 0.0, 1.0);
-        collapse = SmoothStep(collapse) * (0.965 * collapseWeight);
+        collapse = Math.Max(SmoothStep(collapse) * (0.965 * collapseWeight), pointCollapse * 0.998);
         var collapsed = Interpolate(point + stableDrift, apex, collapse);
         return collapsed;
     }
