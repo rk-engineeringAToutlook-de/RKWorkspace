@@ -10,61 +10,71 @@ public sealed class VisualRealitySession
         [
             new VisualRealityLensHypothesis
             {
-                Kind = VisualRealityLensKind.SoapBubble,
-                Name = "Linse A - Seifenblase",
-                Intention = "Transparent, fein, mit leichter Reflexion und minimaler Verformung.",
+                Kind = VisualRealityLensKind.ReferenceLens,
+                Name = "Linse 1 - Glasbrunnen-Portal",
+                Intention = "Ruhige Glaslinse, die sich bei Naehe zu einem tiefen, kontrollierten Portal vertieft.",
                 UsesTransparency = true,
                 UsesLightRefraction = true,
                 UsesDepth = true,
                 UsesLivingMotion = true,
-                AvoidsGreenPointUi = true,
-                AvoidsButtonShape = true
-            },
-            new VisualRealityLensHypothesis
-            {
-                Kind = VisualRealityLensKind.Water,
-                Name = "Linse B - Wasserlinse",
-                Intention = "Ruhige Wasseroberflaeche mit feiner Welle und innerem Glanz.",
-                UsesTransparency = true,
-                UsesLightRefraction = true,
-                UsesDepth = true,
-                UsesLivingMotion = true,
+                UsesGlassMaterial = true,
+                UsesGravityWell = true,
+                UsesCalmPortal = true,
                 AvoidsGreenPointUi = true,
                 AvoidsButtonShape = true
             },
             new VisualRealityLensHypothesis
             {
                 Kind = VisualRealityLensKind.Glass,
-                Name = "Linse C - Glaslinse",
-                Intention = "Klare Tiefe, Lichtkante und kleine raeumliche Brechung.",
+                Name = "Linse 2 - Glasmaterial",
+                Intention = "Echte optische Materialitaet, Brechung und ruhige physische Praesenz.",
                 UsesTransparency = true,
                 UsesLightRefraction = true,
                 UsesDepth = true,
                 UsesLivingMotion = true,
+                UsesGlassMaterial = true,
                 AvoidsGreenPointUi = true,
                 AvoidsButtonShape = true
             },
             new VisualRealityLensHypothesis
             {
-                Kind = VisualRealityLensKind.Portal,
-                Name = "Linse D - Portal-Linse",
-                Intention = "Oeffnender Rand, tiefe Mitte und Blick in eine Mini-Ablage.",
+                Kind = VisualRealityLensKind.GravityWell,
+                Name = "Linse 3 - Raumbrunnen",
+                Intention = "Die Ablage wird weich, tiefer und zieht das Ding kontrolliert hinein.",
                 UsesTransparency = true,
                 UsesLightRefraction = true,
                 UsesDepth = true,
                 UsesLivingMotion = true,
+                UsesGlassMaterial = true,
+                UsesGravityWell = true,
+                AvoidsGreenPointUi = true,
+                AvoidsButtonShape = true
+            },
+            new VisualRealityLensHypothesis
+            {
+                Kind = VisualRealityLensKind.QuietPortal,
+                Name = "Linse 4 - Ruhiges Portal",
+                Intention = "Eine stille Oeffnung mit Tiefe, Randlicht und Mini-Ablage ohne Effektlaerm.",
+                UsesTransparency = true,
+                UsesLightRefraction = true,
+                UsesDepth = true,
+                UsesLivingMotion = true,
+                UsesGlassMaterial = true,
+                UsesGravityWell = true,
+                UsesCalmPortal = true,
                 AvoidsGreenPointUi = true,
                 AvoidsButtonShape = true
             },
             new VisualRealityLensHypothesis
             {
                 Kind = VisualRealityLensKind.MinimalRift,
-                Name = "Linse E - Minimaler Raumriss",
-                Intention = "Fast unsichtbare Oeffnung, nur ueber Licht und Tiefe wahrnehmbar.",
+                Name = "Linse 5 - Minimaler Raumriss",
+                Intention = "Reduzierte Gegenprobe: fast unsichtbare Oeffnung nur ueber Lichtkante und Tiefe.",
                 UsesTransparency = true,
                 UsesLightRefraction = false,
                 UsesDepth = true,
                 UsesLivingMotion = true,
+                UsesCalmPortal = true,
                 AvoidsGreenPointUi = true,
                 AvoidsButtonShape = true
             }
@@ -106,6 +116,15 @@ public sealed class VisualRealitySession
     public bool GreenPointStyleRejected => LensVariants.All(variant => variant.AvoidsGreenPointUi);
 
     public bool ButtonTargetShapeRejected => LensVariants.All(variant => variant.AvoidsButtonShape);
+
+    public bool SpaceBackdropRejected => LensVariants.All(variant => variant.AvoidsSpaceBackdrop);
+
+    public bool ReferenceBoardDirectionPrepared => LensVariants[0].Kind == VisualRealityLensKind.ReferenceLens &&
+        LensVariants[0].UsesGlassMaterial &&
+        LensVariants[0].UsesGravityWell &&
+        LensVariants[0].UsesCalmPortal &&
+        LensVariants[0].PreservesRealDesktop &&
+        LensVariants[0].AvoidsSpaceBackdrop;
 
     public bool LensesAtRealAblageEdges { get; } = true;
 
@@ -335,7 +354,9 @@ public sealed class VisualRealitySession
         var variantsOk = LensVariants.Count >= 5 &&
             LensVariants.All(variant => variant.UsesTransparency && variant.UsesDepth && variant.UsesLivingMotion) &&
             GreenPointStyleRejected &&
-            ButtonTargetShapeRejected;
+            ButtonTargetShapeRejected &&
+            SpaceBackdropRejected &&
+            ReferenceBoardDirectionPrepared;
         var switchOk = CheckVariantSwitching();
         Pick();
         var digitalHandOk = ThingCompact && ThingPartiallyOccluded && GripShadowVisible && OpticalHapticsPrepared;

@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.13.0
+Version: 1.14.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -174,7 +174,7 @@ Start:
 
 Das Lab prueft:
 
-- fuenf Linsen-Hypothesen.
+- fuenf Linsen-Hypothesen in der Richtung Glasbrunnen-Portal.
 - Umschalten per `1` bis `5`.
 - langsames Erscheinen der Linsen.
 - subtile Lebendigkeit.
@@ -215,6 +215,14 @@ ruhiges Portal
 ```
 
 Diese Richtung darf nicht als Weltraumkulisse verstanden werden. Workspace Shell bleibt der reale Arbeitsraum; die Linse erzeugt nur eine glaubwuerdige Oeffnung innerhalb dieses Raums.
+
+Der aktuelle Visual-Reality-Slice baut diese Richtung erstmals sichtbar:
+
+- `1`: Glasbrunnen-Portal.
+- `2`: Glasmaterial.
+- `3`: Raumbrunnen.
+- `4`: Ruhiges Portal.
+- `5`: Minimaler Raumriss.
 
 ## Spatial Carry Tray Prototype
 
@@ -519,6 +527,7 @@ MA006.09 baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.14.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert und aktuelle Linsenreihenfolge dokumentiert. |
 | 1.13.0 | 2026-07-04 | Owner-Referenzboard fuer Visual Reality und neue Zielrichtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal verankert. |
 | 1.12.0 | 2026-07-04 | Owner-Bewertung des ersten Visual-Reality-Spikes als visuellen Fehlschlag dokumentiert und naechsten HX-Schritt auf Blueprint, Storyboard und Renderer-Entscheidung korrigiert. |
 | 1.11.0 | 2026-07-04 | MA006.09 Visual Reality Lab als nativen HX-Testpfad fuer lebendige Ablage-Linsen ergaenzt. |

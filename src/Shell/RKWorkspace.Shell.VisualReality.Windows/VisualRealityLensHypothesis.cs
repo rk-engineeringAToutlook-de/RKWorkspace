@@ -16,6 +16,16 @@ public sealed record VisualRealityLensHypothesis
 
     public required bool UsesLivingMotion { get; init; }
 
+    public bool UsesGlassMaterial { get; init; }
+
+    public bool UsesGravityWell { get; init; }
+
+    public bool UsesCalmPortal { get; init; }
+
+    public bool PreservesRealDesktop { get; init; } = true;
+
+    public bool AvoidsSpaceBackdrop { get; init; } = true;
+
     public required bool AvoidsGreenPointUi { get; init; }
 
     public required bool AvoidsButtonShape { get; init; }

@@ -1,7 +1,7 @@
 # Visual Reality Lab
 
 Dokument-ID: RKWS-VISUAL-REALITY-LAB
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -47,11 +47,11 @@ Smoke-Test:
 
 - `Ctrl + Alt + Space`: Ding greifen.
 - Linke Maustaste auf `Rechnung.pdf`: Ding greifen.
-- `1`: Linse A - Seifenblase.
-- `2`: Linse B - Wasserlinse.
-- `3`: Linse C - Glaslinse.
-- `4`: Linse D - Portal-Linse.
-- `5`: Linse E - Minimaler Raumriss.
+- `1`: Glasbrunnen-Portal.
+- `2`: Glasmaterial.
+- `3`: Raumbrunnen.
+- `4`: Ruhiges Portal.
+- `5`: Minimaler Raumriss.
 - `Esc`: Overlay sicher beenden.
 
 ## Sichtbarer Ablauf
@@ -80,6 +80,7 @@ Der Smoke-Test prueft:
 - Varianten sind umschaltbar.
 - langsames Erscheinen ist vorbereitet.
 - Linsen besitzen subtile Lebendigkeit.
+- Referenzrichtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal ist vorbereitet.
 - Ding wird kompakter und teilverdeckt.
 - Ding reagiert vektorbasiert.
 - diagonale Bewegung wird unterstuetzt.
@@ -92,6 +93,7 @@ Der Smoke-Test prueft:
 Erwartete Ausgabe:
 
 ```text
+ReferenceDirection: OK
 VisualRealitySmoke: SUCCESS
 RESULT: SUCCESS
 ```
@@ -159,6 +161,18 @@ ruhiges Portal
 
 Diese Richtung ersetzt die bisherige Bubble-/Status-/Effektoptik. Die Referenzen duerfen nicht als Weltraumhintergrund verstanden werden. Der reale Desktop bleibt sichtbar; die Linse erzeugt nur Tiefe und Oeffnung im Raum.
 
+## Implementierter Slice Nach Referenzboard
+
+Der aktuelle Slice baut die Richtung erstmals sichtbar:
+
+- Variante 1: Glasbrunnen-Portal als Standard.
+- Variante 2: Glasmaterial als ruhige Materialprobe.
+- Variante 3: Raumbrunnen als Einzugs-/Tiefenprobe.
+- Variante 4: ruhiges Portal als Oeffnungsprobe.
+- Variante 5: minimaler Raumriss als reduzierte Gegenprobe.
+
+Die bisherige Seifenblasen-/Wasser-Optik ist nicht mehr der Implementierungsstandard.
+
 ## Owner-Test
 
 Der Owner prueft ausschliesslich:
@@ -189,6 +203,7 @@ Der Owner prueft ausschliesslich:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert, Tastenbelegung aktualisiert und ReferenceDirection-Smoke dokumentiert. |
 | 1.2.0 | 2026-07-04 | Owner-Referenzboard als neue visuelle Richtung fuer Glaslinse, Gravitationsbrunnen und ruhiges Portal verankert. |
 | 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Spikes als visuellen Fehlschlag dokumentiert und naechstes Entscheidungs-Gate auf den Visual Reality Blueprint verlagert. |
 | 1.0.0 | 2026-07-04 | MA006.09 Visual Reality Lab mit fuenf Living-Lens-Hypothesen dokumentiert. |

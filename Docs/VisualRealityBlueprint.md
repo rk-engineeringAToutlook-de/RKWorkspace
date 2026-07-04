@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -343,33 +343,35 @@ Mobile Ablagen sollen spaeter echte Haptik liefern:
 
 Haptik ist keine Dekoration. Sie ist die vierte Dimension der digitalen Physik.
 
-## Fuenf Linsen-Hypothesen
+## Implementierte Linsen-Hypothesen
 
-MA006.09 prueft fuenf Ansaetze:
+Der Visual-Reality-Slice prueft nach dem Owner-Referenzboard fuenf aktuelle Ansaetze:
 
-- Linse A: Seifenblase, transparent, feiner Rand, Lichtreflex.
-- Linse B: Wasserlinse, feine Wellen, ruhiger innerer Glanz.
-- Linse C: Glaslinse, klare Tiefe, Lichtkante, Brechung.
-- Linse D: Portal-Linse, oeffnender Rand, tiefe Mitte, Mini-Ablage.
-- Linse E: Minimaler Raumriss, fast unsichtbar, nur Licht und Tiefe.
+- Linse 1: Glasbrunnen-Portal, die neue Referenz-Kombination.
+- Linse 2: Glasmaterial, Materialitaet und Brechung als ruhige Gegenprobe.
+- Linse 3: Raumbrunnen, Einzug und Tiefe als Verhaltensprobe.
+- Linse 4: Ruhiges Portal, Oeffnung und Mini-Ablage als Portaluebergang.
+- Linse 5: Minimaler Raumriss, reduzierte Gegenprobe.
 
 Keine dieser Varianten ist final. Sie sind Wahrnehmungshypothesen.
 
-Nach dem Owner-Referenzboard sind die Hypothesen nicht mehr gleich gewichtet.
+Die Tastenbelegung im aktuellen Slice folgt dieser Reihenfolge.
+
+Nach dem Owner-Referenzboard sind die Hypothesen nicht gleich gewichtet.
 
 Prioritaet fuer die naechste visuelle Entscheidung:
 
-1. Glaslinse als Materialgrundlage.
-2. Portal-Linse als Raumoeffnung.
-3. Gravitationsbrunnen als Uebergangsverhalten.
-4. Wasserlinse nur fuer weiches Nachgeben.
-5. Minimaler Raumriss nur als reduzierte Gegenprobe.
+1. Glasbrunnen-Portal als Zielhypothese.
+2. Glasmaterial als Materialgrundlage.
+3. Raumbrunnen als Uebergangsverhalten.
+4. Ruhiges Portal als Oeffnungsprobe.
+5. Minimaler Raumriss als reduzierte Gegenprobe.
 
 Die Seifenblasen-Idee darf nur noch als optische Transparenzreferenz dienen. Sie darf nicht niedlich, rund, dekorativ oder apphaft wirken.
 
-### Linse 0: Referenz-Kombination
+### Linse 1: Glasbrunnen-Portal
 
-Diese Variante ist keine zusaetzliche Effektvariante, sondern die neue Zielhypothese aus den Owner-Referenzen.
+Diese Variante ist die neue Zielhypothese aus den Owner-Referenzen.
 
 Zielgefuehl:
 
@@ -392,7 +394,88 @@ Akzeptanzkriterium:
 
 Der Owner muss zuerst eine echte optische Linse wahrnehmen und erst danach ein Portal. Wenn zuerst Effekt oder UI wahrgenommen wird, ist die Variante nicht gueltig.
 
-### Linse A: Seifenblase
+### Linse 2: Glasmaterial
+
+Zielgefuehl:
+
+```text
+Da liegt eine echte optische Linse ueber meinem Arbeitsraum.
+```
+
+Merkmale:
+
+- Glaskoerper mit ruhiger Kante.
+- Lichtreflex ohne grellen Effekt.
+- leichte simulierte Brechung ueber interne Linien.
+- keine permanente Portalmitte.
+
+Akzeptanzkriterium:
+
+Die Linse muss als Material wahrgenommen werden, nicht als UI-Kreis.
+
+### Linse 3: Raumbrunnen
+
+Zielgefuehl:
+
+```text
+Die Oberflaeche meines Raums wird tiefer und zieht das Ding kontrolliert hinein.
+```
+
+Merkmale:
+
+- konzentrische, ruhige Tiefenringe.
+- kaum Bewegung, eher Druck und Tiefe.
+- Einzug entsteht erst bei Naehe.
+- keine Weltraumkulisse.
+
+Akzeptanzkriterium:
+
+Die Linse muss wie eine Vertiefung im Raum wirken, nicht wie ein animierter Tunnel.
+
+### Linse 4: Ruhiges Portal
+
+Zielgefuehl:
+
+```text
+Die andere Ablage ist als stille Oeffnung erreichbar.
+```
+
+Merkmale:
+
+- dunkler, ruhiger Kern.
+- feiner Lichtsaum.
+- Mini-Ablage erscheint erst bei Oeffnung.
+- kein Teleport-Gefuehl.
+
+Akzeptanzkriterium:
+
+Die Oeffnung muss kontrolliert wirken, nicht spektakulaer.
+
+### Linse 5: Minimaler Raumriss
+
+Zielgefuehl:
+
+```text
+Der Raum hat an dieser Stelle eine fast unsichtbare Oeffnung.
+```
+
+Merkmale:
+
+- kein sichtbarer Kreis.
+- nur Lichtkante und Tiefe.
+- schwacher Schimmer am Rand.
+- Name erscheint erst sehr spaet.
+- stark reduzierte Form.
+
+Akzeptanzkriterium:
+
+Die Linse muss trotz Minimalismus absichtlich und raeumlich wirken.
+
+## Archivierte Gegenproben
+
+Die folgenden frueheren Hypothesen bleiben dokumentiert, sind aber nicht mehr die aktuelle Implementierungsreihenfolge.
+
+### Archiv: Seifenblase
 
 Zielgefuehl:
 
@@ -417,7 +500,7 @@ Akzeptanzkriterium:
 
 Die Linse muss wie ein optisches Phaenomen wirken, nicht wie eine gezeichnete Blase.
 
-### Linse B: Wasserlinse
+### Archiv: Wasserlinse
 
 Zielgefuehl:
 
@@ -442,7 +525,7 @@ Akzeptanzkriterium:
 
 Die Linse muss eine physische Oberflaeche andeuten, durch die das Ding hindurchgehen kann.
 
-### Linse C: Glaslinse
+### Archiv: Alte Glaslinse
 
 Zielgefuehl:
 
@@ -467,7 +550,7 @@ Akzeptanzkriterium:
 
 Der Owner muss Tiefe wahrnehmen, ohne an ein UI-Element zu denken.
 
-### Linse D: Portal-Linse
+### Archiv: Alte Portal-Linse
 
 Zielgefuehl:
 
@@ -492,7 +575,7 @@ Akzeptanzkriterium:
 
 Die Linse muss wie ein weicher Durchgang wirken, nicht wie Teleport oder Effekt.
 
-### Linse E: Minimaler Raumriss
+### Archiv: Alter Minimaler Raumriss
 
 Zielgefuehl:
 
@@ -713,6 +796,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-04 | Visual-Reality-Slice in Richtung Glasbrunnen-Portal implementiert, Linsen-Hypothesen auf aktuelle Tastenbelegung korrigiert und alte Seifenblasen-/Wasser-Hypothesen archiviert. |
 | 1.2.0 | 2026-07-04 | Owner-Referenzboard mit sechs visuellen Referenzen gesichert, Zielrichtung auf Glaslinse plus Gravitationsbrunnen plus ruhiges Portal korrigiert und Linsenprioritaet angepasst. |
 | 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten C#-Spikes als visuellen Fehlschlag dokumentiert; fuenf Linsenrichtungen, drei digitale-Hand-Varianten, drei Storyboards, Zielvision und Implementierungs-Gate ergaenzt. |
 | 1.0.0 | 2026-07-04 | MA006.09 Visual Reality Blueprint mit Ablage-Linse, Haptik-Konzept und Renderer-Eignung definiert. |

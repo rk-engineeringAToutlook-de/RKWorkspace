@@ -300,6 +300,10 @@ if (-not $visualRealityText.Contains('LensVariants: 5')) {
     throw "Visual Reality Smoke Test failed because output did not contain LensVariants: 5."
 }
 
+if (-not $visualRealityText.Contains('ReferenceDirection: OK')) {
+    throw "Visual Reality Smoke Test failed because output did not contain ReferenceDirection: OK."
+}
+
 if (-not $visualRealityText.Contains('VisualRealitySmoke: SUCCESS')) {
     throw "Visual Reality Smoke Test failed because output did not contain VisualRealitySmoke: SUCCESS."
 }

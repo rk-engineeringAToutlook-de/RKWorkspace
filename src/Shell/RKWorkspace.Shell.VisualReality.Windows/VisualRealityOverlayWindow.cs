@@ -72,6 +72,8 @@ public sealed class VisualRealityOverlayWindow : Form
 
     public bool SmokeLensLivingOk { get; private set; }
 
+    public bool SmokeReferenceDirectionOk { get; private set; }
+
     public bool SmokeDigitalHandOk { get; private set; }
 
     public bool SmokeVectorResponseOk { get; private set; }
@@ -93,8 +95,13 @@ public sealed class VisualRealityOverlayWindow : Form
         SmokeLensLivingOk = Session.LensVariants.All(variant =>
             variant.UsesLivingMotion &&
             variant.UsesDepth &&
+            variant.PreservesRealDesktop &&
+            variant.AvoidsSpaceBackdrop &&
             variant.AvoidsGreenPointUi &&
             variant.AvoidsButtonShape);
+        SmokeReferenceDirectionOk = Session.ReferenceBoardDirectionPrepared &&
+            Session.SpaceBackdropRejected &&
+            Session.DesktopRemainsVisible;
 
         Session.Start();
         Session.Pick();
@@ -127,6 +134,7 @@ public sealed class VisualRealityOverlayWindow : Form
             SmokeVariantSwitchingOk &&
             SmokeSlowEmergenceOk &&
             SmokeLensLivingOk &&
+            SmokeReferenceDirectionOk &&
             SmokeDigitalHandOk &&
             SmokeVectorResponseOk &&
             SmokeDiagonalVectorOk &&
@@ -421,17 +429,17 @@ public sealed class VisualRealityOverlayWindow : Form
 
         switch (Session.ActiveVariant.Kind)
         {
-            case VisualRealityLensKind.SoapBubble:
-                DrawSoapBubbleLens(graphics, bounds, active, emergence);
-                break;
-            case VisualRealityLensKind.Water:
-                DrawWaterLens(graphics, bounds, active, emergence);
+            case VisualRealityLensKind.ReferenceLens:
+                DrawReferenceLens(graphics, bounds, active, emergence);
                 break;
             case VisualRealityLensKind.Glass:
-                DrawGlassLens(graphics, bounds, active, emergence);
+                DrawGlassMaterialLens(graphics, bounds, active, emergence);
                 break;
-            case VisualRealityLensKind.Portal:
-                DrawPortalLens(graphics, bounds, active, emergence);
+            case VisualRealityLensKind.GravityWell:
+                DrawGravityWellLens(graphics, bounds, active, emergence);
+                break;
+            case VisualRealityLensKind.QuietPortal:
+                DrawQuietPortalLens(graphics, bounds, active, emergence);
                 break;
             case VisualRealityLensKind.MinimalRift:
                 DrawMinimalRiftLens(graphics, bounds, active, emergence);
@@ -446,72 +454,199 @@ public sealed class VisualRealityOverlayWindow : Form
         DrawLensText(graphics, lens, bounds, active);
     }
 
-    private void DrawSoapBubbleLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
+    private void DrawReferenceLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
     {
-        using var path = new GraphicsPath();
-        path.AddEllipse(bounds);
-        using var fill = new PathGradientBrush(path)
-        {
-            CenterColor = Color.FromArgb((int)(112 * emergence), 252, 255, 252),
-            SurroundColors = [Color.FromArgb((int)((active ? 48 : 32) * emergence), 178, 214, 238)]
-        };
-        graphics.FillPath(fill, path);
-        using var rim = new Pen(Color.FromArgb((int)((active ? 170 : 96) * emergence), 245, 252, 255), active ? 2.3f : 1.2f);
-        graphics.DrawPath(rim, path);
-        using var shine = new SolidBrush(Color.FromArgb((int)(86 * emergence), 255, 255, 255));
-        graphics.FillEllipse(shine, bounds.X + bounds.Width / 5, bounds.Y + bounds.Height / 6, bounds.Width / 3, bounds.Height / 5);
-    }
+        var oval = LensMaterialBounds(bounds);
+        DrawLensAmbient(graphics, oval, active, emergence);
+        DrawGlassBody(graphics, oval, active, emergence);
+        DrawGravityWell(graphics, oval, active, emergence, active ? 0.86f : 0.34f);
 
-    private void DrawWaterLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
-    {
-        using var path = new GraphicsPath();
-        path.AddEllipse(bounds);
-        using var fill = new LinearGradientBrush(
-            bounds,
-            Color.FromArgb((int)(92 * emergence), 200, 226, 246),
-            Color.FromArgb((int)(34 * emergence), 250, 252, 255),
-            LinearGradientMode.ForwardDiagonal);
-        graphics.FillPath(fill, path);
-        using var rim = new Pen(Color.FromArgb((int)((active ? 150 : 76) * emergence), 224, 244, 255), active ? 2.1f : 1.1f);
-        graphics.DrawPath(rim, path);
-        using var wavePen = new Pen(Color.FromArgb((int)(72 * emergence), 250, 255, 255), 1.2f);
-        for (var offset = -1; offset <= 1; offset++)
+        if (active)
         {
-            var y = bounds.Y + (bounds.Height / 2) + (offset * bounds.Height / 8) + (int)(MathF.Sin(_phase + offset) * 3);
-            graphics.DrawBezier(wavePen, bounds.Left + 14, y, bounds.Left + bounds.Width / 3, y - 8, bounds.Right - bounds.Width / 3, y + 8, bounds.Right - 14, y);
+            DrawPortalOpening(graphics, oval, emergence, Session.LensOpen ? 1.0f : 0.46f);
+        }
+        else
+        {
+            DrawQuietDepth(graphics, oval, emergence);
         }
     }
 
-    private void DrawGlassLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
+    private void DrawGlassMaterialLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
     {
-        using var path = new GraphicsPath();
-        path.AddEllipse(bounds);
-        using var fill = new PathGradientBrush(path)
-        {
-            CenterColor = Color.FromArgb((int)(70 * emergence), 238, 246, 252),
-            SurroundColors = [Color.FromArgb((int)((active ? 72 : 44) * emergence), 158, 184, 214)]
-        };
-        graphics.FillPath(fill, path);
-        using var rimOuter = new Pen(Color.FromArgb((int)(142 * emergence), 238, 246, 255), active ? 2.4f : 1.4f);
-        using var rimInner = new Pen(Color.FromArgb((int)(72 * emergence), 110, 140, 170), 1.0f);
-        graphics.DrawPath(rimOuter, path);
-        graphics.DrawEllipse(rimInner, Rectangle.Inflate(bounds, -bounds.Width / 8, -bounds.Height / 8));
+        var oval = LensMaterialBounds(bounds);
+        DrawLensAmbient(graphics, oval, active, emergence);
+        DrawGlassBody(graphics, oval, active, emergence);
+        DrawQuietDepth(graphics, oval, emergence);
     }
 
-    private void DrawPortalLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
+    private void DrawGravityWellLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
     {
-        using var path = new GraphicsPath();
-        path.AddEllipse(bounds);
-        using var fill = new PathGradientBrush(path)
+        var oval = LensMaterialBounds(bounds);
+        DrawLensAmbient(graphics, oval, active, emergence);
+        DrawGlassBody(graphics, oval, active, emergence);
+        DrawGravityWell(graphics, oval, active, emergence, active ? 1.0f : 0.54f);
+
+        if (active && Session.LensOpen)
         {
-            CenterColor = Color.FromArgb((int)((active ? 118 : 70) * emergence), 36, 48, 66),
-            SurroundColors = [Color.FromArgb((int)(64 * emergence), 224, 240, 250)]
+            DrawPortalOpening(graphics, oval, emergence, 0.72f);
+        }
+    }
+
+    private void DrawQuietPortalLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
+    {
+        var oval = LensMaterialBounds(bounds);
+        DrawLensAmbient(graphics, oval, active, emergence);
+        DrawGlassBody(graphics, oval, active, emergence);
+        DrawGravityWell(graphics, oval, active, emergence, 0.64f);
+        DrawPortalOpening(graphics, oval, emergence, active ? 1.0f : 0.34f);
+    }
+
+    private void DrawLensAmbient(Graphics graphics, Rectangle oval, bool active, float emergence)
+    {
+        var ambient = Rectangle.Inflate(oval, active ? 34 : 20, active ? 24 : 14);
+        using var ambientPath = new GraphicsPath();
+        ambientPath.AddEllipse(ambient);
+        using var ambientBrush = new PathGradientBrush(ambientPath)
+        {
+            CenterColor = Color.FromArgb(Alpha(active ? 48 : 24, emergence), 166, 194, 210),
+            SurroundColors = [Color.FromArgb(0, 166, 194, 210)]
         };
-        graphics.FillPath(fill, path);
-        using var rim = new Pen(Color.FromArgb((int)((active ? 168 : 84) * emergence), 232, 246, 255), active ? 2.6f : 1.2f);
-        graphics.DrawPath(rim, path);
-        using var inner = new Pen(Color.FromArgb((int)(92 * emergence), 168, 204, 228), 1.1f);
-        graphics.DrawEllipse(inner, Rectangle.Inflate(bounds, -bounds.Width / 5, -bounds.Height / 5));
+        graphics.FillPath(ambientBrush, ambientPath);
+
+        var floorShadow = new Rectangle(oval.X + (oval.Width / 9), oval.Bottom - Math.Max(7, oval.Height / 14), oval.Width - (oval.Width / 5), Math.Max(10, oval.Height / 7));
+        using var floorBrush = new LinearGradientBrush(
+            floorShadow,
+            Color.FromArgb(Alpha(active ? 72 : 42, emergence), 8, 12, 14),
+            Color.FromArgb(0, 8, 12, 14),
+            LinearGradientMode.Vertical);
+        graphics.FillEllipse(floorBrush, floorShadow);
+    }
+
+    private void DrawGlassBody(Graphics graphics, Rectangle oval, bool active, float emergence)
+    {
+        using var lensPath = new GraphicsPath();
+        lensPath.AddEllipse(oval);
+        using var body = new PathGradientBrush(lensPath)
+        {
+            CenterColor = Color.FromArgb(Alpha(active ? 88 : 58, emergence), 225, 236, 240),
+            SurroundColors = [Color.FromArgb(Alpha(active ? 154 : 98, emergence), 92, 112, 122)],
+            FocusScales = new PointF(0.34f, 0.22f)
+        };
+        graphics.FillPath(body, lensPath);
+
+        DrawRefractionLines(graphics, oval, lensPath, active, emergence);
+
+        using var lowerRim = new Pen(Color.FromArgb(Alpha(active ? 176 : 112, emergence), 30, 38, 42), active ? 2.4f : 1.4f);
+        using var upperRim = new Pen(Color.FromArgb(Alpha(active ? 218 : 146, emergence), 248, 252, 255), active ? 2.2f : 1.3f);
+        using var innerRim = new Pen(Color.FromArgb(Alpha(active ? 84 : 54, emergence), 248, 252, 255), 1.0f);
+        graphics.DrawArc(upperRim, oval, 202, 146);
+        graphics.DrawArc(lowerRim, oval, 26, 152);
+        graphics.DrawEllipse(innerRim, Rectangle.Inflate(oval, -Math.Max(8, oval.Width / 13), -Math.Max(6, oval.Height / 12)));
+
+        using var highlight = new LinearGradientBrush(
+            new Rectangle(oval.X + oval.Width / 2, oval.Y + oval.Height / 7, oval.Width / 3, oval.Height / 3),
+            Color.FromArgb(Alpha(active ? 138 : 88, emergence), 255, 255, 255),
+            Color.FromArgb(0, 255, 255, 255),
+            LinearGradientMode.ForwardDiagonal);
+        graphics.FillEllipse(highlight, oval.X + oval.Width / 2, oval.Y + oval.Height / 7, oval.Width / 3, oval.Height / 3);
+
+        using var secondaryHighlight = new SolidBrush(Color.FromArgb(Alpha(active ? 70 : 42, emergence), 255, 255, 255));
+        graphics.FillEllipse(secondaryHighlight, oval.X + oval.Width / 7, oval.Y + oval.Height / 3, oval.Width / 5, oval.Height / 7);
+    }
+
+    private void DrawRefractionLines(Graphics graphics, Rectangle oval, GraphicsPath clipPath, bool active, float emergence)
+    {
+        var previousClip = graphics.Clip;
+        graphics.SetClip(clipPath, CombineMode.Intersect);
+
+        using var coolLine = new Pen(Color.FromArgb(Alpha(active ? 52 : 32, emergence), 238, 248, 255), 1.0f);
+        using var darkLine = new Pen(Color.FromArgb(Alpha(active ? 34 : 22, emergence), 34, 48, 56), 1.0f);
+        for (var index = -2; index <= 2; index++)
+        {
+            var y = oval.Y + (oval.Height / 2) + (index * oval.Height / 9) + (int)(MathF.Sin(_phase + index) * (active ? 2.4f : 1.1f));
+            graphics.DrawBezier(coolLine, oval.Left + 8, y, oval.Left + oval.Width / 3, y - 10, oval.Right - oval.Width / 3, y + 10, oval.Right - 8, y - 2);
+        }
+
+        graphics.DrawBezier(darkLine, oval.Left + oval.Width / 10, oval.Top + oval.Height / 5, oval.Left + oval.Width / 3, oval.Top + oval.Height / 7, oval.Right - oval.Width / 4, oval.Bottom - oval.Height / 4, oval.Right - oval.Width / 9, oval.Bottom - oval.Height / 5);
+
+        graphics.Clip = previousClip;
+        previousClip.Dispose();
+    }
+
+    private void DrawGravityWell(Graphics graphics, Rectangle oval, bool active, float emergence, float strength)
+    {
+        var center = new PointF(oval.X + (oval.Width * 0.52f), oval.Y + (oval.Height * 0.54f));
+        var ringCount = active ? 6 : 4;
+        for (var index = 0; index < ringCount; index++)
+        {
+            var factor = 0.76f - (index * 0.095f);
+            var ringWidth = Math.Max(10, (int)(oval.Width * factor));
+            var ringHeight = Math.Max(6, (int)(oval.Height * factor * 0.62f));
+            var ring = new Rectangle(
+                (int)Math.Round(center.X - (ringWidth / 2f)),
+                (int)Math.Round(center.Y - (ringHeight / 2f) + (index * 2.2f * strength)),
+                ringWidth,
+                ringHeight);
+            var alpha = Alpha((active ? 62 : 34) * strength * (1.0f - (index * 0.09f)), emergence);
+            using var ringPen = new Pen(Color.FromArgb(alpha, 218, 238, 248), index == 0 ? 1.2f : 0.9f);
+            graphics.DrawEllipse(ringPen, ring);
+        }
+
+        using var foldPen = new Pen(Color.FromArgb(Alpha(active ? 44 * strength : 24 * strength, emergence), 190, 220, 235), 0.9f);
+        for (var angle = -60; angle <= 60; angle += 30)
+        {
+            var radians = angle * MathF.PI / 180f;
+            var start = new PointF(
+                center.X + MathF.Cos(radians) * oval.Width * 0.42f,
+                center.Y + MathF.Sin(radians) * oval.Height * 0.28f);
+            var end = new PointF(
+                center.X + MathF.Cos(radians) * oval.Width * 0.12f,
+                center.Y + MathF.Sin(radians) * oval.Height * 0.08f);
+            graphics.DrawBezier(foldPen, start, new PointF((start.X + center.X) / 2, start.Y + 10), new PointF((end.X + center.X) / 2, center.Y - 4), end);
+        }
+    }
+
+    private void DrawQuietDepth(Graphics graphics, Rectangle oval, float emergence)
+    {
+        var depth = new Rectangle(
+            oval.X + oval.Width / 3,
+            oval.Y + oval.Height / 3,
+            oval.Width / 3,
+            oval.Height / 4);
+        using var depthPath = new GraphicsPath();
+        depthPath.AddEllipse(depth);
+        using var depthBrush = new PathGradientBrush(depthPath)
+        {
+            CenterColor = Color.FromArgb(Alpha(36, emergence), 30, 42, 48),
+            SurroundColors = [Color.FromArgb(0, 30, 42, 48)]
+        };
+        graphics.FillPath(depthBrush, depthPath);
+    }
+
+    private void DrawPortalOpening(Graphics graphics, Rectangle oval, float emergence, float openness)
+    {
+        openness = Math.Clamp(openness, 0.18f, 1f);
+        var portalWidth = (int)Math.Round(oval.Width * (0.24f + (0.25f * openness)));
+        var portalHeight = (int)Math.Round(oval.Height * (0.18f + (0.22f * openness)));
+        var portal = new Rectangle(
+            oval.X + (oval.Width - portalWidth) / 2,
+            oval.Y + (oval.Height - portalHeight) / 2 + (int)(oval.Height * 0.05f),
+            portalWidth,
+            portalHeight);
+        using var portalPath = new GraphicsPath();
+        portalPath.AddEllipse(portal);
+        using var portalBrush = new PathGradientBrush(portalPath)
+        {
+            CenterColor = Color.FromArgb(Alpha(172 * openness, emergence), 8, 12, 18),
+            SurroundColors = [Color.FromArgb(Alpha(86 * openness, emergence), 68, 96, 112)],
+            FocusScales = new PointF(0.42f, 0.28f)
+        };
+        graphics.FillPath(portalBrush, portalPath);
+
+        using var aperture = new Pen(Color.FromArgb(Alpha(186 * openness, emergence), 222, 244, 252), Math.Max(1.1f, 1.4f * openness));
+        using var apertureShadow = new Pen(Color.FromArgb(Alpha(76 * openness, emergence), 12, 18, 24), 1.0f);
+        graphics.DrawArc(aperture, portal, 198, 144);
+        graphics.DrawArc(apertureShadow, portal, 20, 154);
     }
 
     private void DrawMinimalRiftLens(Graphics graphics, Rectangle bounds, bool active, float emergence)
@@ -531,30 +666,44 @@ public sealed class VisualRealityOverlayWindow : Form
 
     private void DrawMiniAblage(Graphics graphics, Rectangle lensBounds)
     {
-        var mini = new Rectangle(
-            lensBounds.X + (lensBounds.Width / 4),
-            lensBounds.Y + (lensBounds.Height / 3),
-            lensBounds.Width / 2,
-            lensBounds.Height / 3);
-        using var path = RoundedRectangle(mini, 8);
-        using var fill = new LinearGradientBrush(
-            mini,
-            Color.FromArgb(116, 244, 248, 246),
-            Color.FromArgb(72, 186, 206, 214),
-            LinearGradientMode.Vertical);
-        using var border = new Pen(Color.FromArgb(142, 230, 242, 238), 1.2f);
+        var material = LensMaterialBounds(lensBounds);
+        var topY = material.Y + (int)(material.Height * 0.50f);
+        var bottomY = material.Y + (int)(material.Height * 0.70f);
+        var leftTop = material.X + (int)(material.Width * 0.36f);
+        var rightTop = material.X + (int)(material.Width * 0.64f);
+        var leftBottom = material.X + (int)(material.Width * 0.24f);
+        var rightBottom = material.X + (int)(material.Width * 0.76f);
+        var points = new[]
+        {
+            new Point(leftTop, topY),
+            new Point(rightTop, topY),
+            new Point(rightBottom, bottomY),
+            new Point(leftBottom, bottomY)
+        };
+
+        using var path = new GraphicsPath();
+        path.AddPolygon(points);
+        using var fill = new PathGradientBrush(path)
+        {
+            CenterColor = Color.FromArgb(96, 222, 235, 232),
+            SurroundColors = [Color.FromArgb(38, 110, 134, 146)]
+        };
+        using var border = new Pen(Color.FromArgb(142, 226, 244, 240), 1.1f);
         graphics.FillPath(fill, path);
         graphics.DrawPath(border, path);
 
         if (Session.TargetGhostVisible)
         {
             var ghost = new Rectangle(
-                mini.X + (int)(mini.Width * Session.TargetPositionX * 0.45f),
-                mini.Y + (int)(mini.Height * Session.TargetPositionY * 0.35f),
-                Math.Max(16, mini.Width / 3),
-                Math.Max(9, mini.Height / 4));
-            using var ghostBrush = new SolidBrush(Color.FromArgb(112, 255, 255, 255));
-            graphics.FillRectangle(ghostBrush, ghost);
+                leftBottom + (int)((rightBottom - leftBottom) * Session.TargetPositionX * 0.58f),
+                topY + (int)((bottomY - topY) * Session.TargetPositionY * 0.38f),
+                Math.Max(18, (rightTop - leftTop) / 3),
+                Math.Max(8, (bottomY - topY) / 3));
+            using var ghostPath = RoundedRectangle(ghost, 5);
+            using var ghostBrush = new SolidBrush(Color.FromArgb(124, 255, 255, 255));
+            using var ghostBorder = new Pen(Color.FromArgb(110, 160, 190, 204), 0.8f);
+            graphics.FillPath(ghostBrush, ghostPath);
+            graphics.DrawPath(ghostBorder, ghostPath);
         }
     }
 
@@ -646,6 +795,22 @@ public sealed class VisualRealityOverlayWindow : Form
     {
         var clamped = Math.Clamp(value, 0f, 1f);
         return 1f - MathF.Pow(1f - clamped, 3f);
+    }
+
+    private static Rectangle LensMaterialBounds(Rectangle bounds)
+    {
+        var width = Math.Max(12, (int)Math.Round(bounds.Width * 1.28f));
+        var height = Math.Max(8, (int)Math.Round(bounds.Height * 0.82f));
+        return new Rectangle(
+            bounds.X - ((width - bounds.Width) / 2),
+            bounds.Y + ((bounds.Height - height) / 2),
+            width,
+            height);
+    }
+
+    private static int Alpha(float value, float emergence)
+    {
+        return Math.Clamp((int)Math.Round(value * Math.Clamp(emergence, 0f, 1f)), 0, 255);
     }
 
     private static GraphicsPath RoundedRectangle(Rectangle bounds, int radius)

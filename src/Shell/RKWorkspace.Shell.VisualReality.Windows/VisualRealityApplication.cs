@@ -42,6 +42,7 @@ public static class VisualRealityApplication
             Console.WriteLine($"VariantSwitching: {(window.SmokeVariantSwitchingOk ? "OK" : "FAILED")}");
             Console.WriteLine($"SlowEmergence: {(window.SmokeSlowEmergenceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"LensLiving: {(window.SmokeLensLivingOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"ReferenceDirection: {(window.SmokeReferenceDirectionOk ? "OK" : "FAILED")}");
             Console.WriteLine($"DigitalHand: {(window.SmokeDigitalHandOk ? "OK" : "FAILED")}");
             Console.WriteLine($"VectorResponse: {(window.SmokeVectorResponseOk ? "OK" : "FAILED")}");
             Console.WriteLine($"DiagonalVector: {(window.SmokeDiagonalVectorOk ? "OK" : "FAILED")}");

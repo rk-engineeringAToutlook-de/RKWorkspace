@@ -1,7 +1,7 @@
 # Native Spatial Overlay
 
 Dokument-ID: RKWS-NATIVE-SPATIAL-OVERLAY
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -106,12 +106,12 @@ Der Smoke-Test prueft, dass diagonale Bewegung beide Achsen der visuellen Antwor
 
 ## Ablage-Bubbles
 
-Bubbles sind keine gruenen Punkte.
+Bubbles sind keine gruenen Punkte. Ab dem Visual-Reality-Referenzboard werden sie nicht mehr als Bubble-Zielbild weitergefuehrt, sondern als Ablage-Linsen mit optischer Materialitaet.
 
-Sie sind als transparente Seifenblasen-/Linsen-Portale gedacht:
+Sie sind als ruhige Glas-/Linsen-Portale gedacht:
 
-- weich.
-- transparent.
+- optisch materiell.
+- transparent, aber nicht niedlich.
 - leicht glaenzend.
 - raeumlich.
 - peripher am Desktop-Rand.
@@ -146,12 +146,12 @@ Start:
 .\tools\run-visual-reality.ps1 -SmokeTest
 ```
 
-Der Visual-Reality-Slice prueft fuenf Living-Lens-Hypothesen:
+Der Visual-Reality-Slice prueft fuenf Living-Lens-Hypothesen in neuer Reihenfolge:
 
-- Seifenblase.
-- Wasserlinse.
-- Glaslinse.
-- Portal-Linse.
+- Glasbrunnen-Portal.
+- Glasmaterial.
+- Raumbrunnen.
+- Ruhiges Portal.
 - Minimaler Raumriss.
 
 Alle Varianten sind native Windows-Darstellung ohne Browser, WebView, HTML, Statusseite oder gruene Punkte.
@@ -228,6 +228,7 @@ MA006.09 baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.4.0 | 2026-07-04 | Visual-Reality-Implementierung auf Glasbrunnen-Portal, Glasmaterial, Raumbrunnen, ruhiges Portal und minimalen Raumriss korrigiert. |
 | 1.3.0 | 2026-07-04 | Owner-Referenzboard fuer naechste Visual-Reality-Richtung verlinkt und Ziel auf Glaslinse, Gravitationsbrunnen und ruhiges Portal korrigiert. |
 | 1.2.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Visual-Reality-Spikes als visuellen Fehlschlag und Renderer-Grenze dokumentiert. |
 | 1.1.0 | 2026-07-04 | MA006.09 Visual Reality Lab und Renderer-Einschaetzung fuer lebendige Ablage-Linsen ergaenzt. |

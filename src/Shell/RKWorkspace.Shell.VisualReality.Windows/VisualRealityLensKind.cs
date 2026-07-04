@@ -2,9 +2,9 @@ namespace RKWorkspace.Shell.VisualReality.Windows;
 
 public enum VisualRealityLensKind
 {
-    SoapBubble = 1,
-    Water = 2,
-    Glass = 3,
-    Portal = 4,
+    ReferenceLens = 1,
+    Glass = 2,
+    GravityWell = 3,
+    QuietPortal = 4,
     MinimalRift = 5
 }
