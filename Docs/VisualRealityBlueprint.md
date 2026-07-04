@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.24.0
+Version: 1.25.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -893,6 +893,7 @@ Geprueft wird:
 - Premiumblock 3: Glas muss den echten aktuellen Hintergrund wiedergeben. Ein weisser Hintergrund darf nicht grau bleiben; Live-Refraction und Capture-Ausschluss sind dafuer wichtiger als weitere gezeichnete Effekte.
 - Premiumblock 4: Die Linse braucht Materiallesbarkeit. Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps duerfen nur subtil sein, muessen aber dem Gehirn sagen: Das ist ein echter transparenter Koerper ueber dem Desktop.
 - Premiumblock 5: Der Materialeindruck muss erstmals durch einen aktiven PixelShader entstehen. Die echte Desktop-Textur wird in der Linse gebrochen, nicht nur als gezeichnete Kopie geschichtet.
+- Premiumblock 6: Fuer Videospiel-Stil wird nicht weiter WPF optimiert. Der Look wird in einer echten 3D-Szene mit WebGL, Physical Materials, Environment Lighting und realer Tunnelgeometrie gesucht.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -923,6 +924,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.25.0 | 2026-07-04 | Real3D Lens Renderer als Premiumblock 6 fuer Videospiel-artige 3D-Materialwirkung aufgenommen. |
 | 1.24.0 | 2026-07-04 | Aktiven HLSL/WPF-PixelShader als Premiumblock 5 fuer echte Material-Refraction aufgenommen. |
 | 1.23.0 | 2026-07-04 | Premiumblock 4 fuer Physical Glass Material, Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps aufgenommen. |
 | 1.22.0 | 2026-07-04 | Live-Refraction auf echten Hintergrund, Capture-Ausschluss und Mikro-Highlights als Premiumblock-3-Regel aufgenommen. |

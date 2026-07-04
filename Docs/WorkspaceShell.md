@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.35.0
+Version: 1.36.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -311,6 +311,8 @@ MA006.11 ist noch kein finaler HLSL-Shader. Die Stufe beweist den naechsten Prod
 Der aktuelle Premium-Glasstand fuehrt dennoch bewusst eine Materialschicht ein: Physical Glass Material, Glasdicke, chromatische Randdispersion, Kontakt-Schatten, Caustics und weiche Specular-Sweeps. Diese Schicht soll die Linse aus der gezeichneten Kreisoptik herausheben und als transparenten, raeumlichen Glas-/Tunnelkoerper ueber dem echten Desktop lesbar machen.
 
 Der naechste Schritt aktiviert erstmals eine echte HLSL/WPF-PixelShader-Layer. `GpuLivingLensShaderLayer` nimmt die aktuelle Desktop-Textur unter der aktiven Linse auf, `LivingLensMaterialEffect` laedt den kompilierten Shader `LivingLensMaterial.ps`, und der Shader bricht die Textur anhand von Zentrum, Radius, Oeffnung, Look und Zeit. Das ist noch nicht der finale Direct2D-/Win2D-Renderer, aber erstmals arbeitet sichtbares Material nicht nur als C#-Vektorzeichnung, sondern als aktiver PixelShader.
+
+Das Owner-Feedback zeigt, dass dieser technische Shader-Schritt visuell noch nicht den erwarteten Videospiel-Stil erreicht. Deshalb fuehrt MA006.12 einen getrennten Real3D-Look-Slice ein. Dort wird die Linse nicht als Overlay-Effekt, sondern als echte 3D-Szene mit WebGLRenderer, MeshPhysicalMaterial, Transmission, IOR, Thickness, Environment Lighting, Soft Shadows und Tunnelgeometrie getestet.
 
 Vor dem Shader-Sprung wurde der akzeptierte Stand mit `gpu-living-lens-depth-freeze-v1` und `backup/gpu-living-lens-depth-freeze-v1` eingefroren.
 
@@ -644,6 +646,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.36.0 | 2026-07-04 | Real3D Lens Renderer als separaten Look-Laborpfad fuer echte 3D-Glas- und Tunnelmaterialien eingeordnet. |
 | 1.35.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer fuer die GPU Living Lens eingeordnet. |
 | 1.34.0 | 2026-07-04 | GPU Living Lens Physical Glass Material mit Glasdicke, chromatischen Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps eingeordnet. |
 | 1.33.0 | 2026-07-04 | GPU Living Lens LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights eingeordnet. |

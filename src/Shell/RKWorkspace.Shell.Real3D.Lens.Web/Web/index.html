@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RK Workspace Real3D Lens</title>
+  <link rel="stylesheet" href="/real3d.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.166.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main id="stage">
+    <canvas id="real3d-canvas" aria-label="RK Workspace Real3D Lens Renderer"></canvas>
+    <div class="hud">
+      <div class="brand">RK Workspace Real3D Lens</div>
+      <div class="controls">
+        <button id="look-glass" type="button" title="Glas-Look mit maximaler Transparenz">Glas</button>
+        <button id="look-tunnel" type="button" title="Tiefe Tunnelgeometrie mit starker Sogwirkung">Tunnel</button>
+        <button id="look-hybrid" type="button" title="Kombination aus Glas und Tunnel">Hybrid</button>
+        <button id="desktop-feed" type="button" title="Desktop als Live-Textur in die 3D-Szene legen">Desktop-Livebild</button>
+      </div>
+      <div id="status" class="status">Bereit</div>
+    </div>
+  </main>
+  <script type="module" src="/real3d.js"></script>
+</body>
+</html>

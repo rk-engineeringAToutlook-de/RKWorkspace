@@ -1,7 +1,7 @@
 # Rendering Decision Living Lens
 
 Dokument-ID: RKWS-RENDERING-DECISION-LIVING-LENS
-Version: 1.6.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -21,6 +21,7 @@ MA006.10R baut einen isolierten Living-Lens-Spike. Ziel ist nicht UI-Design, son
 | SkiaSharp | Gut | Ja | Simulierbar, Shader moeglich | Gut | Gut | GPU je nach Backend | Guter plattformnaher Prototypkandidat. |
 | Unity | Gut | Ja, aber Overlay-Integration aufwendig | Sehr gut | Sehr gut | Sehr gut | GPU | Gut fuer Motion-Prototyp, schwerer Produktpfad. |
 | Unreal | Sehr gut | Ja, aber schwergewichtig | Sehr gut | Sehr gut | Sehr gut | GPU | Zu schwer fuer aktuellen Produktpfad. |
+| WebGL / Three.js Look-Slice | Gut im Browser, kein Produkt-Overlay | Ja als Szene oder optional ueber Desktop-Live-Textur | Sehr gut fuer Look-Findung | Sehr gut | Sehr gut | GPU | MA006.12: gueltiger Look-Laborpfad fuer Videospiel-artige Materialwirkung, nicht finaler Produktpfad. |
 | Shader-basierter Renderer | Sehr gut | Ja | Sehr gut | Sehr gut | Sehr gut | GPU | Langfristig wahrscheinlich noetig fuer echte Materialwirkung. |
 
 ## Ehrliche Einschaetzung
@@ -71,6 +72,8 @@ Der sichtbare Premium-Zwischenschritt fuegt Physical Glass Material hinzu: Glasd
 
 Der erste aktive Shader-Schritt ist nun umgesetzt: `LivingLensMaterial.hlsl` wird mit `fxc` als `LivingLensMaterial.ps` kompiliert und ueber `LivingLensMaterialEffect` als WPF `ShaderEffect` geladen. `GpuLivingLensShaderLayer` versorgt den Shader mit der aktuellen Desktop-Textur unter der aktiven Linse. Das ist der erste echte PixelShader im sichtbaren Pfad, bleibt aber bewusst eine Zwischenstufe vor Direct2D/Win2D.
 
+Das Owner-Feedback nach diesem Schritt lautet: technisch richtig, aber visuell weiterhin kein Videospiel-Stil. Daraus folgt die naechste Entscheidung: Der Ziel-Look wird nicht mehr durch weitere WPF-Politur gesucht, sondern in einem separaten WebGL-/Three.js-Look-Slice mit echter 3D-Szene, Physical Materials, Environment Lighting, Soft Shadows und Tunnelgeometrie. Dieser Slice ist kein Produkt-Overlay, sondern ein ehrliches Materiallabor.
+
 Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
@@ -85,6 +88,7 @@ Die Vision wird nicht reduziert, nur weil WinForms/GDI+ begrenzt ist.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-04 | WebGL-/Three.js Real3D Lens Renderer als separaten Look-Laborpfad fuer Videospiel-artige Materialwirkung eingeordnet. |
 | 1.6.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer mit kompiliertem LivingLensMaterial-Shader als naechsten Renderer-Schritt eingeordnet. |
 | 1.5.0 | 2026-07-04 | Physical-Glass-Zwischenschicht mit Glasdicke, chromatischen Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps eingeordnet. |
 | 1.4.0 | 2026-07-04 | HLSL-Vertrag um portalPull und edgeContact fuer lokale Kantenverzerrung erweitert. |

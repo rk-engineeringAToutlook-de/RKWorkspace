@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.51.0
+Version: 2.52.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -78,6 +78,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der GPU Living Lens Premiumblock 3 holt Live-Desktop-Refraction zurueck: Das Overlay wird fuer Screen-Capture ausgeschlossen, aktive Linsen samplen wieder live den echten Hintergrund und Glas bekommt Mikro-Highlights statt technischer Ringe.
 - Der GPU Living Lens Premiumblock 4 fuehrt Physical Glass Material ein: Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und weiche Specular-Sweeps machen die Linse weniger gezeichnet und staerker wie ein echter Glas-/Tunnelkoerper.
 - Der GPU Living Lens Premiumblock 5 aktiviert erstmals einen kompilierten HLSL/WPF-PixelShader als native Material-Layer ueber der Living Lens. Der Shader bricht die echte Desktop-Textur innerhalb der Linse und ist der erste aktive Schritt weg von rein gezeichneter Glasoptik.
+- MA006.12 fuehrt den Real3D Lens Renderer ein: ein separater WebGL-/Three.js-Look-Slice mit echter 3D-Szene, MeshPhysicalMaterial, Transmission, IOR, Thickness, Environment Lighting, Soft Shadows, Tunnelgeometrie und optionaler Desktop-Live-Textur.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -153,6 +154,7 @@ src/Shell/RKWorkspace.Shell.NativeOverlay.Windows/ Nativer Windows Spatial-Overl
 src/Shell/RKWorkspace.Shell.VisualReality.Windows/ Nativer Windows Visual-Reality-Slice fuer lebendige Ablage-Linsen
 src/Shell/RKWorkspace.Shell.LivingLens.Windows/ Isolierter Windows Living-Lens-Slice fuer echtes Material, Lens Absorption und Visual Target Export
 src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/ GPU-komponierter Living-Lens-Slice mit Desktop-Sampling und Refraction-Map-Vorbereitung
+src/Shell/RKWorkspace.Shell.Real3D.Lens.Web/ Separater WebGL-/Three.js-Look-Slice fuer echte 3D-Glas- und Tunnelmaterialien
 src/Shell/RKWorkspace.Shell.SpatialTray/ Lokaler Web-Prototyp fuer Spatial Room Session und gleichberechtigte Ablagen
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
@@ -204,6 +206,7 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-living-lens.ps1 -SmokeTest
 .\tools\run-living-lens.ps1 -ExportFrames
 .\tools\run-gpu-lens.ps1 -SmokeTest
+.\tools\run-real3d-lens.ps1 -SmokeTest
 ```
 
 Oder gesammelt:
@@ -324,6 +327,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.52.0 | 2026-07-04 | Real3D Lens Renderer mit WebGL, Three.js, Physical Glass, 3D-Tunnel, Soft Shadows und Desktop-Live-Textur als separaten Look-Slice ergaenzt. |
 | 2.51.0 | 2026-07-04 | GPU Living Lens um aktive HLSL/WPF-PixelShader-Layer mit kompiliertem Materialshader und ShaderMaterialRefraction erweitert. |
 | 2.50.0 | 2026-07-04 | GPU Living Lens um Physical Glass Material, Glasdicke, chromatische Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps erweitert. |
 | 2.49.0 | 2026-07-04 | GPU Living Lens um LiveDesktopRefraction, CaptureExclusion, LensCenterLock und MicroGlassHighlights erweitert. |

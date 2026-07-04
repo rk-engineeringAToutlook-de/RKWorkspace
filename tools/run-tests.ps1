@@ -685,3 +685,54 @@ if (-not $gpuLivingLensText.Contains('GpuLivingLensSmoke: SUCCESS')) {
 if (-not $gpuLivingLensText.Contains('RESULT: SUCCESS')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Real3D Lens Smoke Test'
+Write-Host '----------------------'
+$real3dLensOutput = & (Join-Path $root 'tools\run-real3d-lens.ps1') -SmokeTest 2>&1
+$real3dLensExitCode = $LASTEXITCODE
+$real3dLensText = $real3dLensOutput -join [Environment]::NewLine
+$real3dLensOutput | ForEach-Object { Write-Host $_ }
+if ($real3dLensExitCode -ne 0) {
+    throw "Real3D Lens Smoke Test failed with exit code $real3dLensExitCode."
+}
+
+if (-not $real3dLensText.Contains('RK Workspace Real3D Lens Smoke Test')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain RK Workspace Real3D Lens Smoke Test."
+}
+
+if (-not $real3dLensText.Contains('WebGLRenderer: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain WebGLRenderer: OK."
+}
+
+if (-not $real3dLensText.Contains('PhysicalGlass: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain PhysicalGlass: OK."
+}
+
+if (-not $real3dLensText.Contains('EnvironmentLighting: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain EnvironmentLighting: OK."
+}
+
+if (-not $real3dLensText.Contains('SoftShadows: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain SoftShadows: OK."
+}
+
+if (-not $real3dLensText.Contains('Real3DTunnel: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain Real3DTunnel: OK."
+}
+
+if (-not $real3dLensText.Contains('DesktopLiveTexture: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain DesktopLiveTexture: OK."
+}
+
+if (-not $real3dLensText.Contains('DeformingDigitalThing: OK')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain DeformingDigitalThing: OK."
+}
+
+if (-not $real3dLensText.Contains('Real3DLensSmoke: SUCCESS')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain Real3DLensSmoke: SUCCESS."
+}
+
+if (-not $real3dLensText.Contains('RESULT: SUCCESS')) {
+    throw "Real3D Lens Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
