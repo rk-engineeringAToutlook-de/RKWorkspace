@@ -1,7 +1,7 @@
 # MA006.12 Real3D Lens Renderer
 
 Dokument-ID: RKWS-MA006-12-REAL3D-LENS-RENDERER
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -73,6 +73,8 @@ Welche echte 3D-Materialwirkung fuehlt sich richtig an?
 
 Wenn der Owner eine Richtung akzeptiert, wird daraus spaeter der native Produktpfad fuer Windows abgeleitet.
 
+Nach Owner-Feedback vom 2026-07-04 ist diese Grenze verbindlich verschaerft: Der Real3D-Slice darf nicht als Produktprototyp gestartet oder bewertet werden. Er zeigt eine eigene 3D-Buehne und erzeugt dadurch nicht das Shell-Gefuehl des echten Arbeitsraums. Der korrigierte Produktpfad ist ab MA006.13 `NativeGlassOverlay.Windows`: ein natives transparentes Desktop-Overlay ohne Browser, WebView oder synthetische Buehne.
+
 ## Owner-Test
 
 Der Owner testet:
@@ -124,4 +126,5 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.1.0 | 2026-07-04 | Owner-Korrektur ergaenzt: Real3D bleibt Look-Labor, MA006.13 Native Glass Overlay ist der Produktpfad. |
 | 1.0.0 | 2026-07-04 | Real3D Lens Renderer als separaten WebGL-/Three.js-Look-Slice dokumentiert. |

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\RKWorkspace.Shell.LivingLens.Gpu.Windows\Shaders\LivingLensMaterial.hlsl" Link="Shaders\NativeGlassMaterial.hlsl" />
+    <Resource Include="..\RKWorkspace.Shell.LivingLens.Gpu.Windows\Shaders\LivingLensMaterial.ps" Link="Shaders\NativeGlassMaterial.ps" />
+  </ItemGroup>
+</Project>

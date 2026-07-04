@@ -687,6 +687,49 @@ if (-not $gpuLivingLensText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'Native Glass Overlay Smoke Test'
+Write-Host '-------------------------------'
+$nativeGlassOutput = & (Join-Path $root 'tools\run-native-glass-overlay.ps1') -SmokeTest 2>&1
+$nativeGlassExitCode = $LASTEXITCODE
+$nativeGlassText = $nativeGlassOutput -join [Environment]::NewLine
+$nativeGlassOutput | ForEach-Object { Write-Host $_ }
+if ($nativeGlassExitCode -ne 0) {
+    throw "Native Glass Overlay Smoke Test failed with exit code $nativeGlassExitCode."
+}
+
+if (-not $nativeGlassText.Contains('RK Workspace Native Glass Overlay Smoke Test')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain RK Workspace Native Glass Overlay Smoke Test."
+}
+
+if (-not $nativeGlassText.Contains('BrowserSurface: NONE')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain BrowserSurface: NONE."
+}
+
+if (-not $nativeGlassText.Contains('SyntheticStage: NONE')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain SyntheticStage: NONE."
+}
+
+if (-not $nativeGlassText.Contains('TransparentDesktop: OK')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain TransparentDesktop: OK."
+}
+
+if (-not $nativeGlassText.Contains('DesktopSampling: OK')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain DesktopSampling: OK."
+}
+
+if (-not $nativeGlassText.Contains('RealDesktopOnly: OK')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain RealDesktopOnly: OK."
+}
+
+if (-not $nativeGlassText.Contains('NativeGlassOverlaySmoke: SUCCESS')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain NativeGlassOverlaySmoke: SUCCESS."
+}
+
+if (-not $nativeGlassText.Contains('RESULT: SUCCESS')) {
+    throw "Native Glass Overlay Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'Real3D Lens Smoke Test'
 Write-Host '----------------------'
 $real3dLensOutput = & (Join-Path $root 'tools\run-real3d-lens.ps1') -SmokeTest 2>&1

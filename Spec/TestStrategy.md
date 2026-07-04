@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.34.0
+Version: 2.35.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -816,6 +816,47 @@ Der Test prueft noch nicht:
 - echte Payload.
 - echte Zielablage auf Tablet oder iPhone.
 
+## MA006.13 Native Glass Overlay Foundation Tests
+
+MA006.13 fuehrt `src/Shell/RKWorkspace.Shell.NativeGlassOverlay.Windows/` und `tools/run-native-glass-overlay.ps1` ein. Der Slice ist die korrigierte native Produktgrundlage nach dem Real3D-Look-Labor.
+
+Der Smoke-Test in `tools/run-tests.ps1` fuehrt aus:
+
+```powershell
+.\tools\run-native-glass-overlay.ps1 -SmokeTest
+```
+
+Der Smoke-Test erwartet:
+
+- Exitcode 0.
+- Ausgabe enthaelt `RK Workspace Native Glass Overlay Smoke Test`.
+- Ausgabe enthaelt `BrowserSurface: NONE`.
+- Ausgabe enthaelt `SyntheticStage: NONE`.
+- Ausgabe enthaelt `TransparentDesktop: OK`.
+- Ausgabe enthaelt `DesktopSampling: OK`.
+- Ausgabe enthaelt `RealDesktopOnly: OK`.
+- Ausgabe enthaelt `NativeGlassOverlaySmoke: SUCCESS`.
+- Ausgabe enthaelt `RESULT: SUCCESS`.
+
+Der Test prueft ausdruecklich:
+
+- kein Browser und kein WebView.
+- keine synthetische 3D-Buehne.
+- echter Desktop bleibt Produktbuehne.
+- Live-Desktop-Sampling ist moeglich.
+- eine native transparente Overlay-Foundation ist vorbereitet.
+- fließendes Greifen, sanfte vektorielle Neigung und weicher Trageschatten sind in der Session pruefbar.
+- Sog zur sichtbaren Linsenmitte, Apex-Squeeze ohne Verdrehung und Schatten-Sog sind pruefbar.
+- der 10-Sekunden-Handover mit Ruecknahmefenster, Timer-Reset, Auto-Close und RemotePlacement-Zustand ist pruefbar.
+
+Der Test prueft noch nicht:
+
+- finalen Direct2D-/Win2D-Renderer.
+- globale OS-Hooks.
+- echte Desktop-Objekterkennung.
+- echte Payload.
+- echte Tablet- oder iPhone-Gegenseite.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -827,6 +868,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.35.0 | 2026-07-04 | Native Glass Overlay Smoke-Test fuer nativen Produktpfad ohne Browser, WebView oder synthetische Buehne ergaenzt. |
 | 2.34.0 | 2026-07-04 | Real3D Lens Smoke-Test fuer WebGLRenderer, PhysicalGlass, EnvironmentLighting, Real3DTunnel und DesktopLiveTexture ergaenzt. |
 | 2.33.0 | 2026-07-04 | GPU Living Lens Smoke-Test um CompiledPixelShader, NativeShaderLayer und ShaderMaterialRefraction erweitert. |
 | 2.32.0 | 2026-07-04 | GPU Living Lens Smoke-Test um PhysicalGlassMaterial, GlassThickness, ChromaticEdge, LensContactShadow, GlassCaustics und SpecularGlassSweeps erweitert. |

@@ -1,7 +1,7 @@
 # Rendering Decision Living Lens
 
 Dokument-ID: RKWS-RENDERING-DECISION-LIVING-LENS
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -22,6 +22,7 @@ MA006.10R baut einen isolierten Living-Lens-Spike. Ziel ist nicht UI-Design, son
 | Unity | Gut | Ja, aber Overlay-Integration aufwendig | Sehr gut | Sehr gut | Sehr gut | GPU | Gut fuer Motion-Prototyp, schwerer Produktpfad. |
 | Unreal | Sehr gut | Ja, aber schwergewichtig | Sehr gut | Sehr gut | Sehr gut | GPU | Zu schwer fuer aktuellen Produktpfad. |
 | WebGL / Three.js Look-Slice | Gut im Browser, kein Produkt-Overlay | Ja als Szene oder optional ueber Desktop-Live-Textur | Sehr gut fuer Look-Findung | Sehr gut | Sehr gut | GPU | MA006.12: gueltiger Look-Laborpfad fuer Videospiel-artige Materialwirkung, nicht finaler Produktpfad. |
+| Native Glass Overlay Foundation | Gut als echtes transparentes Desktop-Overlay | Ja, echter Desktop bleibt die Buehne | Aktiver WPF ShaderEffect mit Live-Desktop-Sampling | Gut als Produktpfad-Foundation | Gut | GPU-komponiert | MA006.13: korrigierter Produktpfad ohne Browser, WebView oder synthetische 3D-Buehne. |
 | Shader-basierter Renderer | Sehr gut | Ja | Sehr gut | Sehr gut | Sehr gut | GPU | Langfristig wahrscheinlich noetig fuer echte Materialwirkung. |
 
 ## Ehrliche Einschaetzung
@@ -74,6 +75,8 @@ Der erste aktive Shader-Schritt ist nun umgesetzt: `LivingLensMaterial.hlsl` wir
 
 Das Owner-Feedback nach diesem Schritt lautet: technisch richtig, aber visuell weiterhin kein Videospiel-Stil. Daraus folgt die naechste Entscheidung: Der Ziel-Look wird nicht mehr durch weitere WPF-Politur gesucht, sondern in einem separaten WebGL-/Three.js-Look-Slice mit echter 3D-Szene, Physical Materials, Environment Lighting, Soft Shadows und Tunnelgeometrie. Dieser Slice ist kein Produkt-Overlay, sondern ein ehrliches Materiallabor.
 
+Das nachfolgende Owner-Feedback korrigiert die Produktgrenze: Ein Real3D-Webfenster fuehlt sich nicht wie Workspace Shell an, weil es eine eigene Buehne erzeugt. Deshalb fuehrt MA006.13 `NativeGlassOverlay.Windows` ein. Der Slice uebernimmt die richtigen Prinzipien des Real3D-Labors nur als Materialrichtung, startet aber wieder als natives transparentes Desktop-Overlay ohne Browser, WebView, synthetischen Raum oder farbige Hintergrundflaeche.
+
 Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
@@ -88,6 +91,7 @@ Die Vision wird nicht reduziert, nur weil WinForms/GDI+ begrenzt ist.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-04 | Native Glass Overlay Foundation als korrigierten Produktpfad nach dem Real3D-Look-Labor eingeordnet. |
 | 1.7.0 | 2026-07-04 | WebGL-/Three.js Real3D Lens Renderer als separaten Look-Laborpfad fuer Videospiel-artige Materialwirkung eingeordnet. |
 | 1.6.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer mit kompiliertem LivingLensMaterial-Shader als naechsten Renderer-Schritt eingeordnet. |
 | 1.5.0 | 2026-07-04 | Physical-Glass-Zwischenschicht mit Glasdicke, chromatischen Kanten, Kontakt-Schatten, Caustics und Specular-Sweeps eingeordnet. |
