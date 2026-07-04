@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.29.0
+Version: 2.30.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -74,6 +74,8 @@ Ab MA006.10R prueft `tools/run-tests.ps1` zusaetzlich den Living Lens Smoke-Test
 Ab MA006.11 prueft `tools/run-tests.ps1` zusaetzlich den GPU Living Lens Smoke-Test mit `tools/run-gpu-lens.ps1 -SmokeTest`. Dieser Test prueft den GPU-komponierten Slice ohne Browser/WebView, Desktop-Sampling, Refraction-Vorbereitung, acht Tunnel, Schlund-zentrierten Sog, 10-Sekunden-Handover und ab der Premium-Look-Stufe die drei live umschaltbaren Looks Glasblase, Wurmloch und Hybrid.
 
 Der Premiumblock ergaenzt diesen Test um saubere Desktop-Plates, Selbst-Sampling-Echo-Unterdrueckung und weichere Fresnel-Kante. Damit wird festgehalten, dass Papier, Schatten und Linsenlicht beim aktiven Tragen nicht als langes optisches Echo wieder in die Refraction zurueckgesampelt werden sollen.
+
+Der zweite Premiumblock ergaenzt fließende Pickup-Skalierung, geglaettete Linsenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik. Damit wird getestet, dass das Ding beim Greifen nicht sprunghaft kleiner wird und die Blase nicht hart anspringt.
 
 ## MA003.05 Core Integration Tests
 
@@ -705,6 +707,10 @@ CompactCarryCard: OK
 CleanDesktopPlate: OK
 SelfSamplingEchoSuppression: OK
 SoftFresnelEdge: OK
+SmoothPickupScale: OK
+SmoothLensApproach: OK
+UltraFineGlassOptics: OK
+HighResolutionVectorOptics: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -766,6 +772,9 @@ Der Test prueft ausdruecklich:
 - das Ding wird beim Greifen kompakter dargestellt.
 - aktive Refraction verwendet eine saubere Desktop-Plate gegen Selbst-Sampling-Echos.
 - der weisse Blasenrand wird durch eine weichere Fresnel-Kante ersetzt.
+- das Ding skaliert beim Greifen fließend ueber `PickProgress`.
+- die Linse oeffnet durch geglaettete Annaeherung statt durch einen sichtbaren Sprung.
+- die Glasoptik wird feiner und ringaermer gezeichnet.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
 - im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
@@ -792,6 +801,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.30.0 | 2026-07-04 | GPU Living Lens Smoke-Test um SmoothPickupScale, SmoothLensApproach, UltraFineGlassOptics und HighResolutionVectorOptics erweitert. |
 | 2.29.0 | 2026-07-04 | GPU Living Lens Smoke-Test um CleanDesktopPlate, SelfSamplingEchoSuppression und SoftFresnelEdge erweitert. |
 | 2.28.0 | 2026-07-04 | GPU Living Lens Smoke-Test um drei Premium-Looks, LiveLookSwitch und CompactCarryCard erweitert. |
 | 2.27.0 | 2026-07-04 | GPU Living Lens Smoke-Test um ThroatPointCollapse erweitert. |

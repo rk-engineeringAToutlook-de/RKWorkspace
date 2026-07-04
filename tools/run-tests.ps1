@@ -542,6 +542,22 @@ if (-not $gpuLivingLensText.Contains('SoftFresnelEdge: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain SoftFresnelEdge: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('SmoothPickupScale: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain SmoothPickupScale: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('SmoothLensApproach: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain SmoothLensApproach: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('UltraFineGlassOptics: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain UltraFineGlassOptics: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('HighResolutionVectorOptics: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain HighResolutionVectorOptics: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.20.0
+Version: 1.21.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -889,6 +889,7 @@ Geprueft wird:
 - Drei Premium-Looks fuer den direkten Owner-Vergleich: Glasblase fuer maximale Transparenz, Wurmloch fuer maximale Tiefe und Hybrid als kombinierter Produktkandidat.
 - Live-Umschaltung im Overlay per `1`, `2`, `3`, ohne Neukompilieren und ohne Core-Aenderung.
 - Premiumblock-Korrektur: Refraction darf nicht das eigene Overlay nachbilden, Blasenraender duerfen nicht wie weisse UI-Konturen wirken und Ringe duerfen nur Tiefe andeuten, nicht als Zielscheibe erscheinen.
+- Premiumblock 2: Das Ding darf beim Greifen nicht sprunghaft kleiner werden; Blase und Ding muessen zeitlich gemeinsam in den Carry-Zustand gehen. Die Blase soll auf Annaeherung antworten, aber nicht anspringen.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -919,6 +920,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.21.0 | 2026-07-04 | Fließendes Nehmen und geglaettete Blasenannaeherung als Premiumblock-2-Wahrnehmungsregel aufgenommen. |
 | 1.20.0 | 2026-07-04 | Premiumblock-Korrektur fuer Echo-freie Refraction, weichere Glasraender und weniger technische Ringoptik aufgenommen. |
 | 1.19.0 | 2026-07-04 | Drei Premium-Living-Lens-Looks fuer Glas, Wurmloch und Hybrid als direkten Owner-Vergleich aufgenommen. |
 | 1.18.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt am schwarzen Schlund fuer die Living Lens aufgenommen. |

@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.13.0
+Version: 1.14.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -82,6 +82,10 @@ Er nutzt:
 - SelfSamplingEchoSuppression: Papier, Schatten und Linsenlicht sollen beim schnellen Rein-/Rausfahren nicht als langes Echo in der Linse stehenbleiben.
 - SoftFresnelEdge: der harte weisse Blasenrand wird durch eine weichere Fresnel-Lichtkante ersetzt.
 - Premiumblock-Profile: Glasblase ist transparenter und ringaermer, Wurmloch tiefer und dunkler, Hybrid ruhiger zwischen beiden.
+- SmoothPickupScale: Beim Greifen wird das Ding ueber `PickProgress` fließend kompakter, statt sprunghaft kleiner zu werden.
+- SmoothLensApproach: Die Blase reagiert ueber geglaettete Annaeherung, nicht durch ploetzliches Anspringen.
+- UltraFineGlassOptics: Ringe, Lichtkante und Ereignishorizont werden nochmals feiner und schwächer gezeichnet.
+- HighResolutionVectorOptics: Der aktuelle Slice nutzt vektorbasierte WPF-/DirectX-Komposition mit hochwertiger Skalierung als Zwischenstufe vor echtem Shader-Rendering.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -213,6 +217,10 @@ CompactCarryCard: OK
 CleanDesktopPlate: OK
 SelfSamplingEchoSuppression: OK
 SoftFresnelEdge: OK
+SmoothPickupScale: OK
+SmoothLensApproach: OK
+UltraFineGlassOptics: OK
+HighResolutionVectorOptics: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -239,6 +247,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.14.0 | 2026-07-04 | Fließendes Nehmen, geglaettete Blasenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik dokumentiert. |
 | 1.13.0 | 2026-07-04 | Premiumblock mit CleanDesktopPlate, Echo-Unterdrueckung, weicher Fresnel-Kante und entschärften Look-Profilen dokumentiert. |
 | 1.12.0 | 2026-07-04 | Drei sofort testbare Premium-Looks Glasblase, Wurmloch und Hybrid mit Live-Umschaltung dokumentiert. |
 | 1.11.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt ueber dem schwarzen Schlund und frueheres Ausblenden des Papiertextes dokumentiert. |

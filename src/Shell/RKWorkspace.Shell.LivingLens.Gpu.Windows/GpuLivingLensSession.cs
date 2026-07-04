@@ -13,6 +13,7 @@ public enum GpuLivingLensTransitState
 public sealed class GpuLivingLensSession
 {
     private float _openTarget;
+    private float _approachTarget;
     private readonly HashSet<GpuLivingLensLook> _testedLooks = [];
 
     public float LensX { get; } = 0.995f;
@@ -68,6 +69,14 @@ public sealed class GpuLivingLensSession
     public bool SelfSamplingEchoSuppressionPrepared { get; } = true;
 
     public bool SoftFresnelEdgePrepared { get; } = true;
+
+    public bool SmoothPickupScalePrepared { get; private set; }
+
+    public bool SmoothLensApproachPrepared { get; private set; }
+
+    public bool UltraFineGlassOpticsPrepared { get; } = true;
+
+    public bool HighResolutionVectorOpticsPrepared { get; } = true;
 
     public bool HlslShaderContractPrepared { get; } = true;
 
@@ -150,6 +159,10 @@ public sealed class GpuLivingLensSession
 
     public float PullOutRecovery { get; private set; } = 1f;
 
+    public float PickProgress { get; private set; } = 1f;
+
+    public float ApproachProgress { get; private set; }
+
     public float TiltX { get; private set; }
 
     public float TiltY { get; private set; }
@@ -168,10 +181,11 @@ public sealed class GpuLivingLensSession
         ResetTransitOnRetake();
         IsHoldingThing = true;
         TransitState = GpuLivingLensTransitState.Held;
-        LensEmergence = Math.Max(LensEmergence, 0.24f);
+        LensEmergence = Math.Max(LensEmergence, 0.06f);
         Absorption = 0f;
         PullOutRecovery = 1f;
-        LensAppearsOnPickPrepared = LensEmergence >= 0.20f;
+        PickProgress = 0f;
+        LensAppearsOnPickPrepared = LensEmergence >= 0.05f;
     }
 
     public void Carry(float movementX, float movementY)
@@ -208,14 +222,12 @@ public sealed class GpuLivingLensSession
             ShadowTunnelSuctionPrepared = true;
         }
 
-        _openTarget = nearness >= 0.68f
-            ? Math.Clamp((nearness - 0.68f) / 0.32f, 0f, 1f)
-            : 0f;
+        _approachTarget = Math.Clamp(nearness, 0f, 1f);
     }
 
     public void LeaveLens()
     {
-        _openTarget = 0f;
+        _approachTarget = 0f;
     }
 
     public void PlaceIntoLens()
@@ -228,6 +240,9 @@ public sealed class GpuLivingLensSession
         LensEmergence = 1f;
         LensOpen = 1f;
         Absorption = 0.01f;
+        PickProgress = 1f;
+        ApproachProgress = 1f;
+        _approachTarget = 1f;
         ShadowSuctionPrepared = true;
         PortalEdgeSqueezePrepared = true;
         PortalEdgeApexSqueezePrepared = true;
@@ -248,6 +263,9 @@ public sealed class GpuLivingLensSession
         ShadowX = 0f;
         ShadowY = 0f;
         _openTarget = 0f;
+        _approachTarget = 0f;
+        ApproachProgress = 0f;
+        PickProgress = 0f;
         CarryShadowOnlyPrepared = true;
     }
 
@@ -260,6 +278,9 @@ public sealed class GpuLivingLensSession
         PullOutRecovery = 0f;
         Absorption = 0f;
         _openTarget = 0f;
+        _approachTarget = 0f;
+        ApproachProgress = 0f;
+        PickProgress = 1f;
     }
 
     public void Advance(int milliseconds)
@@ -278,6 +299,7 @@ public sealed class GpuLivingLensSession
         {
             TransitState = GpuLivingLensTransitState.TunnelClosing;
             _openTarget = 0f;
+            _approachTarget = 0f;
             LensOpen = Math.Clamp(LensOpen - ((float)milliseconds / 440f), 0f, 1f);
             LensEmergence = Math.Clamp(LensEmergence - ((float)milliseconds / 860f), 0f, 1f);
             TiltX *= 0.80f;
@@ -296,20 +318,36 @@ public sealed class GpuLivingLensSession
         }
         else if (IsHoldingThing)
         {
-            LensEmergence = Math.Clamp(LensEmergence + ((float)milliseconds / 540f), 0f, 1f);
+            var previousPickProgress = PickProgress;
+            PickProgress = Math.Clamp(PickProgress + ((float)milliseconds / 620f), 0f, 1f);
+            LensEmergence = Math.Clamp(LensEmergence + ((float)milliseconds / 620f), 0f, 1f);
+            SmoothPickupScalePrepared = SmoothPickupScalePrepared ||
+                PickProgress is > 0.35f and < 1.0f ||
+                (previousPickProgress < 0.35f && PickProgress >= 0.35f);
         }
         else if (Absorption <= 0f)
         {
             LensEmergence = Math.Clamp(LensEmergence - ((float)milliseconds / 520f), 0f, 1f);
+            PickProgress = Math.Clamp(PickProgress - ((float)milliseconds / 280f), 0f, 1f);
             TiltX *= 0.86f;
             TiltY *= 0.86f;
             ShadowX *= 0.82f;
             ShadowY *= 0.82f;
         }
 
+        if (!closingAfterTransit)
+        {
+            var approachStep = (float)milliseconds / (_approachTarget > ApproachProgress ? 540f : 360f);
+            ApproachProgress = MoveToward(ApproachProgress, _approachTarget, approachStep);
+            SmoothLensApproachPrepared = SmoothLensApproachPrepared || ApproachProgress is > 0.12f and < 0.92f;
+            _openTarget = ApproachProgress >= 0.68f
+                ? Math.Clamp((ApproachProgress - 0.68f) / 0.32f, 0f, 1f)
+                : 0f;
+        }
+
         if (!closingAfterTransit && _openTarget > LensOpen)
         {
-            LensOpen = Math.Clamp(LensOpen + ((float)milliseconds / 240f), 0f, _openTarget);
+            LensOpen = Math.Clamp(LensOpen + ((float)milliseconds / 520f), 0f, _openTarget);
         }
         else if (!closingAfterTransit && _openTarget < LensOpen && Absorption <= 0f)
         {
@@ -343,9 +381,21 @@ public sealed class GpuLivingLensSession
         TransitState = GpuLivingLensTransitState.PlacedRemote;
         IsHoldingThing = false;
         Absorption = 1f;
+        PickProgress = 0f;
+        ApproachProgress = 0f;
         RemotePlacementPrepared = true;
         TunnelAutoClosePrepared = true;
         DropRequiresRelease = true;
+    }
+
+    private static float MoveToward(float current, float target, float amount)
+    {
+        if (current < target)
+        {
+            return Math.Min(target, current + amount);
+        }
+
+        return Math.Max(target, current - amount);
     }
 
     public void RunSmokeScenario()
