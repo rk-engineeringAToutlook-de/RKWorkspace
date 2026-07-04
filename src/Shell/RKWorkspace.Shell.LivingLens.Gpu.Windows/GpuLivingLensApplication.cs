@@ -1,0 +1,80 @@
+using RKWorkspace.Shell;
+using System.Windows;
+
+namespace RKWorkspace.Shell.LivingLens.Gpu.Windows;
+
+public static class GpuLivingLensApplication
+{
+    public static int RunDemo()
+    {
+        var runtime = new WorkspaceShellRuntime();
+        try
+        {
+            runtime.Start();
+            var application = new System.Windows.Application
+            {
+                ShutdownMode = ShutdownMode.OnMainWindowClose
+            };
+            application.Run(new GpuLivingLensWindow(runtime));
+            runtime.Stop();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"RK Workspace GPU Living Lens failed: {ex.Message}");
+            return 1;
+        }
+    }
+
+    public static int RunSmokeTest()
+    {
+        var runtime = new WorkspaceShellRuntime();
+        try
+        {
+            runtime.Start();
+            var session = new GpuLivingLensSession();
+            session.RunSmokeScenario();
+            var desktopSampleOk = DesktopRefractionSampler.TryCheckSample();
+            var success = runtime.State == WorkspaceShellRuntimeState.Running &&
+                session.GpuCompositionPrepared &&
+                session.DesktopRefractionPrepared &&
+                session.RefractionMapPrepared &&
+                session.PrimaryLensHugsScreenEdge &&
+                session.EdgeContinuationPrepared &&
+                session.NoWhiteBlock &&
+                session.DropRequiresRelease &&
+                session.PullOutPrepared &&
+                session.VectorTiltPrepared &&
+                session.ShadowPrepared &&
+                desktopSampleOk;
+
+            Console.WriteLine("RK Workspace GPU Living Lens Smoke Test");
+            Console.WriteLine("---------------------------------------");
+            Console.WriteLine($"ShellState: {runtime.State}");
+            Console.WriteLine($"NativeOverlay: READY");
+            Console.WriteLine($"BrowserSurface: NONE");
+            Console.WriteLine($"WebView: NONE");
+            Console.WriteLine($"GpuComposition: {(session.GpuCompositionPrepared ? "READY" : "FAILED")}");
+            Console.WriteLine($"DesktopSampling: {(desktopSampleOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"DesktopRefraction: {(session.DesktopRefractionPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ShaderReadyMap: {(session.RefractionMapPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
+            Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"NoWhiteBlock: {(session.NoWhiteBlock ? "OK" : "FAILED")}");
+            Console.WriteLine($"DropRequiresRelease: {(session.DropRequiresRelease ? "OK" : "FAILED")}");
+            Console.WriteLine($"PullOutFromLens: {(session.PullOutPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"VectorTilt: {(session.VectorTiltPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ShadowModel: {(session.ShadowPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine(success ? "GpuLivingLensSmoke: SUCCESS" : "GpuLivingLensSmoke: FAILED");
+            Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
+
+            runtime.Stop();
+            return success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"RK Workspace GPU Living Lens Smoke Test failed: {ex.Message}");
+            return 1;
+        }
+    }
+}

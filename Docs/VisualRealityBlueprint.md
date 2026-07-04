@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.4.0
+Version: 1.7.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -834,6 +834,42 @@ Die Renderer-Entscheidung steht in:
 Docs/RenderingDecision_LivingLens.md
 ```
 
+## MA006.11 GPU Living Lens Refraction
+
+MA006.11 beginnt den GPU-/Shader-Zielpfad als separaten Slice:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows
+```
+
+Dieser Slice nutzt nicht mehr ein gemaltes Ersatzbild als Hintergrund. Er tastet den realen Desktop unter der Linse ab und verwendet dieses Material als Refraction-Map-Vorbereitung.
+
+Wahrnehmungsziel:
+
+```text
+Der Desktop bleibt da.
+Die Linse liegt darueber.
+Der Raum dahinter scheint durch.
+```
+
+Geprueft wird:
+
+- WPF-/DirectX-komponierte Overlay-Flaeche.
+- Desktop-Sampling unter der Randlinse.
+- keine lila/cyan Artefaktflaeche.
+- rechte Bildschirmkante als Durchgang.
+- Edge-Continuation statt harter Randblockade.
+- Ding bleibt in menschlicher Kontrolle bis zum Loslassen.
+- Pull-out aus der Linse.
+- vektorielle Neigung und Schattenmodell.
+
+Noch nicht geloest:
+
+- finale HLSL-Brechung.
+- physikalische Reflexionen.
+- mobile Zielablage mit echtem Auftauchen auf Tablet.
+- echte Payload.
+
 ## Nicht-Ziele
 
 MA006.09 baut noch nicht:
@@ -852,6 +888,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction mit Desktop-Sampling, Refraction-Map und EdgeContinuation ergaenzt. |
 | 1.6.0 | 2026-07-04 | Owner-Video-Feedback zu Randlinse, Pull-out, Schatten, vektorieller Neigung, Brillanz und Performance aufgenommen. |
 | 1.5.0 | 2026-07-04 | Living Lens Per-Pixel-Alpha, Color-Key-Verbot, kontrolliertes Loslassen und Renderer-Grenze ergaenzt. |
 | 1.4.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset, Real Bubble Lens, Lens Absorption und Visual Target Export als naechsten isolierten Material-Spike ergaenzt. |

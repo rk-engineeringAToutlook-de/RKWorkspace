@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.31.0
+Version: 2.34.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -68,6 +68,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Das Owner-Referenzboard fuer Visual Reality ist unter `Docs/Assets/VisualReality/` gesichert und setzt die naechste Zielrichtung auf Glaslinse, Gravitationsbrunnen und ruhiges Portal auf dem echten Desktop.
 - Der Visual-Reality-Slice baut diese Richtung erstmals sichtbar: `1` Glasbrunnen-Portal, `2` Glasmaterial, `3` Raumbrunnen, `4` ruhiges Portal, `5` minimaler Raumriss.
 - MA006.10R setzt den Living-Lens-Renderer sichtbar zurueck: eigener Windows-Slice, Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Lens Absorption, Target Emergence und Visual-Target-Export.
+- MA006.11 fuehrt den GPU Living Lens Refraction Prototype ein: separater WPF-/DirectX-komponierter Windows-Slice, Desktop-Sampling unter der Linse, Rand-Durchgang, kontrolliertes Loslassen, Pull-out und Smoke-Test ohne Browser/WebView.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -113,6 +114,7 @@ flowchart TB
     ShellHost --> NativeOverlay["Native Spatial Overlay"]
     ShellHost --> VisualReality["Visual Reality Lab"]
     ShellHost --> LivingLens["Living Lens Renderer"]
+    ShellHost --> GpuLens["GPU Living Lens Refraction"]
     ShellHost --> SpatialTray["Spatial Carry Tray"]
     Spec --> Core["src/Core"]
     Shell --> Adapters["Spaetere Workspace Adapter"]
@@ -141,6 +143,7 @@ src/Shell/RKWorkspace.Shell.Overlay.Windows/ Windows-Prototyp fuer transparente 
 src/Shell/RKWorkspace.Shell.NativeOverlay.Windows/ Nativer Windows Spatial-Overlay-Slice ohne Browser/WebView
 src/Shell/RKWorkspace.Shell.VisualReality.Windows/ Nativer Windows Visual-Reality-Slice fuer lebendige Ablage-Linsen
 src/Shell/RKWorkspace.Shell.LivingLens.Windows/ Isolierter Windows Living-Lens-Slice fuer echtes Material, Lens Absorption und Visual Target Export
+src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/ GPU-komponierter Living-Lens-Slice mit Desktop-Sampling und Refraction-Map-Vorbereitung
 src/Shell/RKWorkspace.Shell.SpatialTray/ Lokaler Web-Prototyp fuer Spatial Room Session und gleichberechtigte Ablagen
 src/Core/             Plattformneutraler Core
 src/Core/Plugins/     Plattformneutraler Plugin Manager und Plugin-Vertraege
@@ -191,6 +194,7 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-native-overlay.ps1 -SmokeTest
 .\tools\run-living-lens.ps1 -SmokeTest
 .\tools\run-living-lens.ps1 -ExportFrames
+.\tools\run-gpu-lens.ps1 -SmokeTest
 ```
 
 Oder gesammelt:
@@ -232,6 +236,8 @@ Der Native Spatial Overlay Slice ist ab MA006.08 der neue primaere Gefuehlspfad.
 Das Visual Reality Lab ist ab MA006.09 der native Wahrnehmungstest fuer lebendige Ablage-Linsen. Es startet ueber `.\tools\run-visual-reality.ps1`, zeigt keinen Browser, kein WebView und keine Weboberflaeche, sondern ein transparentes Overlay ueber dem echten Desktop. Fuenf Linsen-Hypothesen koennen im laufenden Test mit `1` bis `5` umgeschaltet werden. Der automatische Check laeuft ueber `.\tools\run-visual-reality.ps1 -SmokeTest`. Der erste konkrete C#-/WinForms-/GDI+-Spike wurde vom Owner visuell nicht akzeptiert und bleibt deshalb nur ein technischer Smoke-Test. Der naechste Schritt ist nicht weitere Politur, sondern Visual-Reality-Blueprint, Storyboard, Mockup oder Renderer-Entscheidung. Das neue Owner-Referenzboard verankert dafuer die Richtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal; der echte Desktop bleibt der sichtbare Raum. Der aktuelle Slice setzt diese Richtung erstmals als Glasbrunnen-Portal um und prueft `ReferenceDirection: OK`.
 
 Der Living Lens Renderer Reset ist ab MA006.10R der neue isolierte visuelle Material-Spike. Er startet ueber `.\tools\run-living-lens.ps1`, prueft `.\tools\run-living-lens.ps1 -SmokeTest` und exportiert Zielbilder ueber `.\tools\run-living-lens.ps1 -ExportFrames` nach `Docs/VisualTargets/MA00610R/`. Er enthaelt Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Lens Absorption, Target Emergence und Timing-Varianten 600/1200/1800 ms. Die sichtbare App startet bewusst mit Variante 2 `Glass Lens`. Die sichtbare Overlay-Flaeche nutzt jetzt Per-Pixel-Alpha statt Magenta-/Color-Key-Transparenz, damit der echte Desktop unter der Linse sichtbar bleibt. Naehe oeffnet die Linse, Wegbewegen beruhigt sie wieder; das Ding wird erst beim Loslassen absorbiert. Nach Owner-Video-Feedback klebt die primaere Linse am rechten Bildschirmrand, rendert ueber getaktetes Frame-Pacing statt pro Mausereignis, verzichtet auf den weissen Innenrahmen, erhoeht Glasbrillanz und Schattenwirkung und erlaubt ein erneutes Herausziehen aus der Linse. WinForms/GDI+ bleibt fuer diesen Spike erlaubt, ist aber laut `Docs/RenderingDecision_LivingLens.md` nicht der finale Renderer fuer echte Desktop-Brechung und finale Materialphysik.
+
+Der GPU Living Lens Refraction Prototype ist ab MA006.11 der naechste Renderer-Slice. Er startet ueber `.\tools\run-gpu-lens.ps1` und prueft `.\tools\run-gpu-lens.ps1 -SmokeTest`. Der Slice nutzt ein transparentes WPF-Overlay mit DirectX-komponierter Darstellung, tastet den realen Desktop unter der Randlinse ab und zeichnet daraus eine transparente, gebrochene Linsenflaeche ohne lila/cyan Hintergrund und ohne Browser/WebView. Das Ding bleibt waehrend des Haltens unter Kontrolle des Menschen, reagiert mit vektorieller Neigung und Schatten und wird erst beim Loslassen in die Linse aufgenommen. Diese Stufe ist ein ehrlicher GPU-Kompositions- und Refraction-Map-Prototyp; der finale Premium-Look braucht danach einen echten HLSL-/Direct2D-/Win2D-Shaderpfad.
 
 Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Tablet oder Handy und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur explizites Abbrechen kehrt zur Quelle zurueck. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/tablet`, `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal und liegt initial auf dem Tablet, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. MA006.06 macht diese Oeffnung erstmals zu einem Spatial Portal Carry: die Zielablage sitzt am Rand des wahrgenommenen Raums, oeffnet sich als Portal, das Ding verschwindet teilweise auf der Quelle, erscheint teilweise im Ziel, bleibt bis `ReadyToPlace` nur Preview und wird erst beim Ablegen final dort platziert. MA006.07 verwirft die sichtbare Radar-/Statusseiten-Darstellung: Empty zeigt keine Karte und keine Bubbles mehr, Bubbles erscheinen erst bei aktiver Tragehandlung peripher am Rand, und die Surface ist als Vollflaeche mit PWA-/Standalone-Vorbereitung angelegt. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
 
@@ -301,6 +307,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 - `Docs/Development/DualAgentSimulation.md`
 - `Docs/Development/LocalIpcTwoProcessTest.md`
 - `Docs/Development/TransportAbstractionLayer.md`
+- `Docs/Development/MA006_11_GpuLivingLensRefraction.md`
 - `Docs/Development/MA003_Progress.md`
 - `Docs/ADR/README.md`
 
@@ -308,6 +315,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.34.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype mit WPF-/DirectX-Komposition, Desktop-Sampling, Rand-Durchgang und eigenem Smoke-Test dokumentiert. |
 | 2.33.0 | 2026-07-04 | Living Lens nach Owner-Video-Feedback mit Randlinse, Pull-out, Frame-Pacing, mehr Brillanz und ohne weissen Innenrahmen verfeinert. |
 | 2.32.0 | 2026-07-04 | Living Lens Overlay auf Per-Pixel-Alpha umgestellt, Color-Key-Artefakte entfernt und kontrolliertes Loslassen/Relax dokumentiert. |
 | 2.31.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit eigenem Windows-Slice, run-living-lens, Lens Absorption und Visual Target Export dokumentiert. |

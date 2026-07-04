@@ -1,7 +1,7 @@
 # Rendering Decision Living Lens
 
 Dokument-ID: RKWS-RENDERING-DECISION-LIVING-LENS
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -15,7 +15,7 @@ MA006.10R baut einen isolierten Living-Lens-Spike. Ziel ist nicht UI-Design, son
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | WinForms/GDI+ mit Per-Pixel-Alpha Layer | Echt per-pixel fuer Overlay-Elemente | Ja, ohne Magenta-/Color-Key-Artefakte | Nur simuliert | Einfach moeglich | Begrenzt | CPU-basiert | Ausreichend fuer den korrigierten Spike und Export, nicht final. |
 | WinForms/GDI+ mit TransparencyKey | Begrenzt ueber TransparencyKey | Visuell fehleranfaellig | Nur simuliert | Einfach moeglich | Begrenzt | CPU-basiert | Verworfen fuer sichtbare Living Lens, weil lila/cyan Artefakte entstehen. |
-| WPF | Besser als WinForms | Ja | Begrenzt, Effekte moeglich | Gut | Gut | Teilweise GPU | Moeglicher naechster Prototyp. |
+| WPF mit Desktop-Sampling | Gut fuer transparentes Overlay | Ja, echter Desktop wird unter der Linse abgetastet | Erste Refraction-Map-Vorbereitung, noch kein HLSL | Gut | Gut | GPU-komponiert | MA006.11 Slice: richtiger naechster Produktpfad, aber noch nicht finale Shader-Qualitaet. |
 | Win2D / Direct2D | Sehr gut | Ja | Shader-/Effektpfad moeglich | Sehr gut | Sehr gut | GPU | Starker Kandidat fuer Windows-Prototyp. |
 | Windows Composition API | Sehr gut | Ja | Effekte/Blur/Layering gut | Sehr gut | Gut | GPU | Starker Kandidat fuer Produkt-Overlay. |
 | SkiaSharp | Gut | Ja | Simulierbar, Shader moeglich | Gut | Gut | GPU je nach Backend | Guter plattformnaher Prototypkandidat. |
@@ -61,6 +61,8 @@ Windows Composition API oder Win2D / Direct2D.
 
 Der naechste Qualitaetssprung ist nicht eine weitere Farbpolitur. Er ist echte Hintergrundaufnahme plus Shader-/Effektpfad, damit der reale Desktop durch die Blase gebrochen, gestaucht und optisch glaubwuerdig verdichtet werden kann.
 
+MA006.11 setzt diesen Sprung erstmals als separaten WPF-/DirectX-komponierten Slice um. Er tastet den realen Desktop unter der Linse ab, entfernt lila/cyan Artefaktflaechen aus dem Erlebnis und bereitet Refraction-Maps vor. Er ist bewusst noch kein finaler HLSL-/Direct2D-Shader.
+
 Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
@@ -70,3 +72,10 @@ Shader-basierter Motion-Prototyp, optional Unity.
 ```
 
 Die Vision wird nicht reduziert, nur weil WinForms/GDI+ begrenzt ist.
+
+## Aenderungsverlauf
+
+| Version | Datum | Aenderung |
+| --- | --- | --- |
+| 1.2.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype mit Desktop-Sampling und Renderer-Grenze eingeordnet. |
+| 1.1.0 | 2026-07-04 | Per-Pixel-Alpha-Layer und Owner-Video-Grenze ergaenzt. |

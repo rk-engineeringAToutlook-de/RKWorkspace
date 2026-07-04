@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.17.0
+Version: 1.18.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -49,6 +49,9 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Target Emergence | Zielauftauchen | Moment, in dem das Ding als Ghost auf der Zielablage wieder groesser und klarer wird. | Kein Empfangen und kein technischer Transferstatus. |
 | Visual Material | Visuelles Material | Wahrnehmungsqualitaet aus Transparenz, Lichtkante, Reflexion, Brechung, Schatten und Tiefe. | Nicht mit Farbe, Glow oder Styling gleichsetzen. |
 | Renderer Decision | Renderer-Entscheidung | Dokumentierte Bewertung, welche Rendering-Technik fuer ein Zielgefuehl geeignet oder ungeeignet ist. | Nicht schoenreden, wenn Technik nicht reicht. |
+| GPU Living Lens | GPU Living Lens | Separater Windows-Renderer-Slice, der eine Living Lens GPU-komponiert und echten Desktop unter der Linse abtastet. | Noch kein finaler HLSL-Shader und keine echte Payload. |
+| Refraction Map | Refraction Map / Brechungskarte | Abgetastetes Hintergrundmaterial, das innerhalb der Linse verzerrt dargestellt wird. | Nicht als statisches Bild oder dekorative Textur verstehen. |
+| Edge Continuation | Rand-Durchgang | Wahrnehmungsregel, dass der Bildschirmrand als weitergehender Raum wirkt und nicht als harte Wand. | Nicht als Drop-Zone oder technisches Ziel darstellen. |
 | Spatial Portal | Raeumliches Portal | Ruhige Oeffnung im Arbeitsraum, durch die ein digitales Ding sichtbar in eine andere Ablage gelangt. | Kein Sci-Fi-Effekt und keine Netzwerkmetapher. |
 | Visual Reality Blueprint | Visual Reality Blueprint | Normatives Dokument fuer Linsenwirkung, Haptik, Renderer-Eignung und Abgrenzung zu Web/UI. | Kein Implementierungsdetail und keine finale Designspezifikation. |
 | Bubble Lens | Bubble-Linse | Transparente, weiche, raeumliche Bubble-Darstellung mit Tiefe und Glanz. | Kein gruener Punkt, kein Button, kein Radar-Ziel. |
@@ -135,6 +138,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.18.0 | 2026-07-04 | Begriffe fuer GPU Living Lens, Refraction Map und Edge Continuation ergaenzt. |
 | 1.17.0 | 2026-07-04 | Begriffe fuer MA006.10R Real Bubble Lens, Lens Absorption, Target Emergence, Visual Material, Renderer Decision und Spatial Portal ergaenzt. |
 | 1.16.0 | 2026-07-04 | Begriffe fuer Visual Reality, Visual Reality Lab, Living Lens und Visual Reality Blueprint ergaenzt. |
 | 1.15.0 | 2026-07-03 | Begriffe fuer Native Spatial Overlay, nativen Overlay-Slice, Bubble-Linse und Mini-Ablage ergaenzt. |

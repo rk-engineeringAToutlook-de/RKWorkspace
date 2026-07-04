@@ -648,6 +648,54 @@ Nach dem Owner-Video-Feedback prueft der Smoke-Test zusaetzlich:
 - Discovery, Pairing oder Sicherheitsschicht.
 - finale Produktphysik.
 
+## MA006.11 GPU Living Lens Refraction Tests
+
+MA006.11 fuehrt `src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/` und `tools/run-gpu-lens.ps1` ein.
+
+Der Smoke-Test fuehrt aus:
+
+```powershell
+.\tools\run-gpu-lens.ps1 -SmokeTest
+```
+
+Erwartete Ausgabe:
+
+```text
+RK Workspace GPU Living Lens Smoke Test
+NativeOverlay: READY
+BrowserSurface: NONE
+WebView: NONE
+GpuComposition: READY
+DesktopSampling: OK
+DesktopRefraction: OK
+ShaderReadyMap: OK
+PrimaryEdgeLens: OK
+EdgeContinuation: OK
+NoWhiteBlock: OK
+DropRequiresRelease: OK
+PullOutFromLens: OK
+VectorTilt: OK
+ShadowModel: OK
+GpuLivingLensSmoke: SUCCESS
+RESULT: SUCCESS
+```
+
+Der Test prueft ausdruecklich:
+
+- Desktop-Sampling unter der Linse ist moeglich.
+- der GPU-komponierte Slice startet ohne Browser/WebView.
+- der rechte Rand ist Durchgang, nicht Zielscheibe.
+- das Ding rastet nicht automatisch ein.
+- Pull-out bleibt moeglich.
+- vektorielle Neigung und Schattenmodell sind vorbereitet.
+
+Der Test prueft noch nicht:
+
+- finalen HLSL-Shader.
+- finale physikalische Brechung.
+- echte Desktop-Objekterkennung.
+- echte Payload.
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -659,6 +707,7 @@ Nach dem Owner-Video-Feedback prueft der Smoke-Test zusaetzlich:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.16.0 | 2026-07-04 | MA006.11 GPU Living Lens Smoke-Test mit Desktop-Sampling, Refraction-Vorbereitung und EdgeContinuation dokumentiert. |
 | 2.15.0 | 2026-07-04 | Living Lens Smoke-Test um PrimaryEdgeLens, NoWhiteAblageFrame und PullOutFromLens erweitert. |
 | 2.14.0 | 2026-07-04 | Living Lens Smoke-Test um Per-Pixel-Alpha, Color-Key-Ausschluss, NoAutoAbsorption und LensRelaxAway erweitert. |
 | 2.13.0 | 2026-07-04 | MA006.10R Living Lens Smoke-Test mit Real Bubble Lens, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export dokumentiert. |

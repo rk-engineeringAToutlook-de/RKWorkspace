@@ -238,6 +238,15 @@ Pflicht:
 
 Die naechste visuelle Stufe ist ein GPU-/Shader-Pfad fuer echte Desktop-Brechung. Die aktuelle Fassung ist eine saubere transparente Overlay-Schicht mit simulierter Glaswirkung und verbessertem Frame-Pacing.
 
+MA006.11 beginnt diesen naechsten Pfad als separaten Slice:
+
+```powershell
+.\tools\run-gpu-lens.ps1
+.\tools\run-gpu-lens.ps1 -SmokeTest
+```
+
+Der GPU Living Lens Refraction Prototype nutzt WPF-/DirectX-Komposition und Desktop-Sampling unter der Randlinse. Dadurch bleibt der echte Desktop durch die Linse sichtbar, und die farbige Artefaktflaeche ist nicht mehr Teil des Erlebnisses. Die finale physikalische Brechung bleibt ein spaeterer HLSL-/Direct2D-/Win2D-Schritt.
+
 ## Nicht-Ziele
 
 MA006.08 baut noch nicht:
@@ -272,6 +281,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype als naechsten Renderer-Slice eingeordnet. |
 | 1.7.0 | 2026-07-04 | Living Lens Owner-Video-Feedback mit Randlinse, Pull-out, weicher Tiefe und Frame-Pacing eingeordnet. |
 | 1.6.0 | 2026-07-04 | Living Lens Per-Pixel-Alpha, Color-Key-Entfernung und kontrolliertes Loslassen eingeordnet. |
 | 1.5.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit Real Bubble Lens, Lens Absorption und Visual Target Export eingeordnet. |

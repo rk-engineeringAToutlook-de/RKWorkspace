@@ -266,6 +266,38 @@ Die aktuelle Fassung ist noch kein finaler Glas-Shader. Sie beseitigt die farbig
 
 Dieser Slice bleibt ein visueller Spike. Die Renderer-Entscheidung steht in `Docs/RenderingDecision_LivingLens.md`.
 
+## GPU Living Lens Refraction Prototype
+
+MA006.11 fuehrt einen separaten GPU-komponierten Windows-Slice ein:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows
+```
+
+Start:
+
+```powershell
+.\tools\run-gpu-lens.ps1
+.\tools\run-gpu-lens.ps1 -SmokeTest
+```
+
+Der Slice nutzt ein transparentes WPF-Overlay und DirectX-komponierte Zeichenflaechen. Die Linse tastet den echten Desktop unter dem rechten Bildschirmrand ab und verwendet dieses Bildmaterial als Refraction-Map-Vorbereitung. Damit verschwindet der falsche lila/cyan Raum vollstaendig: hinter der Linse bleibt der reale Desktop sichtbar.
+
+Geprueft werden:
+
+- kein Browser.
+- kein WebView.
+- GPU-Kompositionspfad vorbereitet.
+- Desktop-Sampling unter der Linse.
+- transparente Randlinse als Durchgang.
+- Edge-Continuation statt harter Bildschirmwand.
+- kontrolliertes Loslassen statt automatischem Einrasten.
+- Pull-out aus der Linse.
+- vektorielle Neigung des Dings.
+- Schattenmodell fuer raeumliches Tragen.
+
+MA006.11 ist noch kein finaler HLSL-Shader. Die Stufe beweist den naechsten Produktpfad: reale Desktopdaten werden in die Linsenkomposition einbezogen. Fuer maximale Brillanz, physikalisch glaubwuerdige Verzerrung, Blur und Reflexe bleibt ein Direct2D-/Win2D-/HLSL-Renderer die naechste technische Stufe.
+
 ## Spatial Carry Tray Prototype
 
 MA006.03 fuehrt den neuen Wahrnehmungspfad ein:
@@ -578,6 +610,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.18.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype mit Desktop-Sampling, Rand-Durchgang und Shader-Grenze dokumentiert. |
 | 1.17.0 | 2026-07-04 | Living Lens Randlinse, Pull-out, Frame-Pacing, Brillanz und weiche Tiefe nach Owner-Video-Feedback ergaenzt. |
 | 1.16.0 | 2026-07-04 | Living Lens mit Per-Pixel-Alpha, ohne Color-Key-Artefakte, Relax und kontrolliertem Loslassen ergaenzt. |
 | 1.15.0 | 2026-07-04 | MA006.10R Living Lens Renderer Reset mit eigenem Slice, Lens Absorption, Timing-Varianten und Visual Target Export ergaenzt. |

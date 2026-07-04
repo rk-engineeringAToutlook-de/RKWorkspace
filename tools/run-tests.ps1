@@ -386,3 +386,50 @@ if (-not $livingLensText.Contains('LivingLensSmoke: SUCCESS')) {
 if (-not $livingLensText.Contains('RESULT: SUCCESS')) {
     throw "Living Lens Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'GPU Living Lens Smoke Test'
+Write-Host '--------------------------'
+$gpuLivingLensOutput = & (Join-Path $root 'tools\run-gpu-lens.ps1') -SmokeTest 2>&1
+$gpuLivingLensExitCode = $LASTEXITCODE
+$gpuLivingLensOutput | ForEach-Object { Write-Host $_ }
+if ($gpuLivingLensExitCode -ne 0) {
+    throw "GPU Living Lens Smoke Test failed with exit code $gpuLivingLensExitCode."
+}
+
+$gpuLivingLensText = $gpuLivingLensOutput -join [Environment]::NewLine
+if (-not $gpuLivingLensText.Contains('RK Workspace GPU Living Lens Smoke Test')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RK Workspace GPU Living Lens Smoke Test."
+}
+
+if (-not $gpuLivingLensText.Contains('GpuComposition: READY')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GpuComposition: READY."
+}
+
+if (-not $gpuLivingLensText.Contains('DesktopSampling: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain DesktopSampling: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('DesktopRefraction: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain DesktopRefraction: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('DropRequiresRelease: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain DropRequiresRelease: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('PullOutFromLens: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PullOutFromLens: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('GpuLivingLensSmoke: SUCCESS')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GpuLivingLensSmoke: SUCCESS."
+}
+
+if (-not $gpuLivingLensText.Contains('RESULT: SUCCESS')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
