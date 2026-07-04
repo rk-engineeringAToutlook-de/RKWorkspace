@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.28.0
+Version: 2.29.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -65,6 +65,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA006.08 fuehrt den Native Spatial Overlay Slice ein: kein Browser, kein WebView, echter Desktop bleibt sichtbar, transparentes randloses Windows-Overlay, Demo-Ding, digitale Hand, periphere Bubble-Linsen, Mini-Ablage und eigener Smoke-Test.
 - MA006.09 fuehrt das Visual Reality Lab ein: natives Overlay ohne Web, fuenf Living-Lens-Hypothesen, langsames Erscheinen, subtile Linsen-Lebendigkeit, Mini-Ablage, Glide und Ziel-Ghost.
 - Der erste Visual-Reality-Spike hat den technischen Smoke-Test bestanden, wurde vom Owner visuell aber verworfen: Der aktuelle WinForms/GDI+-Ansatz ist nur noch technischer Test, nicht Zieloptik.
+- Das Owner-Referenzboard fuer Visual Reality ist unter `Docs/Assets/VisualReality/` gesichert und setzt die naechste Zielrichtung auf Glaslinse, Gravitationsbrunnen und ruhiges Portal auf dem echten Desktop.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -222,7 +223,7 @@ Der Workspace Overlay Prototype ist ab MA006.02 der erste sichtbare Produkttest 
 
 Der Native Spatial Overlay Slice ist ab MA006.08 der neue primaere Gefuehlspfad. Er startet ueber `.\tools\run-native-overlay.ps1`, nutzt ein randloses, transparentes, topmost Windows-Overlay und zeigt keinen Browser und kein WebView. Die Testgeste `Ctrl+Alt+Space` erzeugt das Demo-Ding `Rechnung.pdf`; Bubbles erscheinen erst beim Halten. Der automatische Check laeuft ueber `.\tools\run-native-overlay.ps1 -SmokeTest`.
 
-Das Visual Reality Lab ist ab MA006.09 der native Wahrnehmungstest fuer lebendige Ablage-Linsen. Es startet ueber `.\tools\run-visual-reality.ps1`, zeigt keinen Browser, kein WebView und keine Weboberflaeche, sondern ein transparentes Overlay ueber dem echten Desktop. Fuenf Linsen-Hypothesen koennen im laufenden Test mit `1` bis `5` umgeschaltet werden. Der automatische Check laeuft ueber `.\tools\run-visual-reality.ps1 -SmokeTest`. Der erste konkrete C#-/WinForms-/GDI+-Spike wurde vom Owner visuell nicht akzeptiert und bleibt deshalb nur ein technischer Smoke-Test. Der naechste Schritt ist nicht weitere Politur, sondern Visual-Reality-Blueprint, Storyboard, Mockup oder Renderer-Entscheidung.
+Das Visual Reality Lab ist ab MA006.09 der native Wahrnehmungstest fuer lebendige Ablage-Linsen. Es startet ueber `.\tools\run-visual-reality.ps1`, zeigt keinen Browser, kein WebView und keine Weboberflaeche, sondern ein transparentes Overlay ueber dem echten Desktop. Fuenf Linsen-Hypothesen koennen im laufenden Test mit `1` bis `5` umgeschaltet werden. Der automatische Check laeuft ueber `.\tools\run-visual-reality.ps1 -SmokeTest`. Der erste konkrete C#-/WinForms-/GDI+-Spike wurde vom Owner visuell nicht akzeptiert und bleibt deshalb nur ein technischer Smoke-Test. Der naechste Schritt ist nicht weitere Politur, sondern Visual-Reality-Blueprint, Storyboard, Mockup oder Renderer-Entscheidung. Das neue Owner-Referenzboard verankert dafuer die Richtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal; der echte Desktop bleibt der sichtbare Raum.
 
 Der Spatial Carry Tray Prototype ist ab MA006.03 der neue Wahrnehmungstest fuer das Raumgefuehl. Er startet ueber `.\tools\run-spatial-tray.ps1`, zeigt eine URL fuer Tablet oder Handy und testet das mentale Modell: digitales Ding auf einem mobilen Tablett tragen und auf einer Ablage im Raum ablegen. MA006.03-A ergaenzt die digitale Hand: ein Teil des Dings wird optisch umfasst, Wabern bleibt minimal, Loslassen legt im freien Raum oder auf einer nahen Ablage ab, und nur explizites Abbrechen kehrt zur Quelle zurueck. Ablage-Bubbles werden durch Naehe groesser und lesbar; `Hier ablegen` erscheint erst bei aktiver Naehe. MA006.04 erweitert daraus eine Spatial Room Session: `/surface/tablet`, `/surface/handy` und `/surface/monitor` sehen denselben Raumzustand, das Ding existiert nur einmal und liegt initial auf dem Tablet, Zielablagen sehen `Rechnung.pdf kommt an`, und das Ding kann von jeder Ablage wieder genommen werden. Die verfeinerte Fassung bereitet mindestens fuenf Ablagen vor, fuehrt `OpeningAblage` ein und laesst aktive Ablagen als Ablage-Linse oeffnen. MA006.05 konzentriert danach den einen Ablauf: nehmen, in digitaler Hand halten, Ablage oeffnet sich, Ding gleitet hinein und liegt auf der Zielablage an gespeicherter Position. MA006.06 macht diese Oeffnung erstmals zu einem Spatial Portal Carry: die Zielablage sitzt am Rand des wahrgenommenen Raums, oeffnet sich als Portal, das Ding verschwindet teilweise auf der Quelle, erscheint teilweise im Ziel, bleibt bis `ReadyToPlace` nur Preview und wird erst beim Ablegen final dort platziert. MA006.07 verwirft die sichtbare Radar-/Statusseiten-Darstellung: Empty zeigt keine Karte und keine Bubbles mehr, Bubbles erscheinen erst bei aktiver Tragehandlung peripher am Rand, und die Surface ist als Vollflaeche mit PWA-/Standalone-Vorbereitung angelegt. Der automatische Check laeuft ueber `.\tools\run-spatial-tray.ps1 -SmokeTest`.
 
@@ -295,6 +296,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.29.0 | 2026-07-04 | Owner-Referenzboard fuer Visual Reality gesichert und neue Zielrichtung Glaslinse, Gravitationsbrunnen und ruhiges Portal auf dem echten Desktop dokumentiert. |
 | 2.28.0 | 2026-07-04 | Owner-Bewertung des ersten Visual-Reality-Spikes als visuellen Fehlschlag dokumentiert und naechsten Schritt auf Blueprint, Storyboard, Mockup oder Renderer-Entscheidung gesetzt. |
 | 2.27.0 | 2026-07-04 | MA006.09 Visual Reality Lab mit fuenf Living-Lens-Hypothesen, Visual-Reality-Blueprint und neuem Smoke-Test dokumentiert. |
 | 2.26.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice mit transparentem Desktop-Overlay ohne Browser/WebView dokumentiert. |

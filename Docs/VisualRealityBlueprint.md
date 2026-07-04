@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -64,6 +64,77 @@ Vor weiterer Implementierung muessen vorliegen:
 - eine ehrliche Renderer-Entscheidung.
 
 Wenn die aktuelle UI-Umgebung diese Qualitaet nicht erzeugen kann, wird nicht die Vision reduziert. Dann wird das visuelle Werkzeug gewechselt.
+
+## Owner-Referenzboard 2026-07-04
+
+Der Owner hat sechs visuelle Referenzen fuer die naechste Richtung geliefert. Diese Bilder sind keine fertigen UI-Vorgaben. Sie beschreiben, welche Wahrnehmung entstehen soll.
+
+Wichtig:
+
+```text
+Der reale Desktop bleibt da.
+Die Referenzen liefern Material, Tiefe und Raumoeffnung.
+Sie ersetzen nicht die reale Ablage durch Weltraumgrafik.
+```
+
+Referenzen:
+
+| Referenz | Datei | Bedeutung fuer RK Workspace |
+| --- | --- | --- |
+| Glaslinse | `Docs/Assets/VisualReality/reference-01-glass-lens.png` | echte optische Materialitaet, Brechung, ruhige physische Praesenz. |
+| Lichttunnel | `Docs/Assets/VisualReality/reference-02-light-tunnel.png` | Richtung, Tiefe, Durchgangsgefuehl, aber nicht als greller Effekt. |
+| Gravitationsbrunnen | `Docs/Assets/VisualReality/reference-03-gravity-well.png` | Ablage-Rand wird raeumlich weich und zieht das Ding hinein. |
+| Dunkles Portal | `Docs/Assets/VisualReality/reference-04-black-hole-portal.png` | starke Oeffnung mit ruhigem Randlicht, aber ohne bedrohliche Schwere. |
+| Spiegel-/Linsenraum | `Docs/Assets/VisualReality/reference-05-mirror-lens-depth.png` | Linse zeigt Tiefe hinter der Oberflaeche, fast wie eine andere Ablage im Spiegel. |
+| Wurmloch-Oberflaeche | `Docs/Assets/VisualReality/reference-06-wormhole-surface.png` | Rand als Flaeche mit tiefer Oeffnung, nicht als Button oder Kreis. |
+
+### Aus Den Referenzen Wird Uebernommen
+
+- optische Echtheit statt gezeichneter Kreis.
+- Glas, Brechung, Reflexion und Randlicht.
+- ruhige Tiefe statt flacher Dropzone.
+- der Eindruck, dass der Raum hinter der Linse weitergeht.
+- ein weicher Einzug, wenn das Ding nahekommt.
+- ein kurzer Moment von Portal-Kontinuitaet.
+
+### Nicht Uebernehmen
+
+- Weltraum als Hintergrund.
+- grelle Sci-Fi-Tunnel.
+- aggressive blaue HUD-/Raster-Aesthetik.
+- schwarzes Loch als bedrohliches Motiv.
+- Sternenfelder als Produktoberflaeche.
+- laute Energieeffekte.
+
+### Korrigierte Zielrichtung
+
+Die naechste visuelle Richtung ist keine Bubble mehr.
+
+Die naechste visuelle Richtung ist:
+
+```text
+Eine ruhige optische Ablage-Linse,
+die wie echtes Material auf dem realen Desktop liegt
+und sich bei Naehe zu einer raeumlichen Oeffnung vertieft.
+```
+
+Die stärkste Kombination aus dem Referenzboard ist:
+
+```text
+Glaslinse
++
+Gravitationsbrunnen
++
+ruhiges Portal
+```
+
+Das Ziel ist nicht Spektakel.
+
+Das Ziel ist:
+
+```text
+Ich glaube, dass dort eine Oeffnung in meinem Arbeitsraum entsteht.
+```
 
 ## Was Ist Eine Ablage-Linse?
 
@@ -283,6 +354,43 @@ MA006.09 prueft fuenf Ansaetze:
 - Linse E: Minimaler Raumriss, fast unsichtbar, nur Licht und Tiefe.
 
 Keine dieser Varianten ist final. Sie sind Wahrnehmungshypothesen.
+
+Nach dem Owner-Referenzboard sind die Hypothesen nicht mehr gleich gewichtet.
+
+Prioritaet fuer die naechste visuelle Entscheidung:
+
+1. Glaslinse als Materialgrundlage.
+2. Portal-Linse als Raumoeffnung.
+3. Gravitationsbrunnen als Uebergangsverhalten.
+4. Wasserlinse nur fuer weiches Nachgeben.
+5. Minimaler Raumriss nur als reduzierte Gegenprobe.
+
+Die Seifenblasen-Idee darf nur noch als optische Transparenzreferenz dienen. Sie darf nicht niedlich, rund, dekorativ oder apphaft wirken.
+
+### Linse 0: Referenz-Kombination
+
+Diese Variante ist keine zusaetzliche Effektvariante, sondern die neue Zielhypothese aus den Owner-Referenzen.
+
+Zielgefuehl:
+
+```text
+Da ist eine echte Linse in meinem Raum,
+und wenn ich nahe genug komme,
+wird sie zu einer Oeffnung.
+```
+
+Merkmale:
+
+- Glaskoerper mit ruhiger Kante.
+- leichte Brechung des darunterliegenden Desktops.
+- schwacher, kontrollierter Lichtsaum.
+- innere Tiefe erst bei Naehe.
+- Einzug wie ein sehr ruhiger Gravitationsbrunnen.
+- keine Weltraumkulisse.
+
+Akzeptanzkriterium:
+
+Der Owner muss zuerst eine echte optische Linse wahrnehmen und erst danach ein Portal. Wenn zuerst Effekt oder UI wahrgenommen wird, ist die Variante nicht gueltig.
 
 ### Linse A: Seifenblase
 
@@ -605,5 +713,6 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-04 | Owner-Referenzboard mit sechs visuellen Referenzen gesichert, Zielrichtung auf Glaslinse plus Gravitationsbrunnen plus ruhiges Portal korrigiert und Linsenprioritaet angepasst. |
 | 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten C#-Spikes als visuellen Fehlschlag dokumentiert; fuenf Linsenrichtungen, drei digitale-Hand-Varianten, drei Storyboards, Zielvision und Implementierungs-Gate ergaenzt. |
 | 1.0.0 | 2026-07-04 | MA006.09 Visual Reality Blueprint mit Ablage-Linse, Haptik-Konzept und Renderer-Eignung definiert. |

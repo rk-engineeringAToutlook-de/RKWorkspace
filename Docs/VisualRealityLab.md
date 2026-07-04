@@ -1,7 +1,7 @@
 # Visual Reality Lab
 
 Dokument-ID: RKWS-VISUAL-REALITY-LAB
-Version: 1.1.0
+Version: 1.2.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -139,6 +139,26 @@ Das Lab bleibt als technischer Experimentierraum erhalten. Nach dem Owner-Test i
 
 Der naechste gueltige Schritt ist in `Docs/VisualRealityBlueprint.md` definiert: fuenf ernsthafte Linsenrichtungen, drei digitale-Hand-Varianten, drei Storyboards, Zielvision fuer den Portaluebergang und eine Renderer-Entscheidung.
 
+## Owner-Referenzboard
+
+Die Owner-Referenzen sind dauerhaft gesichert in:
+
+```text
+Docs/Assets/VisualReality/
+```
+
+Sie definieren die neue visuelle Richtung:
+
+```text
+Glaslinse
++
+Gravitationsbrunnen
++
+ruhiges Portal
+```
+
+Diese Richtung ersetzt die bisherige Bubble-/Status-/Effektoptik. Die Referenzen duerfen nicht als Weltraumhintergrund verstanden werden. Der reale Desktop bleibt sichtbar; die Linse erzeugt nur Tiefe und Oeffnung im Raum.
+
 ## Owner-Test
 
 Der Owner prueft ausschliesslich:
@@ -169,5 +189,6 @@ Der Owner prueft ausschliesslich:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-04 | Owner-Referenzboard als neue visuelle Richtung fuer Glaslinse, Gravitationsbrunnen und ruhiges Portal verankert. |
 | 1.1.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Spikes als visuellen Fehlschlag dokumentiert und naechstes Entscheidungs-Gate auf den Visual Reality Blueprint verlagert. |
 | 1.0.0 | 2026-07-04 | MA006.09 Visual Reality Lab mit fuenf Living-Lens-Hypothesen dokumentiert. |

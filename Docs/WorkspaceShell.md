@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.12.0
+Version: 1.13.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -197,6 +197,24 @@ Web-/Browser-Prototypen sind technische Tests.
 Der aktuelle WinForms/GDI+-Spike ist ebenfalls nur noch ein technischer Test.
 Der naechste gueltige HX-Schritt ist visuelle Richtung, Storyboard und Renderer-Entscheidung.
 ```
+
+Das Owner-Referenzboard liegt in:
+
+```text
+Docs/Assets/VisualReality/
+```
+
+Die daraus abgeleitete Zielrichtung fuer die naechste visuelle Entscheidung ist:
+
+```text
+Glaslinse
++
+Gravitationsbrunnen
++
+ruhiges Portal
+```
+
+Diese Richtung darf nicht als Weltraumkulisse verstanden werden. Workspace Shell bleibt der reale Arbeitsraum; die Linse erzeugt nur eine glaubwuerdige Oeffnung innerhalb dieses Raums.
 
 ## Spatial Carry Tray Prototype
 
@@ -501,6 +519,7 @@ MA006.09 baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.13.0 | 2026-07-04 | Owner-Referenzboard fuer Visual Reality und neue Zielrichtung Glaslinse plus Gravitationsbrunnen plus ruhiges Portal verankert. |
 | 1.12.0 | 2026-07-04 | Owner-Bewertung des ersten Visual-Reality-Spikes als visuellen Fehlschlag dokumentiert und naechsten HX-Schritt auf Blueprint, Storyboard und Renderer-Entscheidung korrigiert. |
 | 1.11.0 | 2026-07-04 | MA006.09 Visual Reality Lab als nativen HX-Testpfad fuer lebendige Ablage-Linsen ergaenzt. |
 | 1.10.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice als neuen primaeren Gefuehlspfad ohne Browser/WebView dokumentiert. |

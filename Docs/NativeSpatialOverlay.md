@@ -1,7 +1,7 @@
 # Native Spatial Overlay
 
 Dokument-ID: RKWS-NATIVE-SPATIAL-OVERLAY
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -174,6 +174,24 @@ Nicht weiter polieren.
 
 Moegliche naechste Renderer sind in `Docs/VisualRealityBlueprint.md` dokumentiert.
 
+Das Owner-Referenzboard fuer die naechste visuelle Richtung liegt in:
+
+```text
+Docs/Assets/VisualReality/
+```
+
+Die Referenzen korrigieren die naechste Richtung auf:
+
+```text
+Glaslinse
++
+Gravitationsbrunnen
++
+ruhiges Portal
+```
+
+Dabei bleibt der echte Desktop der Raum. Die Referenzen liefern Material, Tiefe und Oeffnung, aber keine Weltraumkulisse.
+
 ## Sicherheit
 
 Pflicht:
@@ -210,6 +228,7 @@ MA006.09 baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.3.0 | 2026-07-04 | Owner-Referenzboard fuer naechste Visual-Reality-Richtung verlinkt und Ziel auf Glaslinse, Gravitationsbrunnen und ruhiges Portal korrigiert. |
 | 1.2.0 | 2026-07-04 | Owner-Bewertung des ersten WinForms/GDI+-Visual-Reality-Spikes als visuellen Fehlschlag und Renderer-Grenze dokumentiert. |
 | 1.1.0 | 2026-07-04 | MA006.09 Visual Reality Lab und Renderer-Einschaetzung fuer lebendige Ablage-Linsen ergaenzt. |
 | 1.0.0 | 2026-07-03 | MA006.08 Native Spatial Overlay Slice dokumentiert. |
