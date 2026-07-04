@@ -31,6 +31,7 @@ public sealed class SpatialTrayServer : IAsyncDisposable
             TrayUrl = $"http://{ip}:{_configuration.Port}/surface/{SpatialTraySession.DefaultAblageId}",
             LocalTrayUrl = $"http://localhost:{_configuration.Port}/surface/{SpatialTraySession.DefaultAblageId}",
             AblageUrl = $"http://localhost:{_configuration.Port}/surface/monitor",
+            MobileUrl = $"http://{ip}:{_configuration.Port}/mobile",
             State = _session.CurrentState,
             ThingName = _configuration.ThingName,
             DesktopAblageName = _configuration.DesktopAblageName,
@@ -147,6 +148,8 @@ public sealed class SpatialTrayServer : IAsyncDisposable
         });
         app.MapGet("/tray", () => Results.Redirect($"/surface/{SpatialTraySession.DefaultAblageId}"));
         app.MapGet("/ablage", () => Results.Redirect("/surface/monitor"));
+        app.MapGet("/mobile", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
+        app.MapPost("/api/mobile/gesture", () => Results.Json(MobileSpatialSurfaceModel.ActivateGesture()));
         app.MapGet("/surface/{ablageId}", () => ServeWebFile("index.html", "text/html; charset=utf-8"));
         app.MapGet("/manifest.webmanifest", () => ServeWebFile("manifest.webmanifest", "application/manifest+json; charset=utf-8"));
         app.MapGet("/tray.css", () => ServeWebFile("tray.css", "text/css; charset=utf-8"));

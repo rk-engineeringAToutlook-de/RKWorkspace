@@ -8,12 +8,19 @@ const placeButton = document.querySelector("#place");
 const cancelButton = document.querySelector("#cancel");
 const compass = document.querySelector("#compass");
 const possibilities = document.querySelector("#possibilities");
+const mobileGesture = document.querySelector("#mobile-gesture");
 
-const surfaceId = window.location.pathname.split("/").filter(Boolean).pop() || "tablet";
+const pathSurfaceId = window.location.pathname.split("/").filter(Boolean).pop() || "tablet";
+const isMobileSurface = pathSurfaceId === "mobile";
+const surfaceId = isMobileSurface ? "tablet" : pathSurfaceId;
 let activeAblage = null;
 let activeBubbleId = null;
 let canPickHere = false;
 let isPicked = false;
+let mobileSpatialMode = false;
+let mobileSpatialPayload = null;
+let mobileGestureTimer = 0;
+let mobileGesturePointerId = null;
 let carryAnnounced = false;
 let hasLifted = false;
 let startPoint = { x: 0, y: 0 };
@@ -228,6 +235,92 @@ function renderBubbles(bubbles, shouldShow) {
     }
 }
 
+function renderMobileSpatialLenses(payload) {
+    if (!payload?.lensesVisible) {
+        return;
+    }
+
+    compass.innerHTML = "";
+    for (const lensData of payload.lenses) {
+        const node = document.createElement("div");
+        node.className = `ablage-bubble is-mobile-spatial ${distanceClass(lensData.distance)}`;
+        node.dataset.id = lensData.ablageId;
+        node.style.left = `${Math.round(lensData.x * 100)}%`;
+        node.style.top = `${Math.round(lensData.y * 100)}%`;
+        node.style.setProperty("--bubble-scale", lensData.scale);
+        node.style.setProperty("--bubble-opacity", lensData.opacity);
+        node.classList.toggle("is-active", lensData.opens);
+        node.classList.toggle("is-opening", lensData.opens);
+        node.classList.toggle("is-portal", lensData.isPortal);
+        node.classList.toggle("is-emerging", lensData.state === "PortalOpen");
+
+        const lens = document.createElement("span");
+        lens.className = "bubble-lens";
+        const dot = document.createElement("span");
+        dot.className = "bubble-dot";
+        const label = document.createElement("span");
+        label.className = "bubble-label";
+        label.textContent = lensData.nameVisible ? lensData.shortName || lensData.displayName : "";
+        const opening = document.createElement("span");
+        opening.className = "bubble-opening";
+        opening.textContent = lensData.openingText || "";
+        const action = document.createElement("span");
+        action.className = "bubble-action";
+        action.textContent = lensData.actionText || "";
+        node.append(lens, dot, label, opening, action);
+
+        node.addEventListener("pointerdown", async (event) => {
+            event.preventDefault();
+            activateBubble(node);
+            softHaptic([10, 28, 16]);
+            setStatus("Ablage oeffnet sich");
+            await post("/api/approach", {
+                carrierAblageId: surfaceId,
+                targetAblageId: node.dataset.id
+            });
+        });
+
+        compass.append(node);
+    }
+}
+
+async function activateMobileSpatialMode() {
+    if (!isMobileSurface || mobileSpatialMode) {
+        return;
+    }
+
+    mobileSpatialMode = true;
+    document.body.classList.add("is-mobile-spatial-active");
+    softHaptic([12, 34, 18]);
+    mobileSpatialPayload = await post("/api/mobile/gesture", { gesture: "long-touch" });
+    possibilities?.setAttribute("aria-hidden", "false");
+    renderMobileSpatialLenses(mobileSpatialPayload);
+    setStatus("Ablagen erscheinen");
+}
+
+function startMobileGesture(event) {
+    if (!isMobileSurface || isPicked || event.target.closest(".thing-card, .ablage-bubble")) {
+        return;
+    }
+
+    mobileGesturePointerId = event.pointerId;
+    mobileGesture?.classList.add("is-pressed");
+    window.clearTimeout(mobileGestureTimer);
+    mobileGestureTimer = window.setTimeout(() => {
+        activateMobileSpatialMode();
+    }, 620);
+}
+
+function cancelMobileGesture(event) {
+    if (mobileGesturePointerId !== null && event.pointerId !== mobileGesturePointerId) {
+        return;
+    }
+
+    mobileGesturePointerId = null;
+    mobileGesture?.classList.remove("is-pressed");
+    window.clearTimeout(mobileGestureTimer);
+}
+
 function applySurfaceThingPosition(surfaceThing) {
     if (surfaceThing.position) {
         thing.style.setProperty("--place-shift-x", `${Math.round((surfaceThing.position.x - 0.5) * 150)}px`);
@@ -264,6 +357,10 @@ function renderState(state) {
     possibilities?.setAttribute("aria-hidden", bubblesActive || isPicked ? "false" : "true");
     updateThingClasses(state.surfaceThing);
     renderBubbles(state.bubbles, bubblesActive || isPicked);
+    if (mobileSpatialMode && !bubblesActive && !isPicked) {
+        renderMobileSpatialLenses(mobileSpatialPayload);
+    }
+
     setStatus(state.status);
 }
 
@@ -434,4 +531,12 @@ async function refresh() {
 }
 
 refresh();
+if (isMobileSurface) {
+    document.body.classList.add("is-mobile-spatial-surface");
+    document.querySelector(".surface-shell")?.addEventListener("pointerdown", startMobileGesture);
+    document.querySelector(".surface-shell")?.addEventListener("pointerup", cancelMobileGesture);
+    document.querySelector(".surface-shell")?.addEventListener("pointercancel", cancelMobileGesture);
+    document.querySelector(".surface-shell")?.addEventListener("pointerleave", cancelMobileGesture);
+}
+
 setInterval(refresh, 250);

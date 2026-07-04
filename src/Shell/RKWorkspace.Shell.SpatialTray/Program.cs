@@ -12,6 +12,11 @@ if (options.SmokeTest)
     return await SpatialTraySmokeTest.RunAsync(options.Port);
 }
 
+if (options.MobileSmokeTest)
+{
+    return await MobileSpatialSurfaceSmokeTest.RunAsync(options.Port);
+}
+
 var configuration = new SpatialTrayConfiguration
 {
     Port = options.Port ?? SpatialTrayConfiguration.DefaultPort
@@ -37,6 +42,8 @@ try
     Console.WriteLine(diagnostics.TrayUrl);
     Console.WriteLine("Ablage Monitor oeffnen:");
     Console.WriteLine(diagnostics.AblageUrl);
+    Console.WriteLine("Mobile Spatial Surface oeffnen:");
+    Console.WriteLine(diagnostics.MobileUrl);
     Console.WriteLine("Fuer den Gefuehlstest auf Handy oder Tablet: zum Startbildschirm hinzufuegen oder im Vollbildmodus oeffnen.");
     Console.WriteLine("Falls das Handy/Tablet die Adresse nicht erreicht, im selben WLAN die lokale Rechner-IP verwenden.");
     Console.WriteLine("Ctrl+C beendet die lokale Raum-Session.");
@@ -63,6 +70,7 @@ static void PrintHelp()
     Console.WriteLine();
     Console.WriteLine("Options:");
     Console.WriteLine("  --smoke-test   Run the local smoke test and stop.");
+    Console.WriteLine("  --mobile-smoke-test  Run the mobile spatial surface smoke test and stop.");
     Console.WriteLine("  --port <port>  Use a specific local port.");
     Console.WriteLine("  --help         Show help.");
 }
@@ -70,6 +78,8 @@ static void PrintHelp()
 internal sealed record SpatialTrayCliOptions
 {
     public bool SmokeTest { get; init; }
+
+    public bool MobileSmokeTest { get; init; }
 
     public int? Port { get; init; }
 
@@ -84,6 +94,12 @@ internal sealed record SpatialTrayCliOptions
             if (Is(arg, "--smoke-test"))
             {
                 options = options with { SmokeTest = true };
+                continue;
+            }
+
+            if (Is(arg, "--mobile-smoke-test"))
+            {
+                options = options with { MobileSmokeTest = true };
                 continue;
             }
 

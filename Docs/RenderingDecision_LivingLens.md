@@ -1,7 +1,7 @@
 # Rendering Decision Living Lens
 
 Dokument-ID: RKWS-RENDERING-DECISION-LIVING-LENS
-Version: 1.8.0
+Version: 1.9.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -45,6 +45,9 @@ Der aktuelle Spike darf beweisen:
 - Lens Absorption.
 - Target Emergence.
 - ExportFrames.
+- Extreme-FX-Presets als Laborvergleich.
+- Intensitaet und Timing als Wahrnehmungsparameter.
+- mobile Spatial Surface als PWA-Zwischenloesung fuer Tablet/iPhone.
 
 Er darf nicht als Beweis gelten fuer:
 
@@ -77,6 +80,8 @@ Das Owner-Feedback nach diesem Schritt lautet: technisch richtig, aber visuell w
 
 Das nachfolgende Owner-Feedback korrigiert die Produktgrenze: Ein Real3D-Webfenster fuehlt sich nicht wie Workspace Shell an, weil es eine eigene Buehne erzeugt. Deshalb fuehrt MA006.13 `NativeGlassOverlay.Windows` ein. Der Slice uebernimmt die richtigen Prinzipien des Real3D-Labors nur als Materialrichtung, startet aber wieder als natives transparentes Desktop-Overlay ohne Browser, WebView, synthetischen Raum oder farbige Hintergrundflaeche.
 
+MA006.12 Extreme Tunnel / Bubble FX ist bewusst ein Labor der Uebertreibung. Der GPU-/Living-Lens-Pfad bietet fuenf Presets, `EffectIntensity`, Timing-Varianten, verstecktes Debug und staerkere Absorption. Der Mobile-Spatial-Surface-Pfad nutzt noch Browser/PWA-Technik, ist aber als mobile Ablage im Raum modelliert. Fuer das finale Zielgefuehl reicht diese Technik weiterhin nicht aus: echte Mesh-/Quad-Verformung, hochwertige Glasbrechung, mobile native Haptik und stabile Live-Desktop-Refraction brauchen einen staerkeren nativen Shader-/Composition-Pfad.
+
 Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
@@ -91,6 +96,7 @@ Die Vision wird nicht reduziert, nur weil WinForms/GDI+ begrenzt ist.
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.9.0 | 2026-07-04 | MA006.12 Extreme FX Mode, Mobile Spatial Surface und Renderer-Grenzen fuer maximale Glas-/Tunnelwirkung eingeordnet. |
 | 1.8.0 | 2026-07-04 | Native Glass Overlay Foundation als korrigierten Produktpfad nach dem Real3D-Look-Labor eingeordnet. |
 | 1.7.0 | 2026-07-04 | WebGL-/Three.js Real3D Lens Renderer als separaten Look-Laborpfad fuer Videospiel-artige Materialwirkung eingeordnet. |
 | 1.6.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer mit kompiliertem LivingLensMaterial-Shader als naechsten Renderer-Schritt eingeordnet. |

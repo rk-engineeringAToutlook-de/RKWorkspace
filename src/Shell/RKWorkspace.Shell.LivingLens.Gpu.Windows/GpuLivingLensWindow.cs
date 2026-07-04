@@ -82,14 +82,77 @@ public sealed class GpuLivingLensWindow : Window
         if (e.Key is Key.D2 or Key.NumPad2)
         {
             e.Handled = true;
-            _surface.SetLensLook(GpuLivingLensLook.Wormhole);
+            _surface.SetLensLook(GpuLivingLensLook.WaterLens);
             return;
         }
 
         if (e.Key is Key.D3 or Key.NumPad3)
         {
             e.Handled = true;
-            _surface.SetLensLook(GpuLivingLensLook.Hybrid);
+            _surface.SetLensLook(GpuLivingLensLook.Wormhole);
+            return;
+        }
+
+        if (e.Key is Key.D4 or Key.NumPad4)
+        {
+            e.Handled = true;
+            _surface.SetLensLook(GpuLivingLensLook.GravityWell);
+            return;
+        }
+
+        if (e.Key is Key.D5 or Key.NumPad5)
+        {
+            e.Handled = true;
+            _surface.SetLensLook(GpuLivingLensLook.PortalAbsorption);
+            return;
+        }
+
+        if (e.Key == Key.A)
+        {
+            e.Handled = true;
+            _surface.PlayAbsorption();
+            return;
+        }
+
+        if (e.Key == Key.O)
+        {
+            e.Handled = true;
+            _surface.OpenActiveLens();
+            return;
+        }
+
+        if (e.Key == Key.T)
+        {
+            e.Handled = true;
+            _surface.CycleTiming();
+            return;
+        }
+
+        if (e.Key is Key.Add or Key.OemPlus)
+        {
+            e.Handled = true;
+            _surface.IncreaseIntensity();
+            return;
+        }
+
+        if (e.Key is Key.Subtract or Key.OemMinus)
+        {
+            e.Handled = true;
+            _surface.DecreaseIntensity();
+            return;
+        }
+
+        if (e.Key == Key.D)
+        {
+            e.Handled = true;
+            _surface.ToggleDebug();
+            return;
+        }
+
+        if (e.Key == Key.R)
+        {
+            e.Handled = true;
+            _surface.ResetExperiment();
         }
     }
 }

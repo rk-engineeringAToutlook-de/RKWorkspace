@@ -168,6 +168,45 @@ public sealed class LivingLensOverlayWindow : Form
             return;
         }
 
+        if (e.KeyCode is Keys.Add or Keys.Oemplus)
+        {
+            e.Handled = true;
+            Session.IncreaseIntensity();
+            RequestRender();
+            return;
+        }
+
+        if (e.KeyCode is Keys.Subtract or Keys.OemMinus)
+        {
+            e.Handled = true;
+            Session.DecreaseIntensity();
+            RequestRender();
+            return;
+        }
+
+        if (e.KeyCode == Keys.D)
+        {
+            e.Handled = true;
+            Session.ToggleDebug();
+            RequestRender();
+            return;
+        }
+
+        if (e.KeyCode == Keys.R)
+        {
+            e.Handled = true;
+            Session.ResetVisualExperiment();
+            _thingCenter = new PointF(_screenBounds.Width * 0.36f, _screenBounds.Height * 0.50f);
+            _targetCenter = _thingCenter;
+            _lastTargetCenter = _thingCenter;
+            _velocity = PointF.Empty;
+            _isHolding = false;
+            Capture = false;
+            Cursor = Cursors.Default;
+            RequestRender();
+            return;
+        }
+
         base.OnKeyDown(e);
     }
 
@@ -343,6 +382,10 @@ public sealed class LivingLensOverlayWindow : Form
         return new LivingLensRenderState
         {
             Variant = Session.ActiveVariant.Kind,
+            ExtremeFxMode = Session.ExtremeFxMode,
+            EffectIntensity = Session.EffectIntensity,
+            DebugVisible = Session.DebugVisible,
+            AbsorptionDurationMs = Session.AbsorptionDurationMs,
             Phase = _phase,
             EmergenceProgress = Session.LensEmergenceProgress,
             OpenProgress = Session.LensOpenProgress,

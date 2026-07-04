@@ -64,10 +64,20 @@ public static class GpuLivingLensApplication
                 session.StableTunnelTargetLockPrepared &&
                 session.ThroatPointCollapsePrepared &&
                 session.ThreePremiumLensLooksPrepared &&
+                session.FiveExtremeFxPresetsPrepared &&
                 session.GlassBubbleLookPrepared &&
+                session.WaterLensLookPrepared &&
                 session.WormholeLookPrepared &&
+                session.GravityWellLookPrepared &&
+                session.PortalAbsorptionLookPrepared &&
                 session.HybridLookPrepared &&
                 session.LiveLookSwitchPrepared &&
+                session.ExtremeFxMode &&
+                session.IntensitySwitchingPrepared &&
+                session.TimingVariantsPrepared &&
+                session.Timing2400Prepared &&
+                session.DebugDefaultHiddenPrepared &&
+                !session.DebugVisible &&
                 session.CompactCarryCardPrepared &&
                 session.CleanDesktopPlatePrepared &&
                 session.SelfSamplingEchoSuppressionPrepared &&
@@ -146,10 +156,21 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"StableTunnelTargetLock: {(session.StableTunnelTargetLockPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ThroatPointCollapse: {(session.ThroatPointCollapsePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ThreePremiumLensLooks: {(session.ThreePremiumLensLooksPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"FiveExtremeFxPresets: {(session.FiveExtremeFxPresetsPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"GlassBubbleLook: {(session.GlassBubbleLookPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"WaterLensLook: {(session.WaterLensLookPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"WormholeLook: {(session.WormholeLookPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"GravityWellLook: {(session.GravityWellLookPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"PortalAbsorptionLook: {(session.PortalAbsorptionLookPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"HybridLook: {(session.HybridLookPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LiveLookSwitch: {(session.LiveLookSwitchPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ExtremeFxMode: {(session.ExtremeFxMode ? "OK" : "FAILED")}");
+            Console.WriteLine($"EffectIntensity: {session.EffectIntensity}");
+            Console.WriteLine($"IntensitySwitching: {(session.IntensitySwitchingPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"AbsorptionTimingMs: {session.AbsorptionDurationMilliseconds}");
+            Console.WriteLine($"TimingVariants: {(session.TimingVariantsPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"Timing2400: {(session.Timing2400Prepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"DebugDefaultHidden: {(session.DebugDefaultHiddenPrepared && !session.DebugVisible ? "OK" : "FAILED")}");
             Console.WriteLine($"CompactCarryCard: {(session.CompactCarryCardPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CleanDesktopPlate: {(session.CleanDesktopPlatePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"SelfSamplingEchoSuppression: {(session.SelfSamplingEchoSuppressionPrepared ? "OK" : "FAILED")}");

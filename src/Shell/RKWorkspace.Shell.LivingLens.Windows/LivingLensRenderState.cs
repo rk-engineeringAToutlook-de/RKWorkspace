@@ -6,6 +6,14 @@ public sealed record LivingLensRenderState
 {
     public required LivingLensVariantKind Variant { get; init; }
 
+    public bool ExtremeFxMode { get; init; }
+
+    public int EffectIntensity { get; init; } = 4;
+
+    public bool DebugVisible { get; init; }
+
+    public int AbsorptionDurationMs { get; init; } = 1200;
+
     public float Phase { get; init; }
 
     public float EmergenceProgress { get; init; }

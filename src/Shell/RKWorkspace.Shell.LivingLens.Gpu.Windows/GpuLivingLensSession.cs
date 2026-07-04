@@ -54,13 +54,43 @@ public sealed class GpuLivingLensSession
 
     public bool ThreePremiumLensLooksPrepared { get; private set; } = true;
 
+    public bool FiveExtremeFxPresetsPrepared => GlassBubbleLookPrepared &&
+        WaterLensLookPrepared &&
+        WormholeLookPrepared &&
+        GravityWellLookPrepared &&
+        PortalAbsorptionLookPrepared;
+
     public bool GlassBubbleLookPrepared => _testedLooks.Contains(GpuLivingLensLook.GlassBubble);
+
+    public bool WaterLensLookPrepared => _testedLooks.Contains(GpuLivingLensLook.WaterLens);
 
     public bool WormholeLookPrepared => _testedLooks.Contains(GpuLivingLensLook.Wormhole);
 
+    public bool GravityWellLookPrepared => _testedLooks.Contains(GpuLivingLensLook.GravityWell);
+
+    public bool PortalAbsorptionLookPrepared => _testedLooks.Contains(GpuLivingLensLook.PortalAbsorption);
+
     public bool HybridLookPrepared => _testedLooks.Contains(GpuLivingLensLook.Hybrid);
 
-    public bool LiveLookSwitchPrepared => GlassBubbleLookPrepared && WormholeLookPrepared && HybridLookPrepared;
+    public bool LiveLookSwitchPrepared => FiveExtremeFxPresetsPrepared && HybridLookPrepared;
+
+    public bool ExtremeFxMode { get; } = true;
+
+    public int EffectIntensity { get; private set; } = 4;
+
+    public double EffectScale => 1.0 + ((EffectIntensity - 1) * 0.22);
+
+    public int AbsorptionDurationMilliseconds { get; private set; } = 1200;
+
+    public bool DebugVisible { get; private set; }
+
+    public bool IntensitySwitchingPrepared { get; private set; }
+
+    public bool TimingVariantsPrepared { get; private set; }
+
+    public bool Timing2400Prepared { get; private set; }
+
+    public bool DebugDefaultHiddenPrepared { get; private set; } = true;
 
     public bool CompactCarryCardPrepared { get; } = true;
 
@@ -200,6 +230,65 @@ public sealed class GpuLivingLensSession
     public void SetLensLook(GpuLivingLensLook lensLook)
     {
         _testedLooks.Add(lensLook);
+    }
+
+    public void IncreaseIntensity()
+    {
+        var previous = EffectIntensity;
+        EffectIntensity = Math.Clamp(EffectIntensity + 1, 1, 5);
+        IntensitySwitchingPrepared = IntensitySwitchingPrepared || previous != EffectIntensity;
+    }
+
+    public void DecreaseIntensity()
+    {
+        var previous = EffectIntensity;
+        EffectIntensity = Math.Clamp(EffectIntensity - 1, 1, 5);
+        IntensitySwitchingPrepared = IntensitySwitchingPrepared || previous != EffectIntensity;
+    }
+
+    public void CycleTiming()
+    {
+        AbsorptionDurationMilliseconds = AbsorptionDurationMilliseconds switch
+        {
+            600 => 1200,
+            1200 => 1800,
+            1800 => 2400,
+            _ => 600
+        };
+        TimingVariantsPrepared = true;
+        Timing2400Prepared = Timing2400Prepared || AbsorptionDurationMilliseconds == 2400;
+    }
+
+    public void ToggleDebug()
+    {
+        DebugVisible = !DebugVisible;
+    }
+
+    public void OpenLens()
+    {
+        LensEmergence = 1f;
+        LensOpen = 1f;
+        _openTarget = 1f;
+        _approachTarget = 1f;
+    }
+
+    public void ResetExperiment()
+    {
+        _openTarget = 0f;
+        _approachTarget = 0f;
+        IsHoldingThing = false;
+        TransitState = GpuLivingLensTransitState.LocalReady;
+        TransitMilliseconds = 0;
+        LensEmergence = 0f;
+        LensOpen = 0f;
+        Absorption = 0f;
+        PullOutRecovery = 1f;
+        PickProgress = 1f;
+        ApproachProgress = 0f;
+        TiltX = 0f;
+        TiltY = 0f;
+        ShadowX = 0f;
+        ShadowY = 22f;
     }
 
     public void MarkCaptureExclusion(bool enabled)
@@ -387,7 +476,7 @@ public sealed class GpuLivingLensSession
 
         if (TransitState == GpuLivingLensTransitState.InTransit && Absorption > 0f && Absorption < 1f)
         {
-            Absorption = Math.Clamp(Absorption + ((float)milliseconds / 980f), 0f, 1f);
+            Absorption = Math.Clamp(Absorption + ((float)milliseconds / Math.Max(600f, AbsorptionDurationMilliseconds)), 0f, 1f);
         }
 
         if (PullOutRecovery < 1f)
@@ -432,8 +521,16 @@ public sealed class GpuLivingLensSession
     public void RunSmokeScenario()
     {
         SetLensLook(GpuLivingLensLook.GlassBubble);
+        SetLensLook(GpuLivingLensLook.WaterLens);
         SetLensLook(GpuLivingLensLook.Wormhole);
+        SetLensLook(GpuLivingLensLook.GravityWell);
+        SetLensLook(GpuLivingLensLook.PortalAbsorption);
         SetLensLook(GpuLivingLensLook.Hybrid);
+        IncreaseIntensity();
+        DecreaseIntensity();
+        CycleTiming();
+        CycleTiming();
+        CycleTiming();
         Pick();
         Advance(1000);
         Carry(38f, -30f);

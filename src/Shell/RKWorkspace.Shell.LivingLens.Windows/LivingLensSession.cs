@@ -13,8 +13,8 @@ public sealed class LivingLensSession
             new LivingLensVariant
             {
                 Kind = LivingLensVariantKind.RealBubble,
-                Name = "Real Bubble Lens",
-                Intention = "Sehr transparente Materiallinse mit feiner Lichtkante, realer Reflexion und minimalem Leben.",
+                Name = "Extreme Glass Bubble",
+                Intention = "Maximale glaeserne Blase mit starker Transparenz, Lichtkante, Spiegelung und sichtbarer Brechung.",
                 UsesMaterialTransparency = true,
                 UsesFineLightEdge = true,
                 UsesRefraction = true,
@@ -25,8 +25,8 @@ public sealed class LivingLensSession
             new LivingLensVariant
             {
                 Kind = LivingLensVariantKind.Glass,
-                Name = "Glass Lens",
-                Intention = "Klarer Glasrand, hochwertiger Reflex, leichte Hintergrundverzeichnung und ruhige Tiefe.",
+                Name = "Extreme Water Lens",
+                Intention = "Lebendige Wasserlinse mit Membran, Wellen, Fliessbewegung und deutlich sichtbarer Hintergrundverzerrung.",
                 UsesMaterialTransparency = true,
                 UsesFineLightEdge = true,
                 UsesRefraction = true,
@@ -37,8 +37,8 @@ public sealed class LivingLensSession
             new LivingLensVariant
             {
                 Kind = LivingLensVariantKind.WaterSurface,
-                Name = "Water Surface Lens",
-                Intention = "Weiche transparente Oberflaeche mit ruhiger Welle und nicht nervoeser Bewegung.",
+                Name = "Extreme Wormhole Tunnel",
+                Intention = "Tiefe Tunneloeffnung mit Ringen, Lichtlinien, dunklem Schlund und starkem Sog nach innen.",
                 UsesMaterialTransparency = true,
                 UsesFineLightEdge = true,
                 UsesRefraction = true,
@@ -49,8 +49,8 @@ public sealed class LivingLensSession
             new LivingLensVariant
             {
                 Kind = LivingLensVariantKind.Wormhole,
-                Name = "Wormhole Lens",
-                Intention = "Raeumliche Oeffnung mit trichterartiger Tiefe und sichtbarer Aufnahme des Dings.",
+                Name = "Extreme Gravity Well",
+                Intention = "Raumkruemmung mit stark gebogenem Hintergrund, Gravitationssog und hochwertiger Lichtkante.",
                 UsesMaterialTransparency = true,
                 UsesFineLightEdge = true,
                 UsesRefraction = true,
@@ -61,8 +61,8 @@ public sealed class LivingLensSession
             new LivingLensVariant
             {
                 Kind = LivingLensVariantKind.Gravity,
-                Name = "Gravity Lens",
-                Intention = "Fast unsichtbare Raumkruemmung, bei der Lichtkante und Hintergrundverzerrung wichtiger sind als Form.",
+                Name = "Extreme Portal Absorption",
+                Intention = "Maximaler Uebergang: Ding wird gezogen, gestaucht, kleiner, bleibt lesbar und erscheint als Ghost wieder.",
                 UsesMaterialTransparency = true,
                 UsesFineLightEdge = true,
                 UsesRefraction = true,
@@ -86,6 +86,12 @@ public sealed class LivingLensSession
     public IReadOnlyList<LivingLensTarget> Lenses { get; }
 
     public IReadOnlyList<string> Events => _events;
+
+    public bool ExtremeFxMode { get; } = true;
+
+    public int EffectIntensity { get; private set; } = 4;
+
+    public bool DebugVisible { get; private set; }
 
     public LivingLensVariant ActiveVariant => Variants[ActiveVariantIndex];
 
@@ -167,8 +173,20 @@ public sealed class LivingLensSession
 
     public bool UsesSoftPortalWithoutWhiteFrame => true;
 
-    public bool TimingVariantsExist => Enum.GetValues<LivingLensTimingMode>().Length == 3 &&
-        Enum.GetValues<LivingLensTimingMode>().Select(mode => (int)mode).Order().SequenceEqual([600, 1200, 1800]);
+    public bool TimingVariantsExist => Enum.GetValues<LivingLensTimingMode>().Length == 4 &&
+        Enum.GetValues<LivingLensTimingMode>().Select(mode => (int)mode).Order().SequenceEqual([600, 1200, 1800, 2400]);
+
+    public bool DebugHiddenByDefault { get; private set; } = true;
+
+    public bool IntensityVariantsExist { get; } = true;
+
+    public bool SmokeExtremeFxObserved { get; private set; }
+
+    public bool SmokeIntensitySwitchObserved { get; private set; }
+
+    public bool SmokeTiming2400Observed { get; private set; }
+
+    public bool SmokeDebugDefaultHiddenObserved { get; private set; }
 
     public bool SmokeAbsorptionScaleObserved { get; private set; }
 
@@ -224,6 +242,13 @@ public sealed class LivingLensSession
         TargetEmergenceProgress = 0;
         _thingRecoveryProgress = 1f;
         SupportsPullOutFromLens = false;
+        EffectIntensity = 4;
+        DebugVisible = false;
+        DebugHiddenByDefault = true;
+        SmokeExtremeFxObserved = ExtremeFxMode;
+        SmokeIntensitySwitchObserved = false;
+        SmokeTiming2400Observed = false;
+        SmokeDebugDefaultHiddenObserved = !DebugVisible;
         SmokeAbsorptionScaleObserved = false;
         SmokeAbsorptionDistortionObserved = false;
         SmokeNotInstantGoneObserved = false;
@@ -407,9 +432,37 @@ public sealed class LivingLensSession
         {
             LivingLensTimingMode.Fast600 => LivingLensTimingMode.Natural1200,
             LivingLensTimingMode.Natural1200 => LivingLensTimingMode.Slow1800,
+            LivingLensTimingMode.Slow1800 => LivingLensTimingMode.Deep2400,
             _ => LivingLensTimingMode.Fast600
         };
+        SmokeTiming2400Observed = SmokeTiming2400Observed || TimingMode == LivingLensTimingMode.Deep2400;
         _events.Add($"Absorption timing switched: {(int)TimingMode} ms");
+    }
+
+    public void IncreaseIntensity()
+    {
+        EffectIntensity = Math.Clamp(EffectIntensity + 1, 1, 5);
+        SmokeIntensitySwitchObserved = true;
+        _events.Add($"Effect intensity increased: {EffectIntensity}");
+    }
+
+    public void DecreaseIntensity()
+    {
+        EffectIntensity = Math.Clamp(EffectIntensity - 1, 1, 5);
+        SmokeIntensitySwitchObserved = true;
+        _events.Add($"Effect intensity decreased: {EffectIntensity}");
+    }
+
+    public void ToggleDebug()
+    {
+        DebugVisible = !DebugVisible;
+        _events.Add(DebugVisible ? "Debug visible" : "Debug hidden");
+    }
+
+    public void ResetVisualExperiment()
+    {
+        Start();
+        _events.Add("Extreme FX reset");
     }
 
     public void ApplyVectorResponse(float movementX, float movementY)
@@ -471,6 +524,7 @@ public sealed class LivingLensSession
     {
         Start();
         var hiddenBeforePick = !LensesVisible;
+        var debugHidden = DebugHiddenByDefault && !DebugVisible && SmokeDebugDefaultHiddenObserved;
         SmokeDefaultGlassObserved = StartsWithGlassLens;
         var variantsOk = Variants.Count == 5 &&
             RealBubbleLensExists &&
@@ -489,6 +543,18 @@ public sealed class LivingLensSession
             ButtonShapeRejected &&
             TechnicalWordsRejected;
         var switchOk = CheckVariantSwitching();
+        IncreaseIntensity();
+        DecreaseIntensity();
+        CycleTiming();
+        CycleTiming();
+        CycleTiming();
+        var controlsOk = ExtremeFxMode &&
+            SmokeExtremeFxObserved &&
+            SmokeIntensitySwitchObserved &&
+            SmokeTiming2400Observed &&
+            debugHidden &&
+            IntensityVariantsExist &&
+            EffectIntensity is >= 1 and <= 5;
         Pick();
         var handOk = ThingCompact && ThingPartiallyOccluded && GripShadowVisible && !ThingHasDistractingContainer;
         var emergenceBeginsSoftly = LensEmergenceProgress > 0 && LensEmergenceProgress < 1;
@@ -533,6 +599,7 @@ public sealed class LivingLensSession
 
         return hiddenBeforePick &&
             variantsOk &&
+            controlsOk &&
             rejectionOk &&
             switchOk &&
             LensesAtEdges &&

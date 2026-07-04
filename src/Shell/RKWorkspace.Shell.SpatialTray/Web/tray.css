@@ -19,6 +19,7 @@
     --shadow-y: 18px;
     --hand-opacity: 0;
     --hand-pressure: 0;
+    --bubble-opacity: 1;
 }
 
 * {
@@ -325,6 +326,11 @@ body.is-ready-to-place .thing-card.is-arriving {
     transition: opacity 180ms ease;
 }
 
+body.is-mobile-spatial-active .possibilities {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 body.is-carry-active .possibilities {
     opacity: 1;
     pointer-events: auto;
@@ -348,6 +354,7 @@ body.is-carry-active .possibilities {
     background: rgba(238, 242, 234, .5);
     color: #24312d;
     box-shadow: 0 14px 30px rgba(53, 65, 59, .12);
+    opacity: var(--bubble-opacity, 1);
     transform: scale(var(--bubble-scale, .72));
     transform-style: preserve-3d;
     pointer-events: auto;
@@ -430,11 +437,67 @@ body.is-carry-active .possibilities {
 .bubble-dot {
     position: relative;
     z-index: 1;
-    width: 18px;
+    width: 28px;
     height: 18px;
     border-radius: 999px;
-    background: #4b8879;
-    box-shadow: 0 0 0 8px rgba(75, 136, 121, .08);
+    background:
+        radial-gradient(ellipse at 50% 50%, rgba(13, 18, 18, .64), rgba(13, 18, 18, .2) 44%, transparent 72%);
+    box-shadow:
+        0 0 24px rgba(255, 255, 255, .28),
+        0 0 34px rgba(84, 100, 94, .12) inset;
+}
+
+.is-mobile-spatial {
+    background:
+        radial-gradient(ellipse at 50% 54%, rgba(12, 18, 18, .30), rgba(255, 255, 255, .08) 36%, transparent 62%),
+        radial-gradient(circle at 34% 24%, rgba(255, 255, 255, .56), transparent 30%),
+        rgba(238, 244, 240, .18);
+    border-color: rgba(255, 255, 255, .38);
+    box-shadow:
+        0 20px 46px rgba(31, 38, 36, .22),
+        0 0 0 1px rgba(255, 255, 255, .20) inset,
+        0 0 38px rgba(214, 236, 231, .22) inset;
+    backdrop-filter: blur(5px) saturate(1.2);
+}
+
+.is-mobile-spatial .bubble-lens,
+.is-mobile-spatial::before {
+    opacity: .9;
+    background:
+        radial-gradient(circle at 36% 25%, rgba(255, 255, 255, .70), transparent 22%),
+        radial-gradient(ellipse at 52% 56%, rgba(6, 11, 12, .36), rgba(218, 238, 232, .18) 42%, transparent 70%);
+}
+
+.is-mobile-spatial.is-portal {
+    animation: mobile-lens-breathe 2200ms ease-in-out infinite;
+}
+
+.mobile-spatial-gesture {
+    position: fixed;
+    left: 50%;
+    bottom: 10%;
+    z-index: 2;
+    width: min(38vw, 190px);
+    height: min(38vw, 190px);
+    border-radius: 999px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-50%) scale(.78);
+    background:
+        radial-gradient(circle at 42% 38%, rgba(255, 255, 255, .34), transparent 32%),
+        radial-gradient(circle at 50% 52%, rgba(58, 74, 70, .11), transparent 68%);
+    filter: blur(.2px);
+    transition: opacity 260ms ease, transform 520ms cubic-bezier(.2, .76, .2, 1);
+}
+
+body.is-mobile-spatial-surface .mobile-spatial-gesture.is-pressed {
+    opacity: .72;
+    transform: translateX(-50%) scale(1);
+}
+
+body.is-mobile-spatial-active .mobile-spatial-gesture {
+    opacity: .16;
+    transform: translateX(-50%) scale(1.08);
 }
 
 .bubble-label,
@@ -534,5 +597,16 @@ body.is-carry-active .possibilities {
             rotateX(0deg)
             rotateY(0deg)
             scale(var(--surface-scale));
+    }
+}
+
+@keyframes mobile-lens-breathe {
+    0%,
+    100% {
+        filter: saturate(1.04) brightness(1);
+    }
+
+    50% {
+        filter: saturate(1.18) brightness(1.08);
     }
 }

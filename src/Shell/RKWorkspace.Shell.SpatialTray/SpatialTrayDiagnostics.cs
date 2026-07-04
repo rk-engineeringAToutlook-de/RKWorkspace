@@ -10,6 +10,8 @@ public sealed record SpatialTrayDiagnostics
 
     public required string AblageUrl { get; init; }
 
+    public required string MobileUrl { get; init; }
+
     public required SpatialTrayState State { get; init; }
 
     public required string ThingName { get; init; }

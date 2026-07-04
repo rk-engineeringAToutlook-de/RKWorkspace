@@ -251,6 +251,41 @@ if (-not $spatialTrayText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'Mobile Spatial Surface Smoke Test'
+Write-Host '---------------------------------'
+$mobileSpatialOutput = & (Join-Path $root 'tools\run-mobile-spatial-surface.ps1') -SmokeTest 2>&1
+$mobileSpatialExitCode = $LASTEXITCODE
+$mobileSpatialOutput | ForEach-Object { Write-Host $_ }
+if ($mobileSpatialExitCode -ne 0) {
+    throw "Mobile Spatial Surface Smoke Test failed with exit code $mobileSpatialExitCode."
+}
+
+$mobileSpatialText = $mobileSpatialOutput -join [Environment]::NewLine
+if (-not $mobileSpatialText.Contains('RK Workspace Mobile Spatial Surface Smoke Test')) {
+    throw "Mobile Spatial Surface Smoke Test failed because output did not contain RK Workspace Mobile Spatial Surface Smoke Test."
+}
+
+if (-not $mobileSpatialText.Contains('MobileSpatialMode: OK')) {
+    throw "Mobile Spatial Surface Smoke Test failed because output did not contain MobileSpatialMode: OK."
+}
+
+if (-not $mobileSpatialText.Contains('LensesAfterGesture: OK')) {
+    throw "Mobile Spatial Surface Smoke Test failed because output did not contain LensesAfterGesture: OK."
+}
+
+if (-not $mobileSpatialText.Contains('DistanceScaling: OK')) {
+    throw "Mobile Spatial Surface Smoke Test failed because output did not contain DistanceScaling: OK."
+}
+
+if (-not $mobileSpatialText.Contains('MobileSpatialSurfaceSmoke: SUCCESS')) {
+    throw "Mobile Spatial Surface Smoke Test failed because output did not contain MobileSpatialSurfaceSmoke: SUCCESS."
+}
+
+if (-not $mobileSpatialText.Contains('RESULT: SUCCESS')) {
+    throw "Mobile Spatial Surface Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'Native Spatial Overlay Smoke Test'
 Write-Host '---------------------------------'
 $nativeOverlayOutput = & (Join-Path $root 'tools\run-native-overlay.ps1') -SmokeTest 2>&1
@@ -377,6 +412,26 @@ if (-not $livingLensText.Contains('PullOutFromLens: OK')) {
 
 if (-not $livingLensText.Contains('ExportFrames: OK')) {
     throw "Living Lens Smoke Test failed because output did not contain ExportFrames: OK."
+}
+
+if (-not $livingLensText.Contains('ExtremeFxMode: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain ExtremeFxMode: OK."
+}
+
+if (-not $livingLensText.Contains('ExtremePresets: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain ExtremePresets: OK."
+}
+
+if (-not $livingLensText.Contains('IntensitySwitching: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain IntensitySwitching: OK."
+}
+
+if (-not $livingLensText.Contains('Timing2400: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain Timing2400: OK."
+}
+
+if (-not $livingLensText.Contains('DebugDefaultHidden: OK')) {
+    throw "Living Lens Smoke Test failed because output did not contain DebugDefaultHidden: OK."
 }
 
 if (-not $livingLensText.Contains('LivingLensSmoke: SUCCESS')) {
@@ -510,12 +565,28 @@ if (-not $gpuLivingLensText.Contains('ThreePremiumLensLooks: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain ThreePremiumLensLooks: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('FiveExtremeFxPresets: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain FiveExtremeFxPresets: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('GlassBubbleLook: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain GlassBubbleLook: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('WaterLensLook: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain WaterLensLook: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('WormholeLook: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain WormholeLook: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('GravityWellLook: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GravityWellLook: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('PortalAbsorptionLook: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain PortalAbsorptionLook: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('HybridLook: OK')) {
@@ -524,6 +595,22 @@ if (-not $gpuLivingLensText.Contains('HybridLook: OK')) {
 
 if (-not $gpuLivingLensText.Contains('LiveLookSwitch: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain LiveLookSwitch: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('ExtremeFxMode: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ExtremeFxMode: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('IntensitySwitching: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain IntensitySwitching: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('Timing2400: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain Timing2400: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('DebugDefaultHidden: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain DebugDefaultHidden: OK."
 }
 
 if (-not $gpuLivingLensText.Contains('CompactCarryCard: OK')) {

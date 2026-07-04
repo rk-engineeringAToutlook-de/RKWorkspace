@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.26.0
+Version: 1.27.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -907,6 +907,35 @@ Noch nicht geloest:
 - mobile Zielablage mit echtem Auftauchen auf Tablet; der aktuelle Handover ist nur eine lokale Wahrnehmungssimulation.
 - echte Payload.
 
+## MA006.12 Extreme Tunnel / Bubble FX
+
+MA006.12 ergaenzt den Wahrnehmungspfad um einen Extremmodus.
+
+Ziel ist nicht finale Schoenheit, sondern maximale Wirkung:
+
+- fuenf Extreme-FX-Presets.
+- staerkere Glas- und Wasserbrechung.
+- staerkerer Wurmloch-/Tunnel-Sog.
+- Portal-Absorption mit sichtbarer Ding-Verzerrung.
+- EffectIntensity 1 bis 5.
+- Timings 600, 1200, 1800 und 2400 ms.
+- Debug im Owner-Test standardmaessig verborgen.
+- Visual Targets unter `Docs/VisualTargets/MA00612/`.
+- Mobile Spatial Surface fuer Tablet/iPhone mit langer Touch-Geste, Distanzlinsen und optionaler Haptik.
+
+Die wichtige Grenze bleibt:
+
+```text
+Der Spike darf uebertreiben.
+Das Produkt muss spaeter wieder natuerlich werden.
+```
+
+Renderer-Einschaetzung:
+
+- WinForms/GDI+ reicht fuer Export und schnelle Frames.
+- WPF/GPU-Lens reicht fuer erste Live-Desktop-Refraction und PixelShader-Zwischenstufe.
+- Fuer finale Videospiel-artige Glasqualitaet braucht RK Workspace weiterhin Direct2D/Win2D oder einen vergleichbaren nativen Shaderpfad.
+
 ## Nicht-Ziele
 
 MA006.09 baut noch nicht:
@@ -925,6 +954,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.27.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX, fuenf Presets, EffectIntensity, Timing und Mobile Spatial Surface aufgenommen. |
 | 1.26.0 | 2026-07-04 | Native Glass Overlay Foundation als Premiumblock 7 und korrigierten Produktpfad nach dem Real3D-Look-Labor aufgenommen. |
 | 1.25.0 | 2026-07-04 | Real3D Lens Renderer als Premiumblock 6 fuer Videospiel-artige 3D-Materialwirkung aufgenommen. |
 | 1.24.0 | 2026-07-04 | Aktiven HLSL/WPF-PixelShader als Premiumblock 5 fuer echte Material-Refraction aufgenommen. |

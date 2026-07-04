@@ -46,7 +46,12 @@ public static class LivingLensApplication
             Console.WriteLine($"NoUiCircle: {(session.UiCircleRejected ? "OK" : "FAILED")}");
             Console.WriteLine($"NoButtonShape: {(session.ButtonShapeRejected ? "OK" : "FAILED")}");
             Console.WriteLine($"NoTechnicalWords: {(session.TechnicalWordsRejected ? "OK" : "FAILED")}");
+            Console.WriteLine($"ExtremeFxMode: {(session.ExtremeFxMode && session.SmokeExtremeFxObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"LensVariants: {session.Variants.Count}");
+            Console.WriteLine($"ExtremePresets: {(session.Variants.Count == 5 ? "OK" : "FAILED")}");
+            Console.WriteLine($"EffectIntensity: {session.EffectIntensity}");
+            Console.WriteLine($"IntensitySwitching: {(session.SmokeIntensitySwitchObserved ? "OK" : "FAILED")}");
+            Console.WriteLine($"DebugDefaultHidden: {(session.SmokeDebugDefaultHiddenObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"DefaultGlassLens: {(session.SmokeDefaultGlassObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"RealBubbleLens: {(session.RealBubbleLensExists ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeAnchored: {(session.LensesAtEdges ? "OK" : "FAILED")}");
@@ -70,6 +75,7 @@ public static class LivingLensApplication
             Console.WriteLine($"GhostEmergence: {(session.SmokeGhostEmergenceObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"PullOutFromLens: {(session.SmokePullOutObserved ? "OK" : "FAILED")}");
             Console.WriteLine($"TimingVariants: {(session.TimingVariantsExist ? "OK" : "FAILED")}");
+            Console.WriteLine($"Timing2400: {(session.SmokeTiming2400Observed ? "OK" : "FAILED")}");
             Console.WriteLine($"ExportFrames: {(window.SmokeExportOk ? "OK" : "FAILED")}");
             Console.WriteLine($"EscExit: {(window.EscExitReady ? "OK" : "FAILED")}");
             Console.WriteLine(success ? "LivingLensSmoke: SUCCESS" : "LivingLensSmoke: FAILED");

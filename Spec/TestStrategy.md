@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.35.0
+Version: 2.36.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -857,6 +857,36 @@ Der Test prueft noch nicht:
 - echte Payload.
 - echte Tablet- oder iPhone-Gegenseite.
 
+## MA006.12 Extreme Tunnel / Bubble FX Tests
+
+MA006.12 erweitert die bestehenden Living-Lens- und GPU-Living-Lens-Tests.
+
+Geprueft wird:
+
+- Extreme FX Mode.
+- fuenf Presets.
+- Live-Look-Switching.
+- EffectIntensity.
+- Timing-Varianten inklusive 2400 ms.
+- Debug standardmaessig aus.
+- Absorption startet kontrolliert.
+- Ding wird skaliert und verzerrt.
+- Target Ghost erscheint.
+- Visual Target Export nach `Docs/VisualTargets/MA00612/`.
+- Mobile Spatial Surface startet.
+- Mobile Spatial Mode wird durch simulierte Geste aktiv.
+- Linsen erscheinen erst nach Geste.
+- Distanzskalierung und Name Reveal funktionieren.
+- Haptik wird angefordert oder sauber optisch ersetzt.
+
+Smoke-Test:
+
+```powershell
+.\tools\run-mobile-spatial-surface.ps1 -SmokeTest
+.\tools\run-living-lens.ps1 -SmokeTest
+.\tools\run-gpu-lens.ps1 -SmokeTest
+```
+
 ## Querverweise
 
 - `Docs/07_TestPlan.md`
@@ -868,6 +898,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.36.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX und Mobile Spatial Surface Smoke-Test dokumentiert. |
 | 2.35.0 | 2026-07-04 | Native Glass Overlay Smoke-Test fuer nativen Produktpfad ohne Browser, WebView oder synthetische Buehne ergaenzt. |
 | 2.34.0 | 2026-07-04 | Real3D Lens Smoke-Test fuer WebGLRenderer, PhysicalGlass, EnvironmentLighting, Real3DTunnel und DesktopLiveTexture ergaenzt. |
 | 2.33.0 | 2026-07-04 | GPU Living Lens Smoke-Test um CompiledPixelShader, NativeShaderLayer und ShaderMaterialRefraction erweitert. |

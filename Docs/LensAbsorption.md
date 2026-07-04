@@ -1,7 +1,7 @@
 # Lens Absorption
 
 Dokument-ID: RKWS-LENS-ABSORPTION
-Version: 1.2.0
+Version: 1.3.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -63,13 +63,18 @@ MA006.10R prueft:
 - 600 ms.
 - 1200 ms.
 - 1800 ms.
+- 2400 ms.
 
 Taste:
 
 ```text
 T = Timing wechseln
 A = Absorption erneut abspielen
++ = Intensitaet erhoehen
+- = Intensitaet verringern
 ```
+
+MA006.12 ergaenzt `EffectIntensity` von 1 bis 5. Fuer den Spike ist starke Wirkung ausdruecklich erlaubt, damit die Grenze von Glas, Tunnel, Sog und Portal sichtbar wird.
 
 ## Verboten
 
@@ -100,3 +105,14 @@ Der Smoke-Test prueft:
 - Absorption startet nicht automatisch durch Naehe.
 - Die Linse beruhigt sich wieder, wenn der Benutzer weggeht.
 - Pull-out aus der Linse ist vorbereitet.
+- Extreme FX Mode ist aktiv.
+- fuenf Presets existieren.
+- 2400-ms-Timing existiert.
+- Debug ist standardmaessig aus.
+
+## Aenderungsverlauf
+
+| Version | Datum | Aenderung |
+| --- | --- | --- |
+| 1.3.0 | 2026-07-04 | MA006.12 Extreme FX Mode mit fuenf Presets, EffectIntensity und 2400-ms-Timing ergaenzt. |
+| 1.2.0 | 2026-07-04 | Pull-out und Relax-Regeln ergaenzt. |

@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.53.0
+Version: 2.54.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -80,6 +80,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der GPU Living Lens Premiumblock 5 aktiviert erstmals einen kompilierten HLSL/WPF-PixelShader als native Material-Layer ueber der Living Lens. Der Shader bricht die echte Desktop-Textur innerhalb der Linse und ist der erste aktive Schritt weg von rein gezeichneter Glasoptik.
 - MA006.12 fuehrt den Real3D Lens Renderer ein: ein separater WebGL-/Three.js-Look-Slice mit echter 3D-Szene, MeshPhysicalMaterial, Transmission, IOR, Thickness, Environment Lighting, Soft Shadows, Tunnelgeometrie und optionaler Desktop-Live-Textur.
 - MA006.13 korrigiert den Produktpfad: Real3D bleibt Look-Labor, waehrend `NativeGlassOverlay.Windows` als natives transparentes Desktop-Overlay ohne Browser, ohne WebView und ohne synthetische Buehne startet.
+- Der Extreme Tunnel / Bubble FX Spike fuehrt fuenf sofort testbare Presets ein: Extreme Glass Bubble, Extreme Water Lens, Extreme Wormhole Tunnel, Extreme Gravity Well und Extreme Portal Absorption. `EffectIntensity`, Timing-Varianten, verstecktes Debug, staerkere Absorption, Visual Targets und Mobile Spatial Surface fuer Tablet/iPhone sind vorbereitet.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -333,6 +334,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.54.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX mit fuenf Presets, EffectIntensity, Timing, Visual Targets und Mobile Spatial Surface dokumentiert. |
 | 2.53.0 | 2026-07-04 | Native Glass Overlay Foundation als korrigierten Produktpfad ohne WebGL-Buehne, Browser oder synthetischen Raum ergaenzt. |
 | 2.52.0 | 2026-07-04 | Real3D Lens Renderer mit WebGL, Three.js, Physical Glass, 3D-Tunnel, Soft Shadows und Desktop-Live-Textur als separaten Look-Slice ergaenzt. |
 | 2.51.0 | 2026-07-04 | GPU Living Lens um aktive HLSL/WPF-PixelShader-Layer mit kompiliertem Materialshader und ShaderMaterialRefraction erweitert. |

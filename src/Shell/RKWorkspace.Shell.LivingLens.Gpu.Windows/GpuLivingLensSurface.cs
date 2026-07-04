@@ -57,6 +57,77 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         InvalidateVisual();
     }
 
+    public void IncreaseIntensity()
+    {
+        _session.IncreaseIntensity();
+        InvalidateVisual();
+    }
+
+    public void DecreaseIntensity()
+    {
+        _session.DecreaseIntensity();
+        InvalidateVisual();
+    }
+
+    public void CycleTiming()
+    {
+        _session.CycleTiming();
+        InvalidateVisual();
+    }
+
+    public void ToggleDebug()
+    {
+        _session.ToggleDebug();
+        InvalidateVisual();
+    }
+
+    public void OpenActiveLens()
+    {
+        _activeLensCenter = NearestLensCenter(_thingCenter);
+        _session.OpenLens();
+        InvalidateVisual();
+    }
+
+    public void PlayAbsorption()
+    {
+        _activeLensCenter = NearestLensCenter(_thingCenter);
+        _targetCenter = _thingCenter;
+        _lastTargetCenter = _thingCenter;
+        _isHolding = false;
+        if (IsMouseCaptured)
+        {
+            ReleaseMouseCapture();
+        }
+
+        Cursor = WCursors.Arrow;
+        _session.Pick();
+        _session.OpenLens();
+        _session.ApproachLens(1f);
+        _session.PlaceIntoLens();
+        _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
+        InvalidateVisual();
+    }
+
+    public void ResetExperiment()
+    {
+        _thingCenter = new WPoint(_screenBounds.Width * 0.50, _screenBounds.Height * 0.50);
+        _targetCenter = _thingCenter;
+        _lastTargetCenter = _thingCenter;
+        _activeLensCenter = new WPoint(_screenBounds.Width - 88, _screenBounds.Height * 0.50);
+        _velocity = default;
+        _grabOffset = default;
+        _isHolding = false;
+        if (IsMouseCaptured)
+        {
+            ReleaseMouseCapture();
+        }
+
+        Cursor = WCursors.Arrow;
+        _session.ResetExperiment();
+        _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Empty, "HX-000");
+        InvalidateVisual();
+    }
+
     public void ActivatePickAt(WPoint point)
     {
         _thingCenter = point;
@@ -192,8 +263,13 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private void DrawLookControls(DrawingContext drawingContext)
     {
+        if (!_session.DebugVisible)
+        {
+            return;
+        }
+
         var text = new FormattedText(
-            $"Look: {LensLookLabel(_lensLook)}   1 Glas   2 Wurmloch   3 Hybrid   Esc beendet",
+            $"Look: {LensLookLabel(_lensLook)}   FX {_session.EffectIntensity}   {_session.AbsorptionDurationMilliseconds}ms   1 Glas   2 Wasser   3 Tunnel   4 Schwerkraft   5 Portal   A/O/T +/- R Esc",
             CultureInfo.CurrentCulture,
             System.Windows.FlowDirection.LeftToRight,
             new Typeface("Segoe UI"),
@@ -254,11 +330,14 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         var emergence = EaseOut(_session.LensEmergence);
-        var intensity = Math.Clamp((emergence * 0.48) + (activation * 0.36) + (open * 0.22), 0.0, 1.0);
+        var intensity = Math.Clamp(((emergence * 0.48) + (activation * 0.36) + (open * 0.22)) * _session.EffectScale, 0.0, 1.0);
         var lookMode = _lensLook switch
         {
             GpuLivingLensLook.GlassBubble => 0.0,
+            GpuLivingLensLook.WaterLens => 0.35,
             GpuLivingLensLook.Wormhole => 1.0,
+            GpuLivingLensLook.GravityWell => 1.55,
+            GpuLivingLensLook.PortalAbsorption => 2.0,
             _ => 2.0
         };
 
@@ -766,11 +845,11 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var carryScale = 1.0 + ((targetCarryScale - 1.0) * gripProgress);
         var scale = carryScale * Math.Clamp(1.0 - (progress * 0.62), 0.34, 1.0);
         var width = 178 * scale;
-        var height = 94 * scale * (1.0 - (progress * 0.14));
+        var height = 94 * scale * (1.0 - (progress * (0.12 + (_session.EffectIntensity * 0.012))));
         var bounds = new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
         var opacity = progress < 0.78 ? 1.0 : Math.Clamp(1.0 - ((progress - 0.78) / 0.22), 0.12, 1.0);
         var portalPull = GetPortalPullAmount(bounds, lifted);
-        var portalSqueeze = Math.Max(portalPull, SmoothStep(progress) * 0.84);
+        var portalSqueeze = Math.Clamp(Math.Max(portalPull, SmoothStep(progress) * 0.84) * _session.EffectScale, 0.0, 1.0);
         var throatPointCollapse = SmoothStep(1.0 - ((throatTarget - center).Length / (Math.Max(width, height) * 0.74))) * portalSqueeze;
 
         if (lifted)
@@ -982,8 +1061,9 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var emergence = EaseOut(_session.LensEmergence) * (0.54 + (activation * 0.46));
         var open = EaseOut(_session.LensOpen) * activation;
         var distanceScale = 0.82 + (activation * 0.20);
-        var width = 210 * profile.LensScale * distanceScale * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
-        var height = 150 * profile.LensScale * distanceScale * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
+        var intensityScale = 0.92 + (_session.EffectScale * 0.08);
+        var width = 210 * profile.LensScale * intensityScale * distanceScale * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
+        var height = 150 * profile.LensScale * intensityScale * distanceScale * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
         return new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
     }
 
@@ -1210,7 +1290,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         return look switch
         {
             GpuLivingLensLook.GlassBubble => "Glasblase",
+            GpuLivingLensLook.WaterLens => "Wasserlinse",
             GpuLivingLensLook.Wormhole => "Wurmloch",
+            GpuLivingLensLook.GravityWell => "Schwerkraft",
+            GpuLivingLensLook.PortalAbsorption => "Portal",
             _ => "Hybrid"
         };
     }
@@ -1317,6 +1400,9 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         {
             return look switch
             {
+                GpuLivingLensLook.WaterLens => For(GpuLivingLensLook.GlassBubble),
+                GpuLivingLensLook.GravityWell => For(GpuLivingLensLook.Wormhole),
+                GpuLivingLensLook.PortalAbsorption => For(GpuLivingLensLook.Hybrid),
                 GpuLivingLensLook.GlassBubble => new LensVisualProfile
                 {
                     LensScale = 0.96,

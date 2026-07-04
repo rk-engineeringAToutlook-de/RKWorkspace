@@ -67,9 +67,12 @@ public static class LivingLensRenderer
         var emergence = EaseOut(state.EmergenceProgress);
         var open = EaseOut(state.OpenProgress);
         var absorption = EaseOut(state.AbsorptionProgress);
-        var pulse = MathF.Sin(state.Phase * 0.72f) * 0.018f;
-        var width = 176f * (0.42f + (0.58f * emergence)) * (1f + pulse + (open * 0.08f));
-        var height = 126f * (0.42f + (0.58f * emergence)) * (1f - (pulse * 0.6f) + (open * 0.04f));
+        var fx = EffectScale(state);
+        var pulse = MathF.Sin(state.Phase * (0.72f + fx * 0.04f)) * (0.018f + (fx * 0.010f));
+        var width = 176f * (0.42f + (0.58f * emergence)) * (1f + pulse + (open * (0.08f + fx * 0.05f)));
+        var height = 126f * (0.42f + (0.58f * emergence)) * (1f - (pulse * 0.6f) + (open * (0.04f + fx * 0.025f)));
+        width *= 1f + (fx * 0.10f);
+        height *= 1f + (fx * 0.07f);
         if (state.Variant == LivingLensVariantKind.Gravity)
         {
             width *= 1.18f;
@@ -90,16 +93,16 @@ public static class LivingLensRenderer
                 DrawRealBubbleLens(graphics, lensBounds, state, emergence, open, absorption);
                 break;
             case LivingLensVariantKind.Glass:
-                DrawGlassLens(graphics, lensBounds, state, emergence, open, absorption);
-                break;
-            case LivingLensVariantKind.WaterSurface:
                 DrawWaterSurfaceLens(graphics, lensBounds, state, emergence, open, absorption);
                 break;
-            case LivingLensVariantKind.Wormhole:
+            case LivingLensVariantKind.WaterSurface:
                 DrawWormholeLens(graphics, lensBounds, state, emergence, open, absorption);
                 break;
-            case LivingLensVariantKind.Gravity:
+            case LivingLensVariantKind.Wormhole:
                 DrawGravityLens(graphics, lensBounds, state, emergence, open, absorption);
+                break;
+            case LivingLensVariantKind.Gravity:
+                DrawPortalAbsorptionLens(graphics, lensBounds, state, emergence, open, absorption);
                 break;
         }
 
@@ -108,7 +111,9 @@ public static class LivingLensRenderer
             DrawSoftReceivingDepth(graphics, lensBounds, open, state.TargetEmergenceProgress);
         }
 
+        DrawExtremeLightRays(graphics, lensBounds, state, emergence, open, absorption);
         DrawLensText(graphics, lensBounds, state);
+        DrawDebug(graphics, state, lensBounds);
     }
 
     private static void DrawLensAmbient(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open)
@@ -137,15 +142,16 @@ public static class LivingLensRenderer
 
     private static void DrawRealBubbleLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
     {
+        var fx = EffectScale(state);
         using var path = CreateOrganicOval(bounds, state.Phase, 0.026f);
         using var material = new PathGradientBrush(path)
         {
-            CenterColor = Color.FromArgb(Alpha(24 + (open * 18), emergence), 250, 252, 250),
-            SurroundColors = [Color.FromArgb(Alpha(72 + (open * 28), emergence), 132, 142, 142)],
+            CenterColor = Color.FromArgb(Alpha(24 + (open * (22 + fx * 10)), emergence), 250, 252, 250),
+            SurroundColors = [Color.FromArgb(Alpha(72 + (open * (34 + fx * 18)), emergence), 132, 142, 142)],
             FocusScales = new PointF(0.44f, 0.32f)
         };
         graphics.FillPath(material, path);
-        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.62f);
+        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.62f + (fx * 0.46f));
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(250, 255, 255));
         DrawBubbleHighlights(graphics, bounds, emergence, open);
         DrawLensBrilliance(graphics, bounds, emergence, open, state.Phase);
@@ -154,6 +160,7 @@ public static class LivingLensRenderer
 
     private static void DrawGlassLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
     {
+        var fx = EffectScale(state);
         using var path = CreateOrganicOval(bounds, state.Phase, 0.012f);
         using var material = new PathGradientBrush(path)
         {
@@ -162,7 +169,7 @@ public static class LivingLensRenderer
             FocusScales = new PointF(0.34f, 0.24f)
         };
         graphics.FillPath(material, path);
-        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.9f);
+        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.9f + (fx * 0.42f));
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(246, 252, 255));
         DrawGlassHighlights(graphics, bounds, emergence, open);
         DrawLensBrilliance(graphics, bounds, emergence, open, state.Phase);
@@ -171,6 +178,7 @@ public static class LivingLensRenderer
 
     private static void DrawWaterSurfaceLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
     {
+        var fx = EffectScale(state);
         using var path = CreateOrganicOval(bounds, state.Phase, 0.02f);
         using var material = new LinearGradientBrush(
             Rectangle.Round(bounds),
@@ -178,7 +186,7 @@ public static class LivingLensRenderer
             Color.FromArgb(Alpha(32 + (open * 30), emergence), 244, 250, 252),
             LinearGradientMode.ForwardDiagonal);
         graphics.FillPath(material, path);
-        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 1.1f);
+        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 1.1f + (fx * 0.62f));
         DrawWaterWaves(graphics, bounds, path, state.Phase, emergence, open);
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(238, 250, 255));
         DrawSoftAperture(graphics, bounds, emergence, open, absorption, 0.38f);
@@ -186,6 +194,7 @@ public static class LivingLensRenderer
 
     private static void DrawWormholeLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
     {
+        var fx = EffectScale(state);
         using var path = CreateOrganicOval(bounds, state.Phase, 0.014f);
         using var material = new PathGradientBrush(path)
         {
@@ -194,13 +203,14 @@ public static class LivingLensRenderer
             FocusScales = new PointF(0.30f, 0.22f)
         };
         graphics.FillPath(material, path);
-        DrawDepthRings(graphics, bounds, emergence, open, absorption, 0.92f);
+        DrawDepthRings(graphics, bounds, emergence, open, absorption, 0.92f + (fx * 0.58f));
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(222, 246, 255));
         DrawSoftAperture(graphics, bounds, emergence, open, absorption, 0.76f);
     }
 
     private static void DrawGravityLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
     {
+        var fx = EffectScale(state);
         using var path = CreateOrganicOval(bounds, state.Phase, 0.008f);
         using var material = new PathGradientBrush(path)
         {
@@ -208,10 +218,76 @@ public static class LivingLensRenderer
             SurroundColors = [Color.FromArgb(Alpha(44 + (open * 28), emergence), 112, 132, 140)]
         };
         graphics.FillPath(material, path);
-        DrawDepthRings(graphics, bounds, emergence, open, absorption, 0.52f);
-        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.72f);
+        DrawDepthRings(graphics, bounds, emergence, open, absorption, 0.52f + (fx * 0.48f));
+        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 0.72f + (fx * 0.70f));
         DrawFineLightEdge(graphics, bounds, path, emergence, open, Color.FromArgb(244, 252, 255));
         DrawSoftAperture(graphics, bounds, emergence, open, absorption, 0.24f);
+    }
+
+    private static void DrawPortalAbsorptionLens(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
+    {
+        var fx = EffectScale(state);
+        using var path = CreateOrganicOval(bounds, state.Phase, 0.018f + (fx * 0.006f));
+        using var material = new PathGradientBrush(path)
+        {
+            CenterColor = Color.FromArgb(Alpha(132 + (open * 92) + (absorption * 50), emergence), 4, 7, 11),
+            SurroundColors = [Color.FromArgb(Alpha(82 + (open * 44), emergence), 186, 213, 220)],
+            FocusScales = new PointF(0.25f, 0.18f)
+        };
+        graphics.FillPath(material, path);
+        DrawRefraction(graphics, bounds, path, state.Phase, emergence, 1.28f + (fx * 0.78f));
+        DrawDepthRings(graphics, bounds, emergence, Math.Max(open, 0.55f), Math.Max(absorption, open), 1.25f + (fx * 0.72f));
+        DrawFineLightEdge(graphics, bounds, path, emergence, Math.Max(open, absorption), Color.FromArgb(236, 252, 255));
+        DrawSoftAperture(graphics, bounds, emergence, Math.Max(open, 0.74f), Math.Max(absorption, 0.35f), 0.98f);
+    }
+
+    private static void DrawExtremeLightRays(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float emergence, float open, float absorption)
+    {
+        if (!state.ExtremeFxMode)
+        {
+            return;
+        }
+
+        var fx = EffectScale(state);
+        var alpha = Alpha((18 + (open * 28) + (absorption * 42)) * fx, emergence);
+        if (alpha <= 2)
+        {
+            return;
+        }
+
+        var center = new PointF(bounds.X + (bounds.Width * 0.52f), bounds.Y + (bounds.Height * 0.54f));
+        var rayCount = 6 + (state.EffectIntensity * 3);
+        using var rayPen = new Pen(Color.FromArgb(alpha, 238, 252, 255), 0.35f + (fx * 0.18f));
+        for (var index = 0; index < rayCount; index++)
+        {
+            var angle = ((MathF.PI * 2f) / rayCount * index) + (state.Phase * 0.13f);
+            var inner = 0.12f + (absorption * 0.06f);
+            var outer = 0.48f + (fx * 0.14f);
+            var start = new PointF(
+                center.X + (MathF.Cos(angle) * bounds.Width * inner),
+                center.Y + (MathF.Sin(angle) * bounds.Height * inner * 0.62f));
+            var end = new PointF(
+                center.X + (MathF.Cos(angle) * bounds.Width * outer),
+                center.Y + (MathF.Sin(angle) * bounds.Height * outer * 0.62f));
+            graphics.DrawLine(rayPen, start, end);
+        }
+    }
+
+    private static void DrawDebug(Graphics graphics, LivingLensRenderState state, RectangleF lensBounds)
+    {
+        if (!state.DebugVisible)
+        {
+            return;
+        }
+
+        using var font = new Font(FontFamily.GenericSansSerif, 8f, FontStyle.Regular);
+        using var brush = new SolidBrush(Color.FromArgb(150, 24, 34, 38));
+        graphics.DrawString(
+            $"FX {state.EffectIntensity}  {state.AbsorptionDurationMs}ms",
+            font,
+            brush,
+            lensBounds.X - 26,
+            Math.Max(4, lensBounds.Y - 18));
     }
 
     private static void DrawRefraction(Graphics graphics, RectangleF bounds, GraphicsPath clipPath, float phase, float emergence, float intensity)
@@ -278,7 +354,7 @@ public static class LivingLensRenderer
     private static void DrawDepthRings(Graphics graphics, RectangleF bounds, float emergence, float open, float absorption, float intensity)
     {
         var center = new PointF(bounds.X + (bounds.Width * 0.52f), bounds.Y + (bounds.Height * 0.54f));
-        var count = 6;
+        var count = 6 + Math.Clamp((int)MathF.Round(intensity * 6f), 0, 10);
         for (var index = 0; index < count; index++)
         {
             var factor = 0.78f - (index * 0.098f) - (absorption * 0.035f);
@@ -447,11 +523,12 @@ public static class LivingLensRenderer
         var carryScale = state.ThingCompact
             ? 0.70f + (0.18f * recovery)
             : 1.0f;
-        var scale = carryScale * Math.Clamp(1f - (progress * 0.62f), 0.34f, 1f);
+        var fx = EffectScale(state);
+        var scale = carryScale * Math.Clamp(1f - (progress * (0.62f + fx * 0.15f)), 0.20f, 1f);
         var width = BaseThingSize.Width * scale;
-        var height = BaseThingSize.Height * scale * (1f - (progress * 0.16f));
+        var height = BaseThingSize.Height * scale * (1f - (progress * (0.16f + fx * 0.10f)));
         var bounds = new RectangleF(center.X - (width / 2f), center.Y - (height / 2f), width, height);
-        var distortion = progress * 0.72f;
+        var distortion = progress * (0.72f + fx * 0.46f);
         var opacity = progress < 0.78f ? 1f : Math.Clamp(1f - ((progress - 0.78f) / 0.22f), 0.12f, 1f);
 
         var previous = graphics.Transform;
@@ -491,12 +568,20 @@ public static class LivingLensRenderer
 
     private static void DrawThingShadow(Graphics graphics, RectangleF bounds, LivingLensRenderState state, float progress, float opacity)
     {
+        var fx = EffectScale(state);
+        var suction = Math.Clamp(progress * (0.62f + fx * 0.22f), 0f, 0.92f);
         var baseAlpha = state.GripShadowVisible ? 92 : 42;
+        var shadowCenter = new PointF(
+            bounds.X + (bounds.Width / 2f) + state.ShadowX,
+            bounds.Y + state.ShadowY + (bounds.Height * 0.5f));
+        shadowCenter = new PointF(
+            shadowCenter.X + ((state.LensCenter.X - shadowCenter.X) * suction),
+            shadowCenter.Y + ((state.LensCenter.Y - shadowCenter.Y) * suction));
         var shadow = new RectangleF(
-            bounds.X + state.ShadowX + (progress * 8f),
-            bounds.Y + state.ShadowY - (progress * 4f),
-            bounds.Width * (1f - (progress * 0.18f)),
-            bounds.Height * (0.30f - (progress * 0.08f)));
+            shadowCenter.X - (bounds.Width * (1f - (progress * (0.30f + fx * 0.18f))) / 2f),
+            shadowCenter.Y - (bounds.Height * (0.30f - (progress * 0.12f)) / 2f),
+            bounds.Width * (1f - (progress * (0.30f + fx * 0.18f))),
+            bounds.Height * (0.30f - (progress * 0.12f)));
         using var soft = new SolidBrush(Color.FromArgb(Alpha(baseAlpha * 0.44f, opacity), 0, 0, 0));
         using var core = new SolidBrush(Color.FromArgb(Alpha(baseAlpha, opacity), 0, 0, 0));
         graphics.FillEllipse(soft, Inflate(shadow, 12f, 6f));
@@ -530,8 +615,9 @@ public static class LivingLensRenderer
         var center = new PointF(
             state.LensCenter.X + (offset.X * progress),
             state.LensCenter.Y + (offset.Y * progress));
-        var width = BaseThingSize.Width * (0.22f + (progress * 0.64f));
-        var height = BaseThingSize.Height * (0.20f + (progress * 0.62f));
+        var fx = EffectScale(state);
+        var width = BaseThingSize.Width * (0.18f + (progress * (0.70f + fx * 0.08f)));
+        var height = BaseThingSize.Height * (0.16f + (progress * (0.68f + fx * 0.08f)));
         var bounds = new RectangleF(center.X - (width / 2f), center.Y - (height / 2f), width, height);
         using var path = CreateThingPath(bounds, state.LensCenter, Math.Max(0, 0.36f - (progress * 0.36f)), 0f, 0f);
         using var fill = new SolidBrush(Color.FromArgb(Alpha(36 + (progress * 138), 1f), 250, 252, 250));
@@ -542,7 +628,7 @@ public static class LivingLensRenderer
 
     private static PointF AbsorbedThingCenter(PointF source, PointF lens, float progress)
     {
-        var pull = Math.Clamp(progress * 0.86f, 0f, 0.86f);
+        var pull = Math.Clamp(progress * 0.94f, 0f, 0.94f);
         return new PointF(
             source.X + ((lens.X - source.X) * pull),
             source.Y + ((lens.Y - source.Y) * pull));
@@ -551,10 +637,11 @@ public static class LivingLensRenderer
     private static GraphicsPath CreateThingPath(RectangleF bounds, PointF lensCenter, float distortion, float tiltX, float tiltY)
     {
         var pullRight = lensCenter.X >= bounds.X + (bounds.Width / 2f);
-        var frontPull = bounds.Width * 0.18f * distortion;
-        var backLag = bounds.Width * 0.05f * distortion;
-        var topCurve = bounds.Height * 0.10f * distortion;
-        var bottomCurve = bounds.Height * 0.12f * distortion;
+        var clampedDistortion = Math.Clamp(distortion, 0f, 1.24f);
+        var frontPull = bounds.Width * 0.22f * clampedDistortion;
+        var backLag = bounds.Width * 0.06f * clampedDistortion;
+        var topCurve = bounds.Height * 0.13f * clampedDistortion;
+        var bottomCurve = bounds.Height * 0.16f * clampedDistortion;
         var left = bounds.Left + (pullRight ? backLag : -frontPull);
         var right = bounds.Right + (pullRight ? frontPull : -backLag);
         var perspectiveX = Math.Clamp(tiltX, -6.5f, 6.5f) * bounds.Width * 0.024f;
@@ -660,5 +747,15 @@ public static class LivingLensRenderer
     private static int Alpha(float value, float multiplier)
     {
         return Math.Clamp((int)Math.Round(value * Math.Clamp(multiplier, 0f, 1f)), 0, 255);
+    }
+
+    private static float EffectScale(LivingLensRenderState state)
+    {
+        if (!state.ExtremeFxMode)
+        {
+            return 0f;
+        }
+
+        return Math.Clamp((state.EffectIntensity - 1) / 4f, 0f, 1f);
     }
 }

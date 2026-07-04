@@ -1,8 +1,8 @@
 {
   "name": "RK Workspace Ablage",
   "short_name": "RK Ablage",
-  "description": "Ruhige Ablageflaeche fuer den RK Workspace Gefuehlstest.",
-  "start_url": "/surface/tablet",
+  "description": "Ruhige Ablageflaeche fuer den Gefuehlstest.",
+  "start_url": "/mobile",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
