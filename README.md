@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.42.0
+Version: 2.46.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -72,6 +72,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der GPU Living Lens Prototype simuliert jetzt den Portal-Handover: Ablegen im Tunnel startet einen 10-Sekunden-Countdown, erneutes Nehmen setzt den Countdown zurueck, danach schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
 - Die Tunnelgrafik wurde sichtbar veredelt: mehr neutrale Tiefenringe, ein ruhiger innerer Schlund, gebrochene Desktop-Schichten und Spiegelkanten ohne lila/cyan Hintergrund.
 - Die Premium-Portal-Iteration ersetzt falsche Eigenrotation des digitalen Dings durch `PortalEdgeApexSqueeze`: die tunnelnahe Kante laeuft symmetrisch zu einer Spitze zusammen, die Neigung wird am Tunnel gedaempft und im Tunnel liegt nur ein kleines ruhiges Papierstueck.
+- Der GPU Living Lens Prototype besitzt jetzt drei sofort testbare Premium-Looks: `1` Glasblase, `2` Wurmloch und `3` Hybrid. Alle Looks nutzen Desktop-Refraction, transparente Glas-/Tunnel-Schichten, kompakteres Carry-Ding und unterschiedliche Tiefen-/Intensitaetsprofile.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -318,6 +319,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.46.0 | 2026-07-04 | GPU Living Lens um drei sofort umschaltbare Premium-Looks Glasblase, Wurmloch und Hybrid erweitert. |
 | 2.45.0 | 2026-07-04 | GPU Living Lens Punkt-Kollaps direkt ueber dem schwarzen Schlund und frueheres Ausblenden des Papiertextes dokumentiert. |
 | 2.44.0 | 2026-07-04 | GPU Living Lens schwarzer Tunnel-Schlund als einziges Sogziel mit Apex-Kappung und stabilem Tunnel-Lock dokumentiert. |
 | 2.43.0 | 2026-07-04 | GPU Living Lens Acht-Tunnel-Testfeld mit Vektor-Sogmitte fuer Ecken und Seitenmitten dokumentiert. |

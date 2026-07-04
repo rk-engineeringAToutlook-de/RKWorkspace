@@ -506,6 +506,30 @@ if (-not $gpuLivingLensText.Contains('ThroatPointCollapse: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain ThroatPointCollapse: OK."
 }
 
+if (-not $gpuLivingLensText.Contains('ThreePremiumLensLooks: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain ThreePremiumLensLooks: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('GlassBubbleLook: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain GlassBubbleLook: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('WormholeLook: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain WormholeLook: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('HybridLook: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain HybridLook: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('LiveLookSwitch: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain LiveLookSwitch: OK."
+}
+
+if (-not $gpuLivingLensText.Contains('CompactCarryCard: OK')) {
+    throw "GPU Living Lens Smoke Test failed because output did not contain CompactCarryCard: OK."
+}
+
 if (-not $gpuLivingLensText.Contains('EdgeContinuation: OK')) {
     throw "GPU Living Lens Smoke Test failed because output did not contain EdgeContinuation: OK."
 }

@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.15.0
+Version: 1.19.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -886,6 +886,8 @@ Geprueft wird:
 - NoApexOvershoot: die Papier-Spitze endet am Schlund und schiesst nicht darueber hinaus.
 - StableTunnelTargetLock: der aktive Tunnel bleibt stabil, solange die Bewegung in seinem Einzugsbereich bleibt.
 - ThroatPointCollapse: direkt ueber dem schwarzen Schlund wird das Ding staerker zu einem Punkt und der Schriftzug tritt zurueck.
+- Drei Premium-Looks fuer den direkten Owner-Vergleich: Glasblase fuer maximale Transparenz, Wurmloch fuer maximale Tiefe und Hybrid als kombinierter Produktkandidat.
+- Live-Umschaltung im Overlay per `1`, `2`, `3`, ohne Neukompilieren und ohne Core-Aenderung.
 - Portal-Handover: 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - nach unberuehrtem Ablauf schliesst der Tunnel und das Ding gilt lokal als auf der Gegenseite abgelegt.
@@ -916,6 +918,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.19.0 | 2026-07-04 | Drei Premium-Living-Lens-Looks fuer Glas, Wurmloch und Hybrid als direkten Owner-Vergleich aufgenommen. |
 | 1.18.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt am schwarzen Schlund fuer die Living Lens aufgenommen. |
 | 1.17.0 | 2026-07-04 | Schwarzer Tunnel-Schlund als echtes Sogziel, Apex-Kappung und stabiler Tunnel-Lock aufgenommen. |
 | 1.16.0 | 2026-07-04 | Acht-Tunnel-Richtungstest und VectorSuctionCenter fuer die Living Lens aufgenommen. |

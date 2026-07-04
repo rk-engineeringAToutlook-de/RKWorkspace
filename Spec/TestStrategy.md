@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.24.0
+Version: 2.28.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -70,6 +70,8 @@ Ab MA006.08 prueft `tools/run-tests.ps1` zusaetzlich den Native Spatial Overlay 
 Ab MA006.09 prueft `tools/run-tests.ps1` zusaetzlich den Visual Reality Smoke-Test mit `tools/run-visual-reality.ps1 -SmokeTest`. Dieser Test prueft den nativen Visual-Reality-Slice ohne Browser/WebView, sichtbaren Desktop, fuenf Living-Lens-Varianten, Umschalten der Varianten, langsames Erscheinen, subtile Lebendigkeit, digitale Hand, vektorielle Antwort inklusive Diagonalen, geoeffnete Linse, Mini-Ablage, Glide, Ziel-Ghost und sicheren `Esc`-Exit.
 
 Ab MA006.10R prueft `tools/run-tests.ps1` zusaetzlich den Living Lens Smoke-Test mit `tools/run-living-lens.ps1 -SmokeTest`. Dieser Test prueft einen eigenen nativen Windows-Slice ohne Browser/WebView, Real Bubble Lens, Glass Lens, Water Surface Lens, Wormhole Lens, Gravity Lens, Randverankerung, langsames Erscheinen, subtile Lebendigkeit, digitale Griffwirkung ohne stoerenden Rechteckcontainer, vektorielle Antwort inklusive Diagonalen, Lens Absorption, Target Emergence, Timing-Varianten und Visual Target Export.
+
+Ab MA006.11 prueft `tools/run-tests.ps1` zusaetzlich den GPU Living Lens Smoke-Test mit `tools/run-gpu-lens.ps1 -SmokeTest`. Dieser Test prueft den GPU-komponierten Slice ohne Browser/WebView, Desktop-Sampling, Refraction-Vorbereitung, acht Tunnel, Schlund-zentrierten Sog, 10-Sekunden-Handover und ab der Premium-Look-Stufe die drei live umschaltbaren Looks Glasblase, Wurmloch und Hybrid.
 
 ## MA003.05 Core Integration Tests
 
@@ -692,6 +694,12 @@ ThroatSuctionTarget: OK
 NoApexOvershoot: OK
 StableTunnelTargetLock: OK
 ThroatPointCollapse: OK
+ThreePremiumLensLooks: OK
+GlassBubbleLook: OK
+WormholeLook: OK
+HybridLook: OK
+LiveLookSwitch: OK
+CompactCarryCard: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
@@ -748,6 +756,9 @@ Der Test prueft ausdruecklich:
 - die Papier-Spitze wird am Schlund gekappt und darf nicht ueber das Ziel hinauslaufen.
 - der aktive Tunnel ist gegen unruhiges Umschalten stabilisiert.
 - direkt ueber dem Schlund kollabiert das Ding staerker zu einem Punkt.
+- die drei Premium-Looks Glasblase, Wurmloch und Hybrid sind vorbereitet.
+- die Umschaltung zwischen den Looks ist im laufenden Overlay vorgesehen.
+- das Ding wird beim Greifen kompakter dargestellt.
 - der Schatten wird als `ShadowTunnelSuction` mit zur Oeffnung gezogen.
 - im Tunnel liegt ein kleines ruhiges Objekt statt eines verdrehten Restobjekts.
 - Drop im Tunnel startet einen 10-Sekunden-Handover-Countdown.
@@ -774,6 +785,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.28.0 | 2026-07-04 | GPU Living Lens Smoke-Test um drei Premium-Looks, LiveLookSwitch und CompactCarryCard erweitert. |
 | 2.27.0 | 2026-07-04 | GPU Living Lens Smoke-Test um ThroatPointCollapse erweitert. |
 | 2.26.0 | 2026-07-04 | GPU Living Lens Smoke-Test um ThroatSuctionTarget, NoApexOvershoot und StableTunnelTargetLock erweitert. |
 | 2.25.0 | 2026-07-04 | GPU Living Lens Smoke-Test um Acht-Tunnel-Feld, Seiten-/Ecktunnel, Center-Start und VectorSuctionCenter erweitert. |

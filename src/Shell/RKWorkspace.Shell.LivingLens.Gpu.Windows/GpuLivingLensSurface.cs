@@ -24,6 +24,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     private WPoint _activeLensCenter;
     private Vector _velocity;
     private Vector _grabOffset;
+    private GpuLivingLensLook _lensLook = GpuLivingLensLook.Hybrid;
     private bool _isHolding;
     private int _sampleFrame;
     private double _phase;
@@ -38,9 +39,17 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         _targetCenter = _thingCenter;
         _lastTargetCenter = _thingCenter;
         _activeLensCenter = new WPoint(screenBounds.Width - 88, screenBounds.Height * 0.50);
+        _session.SetLensLook(_lensLook);
     }
 
     public GpuLivingLensSession Session => _session;
+
+    public void SetLensLook(GpuLivingLensLook lensLook)
+    {
+        _lensLook = lensLook;
+        _session.SetLensLook(lensLook);
+        InvalidateVisual();
+    }
 
     public void ActivatePickAt(WPoint point)
     {
@@ -172,6 +181,24 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         base.OnRender(drawingContext);
         DrawLenses(drawingContext);
         DrawThing(drawingContext);
+        DrawLookControls(drawingContext);
+    }
+
+    private void DrawLookControls(DrawingContext drawingContext)
+    {
+        var text = new FormattedText(
+            $"Look: {LensLookLabel(_lensLook)}   1 Glas   2 Wurmloch   3 Hybrid   Esc beendet",
+            CultureInfo.CurrentCulture,
+            System.Windows.FlowDirection.LeftToRight,
+            new Typeface("Segoe UI"),
+            12,
+            new SolidColorBrush(WColor.FromArgb(168, 28, 34, 36)),
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        var padding = new Rect(16, 16, text.Width + 22, text.Height + 12);
+        var background = new SolidColorBrush(WColor.FromArgb(92, 248, 252, 250));
+        var edge = new WPen(new SolidColorBrush(WColor.FromArgb(62, 255, 255, 255)), 0.8);
+        drawingContext.DrawRoundedRectangle(background, edge, padding, 6, 6);
+        drawingContext.DrawText(text, new WPoint(padding.X + 11, padding.Y + 6));
     }
 
     private void DrawLenses(DrawingContext drawingContext)
@@ -203,6 +230,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var open = EaseOut(_session.LensOpen) * activation;
         var bounds = LensBounds(center, activation);
         var throatCenter = TunnelThroatPoint(bounds, center, open);
+        var profile = LensVisualProfile.For(_lensLook);
 
         var desktopSample = UpdateDesktopSample(bounds, center, activation);
 
@@ -210,30 +238,39 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         drawingContext.PushClip(clip);
         if (desktopSample is not null)
         {
-            var refracted = new Rect(bounds.X - (bounds.Width * 0.16), bounds.Y - (bounds.Height * 0.12), bounds.Width * 1.32, bounds.Height * 1.24);
+            var refracted = new Rect(
+                bounds.X - (bounds.Width * profile.RefractionOverscanX),
+                bounds.Y - (bounds.Height * profile.RefractionOverscanY),
+                bounds.Width * (1.0 + (profile.RefractionOverscanX * 2.0)),
+                bounds.Height * (1.0 + (profile.RefractionOverscanY * 2.0)));
+            drawingContext.PushOpacity(profile.BaseDesktopOpacity);
             drawingContext.DrawImage(desktopSample, refracted);
+            drawingContext.Pop();
 
-            for (var index = 1; index <= 56; index++)
+            for (var index = 1; index <= profile.RefractionLayers; index++)
             {
-                var layer = index / 56.0;
-                var depthCurve = Math.Pow(layer, 1.48);
-                var tunnelScale = 1.0 - (depthCurve * 0.56);
+                var layer = index / (double)profile.RefractionLayers;
+                var depthCurve = Math.Pow(layer, profile.RefractionCurve);
+                var tunnelScale = 1.0 - (depthCurve * profile.RefractionDepth);
                 var tunnelWidth = bounds.Width * tunnelScale;
-                var tunnelHeight = bounds.Height * (1.0 - (depthCurve * 0.74));
-                var tunnelShift = (open * 28.0 * depthCurve) + (Math.Sin(_phase * 1.08 + index) * 0.58);
+                var tunnelHeight = bounds.Height * (1.0 - (depthCurve * profile.RefractionCompression));
+                var outward = LensOutwardDirection(center);
+                var tangent = new Vector(-outward.Y, outward.X);
+                var tunnelOffset = (outward * (open * profile.RefractionPull * depthCurve)) +
+                    (tangent * (Math.Sin(_phase * profile.ShimmerSpeed + index) * profile.ShimmerAmount));
                 var tunnel = new Rect(
-                    center.X - (tunnelWidth / 2) + tunnelShift,
-                    center.Y - (tunnelHeight / 2) + (depthCurve * 18.0),
+                    center.X - (tunnelWidth / 2) + tunnelOffset.X,
+                    center.Y - (tunnelHeight / 2) + tunnelOffset.Y,
                     tunnelWidth,
                     tunnelHeight);
 
-                drawingContext.PushOpacity(0.020 + (open * 0.038));
+                drawingContext.PushOpacity(profile.RefractionLayerOpacity + (open * profile.RefractionOpenBoost));
                 drawingContext.DrawImage(desktopSample, tunnel);
                 drawingContext.Pop();
             }
         }
 
-        DrawTunnelVolume(drawingContext, bounds, center, throatCenter, open);
+        DrawTunnelVolume(drawingContext, bounds, center, throatCenter, open, profile);
 
         var glass = new RadialGradientBrush
         {
@@ -241,40 +278,40 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             Center = new WPoint(0.48, 0.52),
             RadiusX = 0.76,
             RadiusY = 0.70,
-            Opacity = 0.62
+            Opacity = profile.GlassOpacity
         };
-        glass.GradientStops.Add(new GradientStop(WColor.FromArgb(64, 255, 255, 255), 0.0));
-        glass.GradientStops.Add(new GradientStop(WColor.FromArgb(28, 232, 244, 246), 0.42));
-        glass.GradientStops.Add(new GradientStop(WColor.FromArgb(104, 96, 116, 120), 1.0));
+        glass.GradientStops.Add(new GradientStop(WColor.FromArgb(profile.GlassCoreAlpha, 255, 255, 255), 0.0));
+        glass.GradientStops.Add(new GradientStop(WColor.FromArgb(profile.GlassMidAlpha, 232, 244, 246), 0.42));
+        glass.GradientStops.Add(new GradientStop(WColor.FromArgb(profile.GlassEdgeAlpha, 78, 94, 98), 1.0));
         drawingContext.DrawEllipse(glass, null, center, bounds.Width / 2, bounds.Height / 2);
 
-        for (var index = 0; index < 34; index++)
+        for (var index = 0; index < profile.GlassRingCount; index++)
         {
-            var layer = index / 33.0;
-            var depthCurve = Math.Pow(layer, 1.55);
-            var alpha = (byte)Math.Clamp(42 - (index * 0.88) + (open * 26), 7, 76);
-            var ringPen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 248, 255, 255)), 0.42 + (open * 0.20));
-            var rx = (bounds.Width / 2) * (1.0 - (depthCurve * 0.50));
-            var ry = (bounds.Height / 2) * (1.0 - (depthCurve * 0.68));
-            var ringCenter = new WPoint(center.X + (depthCurve * open * 20), center.Y + (depthCurve * 15));
+            var layer = index / Math.Max(1.0, profile.GlassRingCount - 1.0);
+            var depthCurve = Math.Pow(layer, 1.52);
+            var alpha = (byte)Math.Clamp(profile.GlassRingAlpha - (index * profile.GlassRingFade) + (open * profile.GlassRingOpenBoost), 6, 112);
+            var ringPen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 248, 255, 255)), profile.GlassRingWidth + (open * 0.18));
+            var rx = (bounds.Width / 2) * (1.0 - (depthCurve * profile.GlassRingDepthX));
+            var ry = (bounds.Height / 2) * (1.0 - (depthCurve * profile.GlassRingDepthY));
+            var ringCenter = Interpolate(center, throatCenter, depthCurve * profile.GlassRingThroatPull);
             drawingContext.DrawEllipse(null, ringPen, ringCenter, rx, ry);
         }
 
         drawingContext.Pop();
 
-        var outer = new WPen(new SolidColorBrush(WColor.FromArgb(210, 255, 255, 255)), 1.8 + open);
+        var outer = new WPen(new SolidColorBrush(WColor.FromArgb(profile.OuterRimAlpha, 255, 255, 255)), profile.OuterRimWidth + (open * profile.OuterRimOpenWidth));
         var inner = new WPen(new SolidColorBrush(WColor.FromArgb(86, 18, 24, 26)), 1.0);
         drawingContext.DrawEllipse(null, outer, center, bounds.Width / 2, bounds.Height / 2);
         drawingContext.DrawEllipse(null, inner, throatCenter, bounds.Width * (0.18 + (open * 0.10)), bounds.Height * (0.07 + (open * 0.05)));
 
-        var highlight = new RadialGradientBrush(WColor.FromArgb(190, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255));
-        drawingContext.DrawEllipse(highlight, null, new WPoint(bounds.X + (bounds.Width * 0.66), bounds.Y + (bounds.Height * 0.23)), bounds.Width * 0.15, bounds.Height * 0.10);
+        var highlight = new RadialGradientBrush(WColor.FromArgb(profile.HighlightAlpha, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255));
+        drawingContext.DrawEllipse(highlight, null, new WPoint(bounds.X + (bounds.Width * 0.66), bounds.Y + (bounds.Height * 0.23)), bounds.Width * profile.HighlightRadiusX, bounds.Height * profile.HighlightRadiusY);
 
-        var depth = new RadialGradientBrush(WColor.FromArgb((byte)(70 + (open * 54)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
+        var depth = new RadialGradientBrush(WColor.FromArgb((byte)(profile.ThroatAlpha + (open * profile.ThroatOpenAlpha)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
         drawingContext.DrawEllipse(depth, null, throatCenter, bounds.Width * (0.15 + (open * 0.11)), bounds.Height * (0.05 + (open * 0.06)));
     }
 
-    private void DrawTunnelVolume(DrawingContext drawingContext, Rect bounds, WPoint center, WPoint throatCenter, double open)
+    private void DrawTunnelVolume(DrawingContext drawingContext, Rect bounds, WPoint center, WPoint throatCenter, double open, LensVisualProfile profile)
     {
         var outward = LensOutwardDirection(center);
         var tangent = new Vector(-outward.Y, outward.X);
@@ -293,32 +330,32 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             throat,
             null,
             throatCenter,
-            bounds.Width * (0.20 + (open * 0.12)),
-            bounds.Height * (0.075 + (open * 0.075)));
+            bounds.Width * (profile.ThroatRadiusX + (open * 0.12)),
+            bounds.Height * (profile.ThroatRadiusY + (open * 0.075)));
 
-        for (var index = 0; index < 72; index++)
+        for (var index = 0; index < profile.TunnelRingCount; index++)
         {
-            var layer = index / 71.0;
-            var depthCurve = Math.Pow(layer, 1.74);
-            var rx = (bounds.Width / 2) * (1.0 - (depthCurve * 0.64));
-            var ry = (bounds.Height / 2) * (1.0 - (depthCurve * 0.80));
+            var layer = index / Math.Max(1.0, profile.TunnelRingCount - 1.0);
+            var depthCurve = Math.Pow(layer, profile.TunnelDepthCurve);
+            var rx = (bounds.Width / 2) * (1.0 - (depthCurve * profile.TunnelDepthX));
+            var ry = (bounds.Height / 2) * (1.0 - (depthCurve * profile.TunnelDepthY));
             if (rx < 5 || ry < 3)
             {
                 continue;
             }
 
-            var depthShift = outward * ((open * depthCurve * 34.0) + (depthCurve * 22.0));
-            var shimmerShift = tangent * (Math.Sin(_phase * 0.72 + (index * 0.31)) * 0.54);
+            var depthShift = outward * ((open * depthCurve * profile.TunnelOpenPull) + (depthCurve * profile.TunnelBasePull));
+            var shimmerShift = tangent * (Math.Sin(_phase * profile.ShimmerSpeed + (index * 0.31)) * profile.TunnelShimmer);
             var ringCenter = center + depthShift + shimmerShift;
-            var lightAlpha = (byte)Math.Clamp(34 - (index * 0.34) + (open * 34), 6, 82);
-            var darkAlpha = (byte)Math.Clamp(22 + (open * 24) - (index * 0.18), 4, 46);
-            drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(darkAlpha, 10, 13, 14)), 1.34), ringCenter + new Vector(0, 1.1), rx, ry);
-            drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(lightAlpha, 250, 253, 250)), 0.38 + (open * 0.20)), ringCenter, rx, ry);
+            var lightAlpha = (byte)Math.Clamp(profile.TunnelLightAlpha - (index * profile.TunnelLightFade) + (open * profile.TunnelLightOpenBoost), 5, 118);
+            var darkAlpha = (byte)Math.Clamp(profile.TunnelDarkAlpha + (open * profile.TunnelDarkOpenBoost) - (index * profile.TunnelDarkFade), 4, 78);
+            drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(darkAlpha, 8, 11, 12)), profile.TunnelDarkWidth), ringCenter + (outward * 1.1), rx, ry);
+            drawingContext.DrawEllipse(null, new WPen(new SolidColorBrush(WColor.FromArgb(lightAlpha, 250, 253, 250)), profile.TunnelLightWidth + (open * 0.20)), ringCenter, rx, ry);
         }
 
-        for (var ray = 0; ray < 16; ray++)
+        for (var ray = 0; ray < profile.LightRayCount; ray++)
         {
-            var normalized = (ray / 15.0) - 0.5;
+            var normalized = (ray / Math.Max(1.0, profile.LightRayCount - 1.0)) - 0.5;
             var angle = (normalized * 2.24) + (Math.Sin(_phase * 0.58 + ray) * 0.018);
             var startRadiusX = bounds.Width * (0.10 + (open * 0.04));
             var startRadiusY = bounds.Height * (0.035 + (open * 0.018));
@@ -337,18 +374,18 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             }
 
             geometry.Freeze();
-            var alpha = (byte)Math.Clamp(12 + (open * 24) - (Math.Abs(normalized) * 10), 4, 42);
-            drawingContext.DrawGeometry(null, new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 255, 255, 252)), 0.48), geometry);
+            var alpha = (byte)Math.Clamp(profile.LightRayAlpha + (open * profile.LightRayOpenBoost) - (Math.Abs(normalized) * 12), 3, 64);
+            drawingContext.DrawGeometry(null, new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 255, 255, 252)), profile.LightRayWidth), geometry);
         }
 
-        DrawPremiumRefractionRibbons(drawingContext, bounds, center, throatCenter, open);
-        DrawPremiumTunnelAperture(drawingContext, bounds, throatCenter, outward, open);
+        DrawPremiumRefractionRibbons(drawingContext, bounds, center, throatCenter, open, profile);
+        DrawPremiumTunnelAperture(drawingContext, bounds, throatCenter, outward, open, profile);
 
         var reflectedEdge = new LinearGradientBrush
         {
             StartPoint = new WPoint(0.06, 0.02),
             EndPoint = new WPoint(0.74, 0.84),
-            Opacity = 0.42 + (open * 0.16)
+            Opacity = profile.ReflectedEdgeOpacity + (open * profile.ReflectedEdgeOpenBoost)
         };
         reflectedEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
         reflectedEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(72, 255, 255, 255), 0.42));
@@ -361,11 +398,11 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             bounds.Height * 0.34);
     }
 
-    private void DrawPremiumRefractionRibbons(DrawingContext drawingContext, Rect bounds, WPoint center, WPoint throatCenter, double open)
+    private void DrawPremiumRefractionRibbons(DrawingContext drawingContext, Rect bounds, WPoint center, WPoint throatCenter, double open, LensVisualProfile profile)
     {
-        for (var ribbon = 0; ribbon < 9; ribbon++)
+        for (var ribbon = 0; ribbon < profile.RibbonCount; ribbon++)
         {
-            var normalized = (ribbon / 8.0) - 0.5;
+            var normalized = (ribbon / Math.Max(1.0, profile.RibbonCount - 1.0)) - 0.5;
             var startAngle = (normalized * 2.0) + (Math.Sin(_phase * 0.42 + ribbon) * 0.030);
             var endAngle = startAngle * 0.34;
             var start = center + new Vector(
@@ -385,8 +422,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             }
 
             geometry.Freeze();
-            var alpha = (byte)Math.Clamp(18 + (open * 32) - (Math.Abs(normalized) * 16), 4, 54);
-            var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 250, 252, 248)), 0.42 + (open * 0.18));
+            var alpha = (byte)Math.Clamp(profile.RibbonAlpha + (open * profile.RibbonOpenBoost) - (Math.Abs(normalized) * 18), 3, 76);
+            var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 250, 252, 248)), profile.RibbonWidth + (open * 0.18));
             drawingContext.DrawGeometry(null, pen, geometry);
         }
 
@@ -394,7 +431,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         {
             StartPoint = new WPoint(0.16, 0.10),
             EndPoint = new WPoint(0.94, 0.72),
-            Opacity = 0.32 + (open * 0.18)
+            Opacity = profile.RimShardOpacity + (open * 0.18)
         };
         rimShard.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
         rimShard.GradientStops.Add(new GradientStop(WColor.FromArgb(92, 255, 255, 255), 0.38));
@@ -408,7 +445,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             bounds.Height * 0.18);
     }
 
-    private static void DrawPremiumTunnelAperture(DrawingContext drawingContext, Rect bounds, WPoint throatCenter, Vector outward, double open)
+    private static void DrawPremiumTunnelAperture(DrawingContext drawingContext, Rect bounds, WPoint throatCenter, Vector outward, double open, LensVisualProfile profile)
     {
         var tangent = new Vector(-outward.Y, outward.X);
         var apertureShadow = new RadialGradientBrush
@@ -417,7 +454,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             Center = new WPoint(0.50, 0.52),
             RadiusX = 0.64,
             RadiusY = 0.46,
-            Opacity = 0.50 + (open * 0.18)
+            Opacity = profile.ApertureOpacity + (open * 0.18)
         };
         apertureShadow.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(118 + (open * 34)), 5, 7, 8), 0.0));
         apertureShadow.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(72 + (open * 26)), 16, 20, 21), 0.46));
@@ -429,10 +466,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             bounds.Width * (0.18 + (open * 0.105)),
             bounds.Height * (0.052 + (open * 0.052)));
 
-        for (var ring = 0; ring < 5; ring++)
+        for (var ring = 0; ring < profile.ApertureRingCount; ring++)
         {
-            var layer = ring / 4.0;
-            var alpha = (byte)Math.Clamp(72 - (ring * 12) + (open * 28), 18, 110);
+            var layer = ring / Math.Max(1.0, profile.ApertureRingCount - 1.0);
+            var alpha = (byte)Math.Clamp(profile.ApertureRingAlpha - (ring * 10) + (open * 28), 14, 126);
             var rx = bounds.Width * (0.18 + (open * 0.12) + (layer * 0.035));
             var ry = bounds.Height * (0.052 + (open * 0.050) + (layer * 0.014));
             var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 244, 250, 248)), 0.42 + (open * 0.18));
@@ -473,7 +510,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var center = Interpolate(_thingCenter, throatTarget, progress * 0.88);
         var recovery = EaseOut(_session.PullOutRecovery);
         var lifted = _session.IsHoldingThing || _isHolding || progress > 0.01;
-        var carryScale = lifted ? 0.72 + (recovery * 0.18) : 1.0;
+        var profile = LensVisualProfile.For(_lensLook);
+        var carryScale = lifted ? profile.CarryScaleBase + (recovery * profile.CarryScaleRecovery) : 1.0;
         var scale = carryScale * Math.Clamp(1.0 - (progress * 0.62), 0.34, 1.0);
         var width = 178 * scale;
         var height = 94 * scale * (1.0 - (progress * 0.14));
@@ -645,10 +683,12 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private Rect LensBounds(WPoint center, double activation)
     {
+        var profile = LensVisualProfile.For(_lensLook);
         var emergence = EaseOut(_session.LensEmergence) * (0.54 + (activation * 0.46));
         var open = EaseOut(_session.LensOpen) * activation;
-        var width = 210 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
-        var height = 150 * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
+        var distanceScale = 0.82 + (activation * 0.20);
+        var width = 210 * profile.LensScale * distanceScale * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.12));
+        var height = 150 * profile.LensScale * distanceScale * (0.36 + (0.64 * emergence)) * (1.0 + (open * 0.05));
         return new Rect(center.X - (width / 2), center.Y - (height / 2), width, height);
     }
 
@@ -867,6 +907,300 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     {
         var clamped = Math.Clamp(value, 0.0, 1.0);
         return clamped * clamped * (3.0 - (2.0 * clamped));
+    }
+
+    private static string LensLookLabel(GpuLivingLensLook look)
+    {
+        return look switch
+        {
+            GpuLivingLensLook.GlassBubble => "Glasblase",
+            GpuLivingLensLook.Wormhole => "Wurmloch",
+            _ => "Hybrid"
+        };
+    }
+
+    private sealed class LensVisualProfile
+    {
+        public double LensScale { get; init; }
+        public double RefractionOverscanX { get; init; }
+        public double RefractionOverscanY { get; init; }
+        public double BaseDesktopOpacity { get; init; }
+        public int RefractionLayers { get; init; }
+        public double RefractionCurve { get; init; }
+        public double RefractionDepth { get; init; }
+        public double RefractionCompression { get; init; }
+        public double RefractionPull { get; init; }
+        public double ShimmerSpeed { get; init; }
+        public double ShimmerAmount { get; init; }
+        public double RefractionLayerOpacity { get; init; }
+        public double RefractionOpenBoost { get; init; }
+        public double GlassOpacity { get; init; }
+        public byte GlassCoreAlpha { get; init; }
+        public byte GlassMidAlpha { get; init; }
+        public byte GlassEdgeAlpha { get; init; }
+        public int GlassRingCount { get; init; }
+        public double GlassRingAlpha { get; init; }
+        public double GlassRingFade { get; init; }
+        public double GlassRingOpenBoost { get; init; }
+        public double GlassRingWidth { get; init; }
+        public double GlassRingDepthX { get; init; }
+        public double GlassRingDepthY { get; init; }
+        public double GlassRingThroatPull { get; init; }
+        public byte OuterRimAlpha { get; init; }
+        public double OuterRimWidth { get; init; }
+        public double OuterRimOpenWidth { get; init; }
+        public byte HighlightAlpha { get; init; }
+        public double HighlightRadiusX { get; init; }
+        public double HighlightRadiusY { get; init; }
+        public double ThroatAlpha { get; init; }
+        public double ThroatOpenAlpha { get; init; }
+        public double ThroatRadiusX { get; init; }
+        public double ThroatRadiusY { get; init; }
+        public int TunnelRingCount { get; init; }
+        public double TunnelDepthCurve { get; init; }
+        public double TunnelDepthX { get; init; }
+        public double TunnelDepthY { get; init; }
+        public double TunnelOpenPull { get; init; }
+        public double TunnelBasePull { get; init; }
+        public double TunnelShimmer { get; init; }
+        public double TunnelLightAlpha { get; init; }
+        public double TunnelLightFade { get; init; }
+        public double TunnelLightOpenBoost { get; init; }
+        public double TunnelDarkAlpha { get; init; }
+        public double TunnelDarkOpenBoost { get; init; }
+        public double TunnelDarkFade { get; init; }
+        public double TunnelDarkWidth { get; init; }
+        public double TunnelLightWidth { get; init; }
+        public int LightRayCount { get; init; }
+        public double LightRayAlpha { get; init; }
+        public double LightRayOpenBoost { get; init; }
+        public double LightRayWidth { get; init; }
+        public double ReflectedEdgeOpacity { get; init; }
+        public double ReflectedEdgeOpenBoost { get; init; }
+        public int RibbonCount { get; init; }
+        public double RibbonAlpha { get; init; }
+        public double RibbonOpenBoost { get; init; }
+        public double RibbonWidth { get; init; }
+        public double RimShardOpacity { get; init; }
+        public double ApertureOpacity { get; init; }
+        public int ApertureRingCount { get; init; }
+        public double ApertureRingAlpha { get; init; }
+        public double CarryScaleBase { get; init; }
+        public double CarryScaleRecovery { get; init; }
+
+        public static LensVisualProfile For(GpuLivingLensLook look)
+        {
+            return look switch
+            {
+                GpuLivingLensLook.GlassBubble => new LensVisualProfile
+                {
+                    LensScale = 0.96,
+                    RefractionOverscanX = 0.22,
+                    RefractionOverscanY = 0.18,
+                    BaseDesktopOpacity = 0.78,
+                    RefractionLayers = 48,
+                    RefractionCurve = 1.34,
+                    RefractionDepth = 0.34,
+                    RefractionCompression = 0.40,
+                    RefractionPull = 18.0,
+                    ShimmerSpeed = 0.76,
+                    ShimmerAmount = 0.32,
+                    RefractionLayerOpacity = 0.010,
+                    RefractionOpenBoost = 0.020,
+                    GlassOpacity = 0.42,
+                    GlassCoreAlpha = 38,
+                    GlassMidAlpha = 18,
+                    GlassEdgeAlpha = 84,
+                    GlassRingCount = 46,
+                    GlassRingAlpha = 48,
+                    GlassRingFade = 0.74,
+                    GlassRingOpenBoost = 18,
+                    GlassRingWidth = 0.34,
+                    GlassRingDepthX = 0.42,
+                    GlassRingDepthY = 0.48,
+                    GlassRingThroatPull = 0.28,
+                    OuterRimAlpha = 236,
+                    OuterRimWidth = 1.15,
+                    OuterRimOpenWidth = 0.54,
+                    HighlightAlpha = 220,
+                    HighlightRadiusX = 0.14,
+                    HighlightRadiusY = 0.085,
+                    ThroatAlpha = 44,
+                    ThroatOpenAlpha = 40,
+                    ThroatRadiusX = 0.15,
+                    ThroatRadiusY = 0.045,
+                    TunnelRingCount = 46,
+                    TunnelDepthCurve = 1.56,
+                    TunnelDepthX = 0.42,
+                    TunnelDepthY = 0.54,
+                    TunnelOpenPull = 18,
+                    TunnelBasePull = 11,
+                    TunnelShimmer = 0.28,
+                    TunnelLightAlpha = 30,
+                    TunnelLightFade = 0.28,
+                    TunnelLightOpenBoost = 18,
+                    TunnelDarkAlpha = 12,
+                    TunnelDarkOpenBoost = 10,
+                    TunnelDarkFade = 0.13,
+                    TunnelDarkWidth = 0.86,
+                    TunnelLightWidth = 0.32,
+                    LightRayCount = 10,
+                    LightRayAlpha = 8,
+                    LightRayOpenBoost = 14,
+                    LightRayWidth = 0.34,
+                    ReflectedEdgeOpacity = 0.50,
+                    ReflectedEdgeOpenBoost = 0.10,
+                    RibbonCount = 6,
+                    RibbonAlpha = 14,
+                    RibbonOpenBoost = 18,
+                    RibbonWidth = 0.30,
+                    RimShardOpacity = 0.42,
+                    ApertureOpacity = 0.36,
+                    ApertureRingCount = 4,
+                    ApertureRingAlpha = 58,
+                    CarryScaleBase = 0.62,
+                    CarryScaleRecovery = 0.14
+                },
+                GpuLivingLensLook.Wormhole => new LensVisualProfile
+                {
+                    LensScale = 1.08,
+                    RefractionOverscanX = 0.30,
+                    RefractionOverscanY = 0.24,
+                    BaseDesktopOpacity = 0.64,
+                    RefractionLayers = 112,
+                    RefractionCurve = 1.72,
+                    RefractionDepth = 0.72,
+                    RefractionCompression = 0.82,
+                    RefractionPull = 48.0,
+                    ShimmerSpeed = 1.12,
+                    ShimmerAmount = 0.72,
+                    RefractionLayerOpacity = 0.016,
+                    RefractionOpenBoost = 0.046,
+                    GlassOpacity = 0.52,
+                    GlassCoreAlpha = 44,
+                    GlassMidAlpha = 22,
+                    GlassEdgeAlpha = 122,
+                    GlassRingCount = 72,
+                    GlassRingAlpha = 54,
+                    GlassRingFade = 0.54,
+                    GlassRingOpenBoost = 38,
+                    GlassRingWidth = 0.44,
+                    GlassRingDepthX = 0.64,
+                    GlassRingDepthY = 0.78,
+                    GlassRingThroatPull = 0.56,
+                    OuterRimAlpha = 228,
+                    OuterRimWidth = 1.58,
+                    OuterRimOpenWidth = 1.20,
+                    HighlightAlpha = 168,
+                    HighlightRadiusX = 0.11,
+                    HighlightRadiusY = 0.065,
+                    ThroatAlpha = 106,
+                    ThroatOpenAlpha = 82,
+                    ThroatRadiusX = 0.22,
+                    ThroatRadiusY = 0.078,
+                    TunnelRingCount = 118,
+                    TunnelDepthCurve = 1.92,
+                    TunnelDepthX = 0.72,
+                    TunnelDepthY = 0.86,
+                    TunnelOpenPull = 54,
+                    TunnelBasePull = 30,
+                    TunnelShimmer = 0.62,
+                    TunnelLightAlpha = 42,
+                    TunnelLightFade = 0.22,
+                    TunnelLightOpenBoost = 50,
+                    TunnelDarkAlpha = 34,
+                    TunnelDarkOpenBoost = 34,
+                    TunnelDarkFade = 0.10,
+                    TunnelDarkWidth = 1.42,
+                    TunnelLightWidth = 0.48,
+                    LightRayCount = 22,
+                    LightRayAlpha = 14,
+                    LightRayOpenBoost = 34,
+                    LightRayWidth = 0.48,
+                    ReflectedEdgeOpacity = 0.34,
+                    ReflectedEdgeOpenBoost = 0.20,
+                    RibbonCount = 14,
+                    RibbonAlpha = 24,
+                    RibbonOpenBoost = 42,
+                    RibbonWidth = 0.44,
+                    RimShardOpacity = 0.30,
+                    ApertureOpacity = 0.70,
+                    ApertureRingCount = 7,
+                    ApertureRingAlpha = 92,
+                    CarryScaleBase = 0.60,
+                    CarryScaleRecovery = 0.13
+                },
+                _ => new LensVisualProfile
+                {
+                    LensScale = 1.03,
+                    RefractionOverscanX = 0.26,
+                    RefractionOverscanY = 0.21,
+                    BaseDesktopOpacity = 0.70,
+                    RefractionLayers = 86,
+                    RefractionCurve = 1.58,
+                    RefractionDepth = 0.58,
+                    RefractionCompression = 0.70,
+                    RefractionPull = 38.0,
+                    ShimmerSpeed = 0.94,
+                    ShimmerAmount = 0.52,
+                    RefractionLayerOpacity = 0.014,
+                    RefractionOpenBoost = 0.038,
+                    GlassOpacity = 0.50,
+                    GlassCoreAlpha = 46,
+                    GlassMidAlpha = 22,
+                    GlassEdgeAlpha = 104,
+                    GlassRingCount = 62,
+                    GlassRingAlpha = 52,
+                    GlassRingFade = 0.62,
+                    GlassRingOpenBoost = 30,
+                    GlassRingWidth = 0.40,
+                    GlassRingDepthX = 0.54,
+                    GlassRingDepthY = 0.68,
+                    GlassRingThroatPull = 0.46,
+                    OuterRimAlpha = 238,
+                    OuterRimWidth = 1.36,
+                    OuterRimOpenWidth = 0.86,
+                    HighlightAlpha = 204,
+                    HighlightRadiusX = 0.13,
+                    HighlightRadiusY = 0.078,
+                    ThroatAlpha = 82,
+                    ThroatOpenAlpha = 66,
+                    ThroatRadiusX = 0.19,
+                    ThroatRadiusY = 0.066,
+                    TunnelRingCount = 92,
+                    TunnelDepthCurve = 1.78,
+                    TunnelDepthX = 0.62,
+                    TunnelDepthY = 0.78,
+                    TunnelOpenPull = 42,
+                    TunnelBasePull = 24,
+                    TunnelShimmer = 0.48,
+                    TunnelLightAlpha = 38,
+                    TunnelLightFade = 0.26,
+                    TunnelLightOpenBoost = 38,
+                    TunnelDarkAlpha = 24,
+                    TunnelDarkOpenBoost = 26,
+                    TunnelDarkFade = 0.12,
+                    TunnelDarkWidth = 1.18,
+                    TunnelLightWidth = 0.42,
+                    LightRayCount = 18,
+                    LightRayAlpha = 12,
+                    LightRayOpenBoost = 28,
+                    LightRayWidth = 0.42,
+                    ReflectedEdgeOpacity = 0.44,
+                    ReflectedEdgeOpenBoost = 0.16,
+                    RibbonCount = 11,
+                    RibbonAlpha = 20,
+                    RibbonOpenBoost = 34,
+                    RibbonWidth = 0.40,
+                    RimShardOpacity = 0.36,
+                    ApertureOpacity = 0.56,
+                    ApertureRingCount = 6,
+                    ApertureRingAlpha = 78,
+                    CarryScaleBase = 0.61,
+                    CarryScaleRecovery = 0.14
+                }
+            };
+        }
     }
 
     private sealed class StopwatchClock

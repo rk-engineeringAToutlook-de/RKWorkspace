@@ -1,7 +1,7 @@
 # MA006.11 GPU Living Lens Refraction
 
 Dokument-ID: RKWS-MA006-11-GPU-LIVING-LENS-REFRACTION
-Version: 1.11.0
+Version: 1.12.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -71,6 +71,13 @@ Er nutzt:
 - NoApexOvershoot: die Papier-Spitze darf nicht ueber den schwarzen Schlund hinauslaufen.
 - StableTunnelTargetLock: der aktive Tunnel wird mit Hysterese stabilisiert, damit kein unruhiges Ausloten zwischen Nachbartunneln entsteht.
 - ThroatPointCollapse: wenn das Ding direkt ueber dem schwarzen Schlund liegt, kollabiert es staerker zu einem Punkt und der Schriftzug verschwindet frueher.
+- drei sofort testbare Premium-Looks: `1` Glasblase, `2` Wurmloch, `3` Hybrid.
+- Glasblase priorisiert Transparenz, echte Desktop-Durchsicht, feine Lichtkante und ruhige Glasringe.
+- Wurmloch priorisiert Tiefe, inneren Schlund, Ribbons, Lichtstrahlen und staerkere Tunnelwirkung.
+- Hybrid kombiniert Glasmaterial und raeumlichen Tunnel als aktueller Standard.
+- kompakteres digitales Ding beim Greifen, damit es mehr wie ein genommenes Arbeitsobjekt und weniger wie ein grosses UI-Element wirkt.
+- Look-spezifische Entfernung, Intensitaet, Refraction-Schichten, Aperture-Schichten und Carry-Skalierung.
+- sichtbare Labor-Hilfe im Overlay: aktueller Look und Tasten `1`, `2`, `3`.
 - Portal-Handover-State mit 10 Sekunden Ruecknahmefenster nach Drop im Tunnel.
 - erneutes Nehmen innerhalb dieses Fensters setzt den Handover-Timer zurueck.
 - automatisches Tunnel-Schliessen nach unberuehrtem Ablauf.
@@ -193,6 +200,12 @@ ThroatSuctionTarget: OK
 NoApexOvershoot: OK
 StableTunnelTargetLock: OK
 ThroatPointCollapse: OK
+ThreePremiumLensLooks: OK
+GlassBubbleLook: OK
+WormholeLook: OK
+HybridLook: OK
+LiveLookSwitch: OK
+CompactCarryCard: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
@@ -219,6 +232,7 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.12.0 | 2026-07-04 | Drei sofort testbare Premium-Looks Glasblase, Wurmloch und Hybrid mit Live-Umschaltung dokumentiert. |
 | 1.11.0 | 2026-07-04 | Staerkeren Punkt-Kollaps direkt ueber dem schwarzen Schlund und frueheres Ausblenden des Papiertextes dokumentiert. |
 | 1.10.0 | 2026-07-04 | Schwarze Tunneloeffnung als einziges Sogziel, Apex-Kappung und stabiler Tunnel-Lock dokumentiert. |
 | 1.9.0 | 2026-07-04 | Acht-Tunnel-Testfeld mit Vektor-Sogmitte fuer Ecken und Seitenmitten dokumentiert. |

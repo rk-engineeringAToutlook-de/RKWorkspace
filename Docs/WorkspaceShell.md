@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.26.0
+Version: 1.30.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -320,6 +320,8 @@ Fuer den aktuellen Wahrnehmungstest kann die GPU Living Lens acht Tunnel gleichz
 
 Die sichtbare schwarze Tunneloeffnung ist dabei das einzige Sogziel. Papier und Schatten orientieren sich nicht mehr an der geometrischen Linsenmitte, sondern an diesem Schlundpunkt. Die Spitze des Papiers wird dort gekappt; direkt ueber dem Schlund kollabiert das Ding staerker zu einem Punkt und der aktive Tunnel besitzt eine kleine Hysterese, damit die Wahrnehmung nicht zwischen benachbarten Tunneln springt.
 
+Fuer den Premium-Vergleich kann der GPU-Lens-Slice live zwischen drei visuellen Raumhypothesen wechseln: `1` Glasblase, `2` Wurmloch und `3` Hybrid. Die Umschaltung aendert nur die Darstellung der Shell-Linse: Transparenz, Refraction-Schichten, Glasringe, Aperture, Tunnelribbons, Lichtkanten, Entfernungsskala und kompakte Carry-Skalierung. Core, Runtime, Agent, IPC, Transport und Discovery bleiben unveraendert.
+
 ## Spatial Carry Tray Prototype
 
 MA006.03 fuehrt den neuen Wahrnehmungspfad ein:
@@ -632,6 +634,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.30.0 | 2026-07-04 | Drei live testbare GPU-Living-Lens-Premium-Looks Glasblase, Wurmloch und Hybrid eingeordnet. |
 | 1.29.0 | 2026-07-04 | Punkt-Kollaps direkt ueber dem schwarzen Schlund fuer die GPU Living Lens eingeordnet. |
 | 1.28.0 | 2026-07-04 | Schwarze Tunneloeffnung als Sogziel, Apex-Kappung und stabiler Tunnel-Lock eingeordnet. |
 | 1.27.0 | 2026-07-04 | GPU Living Lens Acht-Tunnel-Testfeld mit vektorbasiertem Sogzentrum eingeordnet. |

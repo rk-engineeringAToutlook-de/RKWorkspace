@@ -58,6 +58,27 @@ public sealed class GpuLivingLensWindow : Window
             var position = Mouse.GetPosition(_surface);
             _surface.ActivatePickAt(position);
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
+            return;
+        }
+
+        if (e.Key is Key.D1 or Key.NumPad1)
+        {
+            e.Handled = true;
+            _surface.SetLensLook(GpuLivingLensLook.GlassBubble);
+            return;
+        }
+
+        if (e.Key is Key.D2 or Key.NumPad2)
+        {
+            e.Handled = true;
+            _surface.SetLensLook(GpuLivingLensLook.Wormhole);
+            return;
+        }
+
+        if (e.Key is Key.D3 or Key.NumPad3)
+        {
+            e.Handled = true;
+            _surface.SetLensLook(GpuLivingLensLook.Hybrid);
         }
     }
 }

@@ -13,6 +13,7 @@ public enum GpuLivingLensTransitState
 public sealed class GpuLivingLensSession
 {
     private float _openTarget;
+    private readonly HashSet<GpuLivingLensLook> _testedLooks = [];
 
     public float LensX { get; } = 0.995f;
 
@@ -49,6 +50,18 @@ public sealed class GpuLivingLensSession
     public bool StableTunnelTargetLockPrepared { get; } = true;
 
     public bool ThroatPointCollapsePrepared { get; } = true;
+
+    public bool ThreePremiumLensLooksPrepared { get; private set; } = true;
+
+    public bool GlassBubbleLookPrepared => _testedLooks.Contains(GpuLivingLensLook.GlassBubble);
+
+    public bool WormholeLookPrepared => _testedLooks.Contains(GpuLivingLensLook.Wormhole);
+
+    public bool HybridLookPrepared => _testedLooks.Contains(GpuLivingLensLook.Hybrid);
+
+    public bool LiveLookSwitchPrepared => GlassBubbleLookPrepared && WormholeLookPrepared && HybridLookPrepared;
+
+    public bool CompactCarryCardPrepared { get; } = true;
 
     public bool HlslShaderContractPrepared { get; } = true;
 
@@ -138,6 +151,11 @@ public sealed class GpuLivingLensSession
     public float ShadowX { get; private set; }
 
     public float ShadowY { get; private set; } = 22f;
+
+    public void SetLensLook(GpuLivingLensLook lensLook)
+    {
+        _testedLooks.Add(lensLook);
+    }
 
     public void Pick()
     {
@@ -326,6 +344,9 @@ public sealed class GpuLivingLensSession
 
     public void RunSmokeScenario()
     {
+        SetLensLook(GpuLivingLensLook.GlassBubble);
+        SetLensLook(GpuLivingLensLook.Wormhole);
+        SetLensLook(GpuLivingLensLook.Hybrid);
         Pick();
         Advance(1000);
         Carry(38f, -30f);

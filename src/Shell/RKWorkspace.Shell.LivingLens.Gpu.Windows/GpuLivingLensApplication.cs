@@ -62,6 +62,12 @@ public static class GpuLivingLensApplication
                 session.NoApexOvershootPrepared &&
                 session.StableTunnelTargetLockPrepared &&
                 session.ThroatPointCollapsePrepared &&
+                session.ThreePremiumLensLooksPrepared &&
+                session.GlassBubbleLookPrepared &&
+                session.WormholeLookPrepared &&
+                session.HybridLookPrepared &&
+                session.LiveLookSwitchPrepared &&
+                session.CompactCarryCardPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
                 session.LensAppearsOnPickPrepared &&
@@ -117,6 +123,12 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"NoApexOvershoot: {(session.NoApexOvershootPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"StableTunnelTargetLock: {(session.StableTunnelTargetLockPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ThroatPointCollapse: {(session.ThroatPointCollapsePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ThreePremiumLensLooks: {(session.ThreePremiumLensLooksPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"GlassBubbleLook: {(session.GlassBubbleLookPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"WormholeLook: {(session.WormholeLookPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"HybridLook: {(session.HybridLookPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"LiveLookSwitch: {(session.LiveLookSwitchPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"CompactCarryCard: {(session.CompactCarryCardPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"LensAppearsOnPick: {(session.LensAppearsOnPickPrepared ? "OK" : "FAILED")}");
