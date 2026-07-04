@@ -67,6 +67,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             (_velocity.X * damping) + (delta.X * spring),
             (_velocity.Y * damping) + (delta.Y * spring));
         _thingCenter += _velocity;
+        if (_isHolding && _velocity.Length > 0.30)
+        {
+            _session.Carry((float)(_velocity.X * 1.45), (float)(_velocity.Y * 1.45));
+        }
 
         InvalidateVisual();
     }
@@ -117,9 +121,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
         var point = ProjectThroughScreenEdge(e.GetPosition(this));
         _targetCenter = point - _grabOffset;
-        var movement = _targetCenter - _lastTargetCenter;
         _lastTargetCenter = _targetCenter;
-        _session.Carry((float)movement.X, (float)movement.Y);
         if (IsNearLens(_targetCenter, 210))
         {
             _session.ApproachLens((float)NormalizedLensNearness(_targetCenter));
@@ -188,20 +190,20 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             var refracted = new Rect(bounds.X - (bounds.Width * 0.16), bounds.Y - (bounds.Height * 0.12), bounds.Width * 1.32, bounds.Height * 1.24);
             drawingContext.DrawImage(_desktopSample, refracted);
 
-            for (var index = 1; index <= 7; index++)
+            for (var index = 1; index <= 16; index++)
             {
-                var layer = index / 7.0;
-                var tunnelScale = 1.0 - (layer * 0.28);
+                var layer = index / 16.0;
+                var tunnelScale = 1.0 - (layer * 0.38);
                 var tunnelWidth = bounds.Width * tunnelScale;
-                var tunnelHeight = bounds.Height * (1.0 - (layer * 0.36));
-                var tunnelShift = (open * 8.0 * layer) + (Math.Sin(_phase * 1.6 + index) * 1.5);
+                var tunnelHeight = bounds.Height * (1.0 - (layer * 0.52));
+                var tunnelShift = (open * 13.0 * layer) + (Math.Sin(_phase * 1.8 + index) * 1.2);
                 var tunnel = new Rect(
                     center.X - (tunnelWidth / 2) + tunnelShift,
                     center.Y - (tunnelHeight / 2) + (layer * 5.0),
                     tunnelWidth,
                     tunnelHeight);
 
-                drawingContext.PushOpacity(0.10 + (open * 0.035));
+                drawingContext.PushOpacity(0.055 + (open * 0.040));
                 drawingContext.DrawImage(_desktopSample, tunnel);
                 drawingContext.Pop();
             }
@@ -220,10 +222,10 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         glass.GradientStops.Add(new GradientStop(WColor.FromArgb(104, 96, 116, 120), 1.0));
         drawingContext.DrawEllipse(glass, null, center, bounds.Width / 2, bounds.Height / 2);
 
-        for (var index = 0; index < 12; index++)
+        for (var index = 0; index < 22; index++)
         {
-            var layer = index / 11.0;
-            var alpha = (byte)Math.Clamp(48 - (index * 3) + (open * 20), 10, 72);
+            var layer = index / 21.0;
+            var alpha = (byte)Math.Clamp(46 - (index * 1.3) + (open * 24), 8, 74);
             var ringPen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 248, 255, 255)), 0.55 + (open * 0.18));
             var rx = (bounds.Width / 2) * (1.0 - (layer * 0.44));
             var ry = (bounds.Height / 2) * (1.0 - (layer * 0.54));
@@ -265,10 +267,14 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
         if (lifted)
         {
-            var shadowAlpha = (byte)Math.Clamp((92 + (Math.Abs(_session.TiltX) * 5.0) + (Math.Abs(_session.TiltY) * 4.0)) * opacity, 20, 150);
+            var shadowSuction = SmoothStep(progress);
+            var shadowAlpha = (byte)Math.Clamp((96 + (Math.Abs(_session.TiltX) * 5.5) + (Math.Abs(_session.TiltY) * 4.5)) * opacity * (1.0 - (shadowSuction * 0.38)), 16, 160);
             var shadowBrush = new RadialGradientBrush(WColor.FromArgb(shadowAlpha, 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
-            var shadowCenter = new WPoint(center.X + _session.ShadowX, center.Y + (height * 0.48) + _session.ShadowY);
-            drawingContext.DrawEllipse(shadowBrush, null, shadowCenter, width * (0.45 + (Math.Abs(_session.TiltX) * 0.012)), height * (0.15 + (Math.Abs(_session.TiltY) * 0.008)));
+            var freeShadowCenter = new WPoint(center.X + _session.ShadowX, center.Y + (height * 0.48) + _session.ShadowY);
+            var shadowCenter = Interpolate(freeShadowCenter, LensCenter() + new Vector(-18, 22), shadowSuction * 0.84);
+            var shadowWidth = width * (0.47 + (Math.Abs(_session.TiltX) * 0.016)) * (1.0 - (shadowSuction * 0.50));
+            var shadowHeight = height * (0.15 + (Math.Abs(_session.TiltY) * 0.010)) * (1.0 - (shadowSuction * 0.32));
+            drawingContext.DrawEllipse(shadowBrush, null, shadowCenter, shadowWidth, shadowHeight);
         }
 
         drawingContext.PushTransform(new RotateTransform(_session.TiltX * 0.18, center.X, center.Y));
@@ -366,8 +372,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private static StreamGeometry CreateThingGeometry(Rect bounds, double absorption, double tiltX, double tiltY)
     {
-        var directionX = Math.Clamp(tiltX / 12.0, -1.0, 1.0);
-        var directionY = Math.Clamp(-tiltY / 12.0, -1.0, 1.0);
+        var directionX = Math.Clamp(tiltX / 14.0, -1.0, 1.0);
+        var directionY = Math.Clamp(-tiltY / 14.0, -1.0, 1.0);
         var pull = bounds.Width * 0.20 * absorption;
         var geometry = new StreamGeometry();
         using var context = geometry.Open();
@@ -393,8 +399,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var dot = (cornerX * directionX) + (cornerY * directionY);
         var recede = Math.Max(0, dot);
         var forward = Math.Max(0, -dot);
-        var offsetX = (-cornerX * recede * bounds.Width * 0.095) + (cornerX * forward * bounds.Width * 0.060);
-        var offsetY = (-cornerY * recede * bounds.Height * 0.140) + (cornerY * forward * bounds.Height * 0.085);
+        var offsetX = (-cornerX * recede * bounds.Width * 0.145) + (cornerX * forward * bounds.Width * 0.085);
+        var offsetY = (-cornerY * recede * bounds.Height * 0.210) + (cornerY * forward * bounds.Height * 0.125);
         return new WPoint(x + offsetX + pull, y + offsetY);
     }
 

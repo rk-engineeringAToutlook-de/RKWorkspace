@@ -11,4 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\LivingLensRefraction.hlsl" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

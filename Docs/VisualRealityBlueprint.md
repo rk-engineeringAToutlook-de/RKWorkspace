@@ -865,7 +865,9 @@ Geprueft wird:
 - Pull-out aus der Linse.
 - vektorielle Trapez-Neigung aus der Bewegungsrichtung.
 - Schatten nur im Tragezustand.
+- Schatten-Sog in Richtung Tunnel.
 - zusaetzliche Tunnel-Tiefenschichten.
+- HLSL-Shader-Vertrag als Vorbereitung des Direct2D-/Win2D-Pfads.
 
 Noch nicht geloest:
 
@@ -892,6 +894,7 @@ MA006.09 baut noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.9.0 | 2026-07-04 | Shader-Sprung mit Backup-Tag, HLSL-Vertrag und Schatten-Sog fuer die Living Lens ergaenzt. |
 | 1.8.0 | 2026-07-04 | GPU Living Lens Owner-Feedback zu Randanteil, Pick-Emergence, Perspektiv-Trapez, CarryShadowOnly und Tunnel-Tiefe ergaenzt. |
 | 1.7.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction mit Desktop-Sampling, Refraction-Map und EdgeContinuation ergaenzt. |
 | 1.6.0 | 2026-07-04 | Owner-Video-Feedback zu Randlinse, Pull-out, Schatten, vektorieller Neigung, Brillanz und Performance aufgenommen. |

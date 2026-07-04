@@ -18,6 +18,8 @@ public sealed class GpuLivingLensSession
 
     public bool TunnelDepthPrepared { get; } = true;
 
+    public bool HlslShaderContractPrepared { get; } = true;
+
     public bool NoWhiteBlock { get; } = true;
 
     public bool DropRequiresRelease { get; private set; } = true;
@@ -27,6 +29,8 @@ public sealed class GpuLivingLensSession
     public bool VectorTiltPrepared { get; private set; }
 
     public bool ShadowPrepared { get; private set; }
+
+    public bool ShadowSuctionPrepared { get; private set; }
 
     public bool PerspectiveTrapezoidPrepared { get; private set; }
 
@@ -67,13 +71,13 @@ public sealed class GpuLivingLensSession
 
     public void Carry(float movementX, float movementY)
     {
-        var targetTiltX = Math.Clamp(movementX * 0.105f, -12.0f, 12.0f);
-        var targetTiltY = Math.Clamp(-movementY * 0.100f, -12.0f, 12.0f);
-        TiltX = (TiltX * 0.42f) + (targetTiltX * 0.58f);
-        TiltY = (TiltY * 0.42f) + (targetTiltY * 0.58f);
-        ShadowX = Math.Clamp(-TiltX * 2.8f, -28f, 28f);
-        ShadowY = Math.Clamp(24f + (MathF.Abs(TiltY) * 2.6f), 20f, 50f);
-        VectorTiltPrepared = Math.Abs(TiltX) > 0.35f && Math.Abs(TiltY) > 0.35f;
+        var targetTiltX = Math.Clamp(movementX * 0.220f, -14.0f, 14.0f);
+        var targetTiltY = Math.Clamp(-movementY * 0.210f, -14.0f, 14.0f);
+        TiltX = (TiltX * 0.34f) + (targetTiltX * 0.66f);
+        TiltY = (TiltY * 0.34f) + (targetTiltY * 0.66f);
+        ShadowX = Math.Clamp(-TiltX * 3.2f, -36f, 36f);
+        ShadowY = Math.Clamp(25f + (MathF.Abs(TiltY) * 3.0f), 20f, 58f);
+        VectorTiltPrepared = Math.Abs(TiltX) > 0.75f && Math.Abs(TiltY) > 0.75f;
         PerspectiveTrapezoidPrepared = VectorTiltPrepared;
         ShadowPrepared = IsHoldingThing && (ShadowY > 24f || Math.Abs(ShadowX) > 2f);
     }
@@ -97,6 +101,7 @@ public sealed class GpuLivingLensSession
         LensEmergence = 1f;
         LensOpen = 1f;
         Absorption = 0.01f;
+        ShadowSuctionPrepared = true;
     }
 
     public void PlaceOnSurface()

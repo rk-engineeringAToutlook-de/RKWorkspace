@@ -298,9 +298,13 @@ Geprueft werden:
 - Pull-out aus der Linse.
 - vektorielle Trapez-Neigung des Dings.
 - Schattenmodell nur fuer raeumliches Tragen.
+- Schatten-Sog in Richtung Linse bei der Aufnahme.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
+- HLSL-Shader-Vertrag als Uebergang zum Direct2D-/Win2D-Produktpfad.
 
 MA006.11 ist noch kein finaler HLSL-Shader. Die Stufe beweist den naechsten Produktpfad: reale Desktopdaten werden in die Linsenkomposition einbezogen. Fuer maximale Brillanz, physikalisch glaubwuerdige Verzerrung, Blur und Reflexe bleibt ein Direct2D-/Win2D-/HLSL-Renderer die naechste technische Stufe.
+
+Vor dem Shader-Sprung wurde der akzeptierte Stand mit `gpu-living-lens-depth-freeze-v1` und `backup/gpu-living-lens-depth-freeze-v1` eingefroren.
 
 ## Spatial Carry Tray Prototype
 
@@ -614,6 +618,7 @@ MA006.10R baut weiterhin nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.20.0 | 2026-07-04 | GPU Living Lens um Backup-Referenz, HLSL-Shader-Vertrag und Schatten-Sog beim Einsaugen erweitert. |
 | 1.19.0 | 2026-07-04 | GPU Living Lens um Pick-Emergence, 85-90 Prozent sichtbare Randlinse, Perspektiv-Trapez, CarryShadowOnly und Tunnel-Tiefe ergaenzt. |
 | 1.18.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype mit Desktop-Sampling, Rand-Durchgang und Shader-Grenze dokumentiert. |
 | 1.17.0 | 2026-07-04 | Living Lens Randlinse, Pull-out, Frame-Pacing, Brillanz und weiche Tiefe nach Owner-Video-Feedback ergaenzt. |

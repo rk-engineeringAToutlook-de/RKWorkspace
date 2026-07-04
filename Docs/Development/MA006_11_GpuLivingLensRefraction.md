@@ -48,7 +48,9 @@ Er nutzt:
 - Pull-out aus der Linse.
 - staerkere perspektivische Trapez-Neigung aus der Bewegungsrichtung.
 - Schattenmodell nur unter dem getragenen Ding.
+- Schatten-Sog bei der Linsenaufnahme.
 - zusaetzliche Tunnel-Tiefenschichten in der Linse.
+- HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Produktpfad.
 
 ## Human Experience
 
@@ -86,6 +88,39 @@ Refraction-Map-Vorbereitung
 
 Der naechste Qualitaetssprung ist Direct2D, Win2D oder HLSL.
 
+## Backup
+
+Vor dem Shader-Sprung wurde der getestete Stand eingefroren:
+
+```text
+Tag: gpu-living-lens-depth-freeze-v1
+Branch: backup/gpu-living-lens-depth-freeze-v1
+Commit: 997fee3fb801b62c603bb69446cc34683f604cb9
+```
+
+Damit kann der Stand mit sauberer Randlinse, Pick-Emergence, Perspektiv-Trapez und Tunnel-Tiefe jederzeit wiederhergestellt werden.
+
+## HLSL-Vertrag
+
+Der Shader-Vertrag liegt in:
+
+```text
+src/Shell/RKWorkspace.Shell.LivingLens.Gpu.Windows/Shaders/LivingLensRefraction.hlsl
+```
+
+Er definiert die Parameter fuer den spaeteren Direct2D-/Win2D-Pfad:
+
+- Desktop-Input.
+- LensCenter.
+- LensRadius.
+- TunnelDepth.
+- Absorption.
+- TimeSeconds.
+- ShadowSuction.
+- ObjectMotion.
+
+Die aktuelle sichtbare WPF-/GPU-Komposition spiegelt diese Logik in C# wider. Der HLSL-Vertrag ist damit die Uebergangsform zum nativen Shader-Renderer.
+
 ## Verifikation
 
 Pflicht:
@@ -101,11 +136,14 @@ Erwartung:
 GpuComposition: READY
 DesktopSampling: OK
 DesktopRefraction: OK
+HlslShaderContract: OK
+TunnelDepthLayers: OK
 EdgeContinuation: OK
 LensAppearsOnPick: OK
 DropRequiresRelease: OK
 PullOutFromLens: OK
 PerspectiveTrapezoid: OK
+ShadowSuction: OK
 CarryShadowOnly: OK
 GpuLivingLensSmoke: SUCCESS
 RESULT: SUCCESS
@@ -115,5 +153,6 @@ RESULT: SUCCESS
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.2.0 | 2026-07-04 | Backup-Tag, HLSL-Shader-Vertrag und ShadowSuction fuer den Direct2D-/Win2D-Pfad dokumentiert. |
 | 1.1.0 | 2026-07-04 | Owner-Feedback zu 85-90 Prozent sichtbarer Randlinse, Pick-Emergence, Trageschatten, Perspektiv-Trapez und Tunnel-Tiefe aufgenommen. |
 | 1.0.0 | 2026-07-04 | MA006.11 GPU Living Lens Refraction Prototype dokumentiert. |

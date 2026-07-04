@@ -669,6 +669,7 @@ GpuComposition: READY
 DesktopSampling: OK
 DesktopRefraction: OK
 ShaderReadyMap: OK
+HlslShaderContract: OK
 TunnelDepthLayers: OK
 PrimaryEdgeLens: OK
 EdgeContinuation: OK
@@ -679,6 +680,7 @@ PullOutFromLens: OK
 VectorTilt: OK
 PerspectiveTrapezoid: OK
 ShadowModel: OK
+ShadowSuction: OK
 CarryShadowOnly: OK
 GpuLivingLensSmoke: SUCCESS
 RESULT: SUCCESS
@@ -693,8 +695,10 @@ Der Test prueft ausdruecklich:
 - das Ding rastet nicht automatisch ein.
 - Pull-out bleibt moeglich.
 - vektorielle Trapez-Neigung und Schattenmodell sind vorbereitet.
+- der Schatten wird bei Absorption zur Linse gezogen.
 - der Trageschatten ist an den Carry-Zustand gekoppelt.
 - Tunnel-Tiefenschichten sind vorbereitet.
+- ein HLSL-Shader-Vertrag fuer den Direct2D-/Win2D-Pfad liegt im Projekt.
 
 Der Test prueft noch nicht:
 
@@ -714,6 +718,7 @@ Der Test prueft noch nicht:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.18.0 | 2026-07-04 | GPU Living Lens Smoke-Test um HlslShaderContract und ShadowSuction erweitert. |
 | 2.17.0 | 2026-07-04 | GPU Living Lens Smoke-Test um LensAppearsOnPick, TunnelDepthLayers, PerspectiveTrapezoid und CarryShadowOnly erweitert. |
 | 2.16.0 | 2026-07-04 | MA006.11 GPU Living Lens Smoke-Test mit Desktop-Sampling, Refraction-Vorbereitung und EdgeContinuation dokumentiert. |
 | 2.15.0 | 2026-07-04 | Living Lens Smoke-Test um PrimaryEdgeLens, NoWhiteAblageFrame und PullOutFromLens erweitert. |

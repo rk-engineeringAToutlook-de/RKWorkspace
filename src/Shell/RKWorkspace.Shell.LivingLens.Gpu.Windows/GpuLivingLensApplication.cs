@@ -39,6 +39,7 @@ public static class GpuLivingLensApplication
                 session.GpuCompositionPrepared &&
                 session.DesktopRefractionPrepared &&
                 session.RefractionMapPrepared &&
+                session.HlslShaderContractPrepared &&
                 session.TunnelDepthPrepared &&
                 session.PrimaryLensHugsScreenEdge &&
                 session.EdgeContinuationPrepared &&
@@ -49,6 +50,7 @@ public static class GpuLivingLensApplication
                 session.VectorTiltPrepared &&
                 session.PerspectiveTrapezoidPrepared &&
                 session.ShadowPrepared &&
+                session.ShadowSuctionPrepared &&
                 session.CarryShadowOnlyPrepared &&
                 desktopSampleOk;
 
@@ -62,6 +64,7 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"DesktopSampling: {(desktopSampleOk ? "OK" : "FAILED")}");
             Console.WriteLine($"DesktopRefraction: {(session.DesktopRefractionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShaderReadyMap: {(session.RefractionMapPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"HlslShaderContract: {(session.HlslShaderContractPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TunnelDepthLayers: {(session.TunnelDepthPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PrimaryEdgeLens: {(session.PrimaryLensHugsScreenEdge ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeContinuation: {(session.EdgeContinuationPrepared ? "OK" : "FAILED")}");
@@ -72,6 +75,7 @@ public static class GpuLivingLensApplication
             Console.WriteLine($"VectorTilt: {(session.VectorTiltPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"PerspectiveTrapezoid: {(session.PerspectiveTrapezoidPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShadowModel: {(session.ShadowPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ShadowSuction: {(session.ShadowSuctionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CarryShadowOnly: {(session.CarryShadowOnlyPrepared ? "OK" : "FAILED")}");
             Console.WriteLine(success ? "GpuLivingLensSmoke: SUCCESS" : "GpuLivingLensSmoke: FAILED");
             Console.WriteLine(success ? "RESULT: SUCCESS" : "RESULT: FAILED");
