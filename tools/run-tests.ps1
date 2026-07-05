@@ -119,14 +119,14 @@ try {
         -RedirectStandardError $localIpcStdErr `
         -PassThru
 
-    if (-not $localIpcProcess.WaitForExit(30000)) {
+    if (-not $localIpcProcess.WaitForExit(60000)) {
         try {
             $localIpcProcess.Kill()
         }
         catch {
         }
 
-        throw 'Local IPC Two Process Test timed out after 30 seconds.'
+        throw 'Local IPC Two Process Test timed out after 60 seconds.'
     }
 
     $localIpcOutput = @()

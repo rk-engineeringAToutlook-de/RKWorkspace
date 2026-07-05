@@ -13,6 +13,23 @@ Plattform-Threads koennen ab MA007.00 parallel arbeiten, wenn sie die gemeinsame
 - `RKWorkspace.Frame.Pdf`
 - `RKWorkspace.Surface.Abstractions`
 
+## Gemeinsame Surface Contracts
+
+- `ISurfaceHost`
+- `ISurfaceOverlay`
+- `ISurfaceGestureProvider`
+- `ISurfaceHapticsProvider`
+- `ISurfaceProximityProvider`
+- `ISurfaceFramePresenter`
+- `ISurfaceInputChannel`
+- `ISurfacePlacementAdapter`
+- `ISurfaceObjectAdapter`
+- `ISurfaceSecurityContext`
+- `GestureType`
+- `GestureState`
+- `SurfacePlatform`
+- `SurfaceCapabilities`
+
 ## Plattformaufgaben
 
 - Windows: native Frame-Presentation und Glass Edge mit realem Desktop.

@@ -87,6 +87,8 @@ Ab MA007.00 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-tests.ps1` 
 
 Ab MA007.01 muss der PDF Frame Smoke zusaetzlich in erlaubter Sprache melden, dass die PDF als Frame ausgeliehen ist, der Frame geoeffnet wurde, die PDF nur im Frame liegt und zurueckgegeben wurde. Der Testpfad darf keine Begriffe wie Senden, Empfangen, Upload, Download oder freie Dateiuebertragung als Erfolgssprache verwenden.
 
+Ab MA007.02 pruefen die RKWP-Tests zusaetzlich die Surface Foundation: `SurfacePlatform` muss Windows, macOS, iOS, iPadOS, Android und Linux enthalten; `GestureType` muss Ziel- und Fallback-Gesten enthalten; PlatformTasks-Dokumente muessen fuer macOS Accessibility/Screen Recording/Sandbox und fuer iOS/iPadOS Xcode/USB-Handoff dokumentieren.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

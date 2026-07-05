@@ -23,7 +23,10 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("ObjectKindRules", ObjectKindRuleChecks),
     ("NoFileIngress", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).GuestHasNoFileIngress),
     ("PdfFrameOnly", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).IsSuccessful),
-    ("SurfaceContracts", SurfaceContracts)
+    ("SurfaceContracts", SurfaceContracts),
+    ("GestureTypes", GestureTypes),
+    ("SurfacePlatforms", SurfacePlatforms),
+    ("SurfaceDocs", SurfaceDocs)
 };
 
 Console.WriteLine("RK Workspace RKWP Protocol Tests");
@@ -188,8 +191,45 @@ static bool ObjectKindRuleChecks()
 static bool SurfaceContracts()
 {
     var placement = new SurfaceFramePlacement("tablet", "right", 0.4, true);
-    var identity = new SurfaceIdentity("tablet", WorkspaceSurfacePlatform.IPadOS, "Tablet", "desk");
-    return placement.IsNearest && identity.Platform == WorkspaceSurfacePlatform.IPadOS;
+    var identity = new SurfaceIdentity("tablet", SurfacePlatform.IPadOS, "Tablet", "desk");
+    var capabilities = SurfaceCapabilities.Overlay | SurfaceCapabilities.GlassEdge | SurfaceCapabilities.FramePresentation;
+    return placement.IsNearest &&
+           identity.Platform == SurfacePlatform.IPadOS &&
+           capabilities.HasFlag(SurfaceCapabilities.FramePresentation);
+}
+
+static bool GestureTypes()
+{
+    var values = Enum.GetValues<GestureType>();
+    return values.Contains(GestureType.ThreeFingerHold) &&
+           values.Contains(GestureType.LongPress) &&
+           values.Contains(GestureType.MouseLongPress) &&
+           values.Contains(GestureType.KeyboardActivation) &&
+           values.Contains(GestureType.TouchHold) &&
+           values.Contains(GestureType.PenHold);
+}
+
+static bool SurfacePlatforms()
+{
+    var values = Enum.GetValues<SurfacePlatform>();
+    return values.Contains(SurfacePlatform.Windows) &&
+           values.Contains(SurfacePlatform.MacOS) &&
+           values.Contains(SurfacePlatform.IOS) &&
+           values.Contains(SurfacePlatform.IPadOS) &&
+           values.Contains(SurfacePlatform.Android) &&
+           values.Contains(SurfacePlatform.Linux);
+}
+
+static bool SurfaceDocs()
+{
+    var root = FindRoot();
+    var mac = File.ReadAllText(Path.Combine(root, "Docs", "Codex", "PlatformTasks", "macOS.md"));
+    var ios = File.ReadAllText(Path.Combine(root, "Docs", "Codex", "PlatformTasks", "iOS_iPadOS.md"));
+    return mac.Contains("Accessibility", StringComparison.OrdinalIgnoreCase) &&
+           mac.Contains("Screen Recording", StringComparison.OrdinalIgnoreCase) &&
+           mac.Contains("Sandbox", StringComparison.OrdinalIgnoreCase) &&
+           ios.Contains("Xcode", StringComparison.OrdinalIgnoreCase) &&
+           ios.Contains("USB", StringComparison.OrdinalIgnoreCase);
 }
 
 static string FindRoot()

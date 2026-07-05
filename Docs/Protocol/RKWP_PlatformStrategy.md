@@ -19,6 +19,8 @@ Alle Plattformen teilen:
 - Surface-Abstraktionen
 - Gesture- und Proximity-Vertraege
 
+Die Surface-Abstraktionen sind ab MA007.02 als einzelne Contract-Dateien unter `src/Surfaces/RKWorkspace.Surface.Abstractions/` angelegt. Plattformadapter implementieren diese Verträge und duerfen keine neuen Ownership-Regeln erfinden.
+
 ## Plattformgrenzen
 
 Die Surface-Projekte duerfen native APIs nutzen, aber nicht die Ownership-Regeln neu definieren. Sie uebersetzen nur:

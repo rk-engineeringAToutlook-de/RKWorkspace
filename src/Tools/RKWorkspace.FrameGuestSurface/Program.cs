@@ -3,7 +3,7 @@ using RKWorkspace.Surface.Abstractions;
 
 var pdfPath = FindSamplePdf();
 var result = new PdfFrameOwnerService().OpenFrameOnlySession(pdfPath);
-var identity = new SurfaceIdentity("ablage-tablet-guest", WorkspaceSurfacePlatform.IPadOS, "Tablet Ablage", "desk");
+var identity = new SurfaceIdentity("ablage-tablet-guest", SurfacePlatform.IPadOS, "Tablet Ablage", "desk");
 
 Console.WriteLine("RK Workspace Frame Guest Surface");
 Console.WriteLine($"Surface: {identity.DisplayName}");
