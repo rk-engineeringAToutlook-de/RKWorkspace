@@ -969,6 +969,37 @@ if (-not $mobileGlassEdgeText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'RKWP Dev Transport Smoke Test'
+Write-Host '-----------------------------'
+$rkwpTransportOutput = & (Join-Path $root 'tools\run-rkwp-transport.ps1') -SmokeTest 2>&1
+$rkwpTransportExitCode = $LASTEXITCODE
+$rkwpTransportText = $rkwpTransportOutput -join [Environment]::NewLine
+$rkwpTransportOutput | ForEach-Object { Write-Host $_ }
+if ($rkwpTransportExitCode -ne 0) {
+    throw "RKWP Dev Transport Smoke Test failed with exit code $rkwpTransportExitCode."
+}
+
+if (-not $rkwpTransportText.Contains('Transport: NamedPipeDev')) {
+    throw "RKWP Dev Transport Smoke Test failed because output did not contain Transport: NamedPipeDev."
+}
+
+if (-not $rkwpTransportText.Contains('AblageHello: OK')) {
+    throw "RKWP Dev Transport Smoke Test failed because output did not contain AblageHello: OK."
+}
+
+if (-not $rkwpTransportText.Contains('FrameUpdate: OK')) {
+    throw "RKWP Dev Transport Smoke Test failed because output did not contain FrameUpdate: OK."
+}
+
+if (-not $rkwpTransportText.Contains('CarryLeaseHeartbeat: OK')) {
+    throw "RKWP Dev Transport Smoke Test failed because output did not contain CarryLeaseHeartbeat: OK."
+}
+
+if (-not $rkwpTransportText.Contains('RESULT: SUCCESS')) {
+    throw "RKWP Dev Transport Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'RKWP Protocol Smoke Test'
 Write-Host '------------------------'
 $rkwpOutput = & (Join-Path $root 'tools\run-rkwp-tests.ps1') 2>&1

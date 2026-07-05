@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.13 vertieft die Proximity-Schicht. Simulierte Ablagen funktionieren, die manuelle Raumkarte ist vorbereitet, und der Selector waehlt stabil genau eine naechste Ablage fuer die gläserne Kante.
+MA008.01 fuehrt den ersten RKWP Dev-Transport ein. `NamedPipeDev` verbindet lokale Ablagen fuer Smoke Tests und prueft Hello, Capabilities, SessionId, Heartbeat, FrameUpdate, Error, Timeout und Disconnect.
 
 ## Naechster Fokus
 
-Nach MA007.13 liegt der Fokus auf Readiness Review, Context Pack und erstem Cross-Device-Testplan. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA008.01 liegt der Fokus auf Ablage Identity, Trust Bootstrap und Pairing-Grundlage. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 ## Entfernung und Ablage-Anker
 

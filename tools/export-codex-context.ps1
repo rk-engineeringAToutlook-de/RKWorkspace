@@ -39,6 +39,7 @@ $files = @(
     'Docs\Protocol\RKWP_ProtocolFoundation.md',
     'Docs\Protocol\RKWP_SecurityModel.md',
     'Docs\Protocol\RKWP_TransportProfiles.md',
+    'Docs\Protocol\RKWP_DevTransport.md',
     'Docs\Protocol\RKWP_OwnershipAndLease.md',
     'Docs\Protocol\RKWP_FrameSession.md',
     'Docs\Protocol\RKWP_InputChannel.md',

@@ -5,12 +5,12 @@ Datum: 2026-07-05
 ## Branch
 
 ```text
-feature/ma007-followup-original-owned-frame-platforms
+feature/ma008-rkwp-devtransport-e2e-frame
 ```
 
 ## Aktueller Auftrag
 
-MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Handoffs vor. Aktueller Stand: MA007.14 Readiness Review, Cross-Device-Testplan und Context Pack.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.01 RKWP Dev Transport.
 
 ## Implementierte Schichten
 
@@ -28,6 +28,8 @@ MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Hando
 - `src/Tools/RKWorkspace.PdfFrameOwner`
 - `src/Tools/RKWorkspace.FrameGuestSurface`
 - `src/Adapters/RKWorkspace.ObjectAdapter.Windows`
+- `src/Communication/RKWorkspace.Transport.Dev`
+- `src/Tools/RKWorkspace.RkwpTransportHarness`
 
 ## Semantik
 
@@ -40,6 +42,7 @@ Input ist policygebunden. Aenderungen laufen als ChangeSet zur Owner-Entscheidun
 ```powershell
 .\tools\run-rkwp-tests.ps1
 .\tools\run-pdf-frame-smoke.ps1
+.\tools\run-rkwp-transport.ps1 -SmokeTest
 ```
 
 ## Surface Foundation
@@ -100,6 +103,26 @@ MA007.14 liefert:
 - `Docs/Readiness/CrossDeviceTestPlan_Windows_macOS_iPad.md`
 - `Docs/Readiness/NextCodexActions.md`
 - `release/MA007_READINESS_SUMMARY.md`
+
+## RKWP Dev Transport
+
+MA008.01 liefert:
+
+- `src/Communication/RKWorkspace.Transport/Rkwp/`
+- `src/Communication/RKWorkspace.Transport.Dev/`
+- `src/Tools/RKWorkspace.RkwpTransportHarness/`
+- `tools/run-rkwp-transport.ps1`
+- `Docs/Protocol/RKWP_DevTransport.md`
+
+Gewaehlter Dev-Transport: `NamedPipeDev`.
+
+Smoke:
+
+```powershell
+.\tools\run-rkwp-transport.ps1 -SmokeTest
+```
+
+Geprueft werden `AblageHello`, `AblageCapabilities`, SessionId, `CarryLeaseHeartbeat`, `FrameUpdate`, Error Message, Timeout, Disconnect und No-Hang-Verhalten.
 
 ## Context Pack
 

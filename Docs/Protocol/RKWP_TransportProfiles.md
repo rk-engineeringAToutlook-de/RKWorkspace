@@ -13,11 +13,36 @@ RKWP ist transportneutral. Das Protocol-Projekt kennt keine Named Pipes, kein HT
 Spaetere Profile koennen sein:
 
 - LocalLoopback fuer Tests
-- NamedPipe fuer lokale Windows-Prozesse
-- LAN fuer Desktop-zu-Desktop
+- NamedPipeDev fuer lokale Windows-Prozesse
+- LocalNetworkDev fuer lokale Labornetze
+- WebSocketDev fuer spaetere Dev-Experimente ohne Browser-UI
+- FutureTcpTls fuer produktivere Desktop-zu-Desktop-Pfade
 - WebRTC fuer mobile Oberflaechen
 - BLE/UWB nur fuer Naehe und Richtung, nicht fuer Payload
 - USB-Dongle als Ablage-Anker und Trust-/Proximity-Hilfe
+
+## MA008.01 Dev Transport
+
+Der erste aktive Dev-Transport ist `NamedPipeDev` in `RKWorkspace.Transport.Dev`.
+
+Er prueft lokal:
+
+- `AblageHello`
+- `AblageCapabilities`
+- SessionId-Aushandlung
+- `CarryLeaseHeartbeat`
+- `FrameUpdate`
+- Error Message
+- Timeout
+- Disconnect
+
+Script:
+
+```powershell
+.\tools\run-rkwp-transport.ps1 -SmokeTest
+```
+
+Dieser Pfad ist nur Entwicklung. Er ist kein produktives Transportprofil.
 
 ## Proximity ist kein Payload-Transport
 

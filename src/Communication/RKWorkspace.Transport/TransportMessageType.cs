@@ -14,5 +14,9 @@ public enum TransportMessageType
     LiveSessionEvent,
     WorkspaceWindowFrame,
     WorkspaceObjectUpdate,
-    InputEvent
+    InputEvent,
+    AblageHello,
+    AblageCapabilities,
+    CarryLeaseHeartbeat,
+    FrameUpdate
 }

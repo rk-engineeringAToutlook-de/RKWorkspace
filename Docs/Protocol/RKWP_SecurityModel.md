@@ -31,6 +31,21 @@ Wichtig:
 - Der Development Protector markiert sich selbst als Development-only und meldet, dass keine echte Verschluesselung und keine echte produktive Authentisierung stattfindet.
 - Produktive Profile muessen spaeter Session-Schluessel, Authenticated Encryption und Replay-Schutz enthalten.
 
+## Dev Transport Security
+
+MA008.01 fuehrt `NamedPipeDev` als lokalen RKWP Dev-Transport ein. Dieser Transport ist ausschliesslich fuer Entwicklung und Smoke Tests gedacht.
+
+Er darf nicht als produktiv gelten, weil ihm noch fehlen:
+
+- produktive Verschluesselung
+- gegenseitige Ablage-Authentisierung
+- Session Keys
+- produktiver Trust Store
+- Pairing
+- produktive Transport-Auditierung
+
+Der Dev-Transport darf RKWP-Security-Felder durchreichen und testen, aber er ersetzt nicht den `RkwpSessionProtector`.
+
 ## Replay-Schutz
 
 Jede RKWP-Nachricht besitzt `Nonce` und `SequenceNumber`. `RkwpSequenceValidator` erzwingt fuer eine Session:
