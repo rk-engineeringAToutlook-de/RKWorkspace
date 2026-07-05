@@ -83,3 +83,9 @@ Deshalb gilt:
 - Guest Frame enthaelt keine Originaldatei.
 - CopyOut, ForkVersion und MoveOwnership brauchen spaeter explizite Bestaetigung und Policy.
 - Lease-Verlust fuehrt zur Owner-Recovery.
+
+## Ownership Transfer Gate
+
+MA007.08 schaerft Ownership Transfer als separates Security Gate. Ohne ausdrueckliche Policy wird OwnershipTransfer abgelehnt. Nur `Approved` darf materialisieren. `RequiresUserConfirmation`, `RequiresAdapter`, `Denied` und `NotSupported` erzeugen keine neue Quelle der Wahrheit.
+
+Objektarten bleiben relevant: `SettingsWindow` ist nicht uebernehmbar, `RemoteSession` braucht passende Handoff-Capabilities, und `MoveOwnership` braucht immer starke Bestaetigung.

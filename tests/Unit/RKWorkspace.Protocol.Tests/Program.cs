@@ -37,6 +37,17 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("HeartbeatMissingStartsGrace", HeartbeatMissingStartsGrace),
     ("LeaseRecovery", LeaseRecovery),
     ("OwnershipTransferGuard", OwnershipTransferGuard),
+    ("OwnershipTransferDefaultDenies", OwnershipTransferDefaultDenies),
+    ("OwnershipTransferPolicyAllowsCopyOut", OwnershipTransferPolicyAllowsCopyOut),
+    ("OwnershipTransferPolicyRequiresConfirmation", OwnershipTransferPolicyRequiresConfirmation),
+    ("OwnershipTransferSettingsWindowDenies", OwnershipTransferSettingsWindowDenies),
+    ("OwnershipTransferRemoteSessionRequiresCapability", OwnershipTransferRemoteSessionRequiresCapability),
+    ("OwnershipTransferMaterializationContainsDisposition", OwnershipTransferMaterializationContainsDisposition),
+    ("OwnershipTransferMoveOwnershipOnlyWhenApproved", OwnershipTransferMoveOwnershipOnlyWhenApproved),
+    ("OwnershipTransferRetainOriginalKeepsOwner", OwnershipTransferRetainOriginalKeepsOwner),
+    ("OwnershipTransferMarkAsMoved", OwnershipTransferMarkAsMoved),
+    ("OwnershipTransferCreateVersionLink", OwnershipTransferCreateVersionLink),
+    ("OwnershipTransferDeniedDoesNotChangeOwnership", OwnershipTransferDeniedDoesNotChangeOwnership),
     ("ObjectKindRules", ObjectKindRuleChecks),
     ("NoFileIngress", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).GuestHasNoFileIngress),
     ("PdfFrameOnly", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).IsSuccessful),
@@ -377,7 +388,163 @@ static bool OwnershipTransferGuard()
 {
     var request = new OwnershipTransferRequest("request-1", "thing-1", "owner", "guest", OwnershipMode.MoveOwnership, DateTimeOffset.UtcNow);
     var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipPolicy.CriticalDefault);
-    return decision.Decision == OwnershipTransferDecisionKind.RequiresUserConfirmation;
+    return decision.Decision == OwnershipTransferDecisionKind.Denied &&
+           decision.Denied &&
+           !decision.Approved;
+}
+
+static bool OwnershipTransferDefaultDenies()
+{
+    var request = new OwnershipTransferRequest("request-default-deny", "thing-1", "owner", "guest", OwnershipMode.CopyOut, DateTimeOffset.UtcNow);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipPolicy.CriticalDefault);
+    return decision.Decision == OwnershipTransferDecisionKind.Denied &&
+           decision.OriginalDisposition == OriginalDisposition.RetainOriginal;
+}
+
+static bool OwnershipTransferPolicyAllowsCopyOut()
+{
+    var now = DateTimeOffset.UtcNow;
+    var request = new OwnershipTransferRequest("request-copyout", "thing-1", "owner", "guest", OwnershipMode.CopyOut, now);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.CopyOut));
+    var materialized = OwnershipTransferService.MaterializeDetailed(request, decision, now);
+    return decision.Decision == OwnershipTransferDecisionKind.Approved &&
+           decision.Approved &&
+           materialized.CreatedGuestThing &&
+           materialized.Mode == OwnershipMode.CopyOut &&
+           materialized.TargetAblageId == "guest";
+}
+
+static bool OwnershipTransferPolicyRequiresConfirmation()
+{
+    var request = new OwnershipTransferRequest(
+        "request-confirm",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.MoveOwnership,
+        DateTimeOffset.UtcNow,
+        RequestedDisposition: OriginalDisposition.MarkAsMoved);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.MoveOwnership));
+    return decision.Decision == OwnershipTransferDecisionKind.RequiresUserConfirmation &&
+           decision.RequiresUserConfirmation &&
+           decision.ApprovedMode == OwnershipMode.MoveOwnership;
+}
+
+static bool OwnershipTransferSettingsWindowDenies()
+{
+    var request = new OwnershipTransferRequest("request-settings", "settings-1", "owner", "guest", OwnershipMode.MoveOwnership, DateTimeOffset.UtcNow);
+    var decision = OwnershipTransferService.Decide(ObjectKind.SettingsWindow, request, OwnershipTransferPolicy(RkwpAllowedAction.MoveOwnership));
+    return decision.Decision == OwnershipTransferDecisionKind.NotSupported &&
+           decision.RequiresAdapter &&
+           decision.Denied;
+}
+
+static bool OwnershipTransferRemoteSessionRequiresCapability()
+{
+    var now = DateTimeOffset.UtcNow;
+    var missing = new OwnershipTransferRequest("request-remote-1", "remote-1", "owner", "guest", OwnershipMode.SessionHandoff, now);
+    var denied = OwnershipTransferService.Decide(ObjectKind.RemoteSession, missing, OwnershipTransferPolicy(RkwpAllowedAction.SessionHandoff));
+    var supported = missing with { RequestId = "request-remote-2", TargetCapabilities = new HashSet<string> { "SessionHandoff" } };
+    var approved = OwnershipTransferService.Decide(ObjectKind.RemoteSession, supported, OwnershipTransferPolicy(RkwpAllowedAction.SessionHandoff));
+    return denied.Decision == OwnershipTransferDecisionKind.RequiresAdapter &&
+           approved.Decision == OwnershipTransferDecisionKind.Approved;
+}
+
+static bool OwnershipTransferMaterializationContainsDisposition()
+{
+    var now = DateTimeOffset.UtcNow;
+    var request = new OwnershipTransferRequest(
+        "request-disposition",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.CopyOut,
+        now,
+        RequestedDisposition: OriginalDisposition.KeepReadOnlyArchive);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.CopyOut));
+    var materialized = OwnershipTransferService.MaterializeDetailed(request, decision, now);
+    return materialized.OriginalDisposition == OriginalDisposition.KeepReadOnlyArchive &&
+           materialized.MaterializedThingId is not null &&
+           materialized.NewOwnerAblageId == "owner";
+}
+
+static bool OwnershipTransferMoveOwnershipOnlyWhenApproved()
+{
+    var now = DateTimeOffset.UtcNow;
+    var ownership = ThingOwnership.Original("thing-1", "owner");
+    var request = new OwnershipTransferRequest(
+        "request-move-approved",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.MoveOwnership,
+        now,
+        RequestedDisposition: OriginalDisposition.MarkAsMoved);
+    var confirmation = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.MoveOwnership));
+    var unchanged = OwnershipTransferService.ApplyApprovedTransfer(ownership, request, confirmation);
+    var approved = confirmation with { Decision = OwnershipTransferDecisionKind.Approved, Approved = true, RequiresUserConfirmation = false };
+    var moved = OwnershipTransferService.ApplyApprovedTransfer(ownership, request, approved);
+    return unchanged.OwnerAblageId == "owner" &&
+           moved.OwnerAblageId == "guest" &&
+           moved.State == OwnershipState.OwnershipTransferred;
+}
+
+static bool OwnershipTransferRetainOriginalKeepsOwner()
+{
+    var now = DateTimeOffset.UtcNow;
+    var ownership = ThingOwnership.Original("thing-1", "owner");
+    var request = new OwnershipTransferRequest("request-retain", "thing-1", "owner", "guest", OwnershipMode.CopyOut, now);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.CopyOut));
+    var result = OwnershipTransferService.ApplyApprovedTransfer(ownership, request, decision);
+    return result.OwnerAblageId == "owner" &&
+           result.OriginalDisposition == OriginalDisposition.RetainOriginal;
+}
+
+static bool OwnershipTransferMarkAsMoved()
+{
+    var now = DateTimeOffset.UtcNow;
+    var request = new OwnershipTransferRequest(
+        "request-mark",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.CopyOut,
+        now,
+        RequestedDisposition: OriginalDisposition.MarkAsMoved);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.CopyOut));
+    var materialized = OwnershipTransferService.MaterializeDetailed(request, decision, now);
+    return decision.OriginalDisposition == OriginalDisposition.MarkAsMoved &&
+           materialized.OriginalDisposition == OriginalDisposition.MarkAsMoved;
+}
+
+static bool OwnershipTransferCreateVersionLink()
+{
+    var now = DateTimeOffset.UtcNow;
+    var request = new OwnershipTransferRequest(
+        "request-version-link",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.ForkVersion,
+        now,
+        RequestedDisposition: OriginalDisposition.CreateVersionLink);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipTransferPolicy(RkwpAllowedAction.ForkVersion));
+    var materialized = OwnershipTransferService.MaterializeDetailed(request, decision, now);
+    return materialized.VersionReference is not null &&
+           materialized.OriginalDisposition == OriginalDisposition.CreateVersionLink;
+}
+
+static bool OwnershipTransferDeniedDoesNotChangeOwnership()
+{
+    var now = DateTimeOffset.UtcNow;
+    var ownership = ThingOwnership.Original("thing-1", "owner");
+    var request = new OwnershipTransferRequest("request-denied", "thing-1", "owner", "guest", OwnershipMode.MoveOwnership, now);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, OwnershipPolicy.CriticalDefault);
+    var result = OwnershipTransferService.ApplyApprovedTransfer(ownership, request, decision);
+    var materialized = OwnershipTransferService.MaterializeDetailed(request, decision, now);
+    return result.OwnerAblageId == "owner" &&
+           result.State == OwnershipState.OriginalOwned &&
+           !materialized.CreatedGuestThing;
 }
 
 static bool ObjectKindRuleChecks()
@@ -612,6 +779,17 @@ static ChangeSetOperation AnnotationOperation(DateTimeOffset now)
         1,
         "{ \"x\": 0.5, \"y\": 0.5, \"text\": \"review\" }",
         now);
+}
+
+static OwnershipPolicy OwnershipTransferPolicy(RkwpAllowedAction actions, bool requiresUserConfirmation = false)
+{
+    return OwnershipPolicy.CriticalDefault with
+    {
+        PolicyId = "policy-transfer-test",
+        AllowedActions = actions,
+        OwnershipTransferAllowed = true,
+        RequiresUserConfirmation = requiresUserConfirmation
+    };
 }
 
 static FrameInputEvent Input(

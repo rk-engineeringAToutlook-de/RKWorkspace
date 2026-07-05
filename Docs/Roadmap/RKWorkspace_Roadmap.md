@@ -28,10 +28,10 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.07 fuehrt `ChangeSet` als kontrollierten Rueckgabepfad fuer Frame-Aenderungen ein. Die Sample-PDF bleibt Original-Owned, Annotationen werden als ChangeSet vorbereitet, und der Owner entscheidet ueber Accept, Reject, Review, Apply, NewVersion oder Fork. Reject veraendert das Original nicht.
+MA007.08 modelliert Ownership Transfer und Materialization als eigenes Gate. Default bleibt OriginalOwned + FrameOnly. CopyOut/ForkVersion/MoveOwnership brauchen Policy, Objektartregeln und bei MoveOwnership starke Bestaetigung. Denied/NotSupported erzeugen keine neue Quelle der Wahrheit.
 
 ## Naechster Fokus
 
-Nach MA007.07 liegt der Fokus auf Ownership-Transfer-Modellierung, echten Windows-Objektquellen, Plattform-Handoff fuer macOS/iOS/iPadOS/Android/Linux und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA007.08 liegt der Fokus auf echten Windows-Objektquellen, Plattform-Handoff fuer macOS/iOS/iPadOS/Android/Linux und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

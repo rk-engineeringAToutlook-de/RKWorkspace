@@ -29,9 +29,72 @@ Ein echter Ownership-Wechsel ist spaeter ein eigener, bestaetigter Vorgang.
 - Approved
 - Denied
 - RequiresUserConfirmation
+- RequiresPolicyApproval
+- RequiresTransformation
+- RequiresAdapter
 - NotSupported
 
 CopyOut, ForkVersion und MoveOwnership duerfen nicht still passieren. Sie brauchen Policy und spaeter eine ausdrueckliche Benutzerentscheidung.
+
+Ab MA007.08 gilt konservativ:
+
+- Default denied, solange Policy OwnershipTransfer nicht ausdruecklich erlaubt.
+- CopyOut/ForkVersion koennen bei PDF erlaubt werden.
+- MoveOwnership braucht immer starke Bestaetigung.
+- SettingsWindow ist `NotSupported`.
+- RemoteSession braucht passende TargetCapabilities fuer SessionHandoff.
+- Denied oder NotSupported materialisiert nichts.
+
+## Request
+
+`OwnershipTransferRequest` beschreibt:
+
+- RequestId
+- ThingId
+- CurrentOwnerAblageId
+- RequestedNewOwnerAblageId
+- RequestedMode
+- RequestedDisposition
+- RequestedBy
+- Reason
+- TargetCapabilities
+- RequestedAt
+- PolicyId
+
+Kompatibilitaetsaliasse `OwnerAblageId` und `GuestAblageId` bleiben fuer bestehende Tests erhalten.
+
+## Decision
+
+`OwnershipTransferDecision` enthaelt:
+
+- DecisionId
+- RequestId
+- Approved/Denied
+- RequiresUserConfirmation
+- RequiresPolicyApproval
+- RequiresTransformation
+- RequiresAdapter
+- Reason
+- ApprovedMode
+- OriginalDisposition
+- CreatedAt
+
+Eine Decision ist noch keine Materialisierung. Erst eine Approved-Decision darf eine kontrollierte Materialisierung erzeugen.
+
+## Materialization
+
+`MaterializationResult` beschreibt:
+
+- MaterializedThingId
+- TargetAblageId
+- TargetLocation
+- Mode
+- NewOwnerAblageId
+- OriginalDisposition
+- VersionReference
+- CreatedAt
+
+Bei `CopyOut`, `ForkVersion` und `SnapshotExport` entsteht ein kontrolliertes neues Ding auf der Zielablage. Bei `MoveOwnership` wechselt der Owner nur nach Approved-Decision. Bei `SessionHandoff` entsteht keine normale Datei.
 
 ## Original Disposition
 
@@ -46,3 +109,9 @@ Wenn Ownership spaeter wirklich wechselt, muss festgelegt werden, was mit dem Or
 - RequireManualCleanup
 
 MA007.00 nutzt fuer kritische Defaults `RetainOriginal`.
+
+MA007.08 prueft zusaetzlich `MarkAsMoved` und `CreateVersionLink`. `CreateVersionLink` erzeugt eine `VersionReference`, damit Original und neue Version nachvollziehbar verbunden bleiben.
+
+## UX-Regel
+
+Wenn spaeter wirklich Besitz uebernommen wird, darf der Frame visuell nicht hart verschwinden. Der Schutzrahmen loest sich auf und das Ding bleibt an derselben Stelle sichtbar. In MA007.08 ist das nur Modell und Dokumentation, keine finale Visualisierung.

@@ -39,3 +39,14 @@ Die Regeln werden spaeter pro Policy, Anwendung, Firmenumgebung und Sicherheitsz
 PDF-Annotationen werden als erste ChangeSet-Operation vorbereitet. Die Gastablage erzeugt dabei keine freie PDF-Datei und schreibt nicht direkt in das Original.
 
 E-Mail-Entwuerfe koennen spaeter adapterbasiert ChangeSets erzeugen. `SettingsWindow` bleibt Sonderfall: Eingaben betreffen das Originalsystem; ein ChangeSet ist dort hoechstens Audit/Protokoll, kein Ownership Transfer.
+
+## MA007.08 Ownership Transfer
+
+Besitzuebernahme ist objektartabhaengig:
+
+- PDF: CopyOut/ForkVersion moeglich, wenn Policy erlaubt; MoveOwnership nur mit starker Bestaetigung.
+- SettingsWindow: NotSupported.
+- RemoteSession: SessionHandoff nur mit passenden TargetCapabilities.
+- SnapshotRegion: SnapshotExport nur nach Policy.
+
+Default bleibt `OriginalOwned + FrameOnly`.
