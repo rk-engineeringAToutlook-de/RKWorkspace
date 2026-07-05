@@ -938,6 +938,45 @@ if (-not $glassEdgePdfText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'Glass Edge PDF Frame E2E Smoke Test'
+Write-Host '-----------------------------------'
+$glassEdgePdfE2EOutput = & (Join-Path $root 'tools\run-glass-edge-pdf-frame-e2e.ps1') -SmokeTest 2>&1
+$glassEdgePdfE2EExitCode = $LASTEXITCODE
+$glassEdgePdfE2EText = $glassEdgePdfE2EOutput -join [Environment]::NewLine
+$glassEdgePdfE2EOutput | ForEach-Object { Write-Host $_ }
+if ($glassEdgePdfE2EExitCode -ne 0) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed with exit code $glassEdgePdfE2EExitCode."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('NearestAblageSelected: OK')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain NearestAblageSelected: OK."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('GlassEdgeAppearing: OK')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain GlassEdgeAppearing: OK."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('ObjectEnteringEdge: OK')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain ObjectEnteringEdge: OK."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('NoFileIngress: SUCCESS')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain NoFileIngress: SUCCESS."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('Return: SUCCESS')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain Return: SUCCESS."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('Recovery: SUCCESS')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain Recovery: SUCCESS."
+}
+
+if (-not $glassEdgePdfE2EText.Contains('RESULT: SUCCESS')) {
+    throw "Glass Edge PDF Frame E2E Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'Mobile Glass Edge Smoke Test'
 Write-Host '----------------------------'
 $mobileGlassEdgeOutput = & (Join-Path $root 'tools\run-mobile-glass-edge.ps1') -SmokeTest 2>&1

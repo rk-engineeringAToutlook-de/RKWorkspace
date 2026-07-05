@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.03 fuehrt den ersten lokalen Windows Owner + Windows Guest PDF Frame E2E-Smoke ein. Eine echte PDF bleibt beim Owner, DevPairing und NamedPipeDev verbinden die Ablagen, der Guest sieht nur einen Frame, No File Ingress, Return und Recovery sind erfolgreich.
+MA008.04 verbindet den Single-Glass-Edge-Hauptpfad mit dem lokalen Original-Owned PDF Frame E2E. Glass Edge Events loesen CarryLease und FrameSession aus; der Guest sieht nur den Frame, No File Ingress, Return und Recovery bleiben erfolgreich.
 
 ## Naechster Fokus
 
-Nach MA008.03 liegt der Fokus auf der Verbindung des Glass-Edge-Hauptpfads mit dem lokalen Real-PDF-E2E. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA008.04 liegt der Fokus auf PDF Frame Interaction: Scroll, Zoom und einfache Annotation als ChangeSet. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 ## Entfernung und Ablage-Anker
 

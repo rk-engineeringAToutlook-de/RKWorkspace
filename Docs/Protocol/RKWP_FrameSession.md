@@ -94,3 +94,7 @@ Eine Revocation invalidiert die FrameSession. Gruende sind unter anderem OwnerRe
 ## Glass Edge PDF Frame Demo
 
 MA007.04 verbindet FrameSession erstmals mit Glass Edge und einer echten Sample-PDF. Die Zielablage sieht `PDF liegt hier im Frame`, erhaelt aber keine freie PDF-Datei, keinen Originalpfad und keine kopierten PDF-Bytes. Der Renderer bleibt noch ein Metadaten-Placeholder; getestet wird die Frame- und Ownership-Mechanik.
+
+## Glass Edge PDF Frame E2E
+
+MA008.04 erweitert diesen Pfad zu einem E2E-Smoke. `ObjectEnteringEdge` fuehrt zu CarryLease und FrameSession. `FrameSessionOpen` und `FrameSessionReady` sind Teil des RKWP-Eventflows. Der Guest sieht weiterhin nur eine Frame-Repräsentation und keinen Originaldateizugriff.

@@ -99,3 +99,18 @@ Der Demo-Smoke prueft:
 - Guest sieht nur den Frame,
 - No File Ingress ist erfolgreich,
 - Rueckgabe und Recovery sind erfolgreich.
+
+## MA008.04 E2E Integration
+
+`GlassEdgePdfFrameE2E` verbindet den Glass-Edge-Hauptpfad mit dem lokalen Windows PDF Frame E2E-Slice. Der Smoke erzeugt echte RKWP-Eventnachrichten fuer:
+
+- `GlassEdgeAppearing`
+- `GlassEdgeActive`
+- `ObjectEnteringEdge`
+- `ObjectInTransit`
+- `ObjectEmerging`
+- `ObjectPlaced`
+- `FrameSessionOpen`
+- `FrameSessionReady`
+
+Die Kante bleibt ein raeumlicher Hinweis. Technisch entsteht daraus eine Original-Owned FrameSession auf der naechsten Ablage, keine Dateiuebertragung.

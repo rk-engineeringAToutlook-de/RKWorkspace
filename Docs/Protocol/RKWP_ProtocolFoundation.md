@@ -89,6 +89,12 @@ RKWP transportiert in MA007.00 keine Originaldatei in die Gastablage. Ein Gast b
 
 MA008.02 ergaenzt eine Identity- und Trust-Schicht. `AblageHello` und `AblageCapabilities` tragen Identitaetsdaten. `AblageTrustGate` entscheidet, ob eine Guest-Ablage eine `CarryLease` oder `FrameSession` bekommen darf. Das ist noch kein produktives Pairing, aber die Protokollstruktur verhindert, dass eine unbekannte Ablage automatisch als berechtigt gilt.
 
+## MA008.04 Glass Edge Event Flow
+
+MA008.04 koppelt Glass Edge an den Original-Owned Frame Ablauf. Der Protokollfluss nutzt `GlassEdgeAppearing`, `GlassEdgeActive`, `ObjectEnteringEdge`, `ObjectInTransit`, `ObjectEmerging`, `ObjectPlaced`, `FrameSessionOpen` und `FrameSessionReady`, bevor die Guest-Ablage den Frame zeigt.
+
+Die Eventfolge beschreibt kein Senden einer Datei. Sie beschreibt die Wahrnehmung des Durchgangs und die anschliessende FrameSession.
+
 ## Smoke
 
 ```powershell

@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.03 Windows Owner + Windows Guest Real PDF Frame End-to-End lokal. Naechster Schritt: MA008.04 Glass Edge mit Real PDF Frame E2E verbinden.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.04 Glass Edge mit Real PDF Frame E2E verbinden. Naechster Schritt: MA008.05 PDF Frame Interaction mit Scroll, Zoom und Annotation als ChangeSet.
 
 ## Implementierte Schichten
 
@@ -32,6 +32,7 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `src/Tools/RKWorkspace.RkwpTransportHarness`
 - `src/Protocol/RKWorkspace.Protocol/Identity`
 - `src/Tools/RKWorkspace.WindowsLocalFrameE2E`
+- `src/Tools/RKWorkspace.GlassEdgePdfFrameE2E`
 
 ## Semantik
 
@@ -163,6 +164,22 @@ Smoke:
 ```
 
 Geprueft werden Windows Owner, Windows Guest, DevPairing, NamedPipeDev, echte Sample-PDF, OriginalOwned FrameOnly, aktive CarryLease, Owner-Lock, aktive FrameSession, Guest Frame, No File Ingress, Return und Recovery.
+
+## Glass Edge PDF Frame E2E
+
+MA008.04 liefert:
+
+- `src/Tools/RKWorkspace.GlassEdgePdfFrameE2E/`
+- `tools/run-glass-edge-pdf-frame-e2e.ps1`
+- `Docs/Development/GlassEdgePdfFrameE2E.md`
+
+Smoke:
+
+```powershell
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest
+```
+
+Geprueft werden NearestAblage, GlassEdgeAppearing, GlassEdgeActive, ObjectEnteringEdge, ObjectInTransit, ObjectEmerging, ObjectPlaced, FrameSessionOpen, FrameSessionReady, aktive CarryLease, aktive FrameSession, Guest Frame, No File Ingress, Return und Recovery.
 
 ## Context Pack
 

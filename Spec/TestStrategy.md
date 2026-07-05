@@ -109,6 +109,8 @@ Ab MA008.02 pruefen die RKWP-Tests zusaetzlich Ablage Identity, Trust Bootstrap 
 
 Ab MA008.03 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-windows-local-frame-e2e.ps1 -SmokeTest`. Geprueft werden Windows Owner, Windows Guest, DevPairing, DevTransport, echte Sample-PDF als Original, aktive CarryLease, Owner-Lock, aktive FrameSession, Guest Frame, No File Ingress, Return und Recovery.
 
+Ab MA008.04 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest`. Geprueft werden NearestAblage, GlassEdgeAppearing, GlassEdgeActive, ObjectEnteringEdge, CarryLease, FrameSession, Guest Frame, No File Ingress, ObjectPlaced, Return und Recovery.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

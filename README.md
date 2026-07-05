@@ -94,6 +94,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA008.01 fuehrt `NamedPipeDev` als RKWP Dev-Transport fuer lokale End-to-End-Tests ein.
 - MA008.02 fuehrt Ablage Identity, Trust Bootstrap und Pairing-Grundlage ein. Unknown, Untrusted, Revoked, Denied und Pending blockieren Lease und Frame.
 - MA008.03 fuehrt den Windows Local Frame E2E-Smoke ein: echte PDF, Windows Owner, Windows Guest, DevPairing, DevTransport, FrameOnly, No File Ingress, Return und Recovery.
+- MA008.04 verbindet Glass Edge mit dem Real-PDF-Frame-E2E: GlassEdgeAppearing, GlassEdgeActive und ObjectEnteringEdge fuehren zu CarryLease, FrameSession, No File Ingress, Return und Recovery.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -190,6 +191,7 @@ src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und
 src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche mit interaktivem Workspace-Prototyp
 src/Tools/RKWorkspace.GlassEdgePdfFrameDemo/ Lokale Integration von Glass Edge, echter PDF, CarryLease, FrameSession und No File Ingress
 src/Tools/RKWorkspace.WindowsLocalFrameE2E/ Lokaler Windows Owner/Guest E2E-Smoke fuer RKWP DevTransport, PDF FrameOnly, Return und Recovery
+src/Tools/RKWorkspace.GlassEdgePdfFrameE2E/ Glass-Edge-ausgeloester RKWP PDF Frame E2E-Smoke mit Eventflow
 src/Agents/RKWorkspace.Agent/ LocalOnly Workspace Agent Runtime als Konsolenprozess
 tools/DualAgentHarness/ Dual Local Agent Simulation ohne Netzwerk und IPC
 tools/LocalIpcHarness/ Zwei-Prozess-Harness fuer lokale Named-Pipe-IPC
@@ -223,6 +225,7 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-local-ipc.ps1
 .\tools\run-shell.ps1 -Once
 .\tools\run-windows-local-frame-e2e.ps1 -SmokeTest
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest
 .\tools\run-shell.ps1 -OverlaySmokeTest
 .\tools\run-spatial-tray.ps1 -SmokeTest
 .\tools\run-native-overlay.ps1 -SmokeTest
