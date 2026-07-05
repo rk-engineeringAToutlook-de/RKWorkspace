@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.04 Glass Edge mit Real PDF Frame E2E verbinden. Naechster Schritt: MA008.05 PDF Frame Interaction mit Scroll, Zoom und Annotation als ChangeSet.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.05 PDF Frame Interaction mit Scroll, Zoom und Annotation als ChangeSet. Naechster Schritt: MA008.06 Windows zu macOS Dev-Transport Testplan technisch vorbereiten.
 
 ## Implementierte Schichten
 
@@ -33,6 +33,7 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `src/Protocol/RKWorkspace.Protocol/Identity`
 - `src/Tools/RKWorkspace.WindowsLocalFrameE2E`
 - `src/Tools/RKWorkspace.GlassEdgePdfFrameE2E`
+- `src/Frame/RKWorkspace.Frame.Pdf/PdfFrameInteractionService.cs`
 
 ## Semantik
 
@@ -180,6 +181,17 @@ Smoke:
 ```
 
 Geprueft werden NearestAblage, GlassEdgeAppearing, GlassEdgeActive, ObjectEnteringEdge, ObjectInTransit, ObjectEmerging, ObjectPlaced, FrameSessionOpen, FrameSessionReady, aktive CarryLease, aktive FrameSession, Guest Frame, No File Ingress, Return und Recovery.
+
+## PDF Frame Interaction
+
+MA008.05 liefert:
+
+- `PdfFrameInteractionService`
+- `PdfAnnotationDraft`
+- `PdfFrameAnnotationChangeSetResult`
+- `Docs/Development/PdfFrameInteraction.md`
+
+Geprueft werden Scroll, Zoom, Annotation als `ChangeSetOperationKind.AnnotationAdded`, ViewOnly-Ablehnung, ungueltige Lease, Apply/Accept als Applied, Reject ohne Originalaenderung und No File Ingress.
 
 ## Context Pack
 

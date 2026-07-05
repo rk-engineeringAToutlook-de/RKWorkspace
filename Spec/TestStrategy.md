@@ -111,6 +111,8 @@ Ab MA008.03 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-windows-local-fr
 
 Ab MA008.04 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest`. Geprueft werden NearestAblage, GlassEdgeAppearing, GlassEdgeActive, ObjectEnteringEdge, CarryLease, FrameSession, Guest Frame, No File Ingress, ObjectPlaced, Return und Recovery.
 
+Ab MA008.05 pruefen die RKWP-Tests zusaetzlich PDF Frame Interaction. Geprueft werden Scroll, Zoom, AnnotationStart/Update/End als ChangeSet, Annotation-Ablehnung bei ViewOnly, ChangeSet-Ablehnung ohne gueltige Lease, Apply/Accept als Applied, Reject ohne Originalaenderung und weiterhin No File Ingress.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

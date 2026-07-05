@@ -95,6 +95,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA008.02 fuehrt Ablage Identity, Trust Bootstrap und Pairing-Grundlage ein. Unknown, Untrusted, Revoked, Denied und Pending blockieren Lease und Frame.
 - MA008.03 fuehrt den Windows Local Frame E2E-Smoke ein: echte PDF, Windows Owner, Windows Guest, DevPairing, DevTransport, FrameOnly, No File Ingress, Return und Recovery.
 - MA008.04 verbindet Glass Edge mit dem Real-PDF-Frame-E2E: GlassEdgeAppearing, GlassEdgeActive und ObjectEnteringEdge fuehren zu CarryLease, FrameSession, No File Ingress, Return und Recovery.
+- MA008.05 fuehrt PDF Frame Interaction ein: Scroll, Zoom und einfache Annotation als ChangeSet, weiterhin ohne File Ingress.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.

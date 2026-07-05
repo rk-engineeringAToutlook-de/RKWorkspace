@@ -38,6 +38,7 @@ $files = @(
     'Docs\Roadmap\RKWorkspace_Roadmap.md',
     'Docs\Development\WindowsLocalFrameE2E.md',
     'Docs\Development\GlassEdgePdfFrameE2E.md',
+    'Docs\Development\PdfFrameInteraction.md',
     'Docs\Protocol\RKWP_ProtocolFoundation.md',
     'Docs\Protocol\RKWP_SecurityModel.md',
     'Docs\Protocol\RKWP_AblageIdentityAndTrust.md',

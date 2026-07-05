@@ -27,6 +27,14 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("FrameInputKeyboardDeniedWithoutPermission", FrameInputKeyboardDeniedWithoutPermission),
     ("FrameInputPointerWithoutValidSessionDenied", FrameInputPointerWithoutValidSessionDenied),
     ("FrameInputZoomDeniedWithoutPolicy", FrameInputZoomDeniedWithoutPolicy),
+    ("PdfFrameScrollAllowed", PdfFrameScrollAllowed),
+    ("PdfFrameZoomAllowed", PdfFrameZoomAllowed),
+    ("PdfFrameAnnotationCreatesChangeSet", PdfFrameAnnotationCreatesChangeSet),
+    ("PdfFrameAnnotationViewOnlyRejected", PdfFrameAnnotationViewOnlyRejected),
+    ("PdfFrameChangeSetWithoutValidLeaseRejected", PdfFrameChangeSetWithoutValidLeaseRejected),
+    ("PdfFrameInteractionAcceptApplied", PdfFrameInteractionAcceptApplied),
+    ("PdfFrameInteractionRejectKeepsOriginal", PdfFrameInteractionRejectKeepsOriginal),
+    ("PdfFrameInteractionNoFileIngress", PdfFrameInteractionNoFileIngress),
     ("ChangeSetCanBeCreated", ChangeSetCanBeCreated),
     ("ChangeSetWithoutLeaseInvalid", ChangeSetWithoutLeaseInvalid),
     ("ChangeSetViewOnlyRejected", ChangeSetViewOnlyRejected),
@@ -291,6 +299,123 @@ static bool FrameInputZoomDeniedWithoutPolicy()
     var noZoomPolicy = FramePolicy.InteractiveView with { AllowZoom = false };
     var zoom = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Zoom, now, deltaScale: 1.1), lease, frame, noZoomPolicy, audit);
     return !zoom.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool PdfFrameScrollAllowed()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Interactive, now);
+    var result = new PdfFrameInteractionService().Scroll(lease, frame, FramePolicy.InteractiveView, 120.0, 1, now);
+    return result.Accepted && result.InputEvent.InputType == FrameInputType.Scroll;
+}
+
+static bool PdfFrameZoomAllowed()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Interactive, now);
+    var result = new PdfFrameInteractionService().Zoom(lease, frame, FramePolicy.InteractiveView, 1.25, 1, now);
+    return result.Accepted &&
+           result.InputEvent.InputType == FrameInputType.Zoom &&
+           result.InputEvent.Delta?.Scale == 1.25;
+}
+
+static bool PdfFrameAnnotationCreatesChangeSet()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var result = new PdfFrameInteractionService().CreateAnnotationChangeSet(
+        lease,
+        frame,
+        FramePolicy.Annotate,
+        ChangeSetPolicy.Annotate,
+        "version-pdf-1",
+        AnnotationDraft(lease, frame),
+        now);
+
+    return result.Accepted &&
+           result.ChangeSet is not null &&
+           result.ChangeSet.Operations.Count == 1 &&
+           result.ChangeSet.Operations[0].OperationKind == ChangeSetOperationKind.AnnotationAdded &&
+           result.ChangeSet.Operations[0].Payload?.Contains("\"CreatedByGuestAblage\"", StringComparison.Ordinal) == true &&
+           result.ChangeSet.LeaseId == lease.LeaseId &&
+           result.ChangeSet.FrameSessionId == frame.FrameSessionId;
+}
+
+static bool PdfFrameAnnotationViewOnlyRejected()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.ViewOnly, now);
+    var result = new PdfFrameInteractionService().CreateAnnotationChangeSet(
+        lease,
+        frame,
+        FramePolicy.CriticalViewOnly,
+        ChangeSetPolicy.Annotate,
+        "version-pdf-1",
+        AnnotationDraft(lease, frame),
+        now);
+
+    return !result.Accepted &&
+           result.ChangeSet is null &&
+           !result.Start.Accepted;
+}
+
+static bool PdfFrameChangeSetWithoutValidLeaseRejected()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var expiredLease = lease.Advance(now.AddMinutes(16));
+    return Throws<ChangeSetException>(() => new PdfFrameInteractionService().CreateAnnotationChangeSet(
+        expiredLease,
+        frame,
+        FramePolicy.Annotate,
+        ChangeSetPolicy.Annotate,
+        "version-pdf-1",
+        AnnotationDraft(expiredLease, frame),
+        now));
+}
+
+static bool PdfFrameInteractionAcceptApplied()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var result = new PdfFrameInteractionService().CreateAnnotationChangeSet(
+        lease,
+        frame,
+        FramePolicy.Annotate,
+        ChangeSetPolicy.Annotate,
+        "version-pdf-1",
+        AnnotationDraft(lease, frame),
+        now);
+
+    var submitted = result.ChangeSet!.Submit(now.AddSeconds(1));
+    var applied = ChangeSetService.Decide(submitted, ChangeSetDecision.ApplyToOriginal, ChangeSetPolicy.Annotate, now.AddSeconds(2));
+    return applied.ResultingState == ChangeSetState.Applied && applied.OriginalChanged;
+}
+
+static bool PdfFrameInteractionRejectKeepsOriginal()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var result = new PdfFrameInteractionService().CreateAnnotationChangeSet(
+        lease,
+        frame,
+        FramePolicy.Annotate,
+        ChangeSetPolicy.Annotate,
+        "version-pdf-1",
+        AnnotationDraft(lease, frame),
+        now);
+
+    var submitted = result.ChangeSet!.Submit(now.AddSeconds(1));
+    var rejected = ChangeSetService.Decide(submitted, ChangeSetDecision.Reject, ChangeSetPolicy.Annotate, now.AddSeconds(2));
+    return rejected.ResultingState == ChangeSetState.Rejected && !rejected.OriginalChanged;
+}
+
+static bool PdfFrameInteractionNoFileIngress()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    var now = DateTimeOffset.UtcNow;
+    var result = new PdfFrameInteractionService().Scroll(smoke.Lease, smoke.FrameSession, FramePolicy.InteractiveView, 120.0, 1, now);
+    return result.Accepted && smoke.GuestHasNoFileIngress;
 }
 
 static bool ChangeSetCanBeCreated()
@@ -1038,6 +1163,21 @@ static ChangeSetOperation AnnotationOperation(DateTimeOffset now)
         1,
         "{ \"x\": 0.5, \"y\": 0.5, \"text\": \"review\" }",
         now);
+}
+
+static PdfAnnotationDraft AnnotationDraft(CarryLease lease, FrameSession frame)
+{
+    return new PdfAnnotationDraft(
+        PageNumber: 1,
+        X: 0.32,
+        Y: 0.38,
+        Width: 0.24,
+        Height: 0.12,
+        Text: "Bitte pruefen",
+        Color: "#f2c94c",
+        CreatedByGuestAblage: lease.GuestAblageId,
+        LeaseId: lease.LeaseId,
+        FrameSessionId: frame.FrameSessionId);
 }
 
 static OwnershipPolicy OwnershipTransferPolicy(RkwpAllowedAction actions, bool requiresUserConfirmation = false)

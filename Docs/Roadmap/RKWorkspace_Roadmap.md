@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.04 verbindet den Single-Glass-Edge-Hauptpfad mit dem lokalen Original-Owned PDF Frame E2E. Glass Edge Events loesen CarryLease und FrameSession aus; der Guest sieht nur den Frame, No File Ingress, Return und Recovery bleiben erfolgreich.
+MA008.05 fuehrt erste kontrollierte PDF Frame Interaction ein. Scroll und Zoom laufen als policygepruefte FrameInput-Events, einfache Annotation wird als ChangeSet modelliert, und No File Ingress bleibt gueltig.
 
 ## Naechster Fokus
 
-Nach MA008.04 liegt der Fokus auf PDF Frame Interaction: Scroll, Zoom und einfache Annotation als ChangeSet. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA008.05 liegt der Fokus auf Windows zu macOS Dev-Transport Testplan und Handoff-Vorbereitung. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 ## Entfernung und Ablage-Anker
 

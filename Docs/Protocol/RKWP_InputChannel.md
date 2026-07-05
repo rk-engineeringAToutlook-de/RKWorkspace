@@ -123,10 +123,19 @@ MA007.06 testet:
 - Zoom ohne Policy wird abgelehnt.
 - Denials erzeugen `PolicyDenied`.
 
+MA008.05 ergaenzt den PDF-spezifischen Interaction-Pfad:
+
+- `PdfFrameInteractionService.Scroll` erzeugt gueltige Scroll-Eingaben.
+- `PdfFrameInteractionService.Zoom` erzeugt gueltige Zoom-Eingaben.
+- AnnotationStart/Update/End werden policygeprueft.
+- ViewOnly lehnt Annotation ab.
+- Annotate darf daraus ein ChangeSet erzeugen.
+
 ## Offene Punkte
 
 - echte Surface-Eingabeadapter
 - echte Scroll-/Zoom-Ausfuehrung im PDF-Renderer
-- Annotation als ChangeSet
+- echte Surface-Eingabeadapter
+- echte Scroll-/Zoom-Ausfuehrung im PDF-Renderer
 - produktive Trust- und Security-Integration
 - plattformspezifische Haptik

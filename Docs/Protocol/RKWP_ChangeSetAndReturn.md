@@ -105,6 +105,10 @@ PDF ist der erste vorbereitete Testpfad.
 
 In V1 ist echte PDF-Modifikation noch nicht final. Annotationen werden als `ChangeSetOperationKind.AnnotationAdded` vorbereitet. Ein Owner kann spaeter entscheiden, ob diese Annotation verworfen, uebernommen, als neue Version oder als Fork behandelt wird.
 
+MA008.05 fuehrt `PdfFrameInteractionService` ein. Der Service sammelt AnnotationStart, AnnotationUpdate und AnnotationEnd und erzeugt daraus ein `ChangeSet` mit einer `AnnotationAdded`-Operation. Die Operation enthaelt Position, Seite, Text, Farbe, CreatedBy GuestAblage, LeaseId und FrameSessionId.
+
+Accept/Apply kann in V1 simuliert werden. Reject laesst das Original unveraendert. Ein echter PDF-Schreibzugriff ist noch nicht Teil dieses Slices.
+
 ## E-Mail
 
 E-Mail-Entwuerfe koennen spaeter ueber Adapter ChangeSets erzeugen. Die Mail-Ablage bleibt Owner, bis ein Adapter und eine Policy eine andere Entscheidung erlauben.
@@ -128,6 +132,10 @@ MA007.07 testet:
 - Expired Lease lehnt ChangeSet ab.
 - Unsupported Operation wird abgelehnt.
 - PolicyChanged fuehrt zu RequireReview/Conflict.
+- PDF Scroll/Zoom bleiben FrameInput.
+- PDF Annotation erzeugt ChangeSet.
+- PDF Annotation wird bei ViewOnly abgelehnt.
+- Reject laesst das Original unveraendert.
 
 ## Offene Punkte
 

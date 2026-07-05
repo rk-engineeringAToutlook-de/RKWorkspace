@@ -38,6 +38,8 @@ Die Regeln werden spaeter pro Policy, Anwendung, Firmenumgebung und Sicherheitsz
 
 PDF-Annotationen werden als erste ChangeSet-Operation vorbereitet. Die Gastablage erzeugt dabei keine freie PDF-Datei und schreibt nicht direkt in das Original.
 
+MA008.05 macht diese Regel im PDF-Frame konkret: Scroll und Zoom bleiben erlaubte Frame-Eingaben, Annotation erzeugt ein `AnnotationAdded`-ChangeSet. `PdfDocument` bleibt weiterhin `OriginalOwned + FrameOnly`; der Guest bekommt keine PDF-Datei und keinen Originalpfad.
+
 E-Mail-Entwuerfe koennen spaeter adapterbasiert ChangeSets erzeugen. `SettingsWindow` bleibt Sonderfall: Eingaben betreffen das Originalsystem; ein ChangeSet ist dort hoechstens Audit/Protokoll, kein Ownership Transfer.
 
 ## MA007.08 Ownership Transfer
