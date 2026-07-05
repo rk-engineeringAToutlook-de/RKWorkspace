@@ -85,6 +85,8 @@ Ab MA006.13 pruefen `tools/run-glass-edge.ps1 -SmokeTest` und `tools/run-mobile-
 
 Ab MA007.00 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-tests.ps1` und `tools/run-pdf-frame-smoke.ps1`. Geprueft werden RKWP-Version, Message-Validation, Development-Protector, Original-Owned Defaults, FrameOnly CarryLease, Lease-Recovery, Ownership-Transfer-Guard, Surface-Abstraktionen und der PDF FrameOnly Slice. Der PDF Smoke muss bestaetigen: `OwnerLocked: OK`, `NoFileIngress: OK`, `GuestHasPdfFile: NO`, `FrameOnly: OK` und `RESULT: SUCCESS`.
 
+Ab MA007.01 muss der PDF Frame Smoke zusaetzlich in erlaubter Sprache melden, dass die PDF als Frame ausgeliehen ist, der Frame geoeffnet wurde, die PDF nur im Frame liegt und zurueckgegeben wurde. Der Testpfad darf keine Begriffe wie Senden, Empfangen, Upload, Download oder freie Dateiuebertragung als Erfolgssprache verwenden.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

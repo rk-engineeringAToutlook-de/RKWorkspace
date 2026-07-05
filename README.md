@@ -85,6 +85,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Die neue Ablage-Proximity-Schicht bereitet simulierte Entfernung, Richtung, Confidence, Windows/macOS/iOS/Android-Surfaces, Gegenkante, Ziel-Ghost und spaetere Provider fuer BLE, UWB, WiFi, Dongle und Sensorfusion vor.
 - MA007.00 fuehrt RKWP Original-Owned Frame ein: Kritische digitale Dinge bleiben beim Owner, Gastablagen erhalten zunaechst FrameSessions und keine Originaldateien.
 - Der PDF FrameOnly Slice zeigt `samples/Objects/Rechnung.pdf` auf einer Gastoberflaeche ohne Datei-Ingress, ohne Originalpfad und mit Rueckgabe-/Recovery-Regeln.
+- MA007.01 schaerft diesen Slice als erstes echtes Testobjekt: Die PDF wird nicht gesendet, sondern als Frame ausgeliehen; die Gastablage meldet nur `Frame geoeffnet`, `Liegt hier im Frame` und `Zurueckgegeben`.
 - Plattform-Surfaces fuer Windows, macOS, iOS/iPadOS, Android und Linux sind als gemeinsame Abstraktion und Handoff-Stubs vorbereitet.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.

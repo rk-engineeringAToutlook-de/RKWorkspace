@@ -30,6 +30,10 @@ if (-not $text.Contains('OwnerLocked: OK')) {
     throw 'PDF Frame Owner Smoke failed because output did not contain OwnerLocked: OK.'
 }
 
+if (-not $text.Contains('PDF ist als Frame ausgeliehen')) {
+    throw 'PDF Frame Owner Smoke failed because output did not contain the frame-only loan wording.'
+}
+
 if (-not $text.Contains('NoFileIngress: OK')) {
     throw 'PDF Frame Owner Smoke failed because output did not contain NoFileIngress: OK.'
 }

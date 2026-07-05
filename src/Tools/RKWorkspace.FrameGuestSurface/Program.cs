@@ -10,9 +10,12 @@ Console.WriteLine($"Surface: {identity.DisplayName}");
 Console.WriteLine($"Platform: {identity.Platform}");
 Console.WriteLine($"FrameSession: {result.GuestFrame.FrameSessionId}");
 Console.WriteLine($"DisplayName: {result.GuestFrame.DisplayName}");
+Console.WriteLine("Frame geoeffnet.");
+Console.WriteLine("Liegt hier im Frame.");
 Console.WriteLine($"GuestHasPdfFile: {(result.GuestFrame.HasOriginalFilePath ? "YES" : "NO")}");
 Console.WriteLine($"OriginalFileBytes: {(result.GuestFrame.ContainsOriginalFileBytes ? "YES" : "NO")}");
 Console.WriteLine($"FrameOnly: {(result.GuestHasNoFileIngress ? "OK" : "FAILED")}");
+Console.WriteLine("Zurueckgegeben.");
 Console.WriteLine(result.GuestHasNoFileIngress ? "RESULT: SUCCESS" : "RESULT: FAILED");
 return result.GuestHasNoFileIngress ? 0 : 1;
 
