@@ -10,10 +10,13 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("ProtocolVersion", () => RkwpVersion.Current.Major == 0 && RkwpVersion.Current.Minor == 1),
     ("DevelopmentProtector", DevelopmentProtector),
     ("MessageValidation", MessageValidation),
+    ("RequiredFieldsValidation", RequiredFieldsValidation),
     ("EnvelopeFields", EnvelopeFields),
     ("OriginalOwnedDefault", OriginalOwnedDefault),
     ("PlaceDoesNotTransferOwnership", PlaceDoesNotTransferOwnership),
     ("FrameOnlyLease", FrameOnlyLease),
+    ("FrameSessionStateMachine", FrameSessionStateMachine),
+    ("FrameRevocationInvalidatesGuest", FrameRevocationInvalidatesGuest),
     ("HeartbeatMissingStartsGrace", HeartbeatMissingStartsGrace),
     ("LeaseRecovery", LeaseRecovery),
     ("OwnershipTransferGuard", OwnershipTransferGuard),
@@ -55,6 +58,31 @@ static bool MessageValidation()
     return RkwpMessageValidator.Validate(message).Count == 0;
 }
 
+static bool RequiredFieldsValidation()
+{
+    var invalid = new RkwpMessage
+    {
+        MessageId = string.Empty,
+        MessageType = RkwpMessageType.AblageHello,
+        ProtocolVersion = RkwpVersion.Current,
+        SessionId = string.Empty,
+        SourceAblageId = string.Empty,
+        TargetAblageId = string.Empty,
+        Timestamp = default,
+        SequenceNumber = 0,
+        Nonce = string.Empty
+    };
+
+    var errors = RkwpMessageValidator.Validate(invalid);
+    return errors.Any(error => error.Code == "MessageIdMissing") &&
+           errors.Any(error => error.Code == "SessionIdMissing") &&
+           errors.Any(error => error.Code == "SourceAblageIdMissing") &&
+           errors.Any(error => error.Code == "TargetAblageIdMissing") &&
+           errors.Any(error => error.Code == "NonceMissing") &&
+           errors.Any(error => error.Code == "TimestampMissing") &&
+           errors.Any(error => error.Code == "SequenceNumberInvalid");
+}
+
 static bool EnvelopeFields()
 {
     var session = RkwpSession.CreateDevelopment("owner", "guest");
@@ -92,6 +120,29 @@ static bool FrameOnlyLease()
            lease.AllowedActions.HasFlag(RkwpAllowedAction.View) &&
            !frame.EditAllowed &&
            frame.State == FrameSessionState.Active;
+}
+
+static bool FrameSessionStateMachine()
+{
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var opening = FrameSession.Open(lease, FrameMode.ViewOnly, now);
+    var active = opening.Ready(now.AddMilliseconds(1)).Activate(now.AddMilliseconds(2));
+    var closed = active.Close(now.AddMilliseconds(3));
+    return opening.State == FrameSessionState.Opening &&
+           active.State == FrameSessionState.Active &&
+           closed.State == FrameSessionState.Closed;
+}
+
+static bool FrameRevocationInvalidatesGuest()
+{
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now).Ready(now).Activate(now);
+    var revokedLease = lease.Revoke(now.AddSeconds(1));
+    var revokedFrame = frame.Revoke(now.AddSeconds(1));
+    return revokedLease.State == CarryLeaseState.Revoked &&
+           revokedFrame.State == FrameSessionState.Revoked;
 }
 
 static bool HeartbeatMissingStartsGrace()

@@ -123,6 +123,11 @@ public sealed record FrameSession
         return this with { State = FrameSessionState.Closed, UpdatedAt = now };
     }
 
+    public FrameSession Revoke(DateTimeOffset now)
+    {
+        return this with { State = FrameSessionState.Revoked, UpdatedAt = now };
+    }
+
     public FrameSession Expire(DateTimeOffset now)
     {
         return this with { State = FrameSessionState.Expired, UpdatedAt = now };
