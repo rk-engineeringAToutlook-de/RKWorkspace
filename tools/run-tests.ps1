@@ -903,6 +903,37 @@ if (-not $glassEdgeText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'Glass Edge PDF Frame Demo Smoke Test'
+Write-Host '------------------------------------'
+$glassEdgePdfOutput = & (Join-Path $root 'tools\run-glass-edge-pdf-frame-demo.ps1') -SmokeTest 2>&1
+$glassEdgePdfExitCode = $LASTEXITCODE
+$glassEdgePdfText = $glassEdgePdfOutput -join [Environment]::NewLine
+$glassEdgePdfOutput | ForEach-Object { Write-Host $_ }
+if ($glassEdgePdfExitCode -ne 0) {
+    throw "Glass Edge PDF Frame Demo Smoke Test failed with exit code $glassEdgePdfExitCode."
+}
+
+if (-not $glassEdgePdfText.Contains('RK Workspace Glass Edge PDF Frame Demo')) {
+    throw "Glass Edge PDF Frame Demo Smoke Test failed because output did not contain RK Workspace Glass Edge PDF Frame Demo."
+}
+
+if (-not $glassEdgePdfText.Contains('GlassEdge: Active')) {
+    throw "Glass Edge PDF Frame Demo Smoke Test failed because output did not contain GlassEdge: Active."
+}
+
+if (-not $glassEdgePdfText.Contains('NoFileIngress: SUCCESS')) {
+    throw "Glass Edge PDF Frame Demo Smoke Test failed because output did not contain NoFileIngress: SUCCESS."
+}
+
+if (-not $glassEdgePdfText.Contains('GlassEdgePdfFrameDemo: SUCCESS')) {
+    throw "Glass Edge PDF Frame Demo Smoke Test failed because output did not contain GlassEdgePdfFrameDemo: SUCCESS."
+}
+
+if (-not $glassEdgePdfText.Contains('RESULT: SUCCESS')) {
+    throw "Glass Edge PDF Frame Demo Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'Mobile Glass Edge Smoke Test'
 Write-Host '----------------------------'
 $mobileGlassEdgeOutput = & (Join-Path $root 'tools\run-mobile-glass-edge.ps1') -SmokeTest 2>&1

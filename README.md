@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.56.0
+Version: 2.57.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -88,6 +88,8 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA007.01 schaerft diesen Slice als erstes echtes Testobjekt: Die PDF wird nicht gesendet, sondern als Frame ausgeliehen; die Gastablage meldet nur `Frame geoeffnet`, `Liegt hier im Frame` und `Zurueckgegeben`.
 - Plattform-Surfaces fuer Windows, macOS, iOS/iPadOS, Android und Linux sind als gemeinsame Abstraktion und Handoff-Stubs vorbereitet.
 - MA007.02 zerlegt die Surface Foundation in einzelne plattformneutrale Contracts und dokumentiert Windows, macOS, iOS/iPadOS, Android und Linux als getrennte Handoff-Pfade.
+- MA007.03 haertet RKWP mit SecurityMode, Nonce-/Sequence-Replay-Schutz, Lease-/Policy-Binding, Audit, Revocation und Recovery-Gruenden.
+- MA007.04 verbindet Glass Edge und Original-Owned PDF Frame: eine echte PDF bleibt beim Owner, die naechste Ablage wird gewaehlt, die Glass Edge wird aktiv und die Zielablage sieht nur einen Frame ohne File Ingress.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -182,6 +184,7 @@ src/Communication/RKWorkspace.Transport.NamedPipes/ Lokale Named-Pipe-Transporti
 src/Communication/RKWorkspace.LocalIpc/ Kompatibilitaetsschicht fuer lokale IPC auf Basis der TAL
 src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und Netzwerk
 src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche mit interaktivem Workspace-Prototyp
+src/Tools/RKWorkspace.GlassEdgePdfFrameDemo/ Lokale Integration von Glass Edge, echter PDF, CarryLease, FrameSession und No File Ingress
 src/Agents/RKWorkspace.Agent/ LocalOnly Workspace Agent Runtime als Konsolenprozess
 tools/DualAgentHarness/ Dual Local Agent Simulation ohne Netzwerk und IPC
 tools/LocalIpcHarness/ Zwei-Prozess-Harness fuer lokale Named-Pipe-IPC
@@ -344,6 +347,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.57.0 | 2026-07-05 | MA007.04 Glass Edge PDF Frame Demo mit Original-Owned PDF, Nearest Ablage, FrameSession und No File Ingress dokumentiert. |
 | 2.54.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX mit fuenf Presets, EffectIntensity, Timing, Visual Targets und Mobile Spatial Surface dokumentiert. |
 | 2.53.0 | 2026-07-04 | Native Glass Overlay Foundation als korrigierten Produktpfad ohne WebGL-Buehne, Browser oder synthetischen Raum ergaenzt. |
 | 2.52.0 | 2026-07-04 | Real3D Lens Renderer mit WebGL, Three.js, Physical Glass, 3D-Tunnel, Soft Shadows und Desktop-Live-Textur als separaten Look-Slice ergaenzt. |

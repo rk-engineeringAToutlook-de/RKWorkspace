@@ -73,3 +73,7 @@ FrameOnly erlaubt Anzeige, Scroll und Zoom. Editieren, Extrahieren und Ownership
 ## Revocation
 
 Eine Revocation invalidiert die FrameSession. Gruende sind unter anderem OwnerRequested, PolicyChanged, HeartbeatLost, SecurityViolation, Timeout, UserCancelled und GuestDisconnected. Das Ergebnis muss den Guest Frame ungueltig machen und das Ding beim Owner logisch entsperren.
+
+## Glass Edge PDF Frame Demo
+
+MA007.04 verbindet FrameSession erstmals mit Glass Edge und einer echten Sample-PDF. Die Zielablage sieht `PDF liegt hier im Frame`, erhaelt aber keine freie PDF-Datei, keinen Originalpfad und keine kopierten PDF-Bytes. Der Renderer bleibt noch ein Metadaten-Placeholder; getestet wird die Frame- und Ownership-Mechanik.

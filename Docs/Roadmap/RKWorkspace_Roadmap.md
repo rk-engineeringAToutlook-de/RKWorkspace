@@ -28,10 +28,10 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.00 beginnt Phase 4. Der wichtigste Fortschritt ist nicht Grafik, sondern Semantik: Das Original gehoert weiter dem Owner. Andere Ablagen sehen zunaechst Frames.
+MA007.04 verbindet Phase 3, 4 und 5 erstmals in einer lokalen Integration: Glass Edge waehlt die naechste Ablage, eine echte PDF bleibt Original-Owned beim Owner, und die Zielablage sieht nur einen kontrollierten Frame ohne File Ingress.
 
 ## Naechster Fokus
 
-Nach MA007.00 kann MA007.01 den ersten nativen PDF-Frame auf Windows oder Tablet-Surface vorbereiten. Entfernung und naechste Ablage bleiben Pflichtkontext.
+Nach MA007.04 kann der Fokus auf echte Surface-Presenter, produktive Security, echte PDF-Seitenrendering-Pfade und Plattformadapter fuer macOS/iOS/iPadOS/Android gelegt werden. Entfernung und naechste Ablage bleiben Pflichtkontext.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

@@ -60,3 +60,18 @@ Ab MA007.00 ist die gläserne Kante nicht nur ein visueller Zielhinweis. Sie ist
 5. Die Zielablage zeigt eine `FrameSession`, keine Originaldatei.
 
 Damit bleibt die Wahrnehmung raeumlich, waehrend die technische Ownership sauber bleibt.
+
+## MA007.04 Integration
+
+`GlassEdgePdfFrameDemo` verbindet diesen Pfad mit `samples/Objects/Rechnung.pdf`. Die simulierte naechste Ablage ist macOS rechts, die rechte Glass Edge wird aktiv und loest einen Original-Owned PDF-Frame aus.
+
+Der Demo-Smoke prueft:
+
+- echte Sample-PDF existiert,
+- naechste Ablage ist bestimmt,
+- Glass Edge ist aktiv,
+- CarryLease und FrameSession sind aktiv,
+- Owner ist gesperrt,
+- Guest sieht nur den Frame,
+- No File Ingress ist erfolgreich,
+- Rueckgabe und Recovery sind erfolgreich.

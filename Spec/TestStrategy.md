@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.39.0
+Version: 2.40.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -90,6 +90,8 @@ Ab MA007.01 muss der PDF Frame Smoke zusaetzlich in erlaubter Sprache melden, da
 Ab MA007.02 pruefen die RKWP-Tests zusaetzlich die Surface Foundation: `SurfacePlatform` muss Windows, macOS, iOS, iPadOS, Android und Linux enthalten; `GestureType` muss Ziel- und Fallback-Gesten enthalten; PlatformTasks-Dokumente muessen fuer macOS Accessibility/Screen Recording/Sandbox und fuer iOS/iPadOS Xcode/USB-Handoff dokumentieren.
 
 Ab MA007.03 pruefen die RKWP-Tests zusaetzlich die Secure Session Foundation: `RkwpSecurityMode`, Development-only Protector, Nonce Replay, Sequence Replay, fehlende Nonce, fehlende SequenceNumber, gueltige Sequenzen, Lease Binding, Policy Binding, Audit Events, Revocation und Recovery-Haertung. Der Development Protector darf keine sichere produktive Session erfuellen.
+
+Ab MA007.04 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-glass-edge-pdf-frame-demo.ps1 -SmokeTest`. Der Smoke-Test verbindet Sample-PDF, NearestAblageSelector, Glass Edge, CarryLease, FrameSession, Owner-Lock, No File Ingress, Rueckgabe, Recovery und Audit.
 
 ## MA003.05 Core Integration Tests
 
@@ -908,6 +910,7 @@ Smoke-Test:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.40.0 | 2026-07-05 | MA007.04 Glass Edge PDF Frame Demo Smoke-Test fuer echte PDF, naechste Ablage, FrameSession und No File Ingress ergaenzt. |
 | 2.39.0 | 2026-07-05 | MA007.03 Secure Session, Replay-Schutz, Lease-/Policy-Binding, Audit, Revocation und Recovery-Haertung dokumentiert. |
 | 2.38.0 | 2026-07-05 | MA007.02 Cross-Platform Surface Foundation dokumentiert. |
 | 2.36.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX und Mobile Spatial Surface Smoke-Test dokumentiert. |
