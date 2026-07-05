@@ -39,6 +39,7 @@ $files = @(
     'Docs\Development\WindowsLocalFrameE2E.md',
     'Docs\Development\GlassEdgePdfFrameE2E.md',
     'Docs\Development\PdfFrameInteraction.md',
+    'Docs\Development\RKWP_Diagnostics.md',
     'Docs\Protocol\RKWP_ProtocolFoundation.md',
     'Docs\Protocol\RKWP_SecurityModel.md',
     'Docs\Protocol\RKWP_AblageIdentityAndTrust.md',
@@ -75,7 +76,8 @@ $files = @(
     'release\MA007_READINESS_SUMMARY.md',
     'release\handoff\WindowsToMac_MA008_Handoff.md',
     'release\handoff\iOS_iPadOS_MA008_Handoff.md',
-    'tools\run-windows-owner-for-mac.ps1'
+    'tools\run-windows-owner-for-mac.ps1',
+    'tools\run-rkwp-diagnostics.ps1'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }
@@ -90,6 +92,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-rkwp-tests.ps1
 .\tools\run-pdf-frame-smoke.ps1
 .\tools\run-windows-owner-for-mac.ps1 -InfoOnly
+.\tools\run-rkwp-diagnostics.ps1 -SmokeTest
 .\tools\export-codex-context.ps1
 '@ | Set-Content -Path (Join-Path $staging 'test-commands.txt') -Encoding UTF8
 

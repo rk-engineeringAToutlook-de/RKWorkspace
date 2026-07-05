@@ -30,6 +30,43 @@ Mindestereignisse:
 - `SecurityViolation`
 - `ReplayDetected`
 - `PolicyDenied`
+- `Heartbeat`
+- `NoFileIngressChecked`
+
+## Persistenter Development Audit Log
+
+MA008.08 fuehrt ein persistierbares Development-Format ein:
+
+- `RkwpAuditLogRecord`
+- `RkwpAuditSeverity`
+- `JsonlRkwpAuditLogStore`
+- `RkwpSessionDiagnostics`
+
+Dev-Speicherort:
+
+```text
+logs/rkwp-audit/
+```
+
+Format:
+
+```text
+JSONL, eine Zeile pro Audit Event
+```
+
+Dieses Format ist noch nicht manipulationssicher. Es dient Debugging, Smoke Tests und Handoff-Diagnose. Produktive Auditierung braucht spaeter Signatur, Verschluesselung, Retention-Policy und Clock-Strategie.
+
+Das CLI-Tool liegt unter:
+
+```text
+src/Tools/RKWorkspace.RkwpDiagnostics/
+```
+
+Start:
+
+```powershell
+.\tools\run-rkwp-diagnostics.ps1 -SmokeTest
+```
 
 ## Revocation
 

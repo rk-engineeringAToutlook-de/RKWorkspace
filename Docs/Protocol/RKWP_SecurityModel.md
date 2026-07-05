@@ -88,6 +88,8 @@ Der Input Channel bleibt ein Sicherheitsrisiko fuer spaetere Produktpfade. Produ
 
 `RkwpAuditEvent`, `RkwpAuditTrail` und `IRkwpAuditSink` dokumentieren sicherheitsrelevante Entscheidungen. Mindestereignisse sind SessionStart, LeaseGrant, FrameOpen, FrameReturn, Replay, PolicyDenied, Revocation und Recovery.
 
+MA008.08 ergaenzt Development-Persistenz mit JSONL unter `logs/rkwp-audit/`. `RkwpAuditLogRecord` enthaelt EventId, Timestamp, EventType, SessionId, LeaseId, FrameSessionId, ThingId, SourceAblageId, TargetAblageId, Severity, Message und Metadata. `RkwpSessionDiagnostics` fasst aktive Sessions, Leases, FrameSessions, Heartbeats, PolicyDenied, SecurityViolations, OwnershipTransferRequests, Revocations und No File Ingress zusammen.
+
 Revocation erfolgt ueber `RkwpRevocationRequest`, `RkwpRevocationReason` und `RkwpRevocationResult`. Eine Revocation setzt Lease und FrameSession auf `Revoked`, invalidiert den Guest Frame, entsperrt den Owner logisch und schreibt Audit.
 
 Recovery unterscheidet jetzt `LeaseExpired`, `RecoveredByOwner`, `Revoked`, `ConnectionLost` und `Returned`.

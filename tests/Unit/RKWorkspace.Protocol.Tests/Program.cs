@@ -1,6 +1,7 @@
 using RKWorkspace.Frame.Pdf;
 using RKWorkspace.ObjectAdapter.Windows;
 using RKWorkspace.Protocol;
+using RKWorkspace.Protocol.Diagnostics;
 using RKWorkspace.Protocol.Identity;
 using RKWorkspace.Protocol.Ownership;
 using RKWorkspace.Surface.Abstractions;
@@ -81,6 +82,8 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("LeaseBinding", LeaseBinding),
     ("PolicyBinding", PolicyBinding),
     ("AuditEvents", AuditEvents),
+    ("PersistentAuditLogRoundTrip", PersistentAuditLogRoundTrip),
+    ("RkwpSessionDiagnosticsSummary", RkwpSessionDiagnosticsSummary),
     ("Revocation", Revocation),
     ("RecoveryHardening", RecoveryHardening),
     ("AblageHelloReferencesIdentity", AblageHelloReferencesIdentity),
@@ -1131,6 +1134,73 @@ static bool RequireSecureSessionBlocksDevelopmentInsecure()
         RkwpSecurityMode.DevelopmentInsecure,
         secureSessionRequired: true);
     return !decision.Allowed && decision.Reason.Contains("Secure session", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool PersistentAuditLogRoundTrip()
+{
+    var path = Path.Combine(Path.GetTempPath(), $"rkws-audit-{Guid.NewGuid():N}.jsonl");
+    try
+    {
+        var store = new JsonlRkwpAuditLogStore();
+        var record = RkwpAuditLogRecord.Create(
+            RkwpAuditEventType.NoFileIngressChecked,
+            "session-1",
+            "owner",
+            "guest",
+            "No file ingress.",
+            DateTimeOffset.UtcNow,
+            "lease-1",
+            "frame-1",
+            "thing-1",
+            metadata: new Dictionary<string, string> { ["status"] = "success" });
+        store.WriteAll(path, [record]);
+        var records = store.ReadAll(path);
+        return records.Count == 1 &&
+               records[0].EventType == RkwpAuditEventType.NoFileIngressChecked &&
+               records[0].FrameSessionId == "frame-1" &&
+               records[0].Metadata["status"] == "success";
+    }
+    finally
+    {
+        File.Delete(path);
+    }
+}
+
+static bool RkwpSessionDiagnosticsSummary()
+{
+    var now = DateTimeOffset.UtcNow;
+    const string sessionId = "session-1";
+    const string leaseId = "lease-1";
+    const string frameSessionId = "frame-1";
+    var records = new[]
+    {
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.SessionStarted, sessionId, "owner", "guest", "Started.", now),
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.LeaseGranted, sessionId, "owner", "guest", "Lease.", now, leaseId),
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.FrameOpened, sessionId, "owner", "guest", "Frame.", now, leaseId, frameSessionId, "thing-1"),
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.Heartbeat, sessionId, "guest", "owner", "Heartbeat.", now, leaseId, frameSessionId, "thing-1"),
+        RkwpAuditLogRecord.Create(
+            RkwpAuditEventType.NoFileIngressChecked,
+            sessionId,
+            "owner",
+            "guest",
+            "No file ingress.",
+            now,
+            leaseId,
+            frameSessionId,
+            "thing-1",
+            metadata: new Dictionary<string, string> { ["status"] = "success" }),
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.PolicyDenied, sessionId, "owner", "guest", "Denied.", now, leaseId, frameSessionId, "thing-1", RkwpAuditSeverity.Warning),
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.FrameReturned, sessionId, "guest", "owner", "Returned.", now, leaseId, frameSessionId, "thing-1"),
+        RkwpAuditLogRecord.Create(RkwpAuditEventType.RecoveredByOwner, sessionId, "owner", "guest", "Recovered.", now, leaseId, frameSessionId, "thing-1")
+    };
+    var diagnostics = RkwpSessionDiagnostics.FromEvents(records);
+    return diagnostics.ActiveSessions == 1 &&
+           diagnostics.ActiveLeases == 0 &&
+           diagnostics.FrameSessions == 1 &&
+           diagnostics.Heartbeats == 1 &&
+           diagnostics.PolicyDeniedEvents == 1 &&
+           diagnostics.RecoveredLeases == 1 &&
+           diagnostics.NoFileIngressPassed;
 }
 
 static AblageIdentity DevAblageIdentity(string ablageId)

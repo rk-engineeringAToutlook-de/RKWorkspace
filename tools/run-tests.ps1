@@ -1039,6 +1039,29 @@ if (-not $rkwpTransportText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'RKWP Diagnostics Smoke Test'
+Write-Host '---------------------------'
+$rkwpDiagnosticsOutput = & (Join-Path $root 'tools\run-rkwp-diagnostics.ps1') -SmokeTest 2>&1
+$rkwpDiagnosticsExitCode = $LASTEXITCODE
+$rkwpDiagnosticsText = $rkwpDiagnosticsOutput -join [Environment]::NewLine
+$rkwpDiagnosticsOutput | ForEach-Object { Write-Host $_ }
+if ($rkwpDiagnosticsExitCode -ne 0) {
+    throw "RKWP Diagnostics Smoke Test failed with exit code $rkwpDiagnosticsExitCode."
+}
+
+if (-not $rkwpDiagnosticsText.Contains('RkwpDiagnosticsSmoke: SUCCESS')) {
+    throw "RKWP Diagnostics Smoke Test failed because output did not contain RkwpDiagnosticsSmoke: SUCCESS."
+}
+
+if (-not $rkwpDiagnosticsText.Contains('NoFileIngress: SUCCESS')) {
+    throw "RKWP Diagnostics Smoke Test failed because output did not contain NoFileIngress: SUCCESS."
+}
+
+if (-not $rkwpDiagnosticsText.Contains('RESULT: SUCCESS')) {
+    throw "RKWP Diagnostics Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'RKWP Protocol Smoke Test'
 Write-Host '------------------------'
 $rkwpOutput = & (Join-Path $root 'tools\run-rkwp-tests.ps1') 2>&1

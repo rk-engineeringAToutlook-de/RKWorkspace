@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.07 iPad/iPhone Surface Testplan mit macOS/Xcode vorbereitet. Naechster Schritt: MA008.08 RKWP Audit Viewer und Session Diagnostics.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.08 RKWP Audit Viewer und Session Diagnostics vorbereitet. Naechster Schritt: MA008.09 Dev Security Gate.
 
 ## Implementierte Schichten
 
@@ -35,6 +35,8 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `src/Tools/RKWorkspace.GlassEdgePdfFrameE2E`
 - `src/Frame/RKWorkspace.Frame.Pdf/PdfFrameInteractionService.cs`
 - `tools/run-windows-owner-for-mac.ps1`
+- `src/Tools/RKWorkspace.RkwpDiagnostics`
+- `tools/run-rkwp-diagnostics.ps1`
 
 ## Semantik
 
@@ -220,6 +222,23 @@ MA008.07 liefert:
 - `release/handoff/iOS_iPadOS_MA008_Handoff.md`
 
 Der mobile Zielpfad ist eine native iOS/iPadOS Surface App ueber macOS-Codex und Xcode. PWA bleibt nur Uebergang. Der minimale Test ist: Windows besitzt PDF, iPad zeigt PDF-Frame, iPad bekommt keine PDF-Datei, Windows bleibt Owner, iPad gibt zurueck.
+
+## RKWP Diagnostics
+
+MA008.08 liefert:
+
+- `src/Tools/RKWorkspace.RkwpDiagnostics/`
+- `tools/run-rkwp-diagnostics.ps1`
+- `Docs/Development/RKWP_Diagnostics.md`
+- `logs/rkwp-audit/` als Development JSONL-Speicher
+
+Smoke:
+
+```powershell
+.\tools\run-rkwp-diagnostics.ps1 -SmokeTest
+```
+
+Geprueft werden LeaseGranted, FrameOpened, Heartbeat, PolicyDenied, FrameReturned, RecoveredByOwner und No File Ingress.
 
 ## Context Pack
 

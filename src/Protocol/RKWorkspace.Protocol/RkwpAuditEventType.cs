@@ -17,5 +17,7 @@ public enum RkwpAuditEventType
     OwnershipTransferApproved,
     SecurityViolation,
     ReplayDetected,
-    PolicyDenied
+    PolicyDenied,
+    Heartbeat,
+    NoFileIngressChecked
 }
