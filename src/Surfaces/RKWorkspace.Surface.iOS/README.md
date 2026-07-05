@@ -38,3 +38,13 @@ Dieses Stub-Verzeichnis ist absichtlich kein Windows-buildbares iOS-Projekt. Nat
 ## Naechster Plattformauftrag
 
 Ersten iOS Surface Host mit TouchHold, FrameOnly View und No File Ingress Proof planen.
+
+## MA007.11 Starter Kit
+
+Dieses Verzeichnis enthaelt ab MA007.11 zusaetzliche Handoff-Stubs:
+
+- `iOSSurfacePlan.md`
+- `iOSPermissions.md`
+- `iOSXcodeHandoff.md`
+
+Die Umsetzung erfolgt spaeter ueber macOS-Codex und Xcode. PWA bleibt nur Uebergang; finale mobile Surface ist native App.
