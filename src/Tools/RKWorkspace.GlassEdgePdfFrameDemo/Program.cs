@@ -128,7 +128,11 @@ public sealed class GlassEdgePdfFrameDemo
             document.FileName,
             document.PageCount,
             document.Sha256,
+            PdfFrameRepresentationKind.MetadataPreview,
             DisplayText: $"FrameOnly view of {document.FileName}",
+            RendererStatus: "RendererBlocked",
+            SupportsScroll: true,
+            SupportsZoom: true,
             ContainsOriginalFileBytes: false,
             HasOriginalFilePath: false);
 

@@ -12,7 +12,7 @@ if ($LASTEXITCODE -ne 0) {
 
 $output = dotnet run --project $project 2>&1
 $exitCode = $LASTEXITCODE
-$output | ForEach-Object { Write-Host $_ }
+$output | ForEach-Object { Write-Output $_ }
 if ($exitCode -ne 0) {
     exit $exitCode
 }
@@ -28,6 +28,22 @@ if (-not $text.Contains('Frame geoeffnet')) {
 
 if (-not $text.Contains('Liegt hier im Frame')) {
     throw 'Frame Guest Surface Smoke failed because output did not contain Liegt hier im Frame.'
+}
+
+if (-not $text.Contains('FrameRepresentation: OK')) {
+    throw 'Frame Guest Surface Smoke failed because output did not contain FrameRepresentation: OK.'
+}
+
+if (-not $text.Contains('ScrollPrepared: OK')) {
+    throw 'Frame Guest Surface Smoke failed because output did not contain ScrollPrepared: OK.'
+}
+
+if (-not $text.Contains('ZoomPrepared: OK')) {
+    throw 'Frame Guest Surface Smoke failed because output did not contain ZoomPrepared: OK.'
+}
+
+if (-not $text.Contains('OriginalFileBytes: NO')) {
+    throw 'Frame Guest Surface Smoke failed because output did not contain OriginalFileBytes: NO.'
 }
 
 if (-not $text.Contains('FrameOnly: OK')) {

@@ -10,8 +10,13 @@ if ([string]::IsNullOrWhiteSpace($PdfPath)) {
     $PdfPath = Join-Path $root 'samples\Objects\Rechnung.pdf'
 }
 
+if (-not (Test-Path -LiteralPath $PdfPath)) {
+    throw "PDF Frame Smoke failed because sample PDF does not exist: $PdfPath"
+}
+
 Write-Host 'RK Workspace PDF Frame Smoke'
 Write-Host '----------------------------'
+Write-Host 'SamplePdf: OK'
 
 $ownerOutput = & (Join-Path $root 'tools\run-pdf-frame-owner.ps1') -PdfPath $PdfPath 2>&1
 $ownerExitCode = $LASTEXITCODE
@@ -27,5 +32,23 @@ if ($guestExitCode -ne 0) {
     throw "PDF Frame Smoke failed in guest step with exit code $guestExitCode."
 }
 
+$combinedText = (($ownerOutput + $guestOutput) -join [Environment]::NewLine)
+if (-not $combinedText.Contains('FrameRepresentation: OK')) {
+    throw 'PDF Frame Smoke failed because output did not contain FrameRepresentation: OK.'
+}
+
+if (-not $combinedText.Contains('GuestHasPdfFile: NO')) {
+    throw 'PDF Frame Smoke failed because output did not contain GuestHasPdfFile: NO.'
+}
+
+if (-not $combinedText.Contains('OriginalFileBytes: NO')) {
+    throw 'PDF Frame Smoke failed because output did not contain OriginalFileBytes: NO.'
+}
+
+if (-not $combinedText.Contains('Zurueckgegeben')) {
+    throw 'PDF Frame Smoke failed because output did not contain Zurueckgegeben.'
+}
+
+Write-Output 'NoFileIngress: SUCCESS'
 Write-Output 'PdfFrameSmoke: SUCCESS'
 Write-Output 'RESULT: SUCCESS'

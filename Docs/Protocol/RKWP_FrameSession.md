@@ -41,6 +41,9 @@ Der Owner liest die PDF und erzeugt eine Frame-Repräsentation. Der Gast erhaelt
 - PageCount
 - SourceHash
 - DisplayText
+- RepresentationKind
+- RendererStatus
+- vorbereitete Scroll-/Zoom-Faehigkeiten
 
 Der Gast erhaelt nicht:
 
@@ -51,6 +54,8 @@ Der Gast erhaelt nicht:
 ## Rendering-Status
 
 MA007.00 liest eine echte Sample-PDF, validiert Header, Metadaten, Hash und Page-Anzahl und erzeugt daraus eine sichere Frame-Repräsentation. Ein echter Bitmap-/Page-Renderer ist noch nicht aktiv.
+
+MA007.05 schaerft diesen Status: Der Guest bekommt eine explizite `MetadataPreview` als sichere Frame-Repräsentation. `FrameRepresentation: OK`, Scroll und Zoom werden im Smoke geprueft. Echte PDF-Seiten werden weiterhin nicht gerendert; das ist ein dokumentierter Renderer-Blocker.
 
 MA007.01 nutzt diese PDF als erstes echtes digitales Testobjekt. Die erlaubte Sprache im Owner-/Guest-Smoke lautet `PDF ist als Frame ausgeliehen`, `Frame geoeffnet`, `Liegt hier im Frame` und `Zurueckgegeben`. Verbotene Begriffe wie Senden, Empfangen, Download oder Transfer werden im FrameOnly-Pfad nicht verwendet.
 

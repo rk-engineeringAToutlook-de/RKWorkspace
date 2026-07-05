@@ -28,7 +28,7 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.04 verbindet Phase 3, 4 und 5 erstmals in einer lokalen Integration: Glass Edge waehlt die naechste Ablage, eine echte PDF bleibt Original-Owned beim Owner, und die Zielablage sieht nur einen kontrollierten Frame ohne File Ingress.
+MA007.05 verbessert den PDF-Frame-Pfad: Die Sample-PDF bleibt Original-Owned, die Gastablage sieht eine sichere Frame-Repräsentation mit vorbereiteten Scroll-/Zoom-Faehigkeiten, No File Ingress ist im Smoke geprueft. Echte Seitenrendering-Engine bleibt als Blocker dokumentiert.
 
 ## Naechster Fokus
 

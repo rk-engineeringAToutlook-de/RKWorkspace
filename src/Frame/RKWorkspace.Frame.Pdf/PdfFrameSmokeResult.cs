@@ -22,9 +22,17 @@ public sealed record PdfFrameSmokeResult(
         !GuestFrame.ContainsOriginalFileBytes &&
         !GuestFrame.HasOriginalFilePath;
 
+    public bool GuestShowsFrameRepresentation =>
+        !string.IsNullOrWhiteSpace(GuestFrame.DisplayText) &&
+        GuestFrame.PageCount > 0 &&
+        GuestFrame.RepresentationKind is PdfFrameRepresentationKind.MetadataPreview or
+            PdfFrameRepresentationKind.RenderedFirstPage or
+            PdfFrameRepresentationKind.RenderedPageImage;
+
     public bool IsSuccessful =>
         OwnerStillOwnsOriginal &&
         GuestHasNoFileIngress &&
+        GuestShowsFrameRepresentation &&
         Lease.State == CarryLeaseState.Active &&
         FrameSession.State == FrameSessionState.Active &&
         ReturnedLease.State == CarryLeaseState.Returned &&

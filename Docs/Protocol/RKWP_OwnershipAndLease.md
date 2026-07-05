@@ -69,6 +69,8 @@ Policy-Binding bindet `PolicyId`, `PolicyVersion` und optional `PolicyHash` an C
 
 MA007.04 nutzt die Glass Edge als Ausloeser fuer den FrameOnly-Pfad. Die Kante zeigt die naechste Ablage, die CarryLease bleibt an den Owner gebunden, und die Zielablage bekommt nur eine Frame-Darstellung. Rueckgabe setzt die Lease auf `Returned`; Recovery nach Heartbeat-Verlust fuehrt zu `RecoveredByOwner`.
 
+MA007.05 verbessert den PDF-Frame-Smoke: Die Gastablage meldet eine sichere Frame-Repräsentation, aber keine PDF-Datei, keinen Originalpfad und keine kopierten PDF-Bytes. Recovery verhindert weiterhin einen unendlichen Lock auf der Owner-Ablage.
+
 ## MA007.01 PDF FrameOnly Smoke
 
 Die erste echte Datei im Test ist `samples/Objects/Rechnung.pdf`. Sie bleibt auf der Owner-Ablage, wird waehrend der Lease logisch gesperrt und erscheint auf der Gastablage nur als Frame-Repräsentation.

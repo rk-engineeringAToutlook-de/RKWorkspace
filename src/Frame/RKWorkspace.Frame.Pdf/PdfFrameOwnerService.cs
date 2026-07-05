@@ -27,7 +27,11 @@ public sealed class PdfFrameOwnerService
             document.FileName,
             document.PageCount,
             document.Sha256,
-            DisplayText: $"FrameOnly view of {document.FileName}",
+            PdfFrameRepresentationKind.MetadataPreview,
+            DisplayText: $"FrameOnly preview of {document.FileName}; pages={document.PageCount}; sha256={document.Sha256[..16]}",
+            RendererStatus: "RendererBlocked",
+            SupportsScroll: true,
+            SupportsZoom: true,
             ContainsOriginalFileBytes: false,
             HasOriginalFilePath: false);
 
@@ -65,6 +69,17 @@ public sealed record PdfGuestFrame(
     string DisplayName,
     int PageCount,
     string SourceHash,
+    PdfFrameRepresentationKind RepresentationKind,
     string DisplayText,
+    string RendererStatus,
+    bool SupportsScroll,
+    bool SupportsZoom,
     bool ContainsOriginalFileBytes,
     bool HasOriginalFilePath);
+
+public enum PdfFrameRepresentationKind
+{
+    MetadataPreview,
+    RenderedFirstPage,
+    RenderedPageImage
+}

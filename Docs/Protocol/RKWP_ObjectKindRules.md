@@ -29,3 +29,7 @@ Nicht jedes digitale Ding darf gleich behandelt werden. Ein PDF, ein Screenshot,
 ## Spaeter
 
 Die Regeln werden spaeter pro Policy, Anwendung, Firmenumgebung und Sicherheitszustand erweitert.
+
+## MA007.05 PDF Frame Viewer
+
+`PdfDocument` bleibt der erste echte ObjectKind-Test. Der aktuelle Frame zeigt eine sichere `MetadataPreview` und bereitet Scroll/Zoom vor. Ein echter PDF-Renderer muss Owner-seitig oder strikt framegebunden arbeiten und darf keine freie PDF-Datei auf der Gastablage materialisieren.
