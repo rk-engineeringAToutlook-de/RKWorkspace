@@ -46,6 +46,20 @@ Er darf nicht als produktiv gelten, weil ihm noch fehlen:
 
 Der Dev-Transport darf RKWP-Security-Felder durchreichen und testen, aber er ersetzt nicht den `RkwpSessionProtector`.
 
+## Ablage Identity und Trust
+
+MA008.02 fuehrt `AblageIdentity`, `AblageTrustLevel`, `AblagePairingState` und `AblageTrustPolicy` ein. `AblageHello` und `AblageCapabilities` muessen die Identitaet referenzieren. Eine technische Verbindung erzeugt keinen Trust.
+
+Default-Regel:
+
+- Unknown, Untrusted, Revoked und Denied bekommen keine Lease.
+- PairingRequested und PairingPending blockieren bis zur Entscheidung.
+- DevTrusted ist nur fuer DevelopmentInsecure Dev-Tests erlaubt.
+- PolicyTrusted und EnterpriseTrusted duerfen nur gemaess aktiver Policy handeln.
+- `RequireSecureSession` blockiert `DevelopmentInsecure`.
+
+Details stehen in `Docs/Protocol/RKWP_AblageIdentityAndTrust.md` und `Docs/Protocol/RKWP_Pairing.md`.
+
 ## Replay-Schutz
 
 Jede RKWP-Nachricht besitzt `Nonce` und `SequenceNumber`. `RkwpSequenceValidator` erzwingt fuer eine Session:
@@ -82,6 +96,7 @@ Recovery unterscheidet jetzt `LeaseExpired`, `RecoveredByOwner`, `Revoked`, `Con
 
 - verschluesselte Session
 - gegenseitige Ablage-Authentifizierung
+- produktives Pairing und Trust Store
 - Nonce/SequenceNumber-Replay-Schutz
 - Lease-spezifische Berechtigungen
 - Revocation fuer Frame und Carry Lease

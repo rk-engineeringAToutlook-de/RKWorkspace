@@ -33,6 +33,8 @@ Wichtige Zustaende:
 
 `CarryLease` beschreibt die zeitlich begrenzte Berechtigung, ein Ding als Frame auf einer Gastablage zu erleben.
 
+Ab MA008.02 wird eine Lease nicht mehr nur aus Session und Policy erzeugt. Vorher muss das `AblageTrustGate` pruefen, ob die Guest-Ablage nach `AblageIdentity`, `AblageTrustLevel`, `AblagePairingState` und `AblageTrustPolicy` ueberhaupt berechtigt ist.
+
 Default fuer kritische Objekte:
 
 - `OwnershipMode.FrameOnly`
@@ -44,6 +46,8 @@ Default fuer kritische Objekte:
 - SessionId-Bindung
 - PolicyId und PolicyVersion
 - optional geplanter PolicyHash
+
+Unknown, Untrusted, Revoked, Denied und Pending blockieren die Lease. `DevTrusted` ist nur fuer lokale Dev-Tests erlaubt.
 
 ## Recovery
 

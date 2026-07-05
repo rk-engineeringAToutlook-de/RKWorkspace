@@ -20,7 +20,7 @@ MA007.00 legt nur die Foundation:
 Noch nicht enthalten:
 
 - echte Netzwerktransporte
-- Pairing
+- produktives Pairing
 - Discovery
 - produktive Verschluesselung
 - echte OS-Hooks
@@ -48,6 +48,9 @@ Zentrale Typen:
 - `IRkwpAuditSink`
 - `IRkwpKeyProvider`
 - `IRkwpNonceProvider`
+- `AblageIdentity`
+- `AblageTrustPolicy`
+- `DevAblagePairingService`
 
 Jede Nachricht besitzt mindestens:
 
@@ -81,6 +84,10 @@ Das ist noch keine finale produktive Kryptografie. Es ist die Protocol-Struktur,
 ## Grundregel
 
 RKWP transportiert in MA007.00 keine Originaldatei in die Gastablage. Ein Gast bekommt eine Darstellung, eine Eingabemoeglichkeit und einen Rueckweg. Das Original bleibt beim Owner.
+
+## MA008.02 Identity und Pairing-Grundlage
+
+MA008.02 ergaenzt eine Identity- und Trust-Schicht. `AblageHello` und `AblageCapabilities` tragen Identitaetsdaten. `AblageTrustGate` entscheidet, ob eine Guest-Ablage eine `CarryLease` oder `FrameSession` bekommen darf. Das ist noch kein produktives Pairing, aber die Protokollstruktur verhindert, dass eine unbekannte Ablage automatisch als berechtigt gilt.
 
 ## Smoke
 

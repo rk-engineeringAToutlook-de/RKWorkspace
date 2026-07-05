@@ -38,6 +38,8 @@ $files = @(
     'Docs\Roadmap\RKWorkspace_Roadmap.md',
     'Docs\Protocol\RKWP_ProtocolFoundation.md',
     'Docs\Protocol\RKWP_SecurityModel.md',
+    'Docs\Protocol\RKWP_AblageIdentityAndTrust.md',
+    'Docs\Protocol\RKWP_Pairing.md',
     'Docs\Protocol\RKWP_TransportProfiles.md',
     'Docs\Protocol\RKWP_DevTransport.md',
     'Docs\Protocol\RKWP_OwnershipAndLease.md',

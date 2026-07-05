@@ -62,3 +62,17 @@ Ein spaeterer Dongle darf keine Nutzdaten speichern und kein Transferstick werde
 - sichere Kopplung
 
 Ownership, CarryLease und FrameSession bleiben Protocol-Aufgaben.
+
+## Verbindung zu Identity und Pairing
+
+MA008.02 fuehrt die Software-Grundlage fuer Ablage-Identitaet und Trust ein. Ein spaeterer Dongle kann diese Identitaet staerker machen, ersetzt aber nicht das Pairing und nicht die `AblageTrustPolicy`.
+
+Der Dongle darf spaeter helfen bei:
+
+- stabiler `AblageId`
+- lokaler Vertrauensanzeige
+- Key-Material oder Secure-Element-Hinweis
+- Proximity-Signal
+- Revocation-Hinweis
+
+Er darf weiterhin keine Originaldaten aufnehmen und keine Ownership-Entscheidung treffen.

@@ -1,6 +1,7 @@
 using RKWorkspace.Frame.Pdf;
 using RKWorkspace.ObjectAdapter.Windows;
 using RKWorkspace.Protocol;
+using RKWorkspace.Protocol.Identity;
 using RKWorkspace.Protocol.Ownership;
 using RKWorkspace.Surface.Abstractions;
 
@@ -73,7 +74,16 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PolicyBinding", PolicyBinding),
     ("AuditEvents", AuditEvents),
     ("Revocation", Revocation),
-    ("RecoveryHardening", RecoveryHardening)
+    ("RecoveryHardening", RecoveryHardening),
+    ("AblageHelloReferencesIdentity", AblageHelloReferencesIdentity),
+    ("UnknownAblageDeniedLease", UnknownAblageDeniedLease),
+    ("DevTrustedFrameOnlyDevModeAllowed", DevTrustedFrameOnlyDevModeAllowed),
+    ("UntrustedAblageDenied", UntrustedAblageDenied),
+    ("RevokedAblageDenied", RevokedAblageDenied),
+    ("PairingRequestedBecomesPending", PairingRequestedBecomesPending),
+    ("PairingDeniedBlocksLease", PairingDeniedBlocksLease),
+    ("PairedAllowsByPolicy", PairedAllowsByPolicy),
+    ("RequireSecureSessionBlocksDevelopmentInsecure", RequireSecureSessionBlocksDevelopmentInsecure)
 };
 
 Console.WriteLine("RK Workspace RKWP Protocol Tests");
@@ -848,6 +858,168 @@ static bool RecoveryHardening()
            connectionLost.FinalState == CarryLeaseState.RecoveredByOwner &&
            returned.Reason == CarryLeaseRecoveryReason.Returned &&
            returned.FinalState == CarryLeaseState.Returned;
+}
+
+static bool AblageHelloReferencesIdentity()
+{
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    var owner = DevAblageIdentity("owner");
+    var guest = DevAblageIdentity("guest");
+    var hello = AblageIdentityMessageFactory.CreateHello(session, owner, 1);
+    var capabilities = AblageIdentityMessageFactory.CreateCapabilities(session, guest, 2);
+    var foreignRejected = Throws<AblageTrustException>(() =>
+        AblageIdentityMessageFactory.CreateHello(session, DevAblageIdentity("foreign"), 3));
+
+    return hello.MessageType == RkwpMessageType.AblageHello &&
+           hello.Payload["ablageId"] == "owner" &&
+           hello.Payload["trustLevel"] == AblageTrustLevel.DevTrusted.ToString() &&
+           capabilities.MessageType == RkwpMessageType.AblageCapabilities &&
+           capabilities.Payload["ablageId"] == "guest" &&
+           capabilities.Payload["capabilities"].Contains("FrameOnly", StringComparison.OrdinalIgnoreCase) &&
+           foreignRejected;
+}
+
+static bool UnknownAblageDeniedLease()
+{
+    var guest = TrustIdentity(AblageTrustLevel.Unknown, AblagePairingState.Unpaired);
+    var decision = AblageTrustGate.CanGrantLease(
+        guest,
+        AblageTrustPolicy.DenyUnknown,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.EncryptedAndAuthenticated,
+        secureSessionRequired: true);
+    return !decision.Allowed && decision.Reason.Contains("Unknown", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool DevTrustedFrameOnlyDevModeAllowed()
+{
+    var guest = DevAblageIdentity("guest");
+    var lease = AblageTrustGate.GrantLease(
+        "thing-dev-frame",
+        "owner",
+        guest,
+        CarryLeasePolicy.FrameOnlyDefault,
+        AblageTrustPolicy.DevelopmentFrameOnly,
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequired: false,
+        DateTimeOffset.UtcNow);
+
+    return lease.GuestAblageId == "guest" &&
+           lease.OwnerAblageId == "owner" &&
+           lease.Mode == OwnershipMode.FrameOnly;
+}
+
+static bool UntrustedAblageDenied()
+{
+    var guest = TrustIdentity(AblageTrustLevel.Untrusted, AblagePairingState.Unpaired);
+    var decision = AblageTrustGate.CanGrantLease(
+        guest,
+        AblageTrustPolicy.DevelopmentFrameOnly,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequired: false);
+    return !decision.Allowed && decision.Reason.Contains("Untrusted", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool RevokedAblageDenied()
+{
+    var trustRevoked = TrustIdentity(AblageTrustLevel.Revoked, AblagePairingState.Paired);
+    var pairingRevoked = TrustIdentity(AblageTrustLevel.PolicyTrusted, AblagePairingState.Revoked);
+    var trustDecision = AblageTrustGate.CanGrantLease(
+        trustRevoked,
+        AblageTrustPolicy.TrustedInteractiveFrame,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.EncryptedAndAuthenticated,
+        secureSessionRequired: true);
+    var pairingDecision = AblageTrustGate.CanGrantLease(
+        pairingRevoked,
+        AblageTrustPolicy.TrustedInteractiveFrame,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.EncryptedAndAuthenticated,
+        secureSessionRequired: true);
+    return !trustDecision.Allowed && !pairingDecision.Allowed;
+}
+
+static bool PairingRequestedBecomesPending()
+{
+    var service = new DevAblagePairingService();
+    var requesting = TrustIdentity(AblageTrustLevel.Unknown, AblagePairingState.PairingRequested);
+    var target = DevAblageIdentity("owner");
+    var request = service.RequestPairing(requesting, target, "MA008.02 dev pairing");
+    var pendingDecision = AblageTrustGate.CanGrantLease(
+        requesting with { PairingState = request.State },
+        AblageTrustPolicy.DevelopmentFrameOnly,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequired: false);
+    return request.State == AblagePairingState.PairingPending &&
+           request.RequestingAblageId == requesting.AblageId &&
+           !pendingDecision.Allowed;
+}
+
+static bool PairingDeniedBlocksLease()
+{
+    var service = new DevAblagePairingService();
+    var requesting = TrustIdentity(AblageTrustLevel.Unknown, AblagePairingState.PairingRequested);
+    var target = DevAblageIdentity("owner");
+    var request = service.RequestPairing(requesting, target, "MA008.02 denied pairing");
+    var decision = service.Decide(request, approved: false);
+    var deniedIdentity = service.ApplyDecision(requesting, decision);
+    var leaseDecision = AblageTrustGate.CanGrantLease(
+        deniedIdentity,
+        AblageTrustPolicy.DevelopmentFrameOnly,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequired: false);
+
+    return deniedIdentity.PairingState == AblagePairingState.Denied &&
+           deniedIdentity.TrustLevel == AblageTrustLevel.Untrusted &&
+           !leaseDecision.Allowed;
+}
+
+static bool PairedAllowsByPolicy()
+{
+    var guest = TrustIdentity(AblageTrustLevel.PolicyTrusted, AblagePairingState.Paired);
+    var frameDecision = AblageTrustGate.CanOpenFrame(
+        guest,
+        AblageTrustPolicy.TrustedInteractiveFrame,
+        FrameMode.Interactive,
+        RkwpSecurityMode.EncryptedAndAuthenticated,
+        secureSessionRequired: true);
+    var leaseDecision = AblageTrustGate.CanGrantLease(
+        guest,
+        AblageTrustPolicy.TrustedInteractiveFrame,
+        OwnershipMode.InteractiveFrame,
+        RkwpSecurityMode.EncryptedAndAuthenticated,
+        secureSessionRequired: true);
+
+    return frameDecision.Allowed && leaseDecision.Allowed;
+}
+
+static bool RequireSecureSessionBlocksDevelopmentInsecure()
+{
+    var guest = TrustIdentity(AblageTrustLevel.PolicyTrusted, AblagePairingState.Paired);
+    var decision = AblageTrustGate.CanGrantLease(
+        guest,
+        AblageTrustPolicy.TrustedInteractiveFrame,
+        OwnershipMode.FrameOnly,
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequired: true);
+    return !decision.Allowed && decision.Reason.Contains("Secure session", StringComparison.OrdinalIgnoreCase);
+}
+
+static AblageIdentity DevAblageIdentity(string ablageId)
+{
+    return AblageIdentity.CreateDev(ablageId, $"Ablage {ablageId}", "Windows");
+}
+
+static AblageIdentity TrustIdentity(AblageTrustLevel trustLevel, AblagePairingState pairingState)
+{
+    return AblageIdentity.CreateDev("guest", "Ablage guest", "Windows") with
+    {
+        TrustLevel = trustLevel,
+        PairingState = pairingState
+    };
 }
 
 static (CarryLease Lease, FrameSession Frame) ActiveFrame(FrameMode mode, DateTimeOffset now)

@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.01 RKWP Dev Transport.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.02 Ablage Identity, Trust Bootstrap und Pairing-Grundlage. Naechster Schritt: MA008.03 Windows Owner + Windows Guest Real PDF Frame End-to-End lokal.
 
 ## Implementierte Schichten
 
@@ -30,12 +30,15 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `src/Adapters/RKWorkspace.ObjectAdapter.Windows`
 - `src/Communication/RKWorkspace.Transport.Dev`
 - `src/Tools/RKWorkspace.RkwpTransportHarness`
+- `src/Protocol/RKWorkspace.Protocol/Identity`
 
 ## Semantik
 
 Ein PDF wird nicht auf die Gastablage kopiert. Der Owner erzeugt eine FrameSession. Die Gastablage sieht eine Frame-Repräsentation ohne Originalpfad und ohne Originalbytes.
 
 Input ist policygebunden. Aenderungen laufen als ChangeSet zur Owner-Entscheidung. Ownership Transfer ist kein Default und materialisiert nur bei Approved-Decision.
+
+Eine Ablage wird nicht vertraut, nur weil sie technisch erreichbar ist. `AblageIdentity`, `AblageTrustPolicy` und `AblageTrustGate` entscheiden vor Lease und Frame, ob eine Zielablage ueberhaupt berechtigt ist.
 
 ## Neuer Smoke
 
@@ -123,6 +126,26 @@ Smoke:
 ```
 
 Geprueft werden `AblageHello`, `AblageCapabilities`, SessionId, `CarryLeaseHeartbeat`, `FrameUpdate`, Error Message, Timeout, Disconnect und No-Hang-Verhalten.
+
+## Ablage Identity / Trust
+
+MA008.02 liefert:
+
+- `AblageIdentity`
+- `AblageIdentityId`
+- `AblagePublicKey`
+- `AblageTrustLevel`
+- `AblagePairingState`
+- `AblagePairingRequest`
+- `AblagePairingDecision`
+- `AblageTrustPolicy`
+- `AblageTrustGate`
+- `DevAblagePairingService`
+- `AblageIdentityMessageFactory`
+- `Docs/Protocol/RKWP_AblageIdentityAndTrust.md`
+- `Docs/Protocol/RKWP_Pairing.md`
+
+Regel: Unknown, Untrusted, Revoked, Denied und Pending blockieren Lease und Frame. DevTrusted ist nur fuer lokale Dev-Tests gedacht. SecureSessionRequired blockiert `DevelopmentInsecure`.
 
 ## Context Pack
 

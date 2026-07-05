@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.01 fuehrt den ersten RKWP Dev-Transport ein. `NamedPipeDev` verbindet lokale Ablagen fuer Smoke Tests und prueft Hello, Capabilities, SessionId, Heartbeat, FrameUpdate, Error, Timeout und Disconnect.
+MA008.02 fuehrt Ablage Identity, Trust Bootstrap und Pairing-Grundlage ein. `AblageHello` und `AblageCapabilities` koennen Identitaet tragen, und das Trust-Gate blockiert unbekannte, untrusted, widerrufene oder pending Ablagen vor Lease und Frame.
 
 ## Naechster Fokus
 
-Nach MA008.01 liegt der Fokus auf Ablage Identity, Trust Bootstrap und Pairing-Grundlage. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA008.02 liegt der Fokus auf Windows Owner + Windows Guest Real PDF Frame E2E lokal. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 ## Entfernung und Ablage-Anker
 
