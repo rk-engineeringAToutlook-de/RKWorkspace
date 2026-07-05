@@ -61,6 +61,8 @@ public sealed record FrameSession
 
     public required string LeaseId { get; init; }
 
+    public required string SessionId { get; init; }
+
     public required string ThingId { get; init; }
 
     public required string OwnerAblageId { get; init; }
@@ -83,12 +85,19 @@ public sealed record FrameSession
 
     public required DateTimeOffset UpdatedAt { get; init; }
 
+    public required string PolicyId { get; init; }
+
+    public required int PolicyVersion { get; init; }
+
+    public string? PolicyHash { get; init; }
+
     public static FrameSession Open(CarryLease lease, FrameMode mode, DateTimeOffset now)
     {
         return new FrameSession
         {
             FrameSessionId = $"frame-{Guid.NewGuid():N}",
             LeaseId = lease.LeaseId,
+            SessionId = lease.SessionId,
             ThingId = lease.ThingId,
             OwnerAblageId = lease.OwnerAblageId,
             GuestAblageId = lease.GuestAblageId,
@@ -99,7 +108,10 @@ public sealed record FrameSession
             ReturnRequired = true,
             State = FrameSessionState.Opening,
             CreatedAt = now,
-            UpdatedAt = now
+            UpdatedAt = now,
+            PolicyId = lease.PolicyId,
+            PolicyVersion = lease.PolicyVersion,
+            PolicyHash = lease.PolicyHash
         };
     }
 

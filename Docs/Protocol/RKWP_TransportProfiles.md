@@ -23,6 +23,14 @@ Spaetere Profile koennen sein:
 
 MA007.00 definiert nur Nachrichten und Ownership. Transportprofile werden erst implementiert, wenn Ownership und FrameOnly verifiziert sind.
 
+Ab MA007.03 muss jedes spaetere Transportprofil die Security-Vertraege tragen koennen:
+
+- Nonce und monotone SequenceNumber bleiben transportuebergreifend erhalten.
+- Session Protector muss Authentisierung, Integritaet und spaeter Verschluesselung abbilden.
+- LeaseId und SessionId duerfen vom Transport nicht umgeschrieben werden.
+- Audit- und Revocation-Ereignisse muessen auch bei Verbindungsabbruch nachvollziehbar bleiben.
+- Produktive kritische Umgebungen duerfen `DevelopmentInsecure` nicht akzeptieren.
+
 ## Nicht-Ziele
 
 - kein Datei-Streaming

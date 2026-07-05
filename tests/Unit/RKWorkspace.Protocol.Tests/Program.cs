@@ -26,7 +26,18 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SurfaceContracts", SurfaceContracts),
     ("GestureTypes", GestureTypes),
     ("SurfacePlatforms", SurfacePlatforms),
-    ("SurfaceDocs", SurfaceDocs)
+    ("SurfaceDocs", SurfaceDocs),
+    ("SecurityModeRequiresProductionProtector", SecurityModeRequiresProductionProtector),
+    ("DevelopmentModeMarkedUnsafe", DevelopmentModeMarkedUnsafe),
+    ("NonceReplay", NonceReplay),
+    ("SequenceReplay", SequenceReplay),
+    ("MissingNonceAndSequence", MissingNonceAndSequence),
+    ("ValidSequence", ValidSequence),
+    ("LeaseBinding", LeaseBinding),
+    ("PolicyBinding", PolicyBinding),
+    ("AuditEvents", AuditEvents),
+    ("Revocation", Revocation),
+    ("RecoveryHardening", RecoveryHardening)
 };
 
 Console.WriteLine("RK Workspace RKWP Protocol Tests");
@@ -230,6 +241,179 @@ static bool SurfaceDocs()
            mac.Contains("Sandbox", StringComparison.OrdinalIgnoreCase) &&
            ios.Contains("Xcode", StringComparison.OrdinalIgnoreCase) &&
            ios.Contains("USB", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool SecurityModeRequiresProductionProtector()
+{
+    var secureSession = RkwpSession.CreateSecure("owner", "guest");
+    var message = RkwpMessage.Create(RkwpMessageType.AblageHello, secureSession, 1);
+    var protector = new DevelopmentRkwpSessionProtector();
+    var devRejected = Throws<RkwpProtocolException>(() => protector.Protect(message, secureSession));
+    var insecureRejected = Throws<RkwpSecurityException>(() => RkwpSession.CreateSecure("owner", "guest", RkwpSecurityMode.DevelopmentInsecure));
+    return secureSession.SecurityMode == RkwpSecurityMode.EncryptedAndAuthenticated &&
+           secureSession.SecureSessionRequired &&
+           devRejected &&
+           insecureRejected;
+}
+
+static bool DevelopmentModeMarkedUnsafe()
+{
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    var protector = new DevelopmentRkwpSessionProtector();
+    return session.SecurityMode == RkwpSecurityMode.DevelopmentInsecure &&
+           protector.IsDevelopmentOnly &&
+           protector.SecurityNotice.Contains("no real encryption", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool NonceReplay()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    var validator = new RkwpSequenceValidator(audit);
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    var first = RkwpMessage.Create(RkwpMessageType.AblageHello, session, 1);
+    var replay = RkwpMessage.Create(RkwpMessageType.AblageCapabilities, session, 2) with { Nonce = first.Nonce };
+    validator.ValidateAndRecord(first);
+    return Throws<RkwpSecurityException>(() => validator.ValidateAndRecord(replay)) &&
+           audit.Contains(RkwpAuditEventType.ReplayDetected);
+}
+
+static bool SequenceReplay()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    var validator = new RkwpSequenceValidator(audit);
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    validator.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.AblageHello, session, 5));
+    return Throws<RkwpSecurityException>(() => validator.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.AblageCapabilities, session, 4))) &&
+           audit.Contains(RkwpAuditEventType.ReplayDetected);
+}
+
+static bool MissingNonceAndSequence()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    var validator = new RkwpSequenceValidator(audit);
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    var missingNonce = RkwpMessage.Create(RkwpMessageType.AblageHello, session, 1) with { Nonce = string.Empty };
+    var missingSequence = RkwpMessage.Create(RkwpMessageType.AblageCapabilities, session, 0);
+    return Throws<RkwpSecurityException>(() => validator.ValidateAndRecord(missingNonce)) &&
+           Throws<RkwpSecurityException>(() => validator.ValidateAndRecord(missingSequence)) &&
+           audit.Contains(RkwpAuditEventType.SecurityViolation);
+}
+
+static bool ValidSequence()
+{
+    var validator = new RkwpSequenceValidator();
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    validator.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.AblageHello, session, 1));
+    validator.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.AblageCapabilities, session, 2));
+    validator.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.NearestAblageSelected, session, 3));
+    return true;
+}
+
+static bool LeaseBinding()
+{
+    var now = DateTimeOffset.UtcNow;
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    var otherSession = RkwpSession.CreateDevelopment("owner", "guest");
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now, session.SessionId);
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now);
+    var heartbeat = RkwpMessage.Create(RkwpMessageType.CarryLeaseHeartbeat, session, 1, leaseId: lease.LeaseId);
+    var wrongLease = heartbeat with { LeaseId = "lease-wrong" };
+    var wrongSession = RkwpMessage.Create(RkwpMessageType.CarryLeaseReturn, otherSession, 2, leaseId: lease.LeaseId);
+    var correct = RkwpMessage.Create(RkwpMessageType.CarryLeaseReturn, session, 3, leaseId: lease.LeaseId);
+
+    RkwpLeaseBindingValidator.Validate(heartbeat, lease, frame);
+    return Throws<RkwpSecurityException>(() => RkwpLeaseBindingValidator.Validate(wrongLease, lease, frame)) &&
+           Throws<RkwpSecurityException>(() => RkwpLeaseBindingValidator.Validate(wrongSession, lease, frame)) &&
+           !Throws<RkwpSecurityException>(() => RkwpLeaseBindingValidator.Validate(correct, lease, frame));
+}
+
+static bool PolicyBinding()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var binder = new RkwpPolicyBinder(audit);
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now, "session-1");
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now);
+    var valid = binder.Validate(lease, frame);
+    var changedPolicy = frame with { PolicyVersion = frame.PolicyVersion + 1 };
+    var denied = binder.Validate(lease, changedPolicy);
+    return valid.IsValid &&
+           !denied.IsValid &&
+           audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool AuditEvents()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    audit.Write(RkwpAuditEvent.Create(RkwpAuditEventType.LeaseGranted, "session-1", "lease-1", "thing-1", "Lease granted.", now));
+    audit.Write(RkwpAuditEvent.Create(RkwpAuditEventType.FrameReturned, "session-1", "lease-1", "thing-1", "Frame returned.", now));
+
+    var sequence = new RkwpSequenceValidator(audit);
+    var session = RkwpSession.CreateDevelopment("owner", "guest");
+    sequence.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.AblageHello, session, 1));
+    _ = Throws<RkwpSecurityException>(() => sequence.ValidateAndRecord(RkwpMessage.Create(RkwpMessageType.AblageCapabilities, session, 1)));
+
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now, session.SessionId);
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now) with { PolicyId = "changed" };
+    _ = new RkwpPolicyBinder(audit).Validate(lease, frame);
+    audit.Write(RkwpAuditEvent.Create(RkwpAuditEventType.RecoveredByOwner, session.SessionId, lease.LeaseId, lease.ThingId, "Owner recovered thing.", now));
+
+    return audit.Contains(RkwpAuditEventType.LeaseGranted) &&
+           audit.Contains(RkwpAuditEventType.FrameReturned) &&
+           audit.Contains(RkwpAuditEventType.ReplayDetected) &&
+           audit.Contains(RkwpAuditEventType.PolicyDenied) &&
+           audit.Contains(RkwpAuditEventType.RecoveredByOwner);
+}
+
+static bool Revocation()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now, "session-1");
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now).Ready(now).Activate(now);
+    var request = new RkwpRevocationRequest("revoke-1", lease.SessionId, lease.LeaseId, RkwpRevocationReason.OwnerRequested, now.AddSeconds(1));
+    var result = RkwpRevocationService.Revoke(request, lease, frame, audit);
+    var invalid = new RkwpRevocationRequest("revoke-2", "wrong-session", lease.LeaseId, RkwpRevocationReason.SecurityViolation, now.AddSeconds(2));
+    return result.Lease.State == CarryLeaseState.Revoked &&
+           result.FrameSession.State == FrameSessionState.Revoked &&
+           result.GuestFrameInvalid &&
+           result.OwnerUnlockedThing &&
+           audit.Contains(RkwpAuditEventType.LeaseRevoked) &&
+           Throws<RkwpSecurityException>(() => RkwpRevocationService.Revoke(invalid, lease, frame, audit));
+}
+
+static bool RecoveryHardening()
+{
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now, "session-1");
+    var heartbeatLost = (lease with { LastHeartbeat = now.AddSeconds(-30) }).Advance(now).Recover();
+    var expired = lease.Advance(now.AddMinutes(16)).Recover();
+    var connectionLost = lease.MarkConnectionLost(now.AddSeconds(1)).Recover();
+    var returned = lease.Return(now.AddSeconds(2)).Recover();
+
+    return heartbeatLost.Reason == CarryLeaseRecoveryReason.RecoveredByOwner &&
+           heartbeatLost.FinalState == CarryLeaseState.RecoveredByOwner &&
+           expired.Reason == CarryLeaseRecoveryReason.LeaseExpired &&
+           expired.FinalState == CarryLeaseState.Expired &&
+           connectionLost.Reason == CarryLeaseRecoveryReason.ConnectionLost &&
+           connectionLost.FinalState == CarryLeaseState.RecoveredByOwner &&
+           returned.Reason == CarryLeaseRecoveryReason.Returned &&
+           returned.FinalState == CarryLeaseState.Returned;
+}
+
+static bool Throws<TException>(Action action)
+    where TException : Exception
+{
+    try
+    {
+        action();
+        return false;
+    }
+    catch (TException)
+    {
+        return true;
+    }
 }
 
 static string FindRoot()

@@ -41,10 +41,29 @@ Default fuer kritische Objekte:
 - Heartbeat
 - Grace Period
 - Owner Recovery
+- SessionId-Bindung
+- PolicyId und PolicyVersion
+- optional geplanter PolicyHash
 
 ## Recovery
 
 Wenn Heartbeats fehlen oder eine Lease auslaeuft, muss der Owner das Ding wieder als autoritativ behandeln und den Gast-Frame invalidieren. Das ist kein visueller Fehlerfall, sondern eine Schutzregel.
+
+Ab MA007.03 unterscheidet Recovery:
+
+- `LeaseExpired`
+- `RecoveredByOwner`
+- `Revoked`
+- `ConnectionLost`
+- `Returned`
+
+Heartbeat-Verlust fuehrt nach Grace Period zu `RecoveredByOwner`. Security-Verletzungen und Policy-Aenderungen sollen ueber Revocation laufen.
+
+## Binding-Regeln
+
+Lease-bezogene Nachrichten sind nur gueltig, wenn `SessionId` und `LeaseId` zur aktiven Lease passen. Eine Return-Nachricht aus einer fremden Session oder ein Heartbeat mit falscher LeaseId ist ein Security-Fehler.
+
+Policy-Binding bindet `PolicyId`, `PolicyVersion` und optional `PolicyHash` an CarryLease und FrameSession. Aendert sich die Policy waehrend einer aktiven Session, darf V1 nicht stillschweigend weiterlaufen: Audit `PolicyDenied` und kontrollierte Revocation oder neue Zustimmung sind erforderlich.
 
 ## MA007.01 PDF FrameOnly Smoke
 

@@ -55,7 +55,9 @@ public sealed record RkwpMessage
             Payload = payload ?? new Dictionary<string, string>(),
             Headers = new Dictionary<string, string>
             {
-                ["security"] = session.SecureSessionRequired ? "required" : "development"
+                ["security"] = session.SecurityMode.ToString(),
+                ["policy-id"] = session.PolicyId,
+                ["policy-version"] = session.PolicyVersion.ToString()
             }
         };
     }

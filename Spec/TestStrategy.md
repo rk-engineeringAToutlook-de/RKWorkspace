@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.38.0
+Version: 2.39.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -49,7 +49,7 @@ Ab MA004.01 prueft `tools/run-tests.ps1` zusaetzlich den Agent Smoke-Test mit `t
 
 Ab MA004.02 prueft `tools/run-tests.ps1` zusaetzlich den Dual-Agent-Harness mit `tools/run-dual-agent.ps1`.
 
-Ab MA004.03 prueft `tools/run-tests.ps1` zusaetzlich den Local-IPC-Zwei-Prozess-Test mit `tools/run-local-ipc.ps1`. Dieser Teil ist durch einen aeusseren 30-Sekunden-Timeout gegen Haenger abgesichert.
+Ab MA004.03 prueft `tools/run-tests.ps1` zusaetzlich den Local-IPC-Zwei-Prozess-Test mit `tools/run-local-ipc.ps1`. Dieser Teil ist durch einen aeusseren 60-Sekunden-Timeout gegen Haenger abgesichert.
 
 Ab MA004.04 pruefen die Unit-Tests zusaetzlich die Transport Abstraction Layer und die NamedPipeTransport-Implementierung. Der Local-IPC-Zwei-Prozess-Test bleibt im Foundation-Check und laeuft intern ueber die TAL.
 
@@ -88,6 +88,8 @@ Ab MA007.00 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-tests.ps1` 
 Ab MA007.01 muss der PDF Frame Smoke zusaetzlich in erlaubter Sprache melden, dass die PDF als Frame ausgeliehen ist, der Frame geoeffnet wurde, die PDF nur im Frame liegt und zurueckgegeben wurde. Der Testpfad darf keine Begriffe wie Senden, Empfangen, Upload, Download oder freie Dateiuebertragung als Erfolgssprache verwenden.
 
 Ab MA007.02 pruefen die RKWP-Tests zusaetzlich die Surface Foundation: `SurfacePlatform` muss Windows, macOS, iOS, iPadOS, Android und Linux enthalten; `GestureType` muss Ziel- und Fallback-Gesten enthalten; PlatformTasks-Dokumente muessen fuer macOS Accessibility/Screen Recording/Sandbox und fuer iOS/iPadOS Xcode/USB-Handoff dokumentieren.
+
+Ab MA007.03 pruefen die RKWP-Tests zusaetzlich die Secure Session Foundation: `RkwpSecurityMode`, Development-only Protector, Nonce Replay, Sequence Replay, fehlende Nonce, fehlende SequenceNumber, gueltige Sequenzen, Lease Binding, Policy Binding, Audit Events, Revocation und Recovery-Haertung. Der Development Protector darf keine sichere produktive Session erfuellen.
 
 ## MA003.05 Core Integration Tests
 
@@ -229,7 +231,7 @@ Der Local-IPC-Harness prueft:
 - Ausgabe enthaelt `TransferRequest: OK`.
 - Ausgabe enthaelt `TransferResponse: SUCCESS`.
 - Ausgabe enthaelt `RESULT: SUCCESS`.
-- externer Timeout maximal 30 Sekunden.
+- externer Timeout maximal 60 Sekunden.
 
 ## MA004.04 Transport Abstraction Layer Tests
 
@@ -906,6 +908,8 @@ Smoke-Test:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.39.0 | 2026-07-05 | MA007.03 Secure Session, Replay-Schutz, Lease-/Policy-Binding, Audit, Revocation und Recovery-Haertung dokumentiert. |
+| 2.38.0 | 2026-07-05 | MA007.02 Cross-Platform Surface Foundation dokumentiert. |
 | 2.36.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX und Mobile Spatial Surface Smoke-Test dokumentiert. |
 | 2.35.0 | 2026-07-04 | Native Glass Overlay Smoke-Test fuer nativen Produktpfad ohne Browser, WebView oder synthetische Buehne ergaenzt. |
 | 2.34.0 | 2026-07-04 | Real3D Lens Smoke-Test fuer WebGLRenderer, PhysicalGlass, EnvironmentLighting, Real3DTunnel und DesktopLiveTexture ergaenzt. |

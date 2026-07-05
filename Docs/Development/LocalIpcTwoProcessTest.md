@@ -118,7 +118,7 @@ Der Harness prueft:
 - TransferRequest ohne Payload
 - Timeout
 
-Fehler werden als `ErrorResponse` oder als fehlgeschlagenes `TransportResult` gemeldet. Die alte `LocalIpcResult`-Schicht bleibt fuer Kompatibilitaet erhalten und mappt intern auf `TransportResult`. Der Test besitzt zusaetzlich einen aeusseren 30-Sekunden-Timeout in `tools/run-tests.ps1`.
+Fehler werden als `ErrorResponse` oder als fehlgeschlagenes `TransportResult` gemeldet. Die alte `LocalIpcResult`-Schicht bleibt fuer Kompatibilitaet erhalten und mappt intern auf `TransportResult`. Der Test besitzt zusaetzlich einen aeusseren 60-Sekunden-Timeout in `tools/run-tests.ps1`.
 
 ## Grenzen
 

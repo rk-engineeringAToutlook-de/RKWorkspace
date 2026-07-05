@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.20.0
+Version: 1.21.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -45,6 +45,11 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | CarryLease | Trage-Lease | Zeitlich und fachlich begrenzte Berechtigung, ein Ding auf einer Gastablage als Frame zu erleben. | Kein Besitzwechsel. |
 | FrameSession | Frame-Session | Sichtbare, kontrollierte Darstellung eines digitalen Dings auf einer Gastablage. | Keine lokale Originaldatei. |
 | FrameOnly | Nur-Frame-Modus | Gast sieht Anzeige, Scroll und Zoom, aber keine Originaldatei und keinen stillen CopyOut. | Nicht mit "Datei liegt dort" verwechseln. |
+| RKWP Secure Session | Sichere RKWP-Session | Session mit SecurityMode, Nonce, SequenceNumber, Lease Binding und Policy Binding. | DevelopmentInsecure ist keine produktive Sicherheit. |
+| RKWP Replay Protection | RKWP-Replay-Schutz | Pruefung, dass Nonces nicht wiederverwendet werden und SequenceNumber monoton steigt. | Nicht als Verschluesselung verwechseln. |
+| Policy Binding | Policy-Bindung | Bindung von PolicyId, PolicyVersion und optional PolicyHash an CarryLease und FrameSession. | Policywechsel duerfen nicht stillschweigend weiterlaufen. |
+| Audit Trail | Audit-Trail | Nachvollziehbare Folge sicherheitsrelevanter RKWP-Ereignisse. | Kein Benutzerlog und keine UX-Historie. |
+| Revocation | Widerruf | Kontrolliertes Ungueltigmachen einer Lease und FrameSession. | Nicht mit normalem Rueckgeben verwechseln. |
 | Ownership Transfer | Ownership-Wechsel | Expliziter spaeterer Vorgang, bei dem Besitz, Kopie, Fork oder Move nach Policy entschieden werden. | Kein automatischer Nebeneffekt beim Ablegen. |
 | Ablage Proximity | Ablage-Naehe | Modell fuer Entfernung, Richtung, Confidence und Messquelle zwischen Ablagen. | In MA006.13 simuliert; keine echte Discovery. |
 | Ablage Anchor Dongle | Ablage-Anker-Dongle | Spaetere Hardware, die eine Ablage im Raum repraesentiert und Naehe/Richtung liefern kann. | Kein Transferstick und kein Payload-Speicher. |
@@ -148,6 +153,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.21.0 | 2026-07-05 | Begriffe fuer RKWP Secure Session, Replay Protection, Policy Binding, Audit Trail und Revocation ergaenzt. |
 | 1.20.0 | 2026-07-05 | RKWP, Original-Owned Frame, CarryLease, FrameSession, FrameOnly und Ownership Transfer ergaenzt. |
 | 1.18.0 | 2026-07-04 | Begriffe fuer GPU Living Lens, Refraction Map und Edge Continuation ergaenzt. |
 | 1.17.0 | 2026-07-04 | Begriffe fuer MA006.10R Real Bubble Lens, Lens Absorption, Target Emergence, Visual Material, Renderer Decision und Spatial Portal ergaenzt. |

@@ -7,6 +7,7 @@ public enum CarryLeaseState
     Active,
     HeartbeatMissing,
     GracePeriod,
+    ConnectionLost,
     Returning,
     Returned,
     Revoked,
@@ -25,16 +26,19 @@ public sealed class CarryLeaseException : Exception
 
 public sealed record CarryLeasePolicy(
     string PolicyId,
+    int PolicyVersion,
     OwnershipMode Mode,
     RkwpAllowedAction AllowedActions,
     TimeSpan Duration,
     TimeSpan HeartbeatInterval,
     TimeSpan GracePeriod,
     bool Revocable,
-    bool AuditRequired)
+    bool AuditRequired,
+    string? PolicyHash = null)
 {
     public static CarryLeasePolicy FrameOnlyDefault { get; } = new(
         "policy-lease-frameonly",
+        1,
         OwnershipMode.FrameOnly,
         RkwpAllowedAction.View | RkwpAllowedAction.Scroll | RkwpAllowedAction.Zoom | RkwpAllowedAction.Return | RkwpAllowedAction.Revoke,
         TimeSpan.FromMinutes(15),
@@ -48,11 +52,24 @@ public sealed record CarryLeaseRecovery(
     bool OwnerRecoveredThing,
     bool GuestFrameInvalidated,
     bool AuditEntryRequired,
+    CarryLeaseRecoveryReason Reason,
     CarryLeaseState FinalState);
+
+public enum CarryLeaseRecoveryReason
+{
+    LeaseExpired,
+    RecoveredByOwner,
+    Revoked,
+    ConnectionLost,
+    Returned,
+    Unknown
+}
 
 public sealed record CarryLease
 {
     public required string LeaseId { get; init; }
+
+    public required string SessionId { get; init; }
 
     public required string ThingId { get; init; }
 
@@ -82,11 +99,16 @@ public sealed record CarryLease
 
     public required string PolicyId { get; init; }
 
-    public static CarryLease Grant(string thingId, string ownerAblageId, string guestAblageId, CarryLeasePolicy policy, DateTimeOffset now)
+    public required int PolicyVersion { get; init; }
+
+    public string? PolicyHash { get; init; }
+
+    public static CarryLease Grant(string thingId, string ownerAblageId, string guestAblageId, CarryLeasePolicy policy, DateTimeOffset now, string? sessionId = null)
     {
         return new CarryLease
         {
             LeaseId = $"lease-{Guid.NewGuid():N}",
+            SessionId = sessionId ?? $"rkwp-session-lease-{Guid.NewGuid():N}",
             ThingId = thingId,
             OwnerAblageId = ownerAblageId,
             GuestAblageId = guestAblageId,
@@ -100,7 +122,9 @@ public sealed record CarryLease
             GracePeriod = policy.GracePeriod,
             Revocable = policy.Revocable,
             AuditRequired = policy.AuditRequired,
-            PolicyId = policy.PolicyId
+            PolicyId = policy.PolicyId,
+            PolicyVersion = policy.PolicyVersion,
+            PolicyHash = policy.PolicyHash
         };
     }
 
@@ -127,6 +151,16 @@ public sealed record CarryLease
         }
 
         return this with { State = CarryLeaseState.Revoked, LastHeartbeat = now };
+    }
+
+    public CarryLease MarkConnectionLost(DateTimeOffset now)
+    {
+        if (State is CarryLeaseState.Returned or CarryLeaseState.Revoked or CarryLeaseState.Expired or CarryLeaseState.RecoveredByOwner)
+        {
+            return this;
+        }
+
+        return this with { State = CarryLeaseState.ConnectionLost, LastHeartbeat = now };
     }
 
     public CarryLease Advance(DateTimeOffset now)
@@ -160,11 +194,30 @@ public sealed record CarryLease
 
     public CarryLeaseRecovery Recover()
     {
-        var final = State == CarryLeaseState.RecoveredByOwner ? State : CarryLeaseState.RecoveredByOwner;
+        var reason = State switch
+        {
+            CarryLeaseState.Expired => CarryLeaseRecoveryReason.LeaseExpired,
+            CarryLeaseState.Revoked => CarryLeaseRecoveryReason.Revoked,
+            CarryLeaseState.ConnectionLost => CarryLeaseRecoveryReason.ConnectionLost,
+            CarryLeaseState.Returned => CarryLeaseRecoveryReason.Returned,
+            CarryLeaseState.RecoveredByOwner => CarryLeaseRecoveryReason.RecoveredByOwner,
+            CarryLeaseState.HeartbeatMissing or CarryLeaseState.GracePeriod => CarryLeaseRecoveryReason.RecoveredByOwner,
+            _ => CarryLeaseRecoveryReason.Unknown
+        };
+
+        var final = reason switch
+        {
+            CarryLeaseRecoveryReason.LeaseExpired => CarryLeaseState.Expired,
+            CarryLeaseRecoveryReason.Revoked => CarryLeaseState.Revoked,
+            CarryLeaseRecoveryReason.Returned => CarryLeaseState.Returned,
+            _ => CarryLeaseState.RecoveredByOwner
+        };
+
         return new CarryLeaseRecovery(
             OwnerRecoveredThing: true,
             GuestFrameInvalidated: true,
             AuditEntryRequired: AuditRequired,
+            reason,
             final);
     }
 }

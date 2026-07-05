@@ -7,9 +7,13 @@ public sealed class DevelopmentRkwpSessionProtector : IRkwpSessionProtector
 {
     public bool IsDevelopmentOnly => true;
 
+    public RkwpSecurityMode SecurityMode => RkwpSecurityMode.DevelopmentInsecure;
+
+    public string SecurityNotice => "Development only: no real encryption, no production authentication, no production security.";
+
     public RkwpMessage Protect(RkwpMessage message, RkwpSession session)
     {
-        if (session.SecureSessionRequired)
+        if (session.SecureSessionRequired || session.SecurityMode is not RkwpSecurityMode.DevelopmentInsecure)
         {
             throw new RkwpProtocolException("Development protector cannot satisfy a secure production session.");
         }
@@ -19,7 +23,7 @@ public sealed class DevelopmentRkwpSessionProtector : IRkwpSessionProtector
 
     public bool Verify(RkwpMessage message, RkwpSession session)
     {
-        if (session.SecureSessionRequired)
+        if (session.SecureSessionRequired || session.SecurityMode is not RkwpSecurityMode.DevelopmentInsecure)
         {
             return false;
         }

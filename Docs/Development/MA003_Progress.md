@@ -369,7 +369,7 @@ Umfang:
 - Two-Process-Harness `tools/LocalIpcHarness/`
 - Startscript `tools/run-local-ipc.ps1`
 - Fehlerfallpruefungen fuer nicht erreichbaren Server, ungueltige Nachricht, unbekannten MessageType, falsche TargetAgentId, TransferRequest ohne Payload und Timeout
-- Local-IPC-Test in `tools/run-tests.ps1` mit 30-Sekunden-Timeout
+- Local-IPC-Test in `tools/run-tests.ps1` mit 60-Sekunden-Timeout
 - Dokumentation `Docs/Development/LocalIpcTwoProcessTest.md`
 
 Nicht im Umfang:

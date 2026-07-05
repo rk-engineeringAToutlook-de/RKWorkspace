@@ -8,6 +8,8 @@ Datum: 2026-07-05
 
 Eine FrameSession macht ein Ding auf einer Gastablage sichtbar, ohne das Original dorthin zu uebertragen.
 
+Ab MA007.03 ist eine FrameSession an `SessionId`, `LeaseId`, `PolicyId` und `PolicyVersion` gebunden. Dadurch kann ein Guest Frame nicht losgeloest von der autoritativen CarryLease weiterleben.
+
 ## Zustaende
 
 - Opening
@@ -67,3 +69,7 @@ Vorgeschlagene naechste Optionen:
 ## Bedienmodell
 
 FrameOnly erlaubt Anzeige, Scroll und Zoom. Editieren, Extrahieren und Ownership-Wechsel sind nicht automatisch erlaubt.
+
+## Revocation
+
+Eine Revocation invalidiert die FrameSession. Gruende sind unter anderem OwnerRequested, PolicyChanged, HeartbeatLost, SecurityViolation, Timeout, UserCancelled und GuestDisconnected. Das Ergebnis muss den Guest Frame ungueltig machen und das Ding beim Owner logisch entsperren.

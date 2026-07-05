@@ -2,18 +2,22 @@ namespace RKWorkspace.Protocol.Ownership;
 
 public sealed record AblagePolicy(
     string PolicyId,
+    int PolicyVersion,
     bool AllowsFrameGuest,
     bool RequiresEncryption,
-    bool AuditRequired)
+    bool AuditRequired,
+    string? PolicyHash = null)
 {
     public bool CanViewFrame() => AllowsFrameGuest;
 }
 
 public sealed record ThingPolicy(
     string PolicyId,
+    int PolicyVersion,
     ObjectKind ObjectKind,
     OwnershipMode DefaultMode,
-    RkwpAllowedAction AllowedActions)
+    RkwpAllowedAction AllowedActions,
+    string? PolicyHash = null)
 {
     public bool Allows(RkwpAllowedAction action) => (AllowedActions & action) == action;
 
@@ -34,23 +38,29 @@ public sealed record ThingPolicy(
 
 public sealed record FramePolicy(
     string PolicyId,
+    int PolicyVersion,
     FrameMode DefaultFrameMode,
     bool InputAllowed,
     bool EditAllowed,
-    bool ExtractAllowed);
+    bool ExtractAllowed,
+    string? PolicyHash = null);
 
 public sealed record ExtractionPolicy(
     string PolicyId,
+    int PolicyVersion,
     bool TextAllowed,
     bool ImageAllowed,
-    bool FileIngressAllowed);
+    bool FileIngressAllowed,
+    string? PolicyHash = null);
 
 public sealed record OwnershipTransferPolicy(
     string PolicyId,
+    int PolicyVersion,
     bool CopyOutAllowed,
     bool ForkVersionAllowed,
     bool MoveOwnershipAllowed,
-    bool RequiresUserConfirmation)
+    bool RequiresUserConfirmation,
+    string? PolicyHash = null)
 {
     public bool Allows(OwnershipMode mode)
     {

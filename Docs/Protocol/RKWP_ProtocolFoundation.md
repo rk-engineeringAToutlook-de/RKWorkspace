@@ -43,6 +43,11 @@ Zentrale Typen:
 - `RkwpSession`
 - `RkwpMessageValidator`
 - `IRkwpSessionProtector`
+- `IRkwpSequenceValidator`
+- `IRkwpPolicyBinder`
+- `IRkwpAuditSink`
+- `IRkwpKeyProvider`
+- `IRkwpNonceProvider`
 
 Jede Nachricht besitzt mindestens:
 
@@ -57,6 +62,21 @@ Jede Nachricht besitzt mindestens:
 - Nonce
 
 Lease-gebundene Nachrichten tragen zusaetzlich `LeaseId`.
+
+## MA007.03 Security Foundation
+
+MA007.03 ergaenzt:
+
+- `RkwpSecurityMode`
+- `RkwpSecurityException`
+- Nonce- und Sequence-Replay-Schutz
+- Lease Binding fuer SessionId und LeaseId
+- Policy Binding fuer PolicyId, PolicyVersion und geplanten PolicyHash
+- Audit Trail
+- Revocation-Modelle
+- Recovery-Gruende
+
+Das ist noch keine finale produktive Kryptografie. Es ist die Protocol-Struktur, die spaeter produktive Kryptografie erzwingen und pruefbar machen muss.
 
 ## Grundregel
 
