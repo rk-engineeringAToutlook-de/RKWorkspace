@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.09 Dev Security Gate vorbereitet. Naechster Schritt: MA008.10 Readiness, Next Actions und Integrations-Gate.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.10 Readiness, Next Actions und Integrations-Gate in Arbeit.
 
 ## Implementierte Schichten
 
@@ -253,12 +253,31 @@ MA008.09 liefert:
 
 Production lehnt `DevelopmentInsecure`, fehlenden Audit, fehlenden Replay-Schutz und fehlendes Policy Binding ab. Development/Test duerfen unsichere Modi nur sichtbar als nicht-produktiv verwenden.
 
+## MA008 Readiness
+
+MA008.10 liefert:
+
+- `Docs/Readiness/MA008_ReadinessReview.md`
+- `Docs/Readiness/MA008_NextActions.md`
+- `Docs/Readiness/MA008_TestMatrix.md`
+- `release/MA008_READINESS_SUMMARY.md`
+
+Die Readiness trennt Done, Partial, Planned und Blocked fuer DevTransport, AblageIdentity/Trust, Windows Local E2E, Glass Edge PDF Frame, Interactive Input, ChangeSet, OwnershipTransfer, Windows Object Adapter, macOS/iOS Handoff, Android/Linux Starter, Proximity/ManualMap, Dongle Roadmap, Diagnostics und Security Gate.
+
+Gate-Aussage: Struktur und Protokoll stehen fuer Development-Testing. Produktiv fehlen weiterhin netzwerkfaehiger DevTransport, native macOS/iOS Guest Surfaces, produktive Verschluesselung/Mutual Auth, Trust Store, echter Gast-PDF-Renderer und echte Proximity-Hardware.
+
 ## Context Pack
 
 Stabiler Pfad:
 
 ```text
 release/codex-context/RKWorkspace_Context_latest.zip
+```
+
+Finaler AP020-Export:
+
+```text
+release/codex-context/RKWorkspace_Context_20260705-235625.zip
 ```
 
 Der Zeitstempel-Pfad wird bei jedem Export zusaetzlich ausgegeben.

@@ -100,6 +100,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA008.07 bereitet den iPad/iPhone-Test ueber macOS-Codex und Xcode vor: mobile Surface App, USB-Testpfad, Haptik, Glass Edge und No File Ingress sind als Handoff definiert.
 - MA008.08 fuehrt RKWP Diagnostics ein: JSONL-Audit, Session-Diagnostics und CLI-Smoke fuer Lease, Frame, Heartbeat, PolicyDenied, Return, Recovery und No File Ingress.
 - MA008.09 fuehrt das RKWP Security Gate ein: Production blockiert `DevelopmentInsecure` sowie fehlenden Audit-, Replay- und Policy-Binding-Schutz.
+- MA008.10 schliesst das MA008 Integrations-Gate ab: Readiness Review, Next Actions, Test Matrix und Release Summary beschreiben Struktur, Protokoll, Testbarkeit, Blocker und den ersten echten Cross-Device-Test.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -125,6 +126,8 @@ Neue Entwickler beginnen mit diesen Dokumenten:
 14. `Docs/Protocol/RKWP_ProtocolFoundation.md`
 15. `Docs/Protocol/RKWP_OwnershipAndLease.md`
 16. `Docs/Protocol/RKWP_FrameSession.md`
+17. `Docs/Readiness/MA008_ReadinessReview.md`
+18. `Docs/Readiness/MA008_TestMatrix.md`
 
 Die Spezifikationen liegen in `Spec/`. Human-Experience-Validierung liegt in `Docs/HumanExperience/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 
