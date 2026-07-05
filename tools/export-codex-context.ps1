@@ -56,6 +56,7 @@ $files = @(
     'Docs\Readiness\MA007_ReadinessReview.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
+    'Docs\Readiness\iPad_iPhone_Surface_TestPlan.md',
     'Docs\Readiness\NextCodexActions.md',
     'Docs\Platform\macOS_SurfaceStarterKit.md',
     'Docs\Platform\iOS_iPadOS_SurfaceStarterKit.md',
@@ -73,6 +74,7 @@ $files = @(
     'Spec\ProductPhilosophy.md',
     'release\MA007_READINESS_SUMMARY.md',
     'release\handoff\WindowsToMac_MA008_Handoff.md',
+    'release\handoff\iOS_iPadOS_MA008_Handoff.md',
     'tools\run-windows-owner-for-mac.ps1'
 )
 

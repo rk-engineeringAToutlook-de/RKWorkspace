@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.06 bereitet den ersten Windows-zu-macOS DevTransport-Test vor. Windows liefert Handoff, Context Pack, Owner-Startscript und klare Blocker; PDF Frame Interaction aus MA008.05 bleibt policygeprueft und ohne File Ingress.
+MA008.07 bereitet den iPad/iPhone Surface Testplan ueber macOS-Codex und Xcode vor. Windows-zu-macOS-Handoff aus MA008.06 bleibt der erste Desktop-Cross-Device-Pfad; iPad/iPhone werden als mobile Ablagen mit No File Ingress vorbereitet.
 
 ## Naechster Fokus
 
-Nach MA008.06 liegt der Fokus auf iPad/iPhone Surface Testplan mit macOS/Xcode, anschliessend RKWP Audit Viewer und Dev Security Gate. Offen bleiben macOS FrameGuestSurface, netzwerkfaehiger DevTransport und echtes PDF-Seitenrendering.
+Nach MA008.07 liegt der Fokus auf RKWP Audit Viewer und Session Diagnostics, anschliessend Dev Security Gate. Offen bleiben macOS FrameGuestSurface, native mobile Surface Apps, netzwerkfaehiger DevTransport und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

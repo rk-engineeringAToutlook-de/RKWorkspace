@@ -73,6 +73,13 @@ iPad bekommt keine PDF-Datei.
 Windows bleibt Owner.
 iPad gibt zurueck.
 
+MA008.07 konkretisiert diesen Test in:
+
+- `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md`
+- `release/handoff/iOS_iPadOS_MA008_Handoff.md`
+
+Der Test wird ueber macOS-Codex und Xcode vorbereitet. iPad/iPhone werden per USB als echte mobile Ablage gestartet.
+
 ## Xcode-Hinweise
 
 macOS-Codex baut das Xcode-Projekt.
@@ -89,6 +96,6 @@ Pruefen:
 ## Offene Blocker
 
 - kein Xcode in diesem Windows-Thread
-- DevTransport zu iOS/iPadOS folgt in MA008
+- netzwerkfaehiger DevTransport zu iOS/iPadOS fehlt noch
 - native Renderer-/FramePresenter-Entscheidung offen
 - finale Geste offen

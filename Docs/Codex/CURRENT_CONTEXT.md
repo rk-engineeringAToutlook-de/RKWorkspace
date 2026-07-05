@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.06 Windows zu macOS DevTransport-Testplan und Handoff vorbereitet. Naechster Schritt: MA008.07 iPad/iPhone Surface Testplan mit macOS/Xcode vorbereiten.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.07 iPad/iPhone Surface Testplan mit macOS/Xcode vorbereitet. Naechster Schritt: MA008.08 RKWP Audit Viewer und Session Diagnostics.
 
 ## Implementierte Schichten
 
@@ -75,6 +75,8 @@ MA007.11 liefert:
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOSSurfacePlan.md`
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOSPermissions.md`
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOSXcodeHandoff.md`
+- `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md`
+- `release/handoff/iOS_iPadOS_MA008_Handoff.md`
 
 ## Android/Linux Handoff
 
@@ -209,6 +211,15 @@ Windows Owner Info:
 ```
 
 Der Windows-Pfad bleibt lokal ueber `NamedPipeDev` verifiziert. Fuer den echten macOS-Test ist ein netzwerkfaehiges DevTransport-Profil der offene Blocker. Ziel bleibt: Windows Owner, macOS Guest, PDF FrameOnly, DevPairing, AblageIdentity, No File Ingress, Heartbeat, Return und Recovery.
+
+## iPad/iPhone Handoff
+
+MA008.07 liefert:
+
+- `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md`
+- `release/handoff/iOS_iPadOS_MA008_Handoff.md`
+
+Der mobile Zielpfad ist eine native iOS/iPadOS Surface App ueber macOS-Codex und Xcode. PWA bleibt nur Uebergang. Der minimale Test ist: Windows besitzt PDF, iPad zeigt PDF-Frame, iPad bekommt keine PDF-Datei, Windows bleibt Owner, iPad gibt zurueck.
 
 ## Context Pack
 

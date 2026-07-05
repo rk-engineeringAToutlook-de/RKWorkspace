@@ -115,6 +115,8 @@ Ab MA008.05 pruefen die RKWP-Tests zusaetzlich PDF Frame Interaction. Geprueft w
 
 Ab MA008.06 wird der Windows-zu-macOS-Pfad als Handoff-Test vorbereitet. Verifiziert werden Context-Pack-Export, Windows Local Frame E2E und Gesamttests. Der echte macOS-Gast bleibt bis zur nativen macOS-Surface und einem netzwerkfaehigen DevTransport-Profil blockiert.
 
+Ab MA008.07 wird der iPad/iPhone-Pfad als macOS/Xcode-Handoff vorbereitet. Verifiziert werden Context-Pack-Export und Gesamttests; der echte mobile Test bleibt bis zu nativer Surface App, USB-Geraet, Local Network Permission und netzwerkfaehigem DevTransport blockiert.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

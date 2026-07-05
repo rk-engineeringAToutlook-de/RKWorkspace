@@ -63,7 +63,9 @@ AP016 konkretisiert dieses Szenario als ersten Handoff-Test. Windows liefert daf
 | Netzwerk | gleiches WLAN, spaeter WebRTC |
 | RKWP Transport | Development-Profil ueber iOS-App |
 | Security | Session-Nonce, Sequence, LeaseBinding, PolicyBinding |
-| bekannte Blocker | native iPad-App fehlt noch |
+| Vorbereitung | `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md` und `release/handoff/iOS_iPadOS_MA008_Handoff.md` |
+| Testpfad | macOS-Codex, Xcode, USB-Testgeraet |
+| bekannte Blocker | native iPad-App und netzwerkfaehiger DevTransport fehlen noch |
 
 Testschritte:
 
@@ -79,6 +81,8 @@ Erfolgskriterien:
 - Windows bleibt Owner.
 - Touch/Haptik kann vorbereitet sein, darf aber Ownership nicht veraendern.
 - Recovery-Test ist PASS.
+
+AP017 konkretisiert dieses Szenario als iPad/iPhone-Handoff. PWA bleibt nur Uebergang; der Zielpfad ist eine native Surface App aus Xcode.
 
 ## Szenario C: macOS besitzt PDF, Windows zeigt PDF-Frame
 
@@ -136,7 +140,7 @@ Erfolgskriterien:
 
 1. Windows Owner + Windows Local Guest Surface End-to-End. MA008.03 liefert diesen lokalen Smoke mit DevPairing, NamedPipeDev, FrameOnly, No File Ingress, Return und Recovery.
 2. Windows Owner + macOS Guest Surface. MA008.06 liefert Plan, Handoff, Windows Owner Script und offene Blocker.
-3. Windows Owner + iPad Guest Surface.
+3. Windows Owner + iPad Guest Surface. MA008.07 liefert iPad/iPhone Testplan, Xcode-Handoff und USB-Hinweise.
 4. macOS Owner + Windows Guest.
 5. iPad Owner + Windows Guest.
 

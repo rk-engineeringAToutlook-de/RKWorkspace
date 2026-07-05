@@ -44,6 +44,15 @@ Finales Ziel ist eine native iOS/iPadOS Surface App.
 
 PWA darf fuer fruehes Prototyping genutzt werden, aber Browser-Chrome stoert die Human Experience. Der Produktpfad ist Xcode/native App.
 
+## MA008 iPad/iPhone Handoff
+
+Der konkrete erste mobile Test ist in diesen Dateien vorbereitet:
+
+- `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md`
+- `release/handoff/iOS_iPadOS_MA008_Handoff.md`
+
+Der Test laeuft ueber macOS-Codex und Xcode. iPad/iPhone werden per USB als echte Geraete gestartet. Windows bleibt Owner einer PDF; iPad/iPhone zeigen nur einen RKWP Frame und speichern keine freie Datei.
+
 ## Kopierbarer naechster macOS-/Xcode-Codex-Auftrag
 
 ```text
@@ -56,13 +65,14 @@ Vorgehen:
 1. macOS-Codex liest Context Pack und GitHub-Branch.
 2. Xcode-Projekt anlegen oder vorbereiten.
 3. iPhone/iPad per USB testen.
-4. Einfache mobile Ablage anzeigen.
-5. RKWP Frame anzeigen, aber keine Originaldatei speichern.
-6. No File Ingress pruefen.
-7. Haptik bei Frame-Ankunft und Pick/Place vorbereiten.
-8. Drei-Finger-Geste pruefen; TouchHold als Fallback.
-9. Glass Edge am Rand simulieren.
-10. Erste Quellen nur sicher vorbereiten:
+4. `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md` und `release/handoff/iOS_iPadOS_MA008_Handoff.md` lesen.
+5. Einfache mobile Ablage anzeigen.
+6. RKWP Frame anzeigen, aber keine Originaldatei speichern.
+7. No File Ingress pruefen.
+8. Haptik bei Frame-Ankunft und Pick/Place vorbereiten.
+9. Drei-Finger-Geste pruefen; TouchHold als Fallback.
+10. Glass Edge am Rand simulieren.
+11. Erste Quellen nur sicher vorbereiten:
     - RK Workspace App
     - Document Picker
     - Share Extension
@@ -81,7 +91,7 @@ Nicht bauen:
 - keine Xcode-Umgebung im Windows-Thread
 - keine finale Geste
 - noch kein nativer FramePresenter
-- DevTransport zu mobilen Geraeten folgt spaeter
+- netzwerkfaehiger DevTransport zu mobilen Geraeten fehlt noch
 
 ## GitHub und Context Pack
 
