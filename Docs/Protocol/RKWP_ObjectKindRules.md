@@ -33,3 +33,9 @@ Die Regeln werden spaeter pro Policy, Anwendung, Firmenumgebung und Sicherheitsz
 ## MA007.05 PDF Frame Viewer
 
 `PdfDocument` bleibt der erste echte ObjectKind-Test. Der aktuelle Frame zeigt eine sichere `MetadataPreview` und bereitet Scroll/Zoom vor. Ein echter PDF-Renderer muss Owner-seitig oder strikt framegebunden arbeiten und darf keine freie PDF-Datei auf der Gastablage materialisieren.
+
+## MA007.07 ChangeSet-Regeln
+
+PDF-Annotationen werden als erste ChangeSet-Operation vorbereitet. Die Gastablage erzeugt dabei keine freie PDF-Datei und schreibt nicht direkt in das Original.
+
+E-Mail-Entwuerfe koennen spaeter adapterbasiert ChangeSets erzeugen. `SettingsWindow` bleibt Sonderfall: Eingaben betreffen das Originalsystem; ein ChangeSet ist dort hoechstens Audit/Protokoll, kein Ownership Transfer.

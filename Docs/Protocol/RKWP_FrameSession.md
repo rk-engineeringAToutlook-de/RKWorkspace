@@ -83,6 +83,10 @@ Unterstuetzt sind Pointer, Touch/Tap, Scroll, Zoom, Keyboard und Annotation-Even
 
 Kritische Defaults bleiben konservativ: ViewOnly lehnt Pointer/Input ab, Annotation und Keyboard sind ohne ausdrueckliche Policy verboten, und TextInput braucht einen editierbaren Frame.
 
+## ChangeSet Rueckgabe
+
+MA007.07 bereitet `ChangeSet` fuer veraendernde Frame-Interaktion vor. Annotationen oder spaetere Bearbeitungen erzeugen nicht automatisch eine Datei auf der Gastablage und werden nicht still in das Original geschrieben. Sie werden als ChangeSet eingereicht; der Owner entscheidet ueber Accept, Reject, Review, ApplyToOriginal, CreateNewVersion oder ForkVersion.
+
 ## Revocation
 
 Eine Revocation invalidiert die FrameSession. Gruende sind unter anderem OwnerRequested, PolicyChanged, HeartbeatLost, SecurityViolation, Timeout, UserCancelled und GuestDisconnected. Das Ergebnis muss den Guest Frame ungueltig machen und das Ding beim Owner logisch entsperren.

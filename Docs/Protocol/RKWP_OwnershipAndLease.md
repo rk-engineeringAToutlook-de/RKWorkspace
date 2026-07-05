@@ -73,6 +73,8 @@ MA007.05 verbessert den PDF-Frame-Smoke: Die Gastablage meldet eine sichere Fram
 
 MA007.06 ergaenzt den Input Channel. Eingaben im Frame sind keine Besitzuebernahme. Sie werden an CarryLease und FrameSession gebunden, policygeprueft und bei Ablehnung auditiert. Annotationen und andere veraendernde Eingaben werden spaeter als ChangeSet zur Owner-Entscheidung vorbereitet, nicht als freie Datei auf der Gastablage.
 
+MA007.07 fuehrt `ChangeSet` als Rueckgabemodell fuer kontrollierte Aenderungen ein. Der Guest kann damit nur einen Aenderungsvorschlag einreichen. `Reject` veraendert das Original nicht; `ForkVersion` erzeugt eine `VersionReference`; `ApplyToOriginal` bleibt eine bewusste Owner-Entscheidung.
+
 ## MA007.01 PDF FrameOnly Smoke
 
 Die erste echte Datei im Test ist `samples/Objects/Rechnung.pdf`. Sie bleibt auf der Owner-Ablage, wird waehrend der Lease logisch gesperrt und erscheint auf der Gastablage nur als Frame-Repräsentation.

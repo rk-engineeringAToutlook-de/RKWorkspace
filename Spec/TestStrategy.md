@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.42.0
+Version: 2.43.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -96,6 +96,8 @@ Ab MA007.04 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-glass-edge-pdf-f
 Ab MA007.05 prueft `tools/run-pdf-frame-smoke.ps1` zusaetzlich Sample-PDF, aktive CarryLease, aktive FrameSession, explizite FrameRepresentation, vorbereitete Scroll-/Zoom-Faehigkeiten, GuestHasPdfFile `NO`, OriginalFileBytes `NO`, Rueckgabe, Recovery und `NoFileIngress: SUCCESS`.
 
 Ab MA007.06 pruefen die RKWP-Tests zusaetzlich den Interactive Frame Input Channel. Geprueft werden ViewOnly-Ablehnung, Interactive Scroll/Zoom, Annotate-Annotation, Annotation-Ablehnung ohne Policy, SequenceNumber, LeaseId-Bindung, FrameSessionId-Bindung, KeyboardText-Ablehnung ohne Berechtigung, Pointer ohne gueltige Session, Zoom ohne Policy und Audit `PolicyDenied` bei Denials.
+
+Ab MA007.07 pruefen die RKWP-Tests zusaetzlich ChangeSet, Return und Versionierung. Geprueft werden ChangeSet-Erstellung, ungueltige Erstellung ohne Lease, ViewOnly-Ablehnung, Annotate-Erlaubnis, Owner Accept, Owner Reject ohne Originalaenderung, ForkVersion mit `VersionReference`, Expired Lease, Unsupported Operation und PolicyChanged mit RequireReview/Conflict.
 
 ## MA003.05 Core Integration Tests
 
@@ -914,6 +916,7 @@ Smoke-Test:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.43.0 | 2026-07-05 | MA007.07 ChangeSet, Return, VersionReference, Owner-Entscheidung und Konfliktregeln dokumentiert. |
 | 2.42.0 | 2026-07-05 | MA007.06 Interactive Frame Input Channel mit Policy-Pruefung, Lease-/FrameSession-Bindung und Audit-Denials dokumentiert. |
 | 2.41.0 | 2026-07-05 | MA007.05 Real PDF Frame Viewer mit FrameRepresentation, Scroll-/Zoom-Vorbereitung und Renderer-Blocker dokumentiert. |
 | 2.40.0 | 2026-07-05 | MA007.04 Glass Edge PDF Frame Demo Smoke-Test fuer echte PDF, naechste Ablage, FrameSession und No File Ingress ergaenzt. |

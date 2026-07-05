@@ -25,6 +25,15 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("FrameInputKeyboardDeniedWithoutPermission", FrameInputKeyboardDeniedWithoutPermission),
     ("FrameInputPointerWithoutValidSessionDenied", FrameInputPointerWithoutValidSessionDenied),
     ("FrameInputZoomDeniedWithoutPolicy", FrameInputZoomDeniedWithoutPolicy),
+    ("ChangeSetCanBeCreated", ChangeSetCanBeCreated),
+    ("ChangeSetWithoutLeaseInvalid", ChangeSetWithoutLeaseInvalid),
+    ("ChangeSetViewOnlyRejected", ChangeSetViewOnlyRejected),
+    ("ChangeSetAnnotateAllowed", ChangeSetAnnotateAllowed),
+    ("ChangeSetOwnerAcceptReject", ChangeSetOwnerAcceptReject),
+    ("ChangeSetForkVersionCreatesVersionReference", ChangeSetForkVersionCreatesVersionReference),
+    ("ChangeSetExpiredLeaseRejected", ChangeSetExpiredLeaseRejected),
+    ("ChangeSetUnsupportedOperationRejected", ChangeSetUnsupportedOperationRejected),
+    ("ChangeSetPolicyChangedRequiresReview", ChangeSetPolicyChangedRequiresReview),
     ("HeartbeatMissingStartsGrace", HeartbeatMissingStartsGrace),
     ("LeaseRecovery", LeaseRecovery),
     ("OwnershipTransferGuard", OwnershipTransferGuard),
@@ -253,6 +262,95 @@ static bool FrameInputZoomDeniedWithoutPolicy()
     var noZoomPolicy = FramePolicy.InteractiveView with { AllowZoom = false };
     var zoom = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Zoom, now, deltaScale: 1.1), lease, frame, noZoomPolicy, audit);
     return !zoom.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool ChangeSetCanBeCreated()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var changeSet = ChangeSetService.Create(lease, frame, ChangeSetPolicy.Annotate, "version-1", new[] { AnnotationOperation(now) }, now);
+    return changeSet.State == ChangeSetState.Draft &&
+           changeSet.ThingId == lease.ThingId &&
+           changeSet.Operations.Count == 1 &&
+           changeSet.Origin.OwnerAblageId == lease.OwnerAblageId;
+}
+
+static bool ChangeSetWithoutLeaseInvalid()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (_, frame) = ActiveFrame(FrameMode.Annotate, now);
+    return Throws<ChangeSetException>(() => ChangeSetService.Create(null, frame, ChangeSetPolicy.Annotate, "version-1", new[] { AnnotationOperation(now) }, now));
+}
+
+static bool ChangeSetViewOnlyRejected()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.ViewOnly, now);
+    return Throws<ChangeSetException>(() => ChangeSetService.Create(lease, frame, ChangeSetPolicy.ViewOnly, "version-1", new[] { AnnotationOperation(now) }, now));
+}
+
+static bool ChangeSetAnnotateAllowed()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var changeSet = ChangeSetService.Create(lease, frame, ChangeSetPolicy.Annotate, "version-1", new[] { AnnotationOperation(now) }, now);
+    var submitted = changeSet.Submit(now.AddSeconds(1));
+    return submitted.State == ChangeSetState.Submitted &&
+           submitted.SubmittedAt == now.AddSeconds(1);
+}
+
+static bool ChangeSetOwnerAcceptReject()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var submitted = ChangeSetService.Create(lease, frame, ChangeSetPolicy.Annotate, "version-1", new[] { AnnotationOperation(now) }, now).Submit(now);
+    var accept = ChangeSetService.Decide(submitted, ChangeSetDecision.Accept, ChangeSetPolicy.Annotate, now);
+    var reject = ChangeSetService.Decide(submitted, ChangeSetDecision.Reject, ChangeSetPolicy.Annotate, now);
+    return accept.ResultingState == ChangeSetState.Accepted &&
+           !accept.OriginalChanged &&
+           reject.ResultingState == ChangeSetState.Rejected &&
+           !reject.OriginalChanged;
+}
+
+static bool ChangeSetForkVersionCreatesVersionReference()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var submitted = ChangeSetService.Create(lease, frame, ChangeSetPolicy.Annotate, "version-base", new[] { AnnotationOperation(now) }, now).Submit(now);
+    var fork = ChangeSetService.Decide(submitted, ChangeSetDecision.ForkVersion, ChangeSetPolicy.Annotate, now);
+    return fork.ResultingState == ChangeSetState.Applied &&
+           !fork.OriginalChanged &&
+           fork.VersionReference is not null &&
+           fork.VersionReference.BaseVersionId == "version-base";
+}
+
+static bool ChangeSetExpiredLeaseRejected()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var expired = lease.Advance(now.AddMinutes(16));
+    return Throws<ChangeSetException>(() => ChangeSetService.Create(expired, frame, ChangeSetPolicy.Annotate, "version-1", new[] { AnnotationOperation(now) }, now));
+}
+
+static bool ChangeSetUnsupportedOperationRejected()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var unsupported = new ChangeSetOperation("op-unknown", ChangeSetOperationKind.Unknown, "Unsupported.", 1, null, now);
+    return Throws<ChangeSetException>(() => ChangeSetService.Create(lease, frame, ChangeSetPolicy.Annotate, "version-1", new[] { unsupported }, now));
+}
+
+static bool ChangeSetPolicyChangedRequiresReview()
+{
+    var now = DateTimeOffset.UtcNow;
+    var (lease, frame) = ActiveFrame(FrameMode.Annotate, now);
+    var submitted = ChangeSetService.Create(lease, frame, ChangeSetPolicy.Annotate, "version-1", new[] { AnnotationOperation(now) }, now).Submit(now);
+    var changedPolicy = ChangeSetPolicy.Annotate with { PolicyVersion = 2 };
+    var decision = ChangeSetService.Decide(submitted, ChangeSetDecision.ApplyToOriginal, changedPolicy, now);
+    return decision.Decision == ChangeSetDecision.RequireReview &&
+           decision.ResultingState == ChangeSetState.Conflict &&
+           decision.Conflict?.ConflictKind == ChangeSetConflictKind.PolicyChanged &&
+           !decision.OriginalChanged;
 }
 
 static bool HeartbeatMissingStartsGrace()
@@ -496,6 +594,24 @@ static bool RecoveryHardening()
            connectionLost.FinalState == CarryLeaseState.RecoveredByOwner &&
            returned.Reason == CarryLeaseRecoveryReason.Returned &&
            returned.FinalState == CarryLeaseState.Returned;
+}
+
+static (CarryLease Lease, FrameSession Frame) ActiveFrame(FrameMode mode, DateTimeOffset now)
+{
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, mode, now).Ready(now).Activate(now);
+    return (lease, frame);
+}
+
+static ChangeSetOperation AnnotationOperation(DateTimeOffset now)
+{
+    return new ChangeSetOperation(
+        "operation-annotation-1",
+        ChangeSetOperationKind.AnnotationAdded,
+        "Annotation added in guest frame.",
+        1,
+        "{ \"x\": 0.5, \"y\": 0.5, \"text\": \"review\" }",
+        now);
 }
 
 static FrameInputEvent Input(
