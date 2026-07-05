@@ -39,7 +39,7 @@ public enum AblageDistanceKind
     VeryFar
 }
 
-public enum AblageDistanceSource
+public enum AblageProximitySource
 {
     Unknown,
     Simulated,
@@ -55,11 +55,20 @@ public sealed record AblageDistance(
     AblageDistanceKind Kind,
     double? DistanceMeters,
     double Confidence,
-    AblageDistanceSource Source)
+    AblageProximitySource Source)
 {
     public static AblageDistance Simulated(AblageDistanceKind kind, double meters, double confidence)
     {
-        return new AblageDistance(kind, meters, Math.Clamp(confidence, 0.0, 1.0), AblageDistanceSource.Simulated);
+        return FromSource(kind, meters, confidence, AblageProximitySource.Simulated);
+    }
+
+    public static AblageDistance FromSource(
+        AblageDistanceKind kind,
+        double? meters,
+        double confidence,
+        AblageProximitySource source)
+    {
+        return new AblageDistance(kind, meters, Math.Clamp(confidence, 0.0, 1.0), source);
     }
 
     public double Rank => Kind switch
@@ -127,13 +136,23 @@ public sealed record NearestAblageResult(
     AblageDistanceKind Distance,
     double? DistanceMeters,
     double Confidence,
-    AblageDistanceSource Source,
+    AblageProximitySource Source,
     bool IsStable,
     bool HasTarget,
     string Reason)
 {
+    public DateTimeOffset SelectedAt { get; init; } = DateTimeOffset.UtcNow;
+
+    public DateTimeOffset StableSince { get; init; } = DateTimeOffset.UtcNow;
+
+    public TimeSpan StableFor(DateTimeOffset now)
+    {
+        return now >= StableSince ? now - StableSince : TimeSpan.Zero;
+    }
+
     public static NearestAblageResult NoSurfaceAvailable(AblageIdentity currentAblageId)
     {
+        var now = DateTimeOffset.UtcNow;
         return new NearestAblageResult(
             currentAblageId,
             null,
@@ -144,10 +163,14 @@ public sealed record NearestAblageResult(
             AblageDistanceKind.Unknown,
             null,
             0,
-            AblageDistanceSource.Unknown,
+            AblageProximitySource.Unknown,
             true,
             false,
-            "No available ablage surface.");
+            "No available ablage surface.")
+        {
+            SelectedAt = now,
+            StableSince = now
+        };
     }
 }
 

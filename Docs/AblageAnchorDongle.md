@@ -19,6 +19,34 @@ Der Dongle ist ein Ablage-Anker.
 - abgeschottete Systeme ohne Softwareinstallation repraesentieren
 - Monitor-, KVM- oder Industrie-Ablagen repraesentieren
 
+## Proximity-Roadmap
+
+Der Dongle wird erst eingefuehrt, wenn die manuelle Raumkarte und die simulierte Auswahl stabil sind.
+
+1. `Simulated`: feste Test-Ablagen fuer Smoke Tests.
+2. `ManualMap`: Owner ordnet Ablagen manuell im Raum an.
+3. `BLE`: grobe Naehe ueber RSSI, keine Richtungsgarantie.
+4. `WiFi`: optionale Netzwerknaehe, nur als Zusatzsignal.
+5. `Dongle`: stabile Ablage-Identitaet und lokaler Trust-Hinweis.
+6. `UWB`: praezisere Distanz und spaeter Richtung.
+7. `SensorFusion`: mehrere Quellen werden zusammengefuehrt.
+
+Der Dongle darf nur `AblageProximitySnapshot`-Daten verbessern. Er entscheidet nicht ueber Ownership, Transfer oder Dateiinhalt.
+
+## Manual Map Vorstufe
+
+Bis echte Hardware existiert, ersetzt die Manual Map den Dongle:
+
+- Ablage-ID
+- Anzeigename
+- relative Richtung
+- Distanzklasse
+- optionale Meterdistanz
+- Confidence
+- Quelle
+
+Damit kann der Owner schon testen, ob sich die eine gläserne Kante richtig anfuehlt, bevor Hardware gebaut wird.
+
 ## Abgrenzung
 
 Der Dongle repraesentiert nicht zwingend einen Rechner. Er repraesentiert einen Ort im Arbeitsraum, an dem ein digitales Ding abgelegt werden kann.

@@ -28,10 +28,22 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.12 bereitet Android und Linux vor. Android erhaelt ein Starter Kit fuer native Surface App, Touch/Haptik, Sharesheet/Intent/Content URI und Glass Edge. Linux erhaelt ein Starter Kit fuer FrameGuestSurface/Agent, X11/Wayland/Portals und Headless-/Industriepfade.
+MA007.13 vertieft die Proximity-Schicht. Simulierte Ablagen funktionieren, die manuelle Raumkarte ist vorbereitet, und der Selector waehlt stabil genau eine naechste Ablage fuer die gläserne Kante.
 
 ## Naechster Fokus
 
-Nach MA007.12 liegt der Fokus auf Proximity/ManualMap, Dongle-Roadmap und Readiness Review. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA007.13 liegt der Fokus auf Readiness Review, Context Pack und erstem Cross-Device-Testplan. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+
+## Entfernung und Ablage-Anker
+
+Der Produktpfad fuer Entfernung ist:
+
+1. Simulation fuer reproduzierbare Tests.
+2. Manual Map fuer den ersten echten Raumaufbau.
+3. BLE/WiFi als grobe Naeherung.
+4. Ablage Anchor Dongle fuer Identitaet, Trust und Ankerfunktion.
+5. UWB/SensorFusion fuer praezisere Distanz und Richtung.
+
+Diese Stufen veraendern den Core nicht zu einem Sync-System. Sie helfen nur, die naechste Ablage im Arbeitsraum zu bestimmen.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

@@ -13,7 +13,7 @@ Nicht mehrere Ziele. Nicht mehrere Bubbles. Nicht Radar.
 
 1. Das Ding wird genommen.
 2. `IAblageProximityProvider` liefert eine Raumkarte.
-3. `INearestAblageSelector` waehlt genau eine Ablage.
+3. `INearestAblageSelector` waehlt genau eine Ablage anhand von Distanz, Confidence und Hysterese.
 4. `GlassEdge` erscheint an `Left`, `Right`, `Up` oder `Down`.
 5. Das Ding wird in diese Kante gefuehrt.
 6. `WorkspaceSurfaceHandoff` beschreibt Quelle, Ziel, Gegenkante und Zielposition.
@@ -29,6 +29,19 @@ Die simulierte Raumkarte setzt:
 
 Damit erscheint im Windows-Test eine rechte gläserne Kante.
 
+## Manual Map
+
+MA007.13 fuegt die manuelle Raumkarte als vorbereitete Quelle hinzu. Sie ist fuer den ersten echten Raumaufbau gedacht, bevor BLE, UWB oder Dongle-Messung existieren.
+
+Beispiel:
+
+- macOS rechts, nah
+- iPad oben, mittel
+- iPhone unten, nah
+- Monitor links, weit
+
+Auch bei mehreren Eintraegen gilt: Die Shell zeigt nur eine gläserne Kante. Die anderen Ablagen bleiben technisch bekannt, aber nicht visuell dominant.
+
 ## Entfernung
 
 Entfernung steuert:
@@ -40,6 +53,17 @@ Entfernung steuert:
 - Aktivierungsschwelle
 
 Je naeher die Ablage, desto praesenter die Kante.
+
+## Anti-Flicker
+
+Die Kante darf nicht springen, nur weil zwei Ablagen aehnlich nah sind. Der Selector nutzt:
+
+- `MinimumConfidence`
+- `DistanceHysteresis`
+- `StableNearestDuration`
+- `EdgeSwitchDelay`
+
+Ein klares neues Ziel darf wechseln. Eine kleine Schwankung bleibt bei der bisherigen Kante.
 
 ## Eintrittsvarianten
 

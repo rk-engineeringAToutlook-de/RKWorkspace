@@ -17,8 +17,19 @@ public static class GlassEdgeSmokeTest
             var edge = GlassEdge.FromNearest(nearest, GlassEdgeState.Visible, 0.44, 0.0);
             var nearProfile = GlassEdgeVisualProfile.FromDistance(AblageDistanceKind.Near);
             var farProfile = GlassEdgeVisualProfile.FromDistance(AblageDistanceKind.Far);
+            var manualProvider = new ManualMapAblageProximityProvider(ManualMapAblageProximityProvider.CreateOwnerRoomExample());
+            var manualSnapshot = manualProvider.GetSnapshot(current);
 
             var fourAblagenOk = snapshot.Surfaces.Count >= 4;
+            var simulatedSnapshotOk = snapshot.CurrentAblageId == current &&
+                snapshot.AvailableTargets().Count() >= 4 &&
+                snapshot.Surfaces.All(surface => surface.Distance.Source == AblageProximitySource.Simulated);
+            var manualMapOk = manualSnapshot.Surfaces.Count >= 5 &&
+                manualSnapshot.Surfaces.Any(surface => surface.Id.Value == "ablage-macos" && surface.Pose.Direction == AblageDirection.Right) &&
+                manualSnapshot.Surfaces.Any(surface => surface.Id.Value == "ablage-ipad" && surface.Pose.Direction == AblageDirection.Up) &&
+                manualSnapshot.Surfaces.Any(surface => surface.Id.Value == "ablage-iphone" && surface.Pose.Direction == AblageDirection.Down) &&
+                manualSnapshot.Surfaces.Any(surface => surface.Id.Value == "ablage-monitor-links" && surface.Pose.Direction == AblageDirection.Left) &&
+                manualSnapshot.Surfaces.All(surface => surface.Distance.Source is AblageProximitySource.ManualMap);
             var exactlyOneTargetOk = nearest.HasTarget && snapshot.AvailableTargets().Count(surface => surface.Id == nearest.TargetAblageId) == 1;
             var nearestMacOsOk = nearest.TargetAblageId?.Value == "ablage-macos" &&
                 nearest.Platform == AblageSurfacePlatform.MacOS;
@@ -65,6 +76,15 @@ public static class GlassEdgeSmokeTest
             var iPhoneNearest = selector.Select(iPhoneSnapshot);
             var clearSwitchOk = iPhoneNearest.TargetAblageId?.Value == "ablage-iphone" &&
                 iPhoneNearest.EdgeHint == AblageDirection.Up;
+            var confidenceSnapshot = new AblageProximitySnapshot(
+                current,
+                CreateConfidenceSurfaces(),
+                DateTimeOffset.UtcNow);
+            var confidenceNearest = new NearestAblageSelector(new NearestAblageSelectionSettings { MinimumConfidence = 0.60 })
+                .Select(confidenceSnapshot);
+            var distanceConfidenceOk = confidenceNearest.TargetAblageId?.Value == "ablage-iphone" &&
+                confidenceNearest.Confidence >= 0.80 &&
+                confidenceNearest.EdgeHint == AblageDirection.Up;
             var stableSnapshot = new AblageProximitySnapshot(
                 current,
                 CreateNearTieSurfaces(),
@@ -72,6 +92,23 @@ public static class GlassEdgeSmokeTest
             var stableResult = selector.Select(stableSnapshot, nearest);
             var stableSwitchOk = stableResult.TargetAblageId?.Value == "ablage-macos" &&
                 stableResult.IsStable;
+            var edgeSwitchDelaySnapshot = new AblageProximitySnapshot(
+                current,
+                CreateSlightlyBetterIPhoneSurfaces(),
+                DateTimeOffset.UtcNow);
+            var delayedSwitch = selector.Select(
+                edgeSwitchDelaySnapshot,
+                nearest with { SelectedAt = edgeSwitchDelaySnapshot.CapturedAt, StableSince = edgeSwitchDelaySnapshot.CapturedAt });
+            var edgeSwitchDelayOk = delayedSwitch.TargetAblageId?.Value == "ablage-macos" &&
+                delayedSwitch.IsStable;
+            var proximityTestsOk = manualMapOk &&
+                simulatedSnapshotOk &&
+                exactlyOneTargetOk &&
+                distanceConfidenceOk &&
+                stableSwitchOk &&
+                clearSwitchOk &&
+                edgeSwitchDelayOk &&
+                onlyOneEdgeOk;
             var noSurface = selector.Select(new AblageProximitySnapshot(current, [snapshot.Surfaces.Single(surface => surface.Id == current)], DateTimeOffset.UtcNow));
             var noSurfaceOk = !noSurface.HasTarget && noSurface.EdgeHint == AblageDirection.Unknown;
             var contractsOk = typeof(ISurfaceHost).IsInterface &&
@@ -86,6 +123,8 @@ public static class GlassEdgeSmokeTest
             var exportedOk = !exportFrames || ExportAndVerify(DefaultExportDirectory());
 
             var success = fourAblagenOk &&
+                manualMapOk &&
+                simulatedSnapshotOk &&
                 exactlyOneTargetOk &&
                 nearestMacOsOk &&
                 directionOk &&
@@ -102,7 +141,10 @@ public static class GlassEdgeSmokeTest
                 platformsOk &&
                 diagonalMappedOk &&
                 clearSwitchOk &&
+                distanceConfidenceOk &&
                 stableSwitchOk &&
+                edgeSwitchDelayOk &&
+                proximityTestsOk &&
                 noSurfaceOk &&
                 contractsOk &&
                 hapticMomentsOk &&
@@ -110,6 +152,8 @@ public static class GlassEdgeSmokeTest
 
             Console.WriteLine("RK Workspace Glass Edge Nearest Ablage Smoke Test");
             Console.WriteLine("-------------------------------------------------");
+            Console.WriteLine($"ManualMap: {(manualMapOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"SimulatedProvider: {(simulatedSnapshotOk ? "OK" : "FAILED")}");
             Console.WriteLine($"SimulatedAblagen: {(fourAblagenOk ? "OK" : "FAILED")}");
             Console.WriteLine($"NearestSelector: {(exactlyOneTargetOk ? "OK" : "FAILED")}");
             Console.WriteLine($"NearestPlatform: {(nearestMacOsOk ? "OK" : "FAILED")}");
@@ -126,8 +170,12 @@ public static class GlassEdgeSmokeTest
             Console.WriteLine($"CrossPlatformSurfaces: {(platformsOk && contractsOk ? "OK" : "FAILED")}");
             Console.WriteLine($"DiagonalMapping: {(diagonalMappedOk ? "OK" : "FAILED")}");
             Console.WriteLine($"ClearEdgeSwitch: {(clearSwitchOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"DistanceConfidence: {(distanceConfidenceOk ? "OK" : "FAILED")}");
             Console.WriteLine($"StableEdgeSwitch: {(stableSwitchOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"EdgeSwitchDelay: {(edgeSwitchDelayOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"HysteresisNoFlicker: {(stableSwitchOk && edgeSwitchDelayOk ? "OK" : "FAILED")}");
             Console.WriteLine($"NoSurfaceAvailable: {(noSurfaceOk ? "OK" : "FAILED")}");
+            Console.WriteLine($"ProximityTests: {(proximityTestsOk ? "SUCCESS" : "FAILED")}");
             Console.WriteLine($"MobileHapticsPrepared: {(hapticMomentsOk ? "OK" : "FAILED")}");
             Console.WriteLine($"ExportFrames: {(exportedOk ? "OK" : "SKIPPED")}");
             Console.WriteLine(success ? "GlassEdgeSmoke: SUCCESS" : "GlassEdgeSmoke: FAILED");
@@ -175,6 +223,28 @@ public static class GlassEdgeSmokeTest
             new AblageSurface(new AblageIdentity("ablage-windows"), "Ablage Windows", AblageSurfacePlatform.Windows, true, AblagePose.FromDirection(AblageDirection.Unknown), AblageDistance.Simulated(AblageDistanceKind.VeryNear, 0.0, 1.0), now),
             new AblageSurface(new AblageIdentity("ablage-macos"), "Ablage macOS", AblageSurfacePlatform.MacOS, true, AblagePose.FromDirection(AblageDirection.Right), AblageDistance.Simulated(AblageDistanceKind.Near, 1.20, 0.92), now.AddSeconds(-1)),
             new AblageSurface(new AblageIdentity("ablage-iphone"), "Ablage iPhone", AblageSurfacePlatform.IOS, true, AblagePose.FromDirection(AblageDirection.Up), AblageDistance.Simulated(AblageDistanceKind.Near, 1.24, 0.91), now.AddSeconds(-2))
+        ];
+    }
+
+    private static IReadOnlyList<AblageSurface> CreateConfidenceSurfaces()
+    {
+        var now = DateTimeOffset.UtcNow;
+        return
+        [
+            new AblageSurface(new AblageIdentity("ablage-windows"), "Ablage Windows", AblageSurfacePlatform.Windows, true, AblagePose.FromDirection(AblageDirection.Unknown), AblageDistance.Simulated(AblageDistanceKind.VeryNear, 0.0, 1.0), now),
+            new AblageSurface(new AblageIdentity("ablage-macos"), "Ablage macOS", AblageSurfacePlatform.MacOS, true, AblagePose.FromDirection(AblageDirection.Right), AblageDistance.Simulated(AblageDistanceKind.VeryNear, 0.45, 0.20), now.AddSeconds(-1)),
+            new AblageSurface(new AblageIdentity("ablage-iphone"), "Ablage iPhone", AblageSurfacePlatform.IOS, true, AblagePose.FromDirection(AblageDirection.Up), AblageDistance.Simulated(AblageDistanceKind.Near, 1.36, 0.86), now.AddSeconds(-2))
+        ];
+    }
+
+    private static IReadOnlyList<AblageSurface> CreateSlightlyBetterIPhoneSurfaces()
+    {
+        var now = DateTimeOffset.UtcNow;
+        return
+        [
+            new AblageSurface(new AblageIdentity("ablage-windows"), "Ablage Windows", AblageSurfacePlatform.Windows, true, AblagePose.FromDirection(AblageDirection.Unknown), AblageDistance.Simulated(AblageDistanceKind.VeryNear, 0.0, 1.0), now),
+            new AblageSurface(new AblageIdentity("ablage-macos"), "Ablage macOS", AblageSurfacePlatform.MacOS, true, AblagePose.FromDirection(AblageDirection.Right), AblageDistance.Simulated(AblageDistanceKind.Near, 1.20, 0.92), now.AddSeconds(-1)),
+            new AblageSurface(new AblageIdentity("ablage-iphone"), "Ablage iPhone", AblageSurfacePlatform.IOS, true, AblagePose.FromDirection(AblageDirection.Up), AblageDistance.Simulated(AblageDistanceKind.Near, 1.05, 0.92), now.AddSeconds(-2))
         ];
     }
 

@@ -61,8 +61,11 @@ public sealed class NearestAblageSelector : INearestAblageSelector
             previousResult.TargetAblageId != winner.Surface.Id)
         {
             var previousCandidate = candidates.FirstOrDefault(candidate => candidate.Surface.Id == previousResult.TargetAblageId);
+            var previousAge = snapshot.CapturedAt >= previousResult.SelectedAt
+                ? snapshot.CapturedAt - previousResult.SelectedAt
+                : TimeSpan.Zero;
             if (previousCandidate is not null &&
-                previousCandidate.Score <= winner.Score + _settings.DistanceHysteresis)
+                ShouldKeepPrevious(previousCandidate, winner, previousAge))
             {
                 winner = previousCandidate;
                 stable = true;
@@ -73,7 +76,15 @@ public sealed class NearestAblageSelector : INearestAblageSelector
             }
         }
 
-        return ToResult(snapshot.CurrentAblageId, winner.Surface, stable);
+        var stableSince = previousResult?.HasTarget == true && previousResult.TargetAblageId == winner.Surface.Id
+            ? previousResult.StableSince
+            : snapshot.CapturedAt;
+        if (!stable && snapshot.CapturedAt - stableSince >= _settings.StableNearestDuration)
+        {
+            stable = true;
+        }
+
+        return ToResult(snapshot.CurrentAblageId, winner.Surface, stable, snapshot.CapturedAt, stableSince);
     }
 
     private double Score(AblageSurface surface)
@@ -97,7 +108,24 @@ public sealed class NearestAblageSelector : INearestAblageSelector
         return 99;
     }
 
-    private static NearestAblageResult ToResult(AblageIdentity currentAblageId, AblageSurface surface, bool stable)
+    private bool ShouldKeepPrevious(Candidate previousCandidate, Candidate winner, TimeSpan previousAge)
+    {
+        var improvement = previousCandidate.Score - winner.Score;
+        if (improvement <= _settings.DistanceHysteresis)
+        {
+            return true;
+        }
+
+        return previousAge < _settings.EdgeSwitchDelay &&
+            improvement < _settings.DistanceHysteresis * 2.0;
+    }
+
+    private static NearestAblageResult ToResult(
+        AblageIdentity currentAblageId,
+        AblageSurface surface,
+        bool stable,
+        DateTimeOffset selectedAt,
+        DateTimeOffset stableSince)
     {
         var edgeHint = AblageDirectionMapper.ToPrimaryEdge(surface.Pose);
         return new NearestAblageResult(
@@ -113,7 +141,11 @@ public sealed class NearestAblageSelector : INearestAblageSelector
             surface.Distance.Source,
             stable,
             true,
-            $"Nearest ablage is {surface.DisplayName} via {edgeHint}.");
+            $"Nearest ablage is {surface.DisplayName} via {edgeHint}.")
+        {
+            SelectedAt = selectedAt,
+            StableSince = stableSince
+        };
     }
 
     private sealed record Candidate(AblageSurface Surface, double Score);

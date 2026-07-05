@@ -19,6 +19,27 @@ Spaetere Profile koennen sein:
 - BLE/UWB nur fuer Naehe und Richtung, nicht fuer Payload
 - USB-Dongle als Ablage-Anker und Trust-/Proximity-Hilfe
 
+## Proximity ist kein Payload-Transport
+
+MA007.13 ordnet Entfernung und Richtung bewusst ausserhalb des Payload-Transports ein. Proximity-Quellen koennen sein:
+
+- `Simulated`
+- `ManualMap`
+- `BLE`
+- `WiFi`
+- `Dongle`
+- `UWB`
+- `SensorFusion`
+
+Diese Quellen duerfen helfen, die naechste Ablage zu finden. Sie duerfen keine Originaldatei transportieren und keine Ownership-Entscheidung ersetzen.
+
+Die Glass Edge nutzt Proximity nur fuer:
+
+- Richtung der einen sichtbaren Kante
+- Distanzklasse
+- Confidence
+- spaetere Gegenkante auf der Zielablage
+
 ## Reihenfolge
 
 MA007.00 definiert nur Nachrichten und Ownership. Transportprofile werden erst implementiert, wenn Ownership und FrameOnly verifiziert sind.

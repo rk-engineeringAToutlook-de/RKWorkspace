@@ -894,6 +894,10 @@ if (-not $glassEdgeText.Contains('CrossPlatformSurfaces: OK')) {
     throw "Glass Edge Smoke Test failed because output did not contain CrossPlatformSurfaces: OK."
 }
 
+if (-not $glassEdgeText.Contains('ProximityTests: SUCCESS')) {
+    throw "Glass Edge Smoke Test failed because output did not contain ProximityTests: SUCCESS."
+}
+
 if (-not $glassEdgeText.Contains('GlassEdgeSmoke: SUCCESS')) {
     throw "Glass Edge Smoke Test failed because output did not contain GlassEdgeSmoke: SUCCESS."
 }

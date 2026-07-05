@@ -7,6 +7,8 @@ Datum: 2026-07-05
 
 MA006.13 fuehrt Entfernung und Richtung als eigene Shell-nahe Logik ein. Die erste Implementierung ist simuliert, aber providerfaehig.
 
+MA007.13 vertieft diese Schicht: RK Workspace kann jetzt eine manuelle Raumkarte modellieren und daraus stabil genau eine naechste Ablage ableiten.
+
 ## Stufen
 
 1. Simulierte Raumkarte
@@ -22,9 +24,12 @@ MA006.13 fuehrt Entfernung und Richtung als eigene Shell-nahe Logik ein. Die ers
 - `AblageDirection`
 - `AblagePose`
 - `AblageProximitySnapshot`
+- `AblageProximitySource`
 - `IAblageProximityProvider`
 - `INearestAblageSelector`
 - `SimulatedAblageProximityProvider`
+- `ManualAblageMap`
+- `ManualMapAblageProximityProvider`
 
 ## Quellen
 
@@ -41,9 +46,44 @@ Vorbereitet sind:
 
 MA006.13 nutzt ausschliesslich `Simulated`.
 
+MA007.13 bereitet `ManualMap` als zweite Quelle vor. BLE, UWB, Dongle, WiFi und SensorFusion bleiben dokumentierte Folgequellen und liefern spaeter dieselben Modelle.
+
+## Manual Map
+
+`ManualAblageMap` beschreibt eine Ablage relativ zur aktuellen Arbeitsflaeche:
+
+- `AblageId`
+- `DisplayName`
+- `RelativeDirection`
+- `DistanceClass`
+- `DistanceMeters`
+- `Confidence`
+- `LastUpdated`
+- `Source`
+
+Die Owner-Raumkarte kann damit ohne Sensorik vorbereitet werden, zum Beispiel:
+
+- macOS rechts, nah
+- iPad oben, mittel
+- iPhone unten, nah
+- Monitor links, weit
+
+Der `ManualMapAblageProximityProvider` erzeugt daraus ein `AblageProximitySnapshot`. Er ist noch keine echte Discovery und keine Kopplung. Er ist die Bruecke, um Entfernung und Richtung im Produktpfad zu testen.
+
 ## Stabilitaet
 
 Der Selector beruecksichtigt Confidence, bevorzugte Richtung, letzte Aktivitaet und Hysterese. Kleine Distanzschwankungen sollen die Kante nicht nervoes wechseln lassen.
+
+Konkrete Regeln:
+
+- Ziele unter `MinimumConfidence` werden ignoriert.
+- Distanz und Confidence bilden den Score.
+- `DistanceHysteresis` haelt die bisherige Kante bei kleinen Schwankungen.
+- `EdgeSwitchDelay` verhindert schnelles Hin-und-Her-Schalten.
+- Bei deutlich besserem Ziel darf die Kante trotzdem wechseln.
+- Das Ergebnis beschreibt immer genau eine Zielablage oder gar keine.
+
+Damit bleibt die Glass Edge ruhig: nicht mehrere Ziele, kein Radar, kein Flackern.
 
 ## Bedeutung fuer RKWP
 
