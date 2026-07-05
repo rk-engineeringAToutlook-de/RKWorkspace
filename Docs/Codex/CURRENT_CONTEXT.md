@@ -10,7 +10,7 @@ feature/ma007-followup-original-owned-frame-platforms
 
 ## Aktueller Auftrag
 
-MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Handoffs vor. Aktueller Stand: MA007.11 iOS/iPadOS Surface Starter Kit.
+MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Handoffs vor. Aktueller Stand: MA007.12 Android und Linux Surface Starter Kits.
 
 ## Implementierte Schichten
 
@@ -65,3 +65,18 @@ MA007.11 liefert:
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOSSurfacePlan.md`
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOSPermissions.md`
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOSXcodeHandoff.md`
+
+## Android/Linux Handoff
+
+MA007.12 liefert:
+
+- `Docs/Codex/PlatformTasks/Android.md`
+- `Docs/Platform/Android_SurfaceStarterKit.md`
+- `src/Surfaces/RKWorkspace.Surface.Android/AndroidSurfacePlan.md`
+- `src/Surfaces/RKWorkspace.Surface.Android/AndroidPermissions.md`
+- `src/Surfaces/RKWorkspace.Surface.Android/AndroidObjectSources.md`
+- `Docs/Codex/PlatformTasks/Linux.md`
+- `Docs/Platform/Linux_SurfaceStarterKit.md`
+- `src/Surfaces/RKWorkspace.Surface.Linux/LinuxSurfacePlan.md`
+- `src/Surfaces/RKWorkspace.Surface.Linux/LinuxPermissions.md`
+- `src/Surfaces/RKWorkspace.Surface.Linux/LinuxDisplayServerNotes.md`

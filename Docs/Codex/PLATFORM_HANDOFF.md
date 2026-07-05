@@ -35,8 +35,8 @@ Plattform-Threads koennen ab MA007.00 parallel arbeiten, wenn sie die gemeinsame
 - Windows: native Frame-Presentation und Glass Edge mit realem Desktop.
 - macOS: FrameGuestSurface mit No File Ingress, Trackpad-/Maus-Gesten, Glass Edge und Berechtigungspruefung.
 - iOS/iPadOS: native Surface App ueber macOS/Xcode, TouchHold/Drei-Finger-Pruefung, Haptik, FrameView und Gegenkante.
-- Android: Tablet-/Phone-Ablage mit Haptik und FrameView.
-- Linux: minimaler Desktop-/Industriepfad.
+- Android: native App mit Touch/Haptik, Sharesheet/Intent/Content URI, FrameView und Glass Edge.
+- Linux: minimaler Desktop-/Industriepfad mit X11/Wayland/Portals-Bewertung.
 
 ## Unantastbar
 
@@ -61,6 +61,19 @@ iOS/iPadOS-Codex laeuft ueber macOS-Codex und Xcode. Zu nutzen:
 - `src/Surfaces/RKWorkspace.Surface.iOS/`
 
 Erster Auftrag: native iOS/iPadOS RK Workspace Surface App bauen, RKWP Frame anzeigen, Haptik vorbereiten, Glass Edge simulieren, keine Datei speichern.
+
+## Android/Linux MA007.12 Handoff
+
+Zu nutzen:
+
+- `Docs/Codex/PlatformTasks/Android.md`
+- `Docs/Platform/Android_SurfaceStarterKit.md`
+- `src/Surfaces/RKWorkspace.Surface.Android/`
+- `Docs/Codex/PlatformTasks/Linux.md`
+- `Docs/Platform/Linux_SurfaceStarterKit.md`
+- `src/Surfaces/RKWorkspace.Surface.Linux/`
+
+Android startet spaeter als native mobile Surface App. Linux startet spaeter als minimale FrameGuestSurface oder Agent-Prozess mit X11/Wayland/Portals-Bewertung.
 
 ## GitHub
 

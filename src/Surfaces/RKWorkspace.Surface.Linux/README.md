@@ -23,3 +23,13 @@ Pflichtsemantik:
 ## Naechster Plattformauftrag
 
 Minimalen Linux Surface Host planen, ohne den Windows-Build zu beeinflussen.
+
+## MA007.12 Starter Kit
+
+Dieses Verzeichnis enthaelt ab MA007.12:
+
+- `LinuxSurfacePlan.md`
+- `LinuxPermissions.md`
+- `LinuxDisplayServerNotes.md`
+
+Die native Umsetzung erfolgt spaeter auf Linux. V1 darf als Agent/FrameGuestSurface ohne finales Overlay starten.

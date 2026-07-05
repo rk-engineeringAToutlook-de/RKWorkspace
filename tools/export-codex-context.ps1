@@ -48,12 +48,16 @@ $files = @(
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
     'Docs\Platform\macOS_SurfaceStarterKit.md',
     'Docs\Platform\iOS_iPadOS_SurfaceStarterKit.md',
+    'Docs\Platform\Android_SurfaceStarterKit.md',
+    'Docs\Platform\Linux_SurfaceStarterKit.md',
     'Docs\Codex\CODEX_ONBOARDING.md',
     'Docs\Codex\CURRENT_CONTEXT.md',
     'Docs\Codex\PLATFORM_HANDOFF.md',
     'Docs\Codex\PLATFORM_STATUS.md',
     'Docs\Codex\PlatformTasks\macOS.md',
     'Docs\Codex\PlatformTasks\iOS_iPadOS.md',
+    'Docs\Codex\PlatformTasks\Android.md',
+    'Docs\Codex\PlatformTasks\Linux.md',
     'Spec\TestStrategy.md',
     'Spec\ProductPhilosophy.md'
 )

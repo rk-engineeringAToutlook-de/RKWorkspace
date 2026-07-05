@@ -28,10 +28,10 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.11 bereitet iOS/iPadOS ueber macOS/Xcode vor. Das Starter Kit beschreibt native Surface App, TouchHold/Drei-Finger-Pruefung, Haptik, Glass Edge, No File Ingress, USB-Test und PWA-nur-Uebergang.
+MA007.12 bereitet Android und Linux vor. Android erhaelt ein Starter Kit fuer native Surface App, Touch/Haptik, Sharesheet/Intent/Content URI und Glass Edge. Linux erhaelt ein Starter Kit fuer FrameGuestSurface/Agent, X11/Wayland/Portals und Headless-/Industriepfade.
 
 ## Naechster Fokus
 
-Nach MA007.11 liegt der Fokus auf Android/Linux Starter Kits und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA007.12 liegt der Fokus auf Proximity/ManualMap, Dongle-Roadmap und Readiness Review. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

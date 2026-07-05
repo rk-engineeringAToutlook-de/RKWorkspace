@@ -24,3 +24,13 @@ Pflichtsemantik:
 ## Naechster Plattformauftrag
 
 Android Surface mit TouchHold, FrameOnly View und Content-URI-Grenzen planen.
+
+## MA007.12 Starter Kit
+
+Dieses Verzeichnis enthaelt ab MA007.12:
+
+- `AndroidSurfacePlan.md`
+- `AndroidPermissions.md`
+- `AndroidObjectSources.md`
+
+Die native Umsetzung erfolgt spaeter ueber Android Studio/Gradle. PWA bleibt nur Uebergang; native App ist Ziel.

@@ -4,9 +4,12 @@
 
 Android wird als Phone-/Tablet-Ablage vorbereitet, spaeter ueber Android Studio/Gradle.
 
+Die erste Android Surface App zeigt RKWP Frames, bereitet Touch/Haptik und Glass Edge vor und respektiert No File Ingress.
+
 ## Aktueller Stand
 
 - Stub: `src/Surfaces/RKWorkspace.Surface.Android`
+- Starter Kit: `Docs/Platform/Android_SurfaceStarterKit.md`
 - gemeinsame Contracts: `src/Surfaces/RKWorkspace.Surface.Abstractions`
 - noch keine native Android-App
 
@@ -18,12 +21,14 @@ Android wird als Phone-/Tablet-Ablage vorbereitet, spaeter ueber Android Studio/
 - `ISurfaceHapticsProvider`
 - `ISurfaceObjectAdapter`
 - `ISurfaceSecurityContext`
+- `ISurfaceInputChannel`
+- `SurfacePlatform.Android`
 
 ## Build-Hinweise
 
 Der Stub ist dokumentarisch und bricht den Windows-Build nicht. Native Android-Struktur folgt spaeter.
 
-## Berechtigungen
+## Quellen und Berechtigungen
 
 - Sharesheet
 - Intent
@@ -32,16 +37,26 @@ Der Stub ist dokumentarisch und bricht den Windows-Build nicht. Native Android-S
 - Haptik
 - Accessibility nur spaeter und vorsichtig
 - PWA als Uebergangsloesung moeglich
+- native App als Ziel
+
+## RKWP-Pflicht
+
+- FrameOnly als sicherer Default
+- No File Ingress
+- OriginalOwned respektieren
+- keine stille Dateiuebernahme
+- Input nur policygebunden
 
 ## Aktuelle Blocker
 
 - keine Android Studio/Gradle-Struktur
 - keine finale Touch-Geste
 - keine produktive Content-URI-Policy
+- DevTransport zu Android folgt spaeter
 
 ## Naechster Codex-Auftrag
 
-Android Surface Host mit TouchHold, Glass Edge, FrameGuestSurface und No File Ingress planen.
+Android Surface Host mit TouchHold, Glass Edge, FrameGuestSurface, Haptik und No File Ingress planen.
 
 ## GitHub und Context Pack
 
