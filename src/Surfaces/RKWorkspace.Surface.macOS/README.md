@@ -22,3 +22,13 @@ Pflichtsemantik:
 ## Naechster Plattformauftrag
 
 macOS Surface Host mit Trackpad-Geste, FrameOnly Presenter und RKWP No File Ingress Proof skizzieren.
+
+## MA007.10 Starter Kit
+
+Dieses Verzeichnis enthaelt ab MA007.10 zusaetzliche Handoff-Stubs:
+
+- `SurfaceHostStub.md`
+- `FrameGuestSurfacePlan.md`
+- `macOSPermissions.md`
+
+Die Umsetzung bleibt macOS-Codex/Xcode vorbehalten. Windows-Codex liefert hier nur Architektur, Pflichten und Testziel.

@@ -28,10 +28,10 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.09 bereitet die ersten Windows Object Adapter vor. Eine echte PDF-Datei kann als `PdfDocument`/OriginReference erkannt werden, bleibt OriginalOwned und erzeugt keine Guest-Datei. ClipboardText, ScreenshotRegion und WindowSnapshot sind als sichere Starterpfade vorbereitet.
+MA007.10 bereitet macOS als erste echte Gegenplattform vor. Das Starter Kit beschreibt FrameGuestSurface, Glass Edge, Trackpad-/Maus-Gesten, Berechtigungen, No File Ingress und den kopierbaren macOS-Codex/Xcode-Auftrag.
 
 ## Naechster Fokus
 
-Nach MA007.09 liegt der Fokus auf Plattform-Handoff fuer macOS/iOS/iPadOS/Android/Linux und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA007.10 liegt der Fokus auf iOS/iPadOS, Android/Linux Starter Kits und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

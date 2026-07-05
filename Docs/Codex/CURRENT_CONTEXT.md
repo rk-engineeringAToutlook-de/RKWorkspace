@@ -5,12 +5,12 @@ Datum: 2026-07-05
 ## Branch
 
 ```text
-feature/ma007-00-rkwp-original-owned-frame
+feature/ma007-followup-original-owned-frame-platforms
 ```
 
 ## Aktueller Auftrag
 
-MA007.00 fuehrt das Original-Owned Frame Protocol ein.
+MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Handoffs vor. Aktueller Stand: MA007.10 macOS Surface Starter Kit.
 
 ## Implementierte Schichten
 
@@ -27,10 +27,13 @@ MA007.00 fuehrt das Original-Owned Frame Protocol ein.
 - `tests/Unit/RKWorkspace.Protocol.Tests`
 - `src/Tools/RKWorkspace.PdfFrameOwner`
 - `src/Tools/RKWorkspace.FrameGuestSurface`
+- `src/Adapters/RKWorkspace.ObjectAdapter.Windows`
 
 ## Semantik
 
 Ein PDF wird nicht auf die Gastablage kopiert. Der Owner erzeugt eine FrameSession. Die Gastablage sieht eine Frame-Repräsentation ohne Originalpfad und ohne Originalbytes.
+
+Input ist policygebunden. Aenderungen laufen als ChangeSet zur Owner-Entscheidung. Ownership Transfer ist kein Default und materialisiert nur bei Approved-Decision.
 
 ## Neuer Smoke
 
@@ -42,3 +45,13 @@ Ein PDF wird nicht auf die Gastablage kopiert. Der Owner erzeugt eine FrameSessi
 ## Surface Foundation
 
 MA007.02 legt die Surface-Vertraege als einzelne Dateien an: `ISurfaceHost`, `ISurfaceOverlay`, `ISurfaceGestureProvider`, `ISurfaceHapticsProvider`, `ISurfaceProximityProvider`, `ISurfaceFramePresenter`, `ISurfaceInputChannel`, `ISurfacePlacementAdapter`, `ISurfaceObjectAdapter`, `ISurfaceSecurityContext`, `GestureType`, `GestureState`, `SurfaceGestureEvent`, `SurfaceCapabilities`, `SurfacePlatform` und `SurfaceException`.
+
+## macOS Handoff
+
+MA007.10 liefert:
+
+- `Docs/Codex/PlatformTasks/macOS.md`
+- `Docs/Platform/macOS_SurfaceStarterKit.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/SurfaceHostStub.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/FrameGuestSurfacePlan.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/macOSPermissions.md`

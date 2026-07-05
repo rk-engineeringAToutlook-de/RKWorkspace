@@ -40,13 +40,18 @@ $files = @(
     'Docs\Protocol\RKWP_TransportProfiles.md',
     'Docs\Protocol\RKWP_OwnershipAndLease.md',
     'Docs\Protocol\RKWP_FrameSession.md',
+    'Docs\Protocol\RKWP_InputChannel.md',
+    'Docs\Protocol\RKWP_ChangeSetAndReturn.md',
     'Docs\Protocol\RKWP_ObjectKindRules.md',
     'Docs\Protocol\RKWP_OwnershipTransfer.md',
     'Docs\Protocol\RKWP_PlatformStrategy.md',
+    'Docs\ObjectAdapters\WindowsObjectAdapters.md',
+    'Docs\Platform\macOS_SurfaceStarterKit.md',
     'Docs\Codex\CODEX_ONBOARDING.md',
     'Docs\Codex\CURRENT_CONTEXT.md',
     'Docs\Codex\PLATFORM_HANDOFF.md',
     'Docs\Codex\PLATFORM_STATUS.md',
+    'Docs\Codex\PlatformTasks\macOS.md',
     'Spec\TestStrategy.md',
     'Spec\ProductPhilosophy.md'
 )
