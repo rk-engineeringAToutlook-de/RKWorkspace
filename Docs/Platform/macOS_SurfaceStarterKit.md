@@ -91,9 +91,23 @@ macOS bekommt keine PDF-Datei.
 Windows bleibt Owner.
 macOS gibt Frame zurueck.
 
+MA008.06 liefert dafuer:
+
+- `Docs/Readiness/WindowsToMac_DevTransportPlan.md`
+- `release/handoff/WindowsToMac_MA008_Handoff.md`
+- `tools/run-windows-owner-for-mac.ps1`
+
+Windows kann den Owner-Status mit folgendem Befehl ausgeben:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -InfoOnly
+```
+
+Der echte macOS-Test braucht ein netzwerkfaehiges Development-Transportprofil. `NamedPipeDev` bleibt der lokal verifizierte Windows-Pfad.
+
 ## Offene Blocker
 
 - macOS-Codex/Xcode-Umgebung fehlt in diesem Windows-Thread.
-- DevTransport fuer Cross-Device-Test folgt in MA008.
+- netzwerkfaehiger DevTransport fuer Cross-Device-Test fehlt noch.
 - echter PDF-Renderer ist noch offen.
 - finale Overlay-/Permission-Strategie ist offen.

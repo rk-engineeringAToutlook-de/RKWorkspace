@@ -64,6 +64,14 @@ Context Pack erzeugen:
 .\tools\export-codex-context.ps1
 ```
 
+Zusaetzlicher MA008-Handoff fuer den ersten Windows-zu-macOS-Test:
+
+- `Docs/Readiness/WindowsToMac_DevTransportPlan.md`
+- `release/handoff/WindowsToMac_MA008_Handoff.md`
+- `tools/run-windows-owner-for-mac.ps1`
+
+Der aktuelle Windows-DevTransport ist `NamedPipeDev` und lokal verifiziert. macOS-Codex muss fuer echten Cross-Device-Betrieb ein netzwerkfaehiges Development-Profil oder einen klar begrenzten Adapter bauen.
+
 ## Kopierbarer naechster macOS-Codex-Auftrag
 
 ```text
@@ -104,6 +112,13 @@ Vorgehen:
    - Windows bleibt Owner
    - macOS gibt Frame zurueck
    - Recovery testen
+7. Windows-Handoff lesen:
+   - Docs/Readiness/WindowsToMac_DevTransportPlan.md
+   - release/handoff/WindowsToMac_MA008_Handoff.md
+8. DevTransport-Luecke sauber schliessen:
+   - aktueller Windows-Pfad: NamedPipeDev lokal
+   - Ziel: lokales Netzwerkprofil fuer Windows Owner zu macOS Guest
+   - No File Ingress darf dadurch nicht gelockert werden
 
 Nicht bauen:
 
@@ -116,5 +131,5 @@ Nicht bauen:
 
 - keine macOS-Entwicklungsumgebung in diesem Windows-Thread
 - noch keine native macOS-App
-- noch kein DevTransport-Cross-Device-Test
+- noch kein netzwerkfaehiger DevTransport-Cross-Device-Test
 - keine produktive Capture-/Overlay-Berechtigungsstrategie

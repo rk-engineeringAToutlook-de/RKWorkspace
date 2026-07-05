@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.05 fuehrt erste kontrollierte PDF Frame Interaction ein. Scroll und Zoom laufen als policygepruefte FrameInput-Events, einfache Annotation wird als ChangeSet modelliert, und No File Ingress bleibt gueltig.
+MA008.06 bereitet den ersten Windows-zu-macOS DevTransport-Test vor. Windows liefert Handoff, Context Pack, Owner-Startscript und klare Blocker; PDF Frame Interaction aus MA008.05 bleibt policygeprueft und ohne File Ingress.
 
 ## Naechster Fokus
 
-Nach MA008.05 liegt der Fokus auf Windows zu macOS Dev-Transport Testplan und Handoff-Vorbereitung. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA008.06 liegt der Fokus auf iPad/iPhone Surface Testplan mit macOS/Xcode, anschliessend RKWP Audit Viewer und Dev Security Gate. Offen bleiben macOS FrameGuestSurface, netzwerkfaehiger DevTransport und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

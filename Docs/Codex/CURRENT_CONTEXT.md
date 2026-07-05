@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.05 PDF Frame Interaction mit Scroll, Zoom und Annotation als ChangeSet. Naechster Schritt: MA008.06 Windows zu macOS Dev-Transport Testplan technisch vorbereiten.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.06 Windows zu macOS DevTransport-Testplan und Handoff vorbereitet. Naechster Schritt: MA008.07 iPad/iPhone Surface Testplan mit macOS/Xcode vorbereiten.
 
 ## Implementierte Schichten
 
@@ -34,6 +34,7 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `src/Tools/RKWorkspace.WindowsLocalFrameE2E`
 - `src/Tools/RKWorkspace.GlassEdgePdfFrameE2E`
 - `src/Frame/RKWorkspace.Frame.Pdf/PdfFrameInteractionService.cs`
+- `tools/run-windows-owner-for-mac.ps1`
 
 ## Semantik
 
@@ -192,6 +193,22 @@ MA008.05 liefert:
 - `Docs/Development/PdfFrameInteraction.md`
 
 Geprueft werden Scroll, Zoom, Annotation als `ChangeSetOperationKind.AnnotationAdded`, ViewOnly-Ablehnung, ungueltige Lease, Apply/Accept als Applied, Reject ohne Originalaenderung und No File Ingress.
+
+## Windows to macOS Handoff
+
+MA008.06 liefert:
+
+- `Docs/Readiness/WindowsToMac_DevTransportPlan.md`
+- `release/handoff/WindowsToMac_MA008_Handoff.md`
+- `tools/run-windows-owner-for-mac.ps1`
+
+Windows Owner Info:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -InfoOnly
+```
+
+Der Windows-Pfad bleibt lokal ueber `NamedPipeDev` verifiziert. Fuer den echten macOS-Test ist ein netzwerkfaehiges DevTransport-Profil der offene Blocker. Ziel bleibt: Windows Owner, macOS Guest, PDF FrameOnly, DevPairing, AblageIdentity, No File Ingress, Heartbeat, Return und Recovery.
 
 ## Context Pack
 

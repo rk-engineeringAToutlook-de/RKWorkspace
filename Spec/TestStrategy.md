@@ -113,6 +113,8 @@ Ab MA008.04 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-glass-edge-pdf-f
 
 Ab MA008.05 pruefen die RKWP-Tests zusaetzlich PDF Frame Interaction. Geprueft werden Scroll, Zoom, AnnotationStart/Update/End als ChangeSet, Annotation-Ablehnung bei ViewOnly, ChangeSet-Ablehnung ohne gueltige Lease, Apply/Accept als Applied, Reject ohne Originalaenderung und weiterhin No File Ingress.
 
+Ab MA008.06 wird der Windows-zu-macOS-Pfad als Handoff-Test vorbereitet. Verifiziert werden Context-Pack-Export, Windows Local Frame E2E und Gesamttests. Der echte macOS-Gast bleibt bis zur nativen macOS-Surface und einem netzwerkfaehigen DevTransport-Profil blockiert.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

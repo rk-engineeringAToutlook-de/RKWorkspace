@@ -30,7 +30,9 @@ Der erste echte Cross-Device-Test beweist nicht Dateiuebertragung. Er beweist:
 | Netzwerk | lokales LAN oder lokaler Dev-Transport |
 | RKWP Transport | Development-Profil, spaeter LAN/WebRTC |
 | Security | Nonce, Sequence, LeaseBinding, PolicyBinding, Development Protector markiert als unsicher |
-| bekannte Blocker | macOS FrameGuestSurface noch nicht implementiert |
+| Vorbereitung | `Docs/Readiness/WindowsToMac_DevTransportPlan.md` und `release/handoff/WindowsToMac_MA008_Handoff.md` |
+| Windows Startpunkt | `tools/run-windows-owner-for-mac.ps1` |
+| bekannte Blocker | macOS FrameGuestSurface und Cross-Device DevTransport noch nicht implementiert |
 
 Testschritte:
 
@@ -48,6 +50,8 @@ Erfolgskriterien:
 - No File Ingress ist PASS.
 - Lease ist aktiv und gebunden.
 - Rueckgabe/Recovery ist PASS.
+
+AP016 konkretisiert dieses Szenario als ersten Handoff-Test. Windows liefert dafuer einen Owner-Startpunkt, ein Context Pack und eine Handoff-Datei. Der aktuelle `NamedPipeDev`-Transport bleibt lokal; fuer den echten macOS-Test muss ein netzwerkfaehiges Development-Profil ergaenzt werden.
 
 ## Szenario B: Windows besitzt PDF, iPad zeigt PDF-Frame
 
@@ -131,7 +135,7 @@ Erfolgskriterien:
 ## Reihenfolge Fuer Den Ersten Realen Test
 
 1. Windows Owner + Windows Local Guest Surface End-to-End. MA008.03 liefert diesen lokalen Smoke mit DevPairing, NamedPipeDev, FrameOnly, No File Ingress, Return und Recovery.
-2. Windows Owner + macOS Guest Surface.
+2. Windows Owner + macOS Guest Surface. MA008.06 liefert Plan, Handoff, Windows Owner Script und offene Blocker.
 3. Windows Owner + iPad Guest Surface.
 4. macOS Owner + Windows Guest.
 5. iPad Owner + Windows Guest.

@@ -55,6 +55,7 @@ $files = @(
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
     'Docs\Readiness\MA007_ReadinessReview.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
+    'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\NextCodexActions.md',
     'Docs\Platform\macOS_SurfaceStarterKit.md',
     'Docs\Platform\iOS_iPadOS_SurfaceStarterKit.md',
@@ -70,7 +71,9 @@ $files = @(
     'Docs\Codex\PlatformTasks\Linux.md',
     'Spec\TestStrategy.md',
     'Spec\ProductPhilosophy.md',
-    'release\MA007_READINESS_SUMMARY.md'
+    'release\MA007_READINESS_SUMMARY.md',
+    'release\handoff\WindowsToMac_MA008_Handoff.md',
+    'tools\run-windows-owner-for-mac.ps1'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }
@@ -84,6 +87,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-studio.ps1 -SmokeTest
 .\tools\run-rkwp-tests.ps1
 .\tools\run-pdf-frame-smoke.ps1
+.\tools\run-windows-owner-for-mac.ps1 -InfoOnly
 .\tools\export-codex-context.ps1
 '@ | Set-Content -Path (Join-Path $staging 'test-commands.txt') -Encoding UTF8
 
