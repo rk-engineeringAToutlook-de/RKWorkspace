@@ -932,3 +932,41 @@ if (-not $mobileGlassEdgeText.Contains('MobileGlassEdgeSmoke: SUCCESS')) {
 if (-not $mobileGlassEdgeText.Contains('RESULT: SUCCESS')) {
     throw "Mobile Glass Edge Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'RKWP Protocol Smoke Test'
+Write-Host '------------------------'
+$rkwpOutput = & (Join-Path $root 'tools\run-rkwp-tests.ps1') 2>&1
+$rkwpExitCode = $LASTEXITCODE
+$rkwpText = $rkwpOutput -join [Environment]::NewLine
+$rkwpOutput | ForEach-Object { Write-Host $_ }
+if ($rkwpExitCode -ne 0) {
+    throw "RKWP Protocol Smoke Test failed with exit code $rkwpExitCode."
+}
+
+if (-not $rkwpText.Contains('RkwpTests: SUCCESS')) {
+    throw "RKWP Protocol Smoke Test failed because output did not contain RkwpTests: SUCCESS."
+}
+
+if (-not $rkwpText.Contains('RESULT: SUCCESS')) {
+    throw "RKWP Protocol Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
+Write-Host 'PDF Frame Smoke Test'
+Write-Host '--------------------'
+$pdfFrameOutput = & (Join-Path $root 'tools\run-pdf-frame-smoke.ps1') 2>&1
+$pdfFrameExitCode = $LASTEXITCODE
+$pdfFrameText = $pdfFrameOutput -join [Environment]::NewLine
+$pdfFrameOutput | ForEach-Object { Write-Host $_ }
+if ($pdfFrameExitCode -ne 0) {
+    throw "PDF Frame Smoke Test failed with exit code $pdfFrameExitCode."
+}
+
+if (-not $pdfFrameText.Contains('PdfFrameSmoke: SUCCESS')) {
+    throw "PDF Frame Smoke Test failed because output did not contain PdfFrameSmoke: SUCCESS."
+}
+
+if (-not $pdfFrameText.Contains('RESULT: SUCCESS')) {
+    throw "PDF Frame Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

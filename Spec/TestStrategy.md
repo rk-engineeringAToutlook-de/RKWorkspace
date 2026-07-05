@@ -1,9 +1,9 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.37.0
+Version: 2.38.0
 Status: Accepted  
-Datum: 2026-07-04
+Datum: 2026-07-05
 
 ## Zweck
 
@@ -82,6 +82,8 @@ Der zweite Premiumblock ergaenzt fließende Pickup-Skalierung, geglaettete Linse
 Der dritte Premiumblock ergaenzt Live-Desktop-Refraction, Capture-Ausschluss, stabileren Lens-Center-Lock und Mikro-Highlights. Damit wird festgehalten, dass die Blase wieder auf den aktuellen Hintergrund reagieren soll, ohne das eigene Overlay als Echo einzusampeln.
 
 Ab MA006.13 pruefen `tools/run-glass-edge.ps1 -SmokeTest` und `tools/run-mobile-glass-edge.ps1 -SmokeTest` den neuen Single-Glass-Edge-Hauptpfad. Geprueft werden simulierte Ablage-Proximity, genau eine naechste Ablage, Richtung, Distanz-Intensitaet, drei Edge-Absorption-Varianten, Gegenkante, Ziel-Ghost, Zielposition, Windows/macOS/iOS/Android-Contracts, mobile Haptik und ExportFrames.
+
+Ab MA007.00 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-tests.ps1` und `tools/run-pdf-frame-smoke.ps1`. Geprueft werden RKWP-Version, Message-Validation, Development-Protector, Original-Owned Defaults, FrameOnly CarryLease, Lease-Recovery, Ownership-Transfer-Guard, Surface-Abstraktionen und der PDF FrameOnly Slice. Der PDF Smoke muss bestaetigen: `OwnerLocked: OK`, `NoFileIngress: OK`, `GuestHasPdfFile: NO`, `FrameOnly: OK` und `RESULT: SUCCESS`.
 
 ## MA003.05 Core Integration Tests
 

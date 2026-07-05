@@ -1,9 +1,9 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.38.0
+Version: 1.39.0
 Status: Accepted
-Datum: 2026-07-04
+Datum: 2026-07-05
 
 ## Wichtigster Satz
 
@@ -75,6 +75,25 @@ Neue Modelle:
 - `WorkspaceSurfaceHandoff`
 
 Der sichtbare Produktpfad ist nicht mehr ein Feld aus Bubbles. Der Raum zeigt nur die naechste sinnvolle Ablage als gläserne Kante.
+
+## RKWP Original-Owned Frame
+
+MA007.00 fuehrt die erste Protokollschicht oberhalb der Shell-Wahrnehmung ein:
+
+```text
+src/Protocol/RKWorkspace.Protocol
+src/Frame/RKWorkspace.Frame.Pdf
+src/Surfaces/RKWorkspace.Surface.Abstractions
+```
+
+Die Shell darf ein Ding nicht als Dateiuebertragung behandeln. Fuer kritische Objekte gilt zuerst `FrameOnly`: Das Original bleibt beim Owner, die Gastablage sieht eine `FrameSession`, und `CarryLease` definiert Rechte, Heartbeat, Rueckgabe und Recovery.
+
+Damit passt RKWP zum Shell-Satz:
+
+```text
+Workspace Shell ist der Raum.
+RKWP ist der Vertrag, dass ein Ding in diesem Raum kontrolliert erlebt werden darf.
+```
 
 ## Runtime Host
 

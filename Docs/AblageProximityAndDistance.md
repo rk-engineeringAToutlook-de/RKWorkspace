@@ -44,3 +44,17 @@ MA006.13 nutzt ausschliesslich `Simulated`.
 ## Stabilitaet
 
 Der Selector beruecksichtigt Confidence, bevorzugte Richtung, letzte Aktivitaet und Hysterese. Kleine Distanzschwankungen sollen die Kante nicht nervoes wechseln lassen.
+
+## Bedeutung fuer RKWP
+
+Ab MA007.00 entscheidet Proximity nicht ueber Dateiuebertragung. Proximity entscheidet nur, welche Ablage als naechste sinnvolle Gegenflaeche angeboten wird.
+
+Die anschliessende RKWP-Session entscheidet ueber:
+
+- CarryLease
+- FrameOnly oder spaeter andere Modi
+- Rechte
+- Rueckgabe
+- Recovery
+
+Entfernung und Richtung bleiben damit Wahrnehmungs- und Zielwahlkontext, nicht Besitzlogik.

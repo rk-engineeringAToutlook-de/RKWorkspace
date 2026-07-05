@@ -45,6 +45,19 @@ Arbeitsflaechen sind austauschbar. Hardware ist austauschbar. Software ist austa
 
 Plattformen sind Implementierungsdetails. Windows, macOS, Linux, iOS, Android, Firmware und Cloud-Komponenten sind technische Adapter unterhalb der Produktsemantik. Sie beeinflussen Capabilities, Berechtigungen und Einschraenkungen, aber nicht die grundlegende Bedienphilosophie.
 
+## Original-Owned-Prinzip
+
+Ab MA007.00 gilt fuer kritische digitale Dinge zuerst:
+
+```text
+Das Original bleibt beim Owner.
+Die andere Ablage erlebt das Ding als Frame.
+```
+
+Das ist keine Einschraenkung der Human Experience, sondern deren Schutz. Der Mensch soll ein Ding nehmen und an einer anderen Ablage weiterverwenden koennen, ohne dass RK Workspace still eine Datei kopiert oder eine neue Quelle der Wahrheit erzeugt.
+
+Wenn spaeter CopyOut, ForkVersion oder MoveOwnership noetig werden, sind sie eigene bestaetigte Entscheidungen. Sie passieren nicht automatisch durch Ablegen.
+
 ## Architekturfolgen
 
 ```mermaid
@@ -81,6 +94,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.7.0 | 2026-07-05 | Original-Owned-Prinzip fuer RKWP FrameOnly ergaenzt. |
 | 1.6.0 | 2026-07-03 | HX-001A als Kontroll- und Antwortwahrnehmung ergaenzt. |
 | 1.5.0 | 2026-07-03 | HX-000 als oberste Human-Experience-Regel vor Nordstern und Implementierung verankert. |
 | 1.4.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor UX-Gefuehlen ergaenzt. |

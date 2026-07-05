@@ -1,9 +1,9 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.55.0
+Version: 2.56.0
 Status: Accepted  
-Datum: 2026-07-04
+Datum: 2026-07-05
 
 RK Workspace (RKWS) ist ein eigenstaendiges Software- und Hardwareprodukt fuer raeumlich gedachte digitale Arbeitsflaechen. Das Projekt ist kein Bestandteil von RKOS und wird mit eigener Roadmap, eigener Dokumentation, eigenen Releases und eigener Architektur gefuehrt.
 
@@ -83,6 +83,9 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - Der Extreme Tunnel / Bubble FX Spike fuehrt fuenf sofort testbare Presets ein: Extreme Glass Bubble, Extreme Water Lens, Extreme Wormhole Tunnel, Extreme Gravity Well und Extreme Portal Absorption. `EffectIntensity`, Timing-Varianten, verstecktes Debug, staerkere Absorption, Visual Targets und Mobile Spatial Surface fuer Tablet/iPhone sind vorbereitet.
 - MA006.13 fokussiert den Produktpfad auf Single Glass Edge: Wenn ein Ding genommen wird, zeigt RK Workspace genau eine gläserne Kante zur naechsten passenden Ablage. Viele Bubbles, Radar-Optik und mehrere Zielpunkte sind nicht mehr Hauptpfad.
 - Die neue Ablage-Proximity-Schicht bereitet simulierte Entfernung, Richtung, Confidence, Windows/macOS/iOS/Android-Surfaces, Gegenkante, Ziel-Ghost und spaetere Provider fuer BLE, UWB, WiFi, Dongle und Sensorfusion vor.
+- MA007.00 fuehrt RKWP Original-Owned Frame ein: Kritische digitale Dinge bleiben beim Owner, Gastablagen erhalten zunaechst FrameSessions und keine Originaldateien.
+- Der PDF FrameOnly Slice zeigt `samples/Objects/Rechnung.pdf` auf einer Gastoberflaeche ohne Datei-Ingress, ohne Originalpfad und mit Rueckgabe-/Recovery-Regeln.
+- Plattform-Surfaces fuer Windows, macOS, iOS/iPadOS, Android und Linux sind als gemeinsame Abstraktion und Handoff-Stubs vorbereitet.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -105,6 +108,9 @@ Neue Entwickler beginnen mit diesen Dokumenten:
 11. `Spec/README.md`
 12. `Docs/ADR/README.md`
 13. `Docs/Architecture/OpenIssuesBeforeMA003.md`
+14. `Docs/Protocol/RKWP_ProtocolFoundation.md`
+15. `Docs/Protocol/RKWP_OwnershipAndLease.md`
+16. `Docs/Protocol/RKWP_FrameSession.md`
 
 Die Spezifikationen liegen in `Spec/`. Human-Experience-Validierung liegt in `Docs/HumanExperience/`. Die ADRs liegen in `Docs/ADR/`. Die Architektur- und Freigabeberichte liegen in `Docs/Architecture/`.
 

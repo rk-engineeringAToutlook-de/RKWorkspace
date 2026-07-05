@@ -1,0 +1,36 @@
+namespace RKWorkspace.Protocol;
+
+public enum RkwpMessageType
+{
+    AblageHello,
+    AblageCapabilities,
+    ProximityUpdate,
+    NearestAblageSelected,
+    CarryLeaseRequested,
+    CarryLeaseGranted,
+    CarryLeaseDenied,
+    CarryLeaseHeartbeat,
+    CarryLeaseReturn,
+    CarryLeaseRevoked,
+    CarryLeaseExpired,
+    FrameSessionOpen,
+    FrameSessionReady,
+    FrameUpdate,
+    FrameInput,
+    FrameClose,
+    ChangeSetProposed,
+    ChangeSetAccepted,
+    ChangeSetRejected,
+    OwnershipTransferRequested,
+    OwnershipTransferDecision,
+    OwnershipTransferCompleted,
+    OwnershipTransferDenied,
+    GlassEdgeAppearing,
+    GlassEdgeActive,
+    ObjectEnteringEdge,
+    ObjectInTransit,
+    ObjectEmerging,
+    ObjectPlaced,
+    HapticHint,
+    Error
+}

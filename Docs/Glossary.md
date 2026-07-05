@@ -1,9 +1,9 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.19.0
+Version: 1.20.0
 Status: Accepted  
-Datum: 2026-07-04
+Datum: 2026-07-05
 
 ## Zweck
 
@@ -40,6 +40,12 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Ablage Portal | Ablage-Portal | Geoeffnete Ablage-Bubble, die wie ein ruhiger Durchgang in eine andere Ablage wirkt. | Keine Drop-Zone, kein Button, keine technische Zielmarkierung. |
 | Glass Edge | Glaeserne Kante | Eine transparente Kante am Rand der aktuellen Ablage, die genau die naechste sinnvolle Ablage zeigt. | Kein Bubble-Feld, kein Radar, keine Geraeteauswahl. |
 | Nearest Ablage | Naechste Ablage | Die vom Proximity-Selector bestimmte beste Zielablage nach Entfernung, Confidence, Richtung und Stabilitaet. | Nicht mehrere Ziele gleichzeitig anzeigen. |
+| RKWP | RK Workspace Protocol | Protokollsemantik fuer Ablagen, Leases, Frames und Ownership. | Kein Dateitransfer-Protokoll und kein Transportkanal. |
+| Original-Owned Frame | Original-Owned Frame | Modell, bei dem das Original beim Owner bleibt und eine Gastablage nur eine kontrollierte Frame-Darstellung bekommt. | Nicht als Datei kopieren, senden oder synchronisieren beschreiben. |
+| CarryLease | Trage-Lease | Zeitlich und fachlich begrenzte Berechtigung, ein Ding auf einer Gastablage als Frame zu erleben. | Kein Besitzwechsel. |
+| FrameSession | Frame-Session | Sichtbare, kontrollierte Darstellung eines digitalen Dings auf einer Gastablage. | Keine lokale Originaldatei. |
+| FrameOnly | Nur-Frame-Modus | Gast sieht Anzeige, Scroll und Zoom, aber keine Originaldatei und keinen stillen CopyOut. | Nicht mit "Datei liegt dort" verwechseln. |
+| Ownership Transfer | Ownership-Wechsel | Expliziter spaeterer Vorgang, bei dem Besitz, Kopie, Fork oder Move nach Policy entschieden werden. | Kein automatischer Nebeneffekt beim Ablegen. |
 | Ablage Proximity | Ablage-Naehe | Modell fuer Entfernung, Richtung, Confidence und Messquelle zwischen Ablagen. | In MA006.13 simuliert; keine echte Discovery. |
 | Ablage Anchor Dongle | Ablage-Anker-Dongle | Spaetere Hardware, die eine Ablage im Raum repraesentiert und Naehe/Richtung liefern kann. | Kein Transferstick und kein Payload-Speicher. |
 | Surface Overlay Reset | Surface Overlay Reset | MA006.07-Korrektur, die Radar-/Statusseiten-UI verwirft und die Surface auf Ablage, Ding, Hand und periphere Moeglichkeiten reduziert. | Keine Karte, keine Statusseite, keine App als Erlebnis. |
@@ -142,6 +148,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.20.0 | 2026-07-05 | RKWP, Original-Owned Frame, CarryLease, FrameSession, FrameOnly und Ownership Transfer ergaenzt. |
 | 1.18.0 | 2026-07-04 | Begriffe fuer GPU Living Lens, Refraction Map und Edge Continuation ergaenzt. |
 | 1.17.0 | 2026-07-04 | Begriffe fuer MA006.10R Real Bubble Lens, Lens Absorption, Target Emergence, Visual Material, Renderer Decision und Spatial Portal ergaenzt. |
 | 1.16.0 | 2026-07-04 | Begriffe fuer Visual Reality, Visual Reality Lab, Living Lens und Visual Reality Blueprint ergaenzt. |

@@ -48,3 +48,15 @@ Taste `2`: Focus Point
 Taste `3`: Directional Slot
 
 Der Owner entscheidet spaeter, welche Variante sich am natuerlichsten anfuehlt.
+
+## Verbindung zu RKWP
+
+Ab MA007.00 ist die gläserne Kante nicht nur ein visueller Zielhinweis. Sie ist der Einstieg in eine RKWP-Session:
+
+1. Naechste Ablage wird ueber Proximity bestimmt.
+2. Glass Edge zeigt genau diese Richtung.
+3. Bei erfolgreichem Ablegen wird fuer kritische Objekte zuerst `FrameOnly` angefragt.
+4. Der Owner bleibt Owner.
+5. Die Zielablage zeigt eine `FrameSession`, keine Originaldatei.
+
+Damit bleibt die Wahrnehmung raeumlich, waehrend die technische Ownership sauber bleibt.

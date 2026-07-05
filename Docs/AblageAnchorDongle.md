@@ -22,3 +22,15 @@ Der Dongle ist ein Ablage-Anker.
 ## Abgrenzung
 
 Der Dongle repraesentiert nicht zwingend einen Rechner. Er repraesentiert einen Ort im Arbeitsraum, an dem ein digitales Ding abgelegt werden kann.
+
+## Verbindung zu RKWP
+
+Ein spaeterer Dongle darf keine Nutzdaten speichern und kein Transferstick werden. Er kann RKWP spaeter nur unterstuetzen durch:
+
+- Ablage-Identitaet
+- Naehe
+- Richtung
+- Trust-Hinweis
+- sichere Kopplung
+
+Ownership, CarryLease und FrameSession bleiben Protocol-Aufgaben.

@@ -1,0 +1,49 @@
+using RKWorkspace.Frame.Pdf;
+
+var pdfPath = GetArgument(args, "--pdf-path") ?? GetArgument(args, "-PdfPath") ?? FindSamplePdf();
+var service = new PdfFrameOwnerService();
+var result = service.OpenFrameOnlySession(pdfPath);
+
+Console.WriteLine("RK Workspace PDF Frame Owner");
+Console.WriteLine($"PDF: {result.Document.FileName}");
+Console.WriteLine($"ThingId: {result.Document.ThingId}");
+Console.WriteLine($"Pages: {result.Document.PageCount}");
+Console.WriteLine($"OwnerAblage: {result.Lease.OwnerAblageId}");
+Console.WriteLine($"GuestAblage: {result.Lease.GuestAblageId}");
+Console.WriteLine($"LeaseState: {result.Lease.State}");
+Console.WriteLine($"FrameState: {result.FrameSession.State}");
+Console.WriteLine($"OwnerLocked: {(result.OwnerStillOwnsOriginal ? "OK" : "FAILED")}");
+Console.WriteLine($"NoFileIngress: {(result.GuestHasNoFileIngress ? "OK" : "FAILED")}");
+Console.WriteLine($"ReturnState: {result.ReturnedLease.State}");
+Console.WriteLine($"Recovery: {(result.Recovery.OwnerRecoveredThing ? "OK" : "FAILED")}");
+Console.WriteLine(result.IsSuccessful ? "RESULT: SUCCESS" : "RESULT: FAILED");
+return result.IsSuccessful ? 0 : 1;
+
+static string? GetArgument(IReadOnlyList<string> args, string name)
+{
+    for (var index = 0; index < args.Count - 1; index++)
+    {
+        if (string.Equals(args[index], name, StringComparison.OrdinalIgnoreCase))
+        {
+            return args[index + 1];
+        }
+    }
+
+    return null;
+}
+
+static string FindSamplePdf()
+{
+    var directory = new DirectoryInfo(AppContext.BaseDirectory);
+    while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
+    {
+        directory = directory.Parent;
+    }
+
+    if (directory is null)
+    {
+        throw new InvalidOperationException("Repository root could not be located.");
+    }
+
+    return Path.Combine(directory.FullName, "samples", "Objects", "Rechnung.pdf");
+}
