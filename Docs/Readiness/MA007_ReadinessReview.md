@@ -18,7 +18,7 @@ Diese Review schliesst die MA007-Folgephase fachlich ab. Sie trennt klar zwische
 | FrameSession Status | Done | FrameOnly-Sessions, Guest-State, Revocation und Input-Policy sind implementiert und getestet. |
 | PDF Frame Status | Partial | Sample-PDF, FrameOnly-Modell und Smoke-Test existieren. Echtes plattformnatives PDF-Seitenrendering bleibt naechster Renderer-Schritt. |
 | No File Ingress Status | Done | Guest erhaelt keine Originaldatei, keinen Originalpfad und keine Originalbytes im FrameOnly-Pfad. |
-| Security Status | Partial | Development Protector, Nonce, Sequence, Lease-/Policy-Bindung und Audit sind getestet. Produktive Kryptografie, Pairing und Trust Stores sind geplant. |
+| Security Status | Partial | Development Protector, Nonce, Sequence, Lease-/Policy-Bindung, Audit und MA008 Security Gate sind getestet. Produktive Kryptografie, Pairing und Trust Stores sind geplant. |
 | Surface Abstractions Status | Done | Gemeinsame Surface-Contracts fuer Host, Overlay, Gesture, Haptics, Proximity, FramePresenter, Input, Placement, ObjectAdapter und Security sind vorhanden. |
 | Windows Surface Status | Partial | Windows ist primaerer Testpfad mit Native/Glass/Lens-Spikes, Windows Object Source Adapter und PDF Owner Tools. End-to-End Frame Presenter an Native Glass Edge fehlt noch. |
 | macOS Surface Status | Planned | Starter Kit, Permissions und FrameGuestSurface-Plan existieren. Native macOS-App muss im macOS/Xcode-Kontext gebaut werden. |
@@ -58,6 +58,7 @@ Diese Review schliesst die MA007-Folgephase fachlich ab. Sie trennt klar zwische
 
 - Keine produktive Kryptografie.
 - Kein reales Pairing/Trust Store.
+- Production blockiert DevMode jetzt ueber `RkwpSecurityGate`, aber echte Kryptografie fehlt weiter.
 - Kein echter Cross-Device-Transport zwischen Windows, macOS und iPad.
 - Kein nativer PDF-Renderer auf Gastplattformen.
 - Keine echte BLE/UWB/Dongle-Hardware.

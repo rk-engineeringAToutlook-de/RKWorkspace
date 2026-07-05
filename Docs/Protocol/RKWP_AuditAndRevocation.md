@@ -56,6 +56,8 @@ JSONL, eine Zeile pro Audit Event
 
 Dieses Format ist noch nicht manipulationssicher. Es dient Debugging, Smoke Tests und Handoff-Diagnose. Produktive Auditierung braucht spaeter Signatur, Verschluesselung, Retention-Policy und Clock-Strategie.
 
+MA008.09 macht Audit fuer Production zur Gate-Regel. Eine Production-Konfiguration ohne `RequireAudit` wird von `RkwpSecurityGate` abgelehnt.
+
 Das CLI-Tool liegt unter:
 
 ```text

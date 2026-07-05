@@ -119,6 +119,8 @@ Ab MA008.07 wird der iPad/iPhone-Pfad als macOS/Xcode-Handoff vorbereitet. Verif
 
 Ab MA008.08 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-diagnostics.ps1 -SmokeTest`. Geprueft werden JSONL-Audit-Erzeugung, Readback, Session-Diagnostics, Heartbeat, PolicyDenied, Recovery und No File Ingress.
 
+Ab MA008.09 pruefen die RKWP-Tests zusaetzlich das Security Gate. Geprueft werden Production gegen `DevelopmentInsecure`, Development-Warnung, Production ohne Audit, Production ohne ReplayProtection, Production ohne PolicyBinding und dokumentiertes Test-/Staging-Verhalten.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

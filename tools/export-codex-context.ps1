@@ -53,6 +53,7 @@ $files = @(
     'Docs\Protocol\RKWP_ObjectKindRules.md',
     'Docs\Protocol\RKWP_OwnershipTransfer.md',
     'Docs\Protocol\RKWP_PlatformStrategy.md',
+    'Docs\Security\RKWP_SecurityGate.md',
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
     'Docs\Readiness\MA007_ReadinessReview.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',

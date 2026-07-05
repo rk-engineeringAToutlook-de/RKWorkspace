@@ -31,6 +31,27 @@ Wichtig:
 - Der Development Protector markiert sich selbst als Development-only und meldet, dass keine echte Verschluesselung und keine echte produktive Authentisierung stattfindet.
 - Produktive Profile muessen spaeter Session-Schluessel, Authenticated Encryption und Replay-Schutz enthalten.
 
+## Security Gate
+
+MA008.09 fuehrt `RkwpSecurityConfiguration` und `RkwpSecurityGate` ein. Dieses Gate trennt Umgebung und Session-Modus:
+
+- Umgebung: `Development`, `Test`, `Staging`, `Production`
+- Session-Modus: `DevelopmentInsecure`, `Authenticated`, `Encrypted`, `EncryptedAndAuthenticated`, `ProductionRequired`
+
+Production erzwingt:
+
+- kein `DevelopmentInsecure`
+- SecureSessionRequired
+- AuditRequired
+- ReplayProtectionRequired
+- PolicyBindingRequired
+- MutualAuthenticationRequired
+- EncryptionRequired
+
+Development darf `DevelopmentInsecure` nur mit sichtbarer Warnung verwenden. Test darf ihn fuer nicht-produktive automatisierte Checks erlauben. Staging soll Production spiegeln und Lockerungen nur explizit dokumentieren.
+
+Details stehen in `Docs/Security/RKWP_SecurityGate.md`.
+
 ## Dev Transport Security
 
 MA008.01 fuehrt `NamedPipeDev` als lokalen RKWP Dev-Transport ein. Dieser Transport ist ausschliesslich fuer Entwicklung und Smoke Tests gedacht.

@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.08 fuehrt RKWP Diagnostics ein: persistierbares JSONL-Audit im Development-Modus, Session-Diagnostics und ein CLI-Smoke fuer Lease, Frame, Heartbeat, PolicyDenied, Return, Recovery und No File Ingress.
+MA008.09 fuehrt das RKWP Security Gate ein. Production lehnt `DevelopmentInsecure`, fehlenden Audit, fehlenden Replay-Schutz und fehlendes Policy Binding ab; Development/Test bleiben sichtbar als nicht-produktiv markiert.
 
 ## Naechster Fokus
 
-Nach MA008.08 liegt der Fokus auf Dev Security Gate. Offen bleiben macOS FrameGuestSurface, native mobile Surface Apps, netzwerkfaehiger DevTransport, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA008.09 liegt der Fokus auf MA008 Readiness, Next Actions und Integrations-Gate. Offen bleiben echte Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, netzwerkfaehiger DevTransport, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

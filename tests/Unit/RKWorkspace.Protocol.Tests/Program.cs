@@ -4,6 +4,7 @@ using RKWorkspace.Protocol;
 using RKWorkspace.Protocol.Diagnostics;
 using RKWorkspace.Protocol.Identity;
 using RKWorkspace.Protocol.Ownership;
+using RKWorkspace.Protocol.Security;
 using RKWorkspace.Surface.Abstractions;
 
 var root = FindRoot();
@@ -79,6 +80,12 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SequenceReplay", SequenceReplay),
     ("MissingNonceAndSequence", MissingNonceAndSequence),
     ("ValidSequence", ValidSequence),
+    ("SecurityGateProductionRejectsDevelopmentInsecure", SecurityGateProductionRejectsDevelopmentInsecure),
+    ("SecurityGateDevelopmentAllowsDevelopmentInsecure", SecurityGateDevelopmentAllowsDevelopmentInsecure),
+    ("SecurityGateProductionWithoutAuditFails", SecurityGateProductionWithoutAuditFails),
+    ("SecurityGateProductionWithoutReplayProtectionFails", SecurityGateProductionWithoutReplayProtectionFails),
+    ("SecurityGateProductionWithoutPolicyBindingFails", SecurityGateProductionWithoutPolicyBindingFails),
+    ("SecurityGateTestAndStagingDocumentBehavior", SecurityGateTestAndStagingDocumentBehavior),
     ("LeaseBinding", LeaseBinding),
     ("PolicyBinding", PolicyBinding),
     ("AuditEvents", AuditEvents),
@@ -1201,6 +1208,66 @@ static bool RkwpSessionDiagnosticsSummary()
            diagnostics.PolicyDeniedEvents == 1 &&
            diagnostics.RecoveredLeases == 1 &&
            diagnostics.NoFileIngressPassed;
+}
+
+static bool SecurityGateProductionRejectsDevelopmentInsecure()
+{
+    var decision = RkwpSecurityGate.Evaluate(
+        RkwpSecurityConfiguration.Production(),
+        RkwpSecurityMode.DevelopmentInsecure);
+    return !decision.Allowed &&
+           decision.SecureSessionRequired &&
+           decision.AuditRequired &&
+           decision.ReplayProtectionRequired &&
+           decision.PolicyBindingRequired &&
+           decision.Errors.Any(error => error.Contains("DevelopmentInsecure", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecurityGateDevelopmentAllowsDevelopmentInsecure()
+{
+    var decision = RkwpSecurityGate.Evaluate(
+        RkwpSecurityConfiguration.Development(),
+        RkwpSecurityMode.DevelopmentInsecure);
+    return decision.Allowed &&
+           decision.Warnings.Any(warning => warning.Contains("DevelopmentInsecure", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecurityGateProductionWithoutAuditFails()
+{
+    var configuration = RkwpSecurityConfiguration.Production() with { RequireAudit = false };
+    var decision = RkwpSecurityGate.Evaluate(configuration, RkwpSecurityMode.EncryptedAndAuthenticated);
+    return !decision.Allowed &&
+           decision.AuditRequired &&
+           decision.Errors.Any(error => error.Contains("audit", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecurityGateProductionWithoutReplayProtectionFails()
+{
+    var configuration = RkwpSecurityConfiguration.Production() with { RequireReplayProtection = false };
+    var decision = RkwpSecurityGate.Evaluate(configuration, RkwpSecurityMode.EncryptedAndAuthenticated);
+    return !decision.Allowed &&
+           decision.ReplayProtectionRequired &&
+           decision.Errors.Any(error => error.Contains("replay", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecurityGateProductionWithoutPolicyBindingFails()
+{
+    var configuration = RkwpSecurityConfiguration.Production() with { RequirePolicyBinding = false };
+    var decision = RkwpSecurityGate.Evaluate(configuration, RkwpSecurityMode.EncryptedAndAuthenticated);
+    return !decision.Allowed &&
+           decision.PolicyBindingRequired &&
+           decision.Errors.Any(error => error.Contains("policy", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecurityGateTestAndStagingDocumentBehavior()
+{
+    var test = RkwpSecurityGate.Evaluate(RkwpSecurityConfiguration.Test(), RkwpSecurityMode.DevelopmentInsecure);
+    var staging = RkwpSecurityGate.Evaluate(RkwpSecurityConfiguration.Staging(), RkwpSecurityMode.EncryptedAndAuthenticated);
+    return test.Allowed &&
+           test.Warnings.Any(warning => warning.Contains("Test", StringComparison.OrdinalIgnoreCase)) &&
+           staging.Allowed &&
+           staging.SecureSessionRequired &&
+           staging.Warnings.Any(warning => warning.Contains("Staging", StringComparison.OrdinalIgnoreCase));
 }
 
 static AblageIdentity DevAblageIdentity(string ablageId)

@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.08 RKWP Audit Viewer und Session Diagnostics vorbereitet. Naechster Schritt: MA008.09 Dev Security Gate.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.09 Dev Security Gate vorbereitet. Naechster Schritt: MA008.10 Readiness, Next Actions und Integrations-Gate.
 
 ## Implementierte Schichten
 
@@ -37,6 +37,7 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `tools/run-windows-owner-for-mac.ps1`
 - `src/Tools/RKWorkspace.RkwpDiagnostics`
 - `tools/run-rkwp-diagnostics.ps1`
+- `src/Protocol/RKWorkspace.Protocol/Security`
 
 ## Semantik
 
@@ -239,6 +240,18 @@ Smoke:
 ```
 
 Geprueft werden LeaseGranted, FrameOpened, Heartbeat, PolicyDenied, FrameReturned, RecoveredByOwner und No File Ingress.
+
+## RKWP Security Gate
+
+MA008.09 liefert:
+
+- `RkwpSecurityConfiguration`
+- `RkwpSecurityEnvironmentMode`
+- `RkwpSecurityGate`
+- `RkwpSecurityGateDecision`
+- `Docs/Security/RKWP_SecurityGate.md`
+
+Production lehnt `DevelopmentInsecure`, fehlenden Audit, fehlenden Replay-Schutz und fehlendes Policy Binding ab. Development/Test duerfen unsichere Modi nur sichtbar als nicht-produktiv verwenden.
 
 ## Context Pack
 

@@ -77,6 +77,13 @@ Ab MA007.03 muss jedes spaetere Transportprofil die Security-Vertraege tragen ko
 - Audit- und Revocation-Ereignisse muessen auch bei Verbindungsabbruch nachvollziehbar bleiben.
 - Produktive kritische Umgebungen duerfen `DevelopmentInsecure` nicht akzeptieren.
 
+Ab MA008.09 muss jedes Transportprofil vor produktiver Freigabe durch `RkwpSecurityGate` bewertet werden:
+
+- Development und Test duerfen unsichere Profile nur sichtbar markiert verwenden.
+- Staging soll Production spiegeln.
+- Production lehnt `DevelopmentInsecure`, fehlenden Audit, fehlenden Replay-Schutz und fehlendes Policy Binding ab.
+- `NamedPipeDev` bleibt Development-only.
+
 ## Nicht-Ziele
 
 - kein Datei-Streaming
