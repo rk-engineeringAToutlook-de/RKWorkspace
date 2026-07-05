@@ -32,6 +32,30 @@ public enum FramePermission
     Extract
 }
 
+public enum FrameInputType
+{
+    PointerMove,
+    PointerDown,
+    PointerUp,
+    Tap,
+    DoubleTap,
+    Scroll,
+    Zoom,
+    KeyboardText,
+    KeyboardCommand,
+    AnnotationStart,
+    AnnotationUpdate,
+    AnnotationEnd
+}
+
+public enum FramePointerKind
+{
+    Unknown,
+    Mouse,
+    Touch,
+    Pen
+}
+
 public sealed class FrameException : Exception
 {
     public FrameException(string message)
@@ -40,11 +64,49 @@ public sealed class FrameException : Exception
     }
 }
 
+public sealed class FrameInputPolicyException : Exception
+{
+    public FrameInputPolicyException(string message)
+        : base(message)
+    {
+    }
+}
+
+public sealed record FrameCoordinate(double X, double Y);
+
+public sealed record FrameDelta(double X, double Y, double Scale);
+
 public sealed record FrameInputEvent(
+    string InputEventId,
     string FrameSessionId,
-    string InputType,
-    IReadOnlyDictionary<string, string> Data,
+    string LeaseId,
+    string SourceAblageId,
+    string TargetAblageId,
+    long SequenceNumber,
+    FrameInputType InputType,
+    FrameCoordinate? Coordinates,
+    FrameDelta? Delta,
+    string? Text,
+    IReadOnlyList<string> Modifiers,
+    double? Pressure,
+    FramePointerKind PointerKind,
     DateTimeOffset Timestamp);
+
+public sealed record FrameInputValidationResult(
+    bool Accepted,
+    string Reason,
+    FrameInputEvent InputEvent)
+{
+    public static FrameInputValidationResult Accept(FrameInputEvent inputEvent)
+    {
+        return new FrameInputValidationResult(true, "Input accepted.", inputEvent);
+    }
+
+    public static FrameInputValidationResult Deny(FrameInputEvent inputEvent, string reason)
+    {
+        return new FrameInputValidationResult(false, reason, inputEvent);
+    }
+}
 
 public sealed record FrameUpdate(
     string FrameSessionId,
@@ -143,5 +205,107 @@ public sealed record FrameSession
     public FrameSession Expire(DateTimeOffset now)
     {
         return this with { State = FrameSessionState.Expired, UpdatedAt = now };
+    }
+}
+
+public static class FrameInputValidator
+{
+    public static FrameInputValidationResult Validate(
+        FrameInputEvent inputEvent,
+        CarryLease lease,
+        FrameSession frameSession,
+        FramePolicy policy,
+        IRkwpAuditSink? auditSink = null)
+    {
+        if (!string.Equals(inputEvent.LeaseId, lease.LeaseId, StringComparison.Ordinal) ||
+            !string.Equals(frameSession.LeaseId, lease.LeaseId, StringComparison.Ordinal))
+        {
+            return Deny(inputEvent, auditSink, lease, "Input LeaseId does not match active lease.");
+        }
+
+        if (!string.Equals(inputEvent.FrameSessionId, frameSession.FrameSessionId, StringComparison.Ordinal))
+        {
+            return Deny(inputEvent, auditSink, lease, "Input FrameSessionId does not match active frame session.");
+        }
+
+        if (inputEvent.SequenceNumber <= 0)
+        {
+            return Deny(inputEvent, auditSink, lease, "Input SequenceNumber must be positive.");
+        }
+
+        if (!frameSession.InputAllowed && inputEvent.InputType is not FrameInputType.Scroll and not FrameInputType.Zoom)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame session does not allow input.");
+        }
+
+        if (!policy.InputAllowed && inputEvent.InputType is not FrameInputType.Scroll and not FrameInputType.Zoom)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame policy does not allow input.");
+        }
+
+        if (IsPointer(inputEvent.InputType) && !policy.AllowPointer)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame policy does not allow pointer input.");
+        }
+
+        if (inputEvent.InputType == FrameInputType.Scroll && !policy.AllowScroll)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame policy does not allow scroll input.");
+        }
+
+        if (inputEvent.InputType == FrameInputType.Zoom && !policy.AllowZoom)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame policy does not allow zoom input.");
+        }
+
+        if (IsKeyboard(inputEvent.InputType) && !policy.AllowKeyboard)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame policy does not allow keyboard input.");
+        }
+
+        if (inputEvent.InputType == FrameInputType.KeyboardText && (!policy.AllowTextInput || !frameSession.EditAllowed))
+        {
+            return Deny(inputEvent, auditSink, lease, "Text input is not allowed for this frame.");
+        }
+
+        if (IsAnnotation(inputEvent.InputType) && !policy.AllowAnnotation)
+        {
+            return Deny(inputEvent, auditSink, lease, "Frame policy does not allow annotation input.");
+        }
+
+        return FrameInputValidationResult.Accept(inputEvent);
+    }
+
+    private static FrameInputValidationResult Deny(FrameInputEvent inputEvent, IRkwpAuditSink? auditSink, CarryLease lease, string reason)
+    {
+        auditSink?.Write(RkwpAuditEvent.Create(
+            RkwpAuditEventType.PolicyDenied,
+            lease.SessionId,
+            lease.LeaseId,
+            lease.ThingId,
+            reason,
+            inputEvent.Timestamp,
+            new Dictionary<string, string>
+            {
+                ["input-event-id"] = inputEvent.InputEventId,
+                ["input-type"] = inputEvent.InputType.ToString()
+            }));
+
+        return FrameInputValidationResult.Deny(inputEvent, reason);
+    }
+
+    private static bool IsPointer(FrameInputType inputType)
+    {
+        return inputType is FrameInputType.PointerMove or FrameInputType.PointerDown or FrameInputType.PointerUp or FrameInputType.Tap or FrameInputType.DoubleTap;
+    }
+
+    private static bool IsKeyboard(FrameInputType inputType)
+    {
+        return inputType is FrameInputType.KeyboardText or FrameInputType.KeyboardCommand;
+    }
+
+    private static bool IsAnnotation(FrameInputType inputType)
+    {
+        return inputType is FrameInputType.AnnotationStart or FrameInputType.AnnotationUpdate or FrameInputType.AnnotationEnd;
     }
 }

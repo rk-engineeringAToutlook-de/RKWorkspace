@@ -75,6 +75,14 @@ Vorgeschlagene naechste Optionen:
 
 FrameOnly erlaubt Anzeige, Scroll und Zoom. Editieren, Extrahieren und Ownership-Wechsel sind nicht automatisch erlaubt.
 
+## Input Channel
+
+MA007.06 bereitet den `FrameInputEvent`-Kanal vor. Eingabe bedeutet keinen Besitzwechsel und keine Dateiuebergabe. Jede Eingabe ist an `LeaseId`, `FrameSessionId`, `SequenceNumber` und eine `FramePolicy` gebunden.
+
+Unterstuetzt sind Pointer, Touch/Tap, Scroll, Zoom, Keyboard und Annotation-Events. `FrameInputValidator` lehnt nicht passende Lease- oder FrameSession-Bindungen, nicht positive Sequenzen und policywidrige Eingaben ab. Abgelehnte Eingaben erzeugen `PolicyDenied` im Audit.
+
+Kritische Defaults bleiben konservativ: ViewOnly lehnt Pointer/Input ab, Annotation und Keyboard sind ohne ausdrueckliche Policy verboten, und TextInput braucht einen editierbaren Frame.
+
 ## Revocation
 
 Eine Revocation invalidiert die FrameSession. Gruende sind unter anderem OwnerRequested, PolicyChanged, HeartbeatLost, SecurityViolation, Timeout, UserCancelled und GuestDisconnected. Das Ergebnis muss den Guest Frame ungueltig machen und das Ding beim Owner logisch entsperren.

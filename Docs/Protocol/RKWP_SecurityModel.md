@@ -47,6 +47,14 @@ Lease-bezogene Nachrichten muessen an `SessionId` und `LeaseId` gebunden sein. `
 
 `PolicyId`, `PolicyVersion` und optional `PolicyHash` werden an `CarryLease` und `FrameSession` gebunden. Aendert sich die Policy waehrend einer aktiven Session, ist V1 konservativ: Die Abweichung wird als `PolicyDenied` auditiert und die Session muss kontrolliert revokiert oder mit neuer Zustimmung neu aufgebaut werden.
 
+## Input Channel Schutz
+
+MA007.06 fuehrt eine erste policygebundene Input-Pruefung fuer Frames ein. `FrameInputEvent` muss an die aktive `CarryLease` und `FrameSession` gebunden sein. Falsche `LeaseId`, falsche `FrameSessionId`, nicht positive `SequenceNumber` oder nicht erlaubte Eingabearten werden abgelehnt und als `PolicyDenied` auditiert.
+
+Die `FramePolicy` trennt Pointer, Scroll, Zoom, Keyboard, TextInput, Annotation, Clipboard, Extract und System Shortcuts. Dadurch kann eine kritische Umgebung einen Frame sichtbar machen, aber fast alle Eingaben unterbinden.
+
+Der Input Channel bleibt ein Sicherheitsrisiko fuer spaetere Produktpfade. Produktive Umsetzungen muessen ihn mit Trust, Secure Session, Renderer-Sandboxing, Replay-Schutz und Audit koppeln.
+
 ## Audit, Revocation und Recovery
 
 `RkwpAuditEvent`, `RkwpAuditTrail` und `IRkwpAuditSink` dokumentieren sicherheitsrelevante Entscheidungen. Mindestereignisse sind SessionStart, LeaseGrant, FrameOpen, FrameReturn, Replay, PolicyDenied, Revocation und Recovery.

@@ -71,6 +71,8 @@ MA007.04 nutzt die Glass Edge als Ausloeser fuer den FrameOnly-Pfad. Die Kante z
 
 MA007.05 verbessert den PDF-Frame-Smoke: Die Gastablage meldet eine sichere Frame-Repräsentation, aber keine PDF-Datei, keinen Originalpfad und keine kopierten PDF-Bytes. Recovery verhindert weiterhin einen unendlichen Lock auf der Owner-Ablage.
 
+MA007.06 ergaenzt den Input Channel. Eingaben im Frame sind keine Besitzuebernahme. Sie werden an CarryLease und FrameSession gebunden, policygeprueft und bei Ablehnung auditiert. Annotationen und andere veraendernde Eingaben werden spaeter als ChangeSet zur Owner-Entscheidung vorbereitet, nicht als freie Datei auf der Gastablage.
+
 ## MA007.01 PDF FrameOnly Smoke
 
 Die erste echte Datei im Test ist `samples/Objects/Rechnung.pdf`. Sie bleibt auf der Owner-Ablage, wird waehrend der Lease logisch gesperrt und erscheint auf der Gastablage nur als Frame-Repräsentation.

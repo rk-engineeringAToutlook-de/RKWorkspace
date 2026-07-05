@@ -28,10 +28,10 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.05 verbessert den PDF-Frame-Pfad: Die Sample-PDF bleibt Original-Owned, die Gastablage sieht eine sichere Frame-Repräsentation mit vorbereiteten Scroll-/Zoom-Faehigkeiten, No File Ingress ist im Smoke geprueft. Echte Seitenrendering-Engine bleibt als Blocker dokumentiert.
+MA007.06 fuehrt den vorbereiteten Interactive Frame Input Channel ein. Die Sample-PDF bleibt Original-Owned, die Gastablage kann nur policygepruefte Frame-Eingaben erzeugen, und ViewOnly/Interactive/Annotate werden getrennt. Input bedeutet keinen Besitzwechsel; spaetere Aenderungen muessen als ChangeSet zur Owner-Entscheidung zuruecklaufen.
 
 ## Naechster Fokus
 
-Nach MA007.04 kann der Fokus auf echte Surface-Presenter, produktive Security, echte PDF-Seitenrendering-Pfade und Plattformadapter fuer macOS/iOS/iPadOS/Android gelegt werden. Entfernung und naechste Ablage bleiben Pflichtkontext.
+Nach MA007.06 liegt der Fokus auf ChangeSet/Return, Ownership-Transfer-Modellierung, echten Windows-Objektquellen, Plattform-Handoff fuer macOS/iOS/iPadOS/Android/Linux und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

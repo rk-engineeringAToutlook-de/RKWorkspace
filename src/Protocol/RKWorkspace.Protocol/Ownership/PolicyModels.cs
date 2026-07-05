@@ -43,7 +43,68 @@ public sealed record FramePolicy(
     bool InputAllowed,
     bool EditAllowed,
     bool ExtractAllowed,
-    string? PolicyHash = null);
+    bool AllowPointer,
+    bool AllowScroll,
+    bool AllowZoom,
+    bool AllowKeyboard,
+    bool AllowTextInput,
+    bool AllowAnnotation,
+    bool AllowClipboard,
+    bool AllowExtract,
+    bool AllowSystemShortcuts,
+    string? PolicyHash = null)
+{
+    public static FramePolicy CriticalViewOnly { get; } = new(
+        "policy-frame-critical-viewonly",
+        1,
+        FrameMode.ViewOnly,
+        InputAllowed: false,
+        EditAllowed: false,
+        ExtractAllowed: false,
+        AllowPointer: false,
+        AllowScroll: false,
+        AllowZoom: false,
+        AllowKeyboard: false,
+        AllowTextInput: false,
+        AllowAnnotation: false,
+        AllowClipboard: false,
+        AllowExtract: false,
+        AllowSystemShortcuts: false);
+
+    public static FramePolicy InteractiveView { get; } = new(
+        "policy-frame-interactive",
+        1,
+        FrameMode.Interactive,
+        InputAllowed: true,
+        EditAllowed: false,
+        ExtractAllowed: false,
+        AllowPointer: true,
+        AllowScroll: true,
+        AllowZoom: true,
+        AllowKeyboard: false,
+        AllowTextInput: false,
+        AllowAnnotation: false,
+        AllowClipboard: false,
+        AllowExtract: false,
+        AllowSystemShortcuts: false);
+
+    public static FramePolicy Annotate { get; } = new(
+        "policy-frame-annotate",
+        1,
+        FrameMode.Annotate,
+        InputAllowed: true,
+        EditAllowed: false,
+        ExtractAllowed: false,
+        AllowPointer: true,
+        AllowScroll: true,
+        AllowZoom: true,
+        AllowKeyboard: false,
+        AllowTextInput: false,
+        AllowAnnotation: true,
+        AllowClipboard: false,
+        AllowExtract: false,
+        AllowSystemShortcuts: false);
+}
 
 public sealed record ExtractionPolicy(
     string PolicyId,

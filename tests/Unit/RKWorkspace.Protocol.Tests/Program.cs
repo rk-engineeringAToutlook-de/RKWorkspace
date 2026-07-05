@@ -17,6 +17,14 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("FrameOnlyLease", FrameOnlyLease),
     ("FrameSessionStateMachine", FrameSessionStateMachine),
     ("FrameRevocationInvalidatesGuest", FrameRevocationInvalidatesGuest),
+    ("FrameInputViewOnlyRejectsInput", FrameInputViewOnlyRejectsInput),
+    ("FrameInputInteractiveAllowsScrollZoom", FrameInputInteractiveAllowsScrollZoom),
+    ("FrameInputAnnotateAllowsAnnotation", FrameInputAnnotateAllowsAnnotation),
+    ("FrameInputAnnotationDeniedWhenPolicyFalse", FrameInputAnnotationDeniedWhenPolicyFalse),
+    ("FrameInputBindingAndSequence", FrameInputBindingAndSequence),
+    ("FrameInputKeyboardDeniedWithoutPermission", FrameInputKeyboardDeniedWithoutPermission),
+    ("FrameInputPointerWithoutValidSessionDenied", FrameInputPointerWithoutValidSessionDenied),
+    ("FrameInputZoomDeniedWithoutPolicy", FrameInputZoomDeniedWithoutPolicy),
     ("HeartbeatMissingStartsGrace", HeartbeatMissingStartsGrace),
     ("LeaseRecovery", LeaseRecovery),
     ("OwnershipTransferGuard", OwnershipTransferGuard),
@@ -157,6 +165,94 @@ static bool FrameRevocationInvalidatesGuest()
     var revokedFrame = frame.Revoke(now.AddSeconds(1));
     return revokedLease.State == CarryLeaseState.Revoked &&
            revokedFrame.State == FrameSessionState.Revoked;
+}
+
+static bool FrameInputViewOnlyRejectsInput()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now).Ready(now).Activate(now);
+    var result = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.PointerMove, now), lease, frame, FramePolicy.CriticalViewOnly, audit);
+    return !result.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool FrameInputInteractiveAllowsScrollZoom()
+{
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Interactive, now).Ready(now).Activate(now);
+    var scroll = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Scroll, now), lease, frame, FramePolicy.InteractiveView);
+    var zoom = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Zoom, now, deltaScale: 1.2), lease, frame, FramePolicy.InteractiveView);
+    return scroll.Accepted && zoom.Accepted;
+}
+
+static bool FrameInputAnnotateAllowsAnnotation()
+{
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Annotate, now).Ready(now).Activate(now);
+    var annotation = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.AnnotationStart, now), lease, frame, FramePolicy.Annotate);
+    return annotation.Accepted;
+}
+
+static bool FrameInputAnnotationDeniedWhenPolicyFalse()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Annotate, now).Ready(now).Activate(now);
+    var annotation = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.AnnotationStart, now), lease, frame, FramePolicy.InteractiveView, audit);
+    return !annotation.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool FrameInputBindingAndSequence()
+{
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Interactive, now).Ready(now).Activate(now);
+    var badSequence = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Scroll, now, sequenceNumber: 0), lease, frame, FramePolicy.InteractiveView);
+    var wrongLease = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Scroll, now) with { LeaseId = "lease-wrong" }, lease, frame, FramePolicy.InteractiveView);
+    var wrongFrame = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Scroll, now) with { FrameSessionId = "frame-wrong" }, lease, frame, FramePolicy.InteractiveView);
+    var valid = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Scroll, now, sequenceNumber: 2), lease, frame, FramePolicy.InteractiveView);
+    return !badSequence.Accepted && !wrongLease.Accepted && !wrongFrame.Accepted && valid.Accepted;
+}
+
+static bool FrameInputKeyboardDeniedWithoutPermission()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Interactive, now).Ready(now).Activate(now);
+    var keyboard = FrameInputValidator.Validate(
+        Input(frame, lease, FrameInputType.KeyboardText, now) with { Text = "nicht direkt schreiben" },
+        lease,
+        frame,
+        FramePolicy.InteractiveView,
+        audit);
+    return !keyboard.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool FrameInputPointerWithoutValidSessionDenied()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Interactive, now).Ready(now).Activate(now);
+    var pointer = Input(frame, lease, FrameInputType.PointerMove, now) with { FrameSessionId = "frame-not-active" };
+    var result = FrameInputValidator.Validate(pointer, lease, frame, FramePolicy.InteractiveView, audit);
+    return !result.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+}
+
+static bool FrameInputZoomDeniedWithoutPolicy()
+{
+    var now = DateTimeOffset.UtcNow;
+    var audit = new InMemoryRkwpAuditSink();
+    var lease = CarryLease.Grant("thing-1", "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var frame = FrameSession.Open(lease, FrameMode.Interactive, now).Ready(now).Activate(now);
+    var noZoomPolicy = FramePolicy.InteractiveView with { AllowZoom = false };
+    var zoom = FrameInputValidator.Validate(Input(frame, lease, FrameInputType.Zoom, now, deltaScale: 1.1), lease, frame, noZoomPolicy, audit);
+    return !zoom.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
 }
 
 static bool HeartbeatMissingStartsGrace()
@@ -400,6 +496,31 @@ static bool RecoveryHardening()
            connectionLost.FinalState == CarryLeaseState.RecoveredByOwner &&
            returned.Reason == CarryLeaseRecoveryReason.Returned &&
            returned.FinalState == CarryLeaseState.Returned;
+}
+
+static FrameInputEvent Input(
+    FrameSession frame,
+    CarryLease lease,
+    FrameInputType inputType,
+    DateTimeOffset timestamp,
+    long sequenceNumber = 1,
+    double deltaScale = 1.0)
+{
+    return new FrameInputEvent(
+        $"input-{Guid.NewGuid():N}",
+        frame.FrameSessionId,
+        lease.LeaseId,
+        lease.GuestAblageId,
+        lease.OwnerAblageId,
+        sequenceNumber,
+        inputType,
+        new FrameCoordinate(0.5, 0.5),
+        new FrameDelta(0.0, 120.0, deltaScale),
+        null,
+        Array.Empty<string>(),
+        null,
+        FramePointerKind.Mouse,
+        timestamp);
 }
 
 static bool Throws<TException>(Action action)
