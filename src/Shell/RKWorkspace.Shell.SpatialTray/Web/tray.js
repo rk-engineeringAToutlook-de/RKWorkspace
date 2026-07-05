@@ -19,6 +19,7 @@ let canPickHere = false;
 let isPicked = false;
 let mobileSpatialMode = false;
 let mobileSpatialPayload = null;
+let mobileGlassEdgePayload = null;
 let mobileGestureTimer = 0;
 let mobileGesturePointerId = null;
 let carryAnnounced = false;
@@ -58,6 +59,22 @@ function softHaptic(pattern) {
     if ("vibrate" in navigator) {
         navigator.vibrate(pattern);
     }
+}
+
+async function activateMobileGlassEdgeMode() {
+    mobileGlassEdgePayload = await post("/api/mobile/glass-edge-gesture", { gesture: "long-touch" });
+    document.body.classList.toggle("is-single-glass-edge", Boolean(mobileGlassEdgePayload?.glassEdgeVisible));
+    let edge = document.querySelector(".glass-edge");
+    if (!edge) {
+        edge = document.createElement("div");
+        edge.className = "glass-edge";
+        document.querySelector(".surface-shell")?.append(edge);
+    }
+
+    edge.dataset.direction = mobileGlassEdgePayload?.nearestAblage?.direction || "Right";
+    edge.hidden = !mobileGlassEdgePayload?.glassEdgeVisible;
+    softHaptic([10, 18, 10]);
+    return mobileGlassEdgePayload;
 }
 
 function clamp(value, min, max) {

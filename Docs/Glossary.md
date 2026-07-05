@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.18.0
+Version: 1.19.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -38,6 +38,10 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Glide Into Bubble | In die Bubble gleiten | Sichtbarer Uebergang, bei dem ein getragenes Ding in eine geoeffnete Ablage-Bubble hinein gleitet. | Kein Sprung, kein Teleport und kein Versandgefuehl. |
 | Spatial Portal Carry | Raeumliches Portal-Tragen | Wahrnehmungspfad, bei dem ein Ding aus der Quelle in eine oeffnende Ablage am Rand eintritt und als Ghost im Ziel auftaucht. | Keine echte Portaltechnik, kein Netzwerk und kein Transferstatus. |
 | Ablage Portal | Ablage-Portal | Geoeffnete Ablage-Bubble, die wie ein ruhiger Durchgang in eine andere Ablage wirkt. | Keine Drop-Zone, kein Button, keine technische Zielmarkierung. |
+| Glass Edge | Glaeserne Kante | Eine transparente Kante am Rand der aktuellen Ablage, die genau die naechste sinnvolle Ablage zeigt. | Kein Bubble-Feld, kein Radar, keine Geraeteauswahl. |
+| Nearest Ablage | Naechste Ablage | Die vom Proximity-Selector bestimmte beste Zielablage nach Entfernung, Confidence, Richtung und Stabilitaet. | Nicht mehrere Ziele gleichzeitig anzeigen. |
+| Ablage Proximity | Ablage-Naehe | Modell fuer Entfernung, Richtung, Confidence und Messquelle zwischen Ablagen. | In MA006.13 simuliert; keine echte Discovery. |
+| Ablage Anchor Dongle | Ablage-Anker-Dongle | Spaetere Hardware, die eine Ablage im Raum repraesentiert und Naehe/Richtung liefern kann. | Kein Transferstick und kein Payload-Speicher. |
 | Surface Overlay Reset | Surface Overlay Reset | MA006.07-Korrektur, die Radar-/Statusseiten-UI verwirft und die Surface auf Ablage, Ding, Hand und periphere Moeglichkeiten reduziert. | Keine Karte, keine Statusseite, keine App als Erlebnis. |
 | Native Spatial Overlay | Natives Spatial Overlay | Windows-spezifischer transparenter Overlay-Slice ueber dem echten Desktop ohne Browser oder WebView. | Nicht als App-Fenster, Web-Prototyp oder Statusseite verstehen. |
 | Native Overlay Slice | Nativer Overlay-Slice | Erste isolierte native Umsetzung fuer digitale Hand, Bubble-Linsen, Portal und Zielposition ueber dem echten Desktop. | Noch keine finale Shell und keine globale OS-Integration. |

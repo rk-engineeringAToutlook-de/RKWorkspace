@@ -1,7 +1,7 @@
 # Mobile Spatial Surface
 
 Dokument-ID: RKWS-MOBILE-SPATIAL-SURFACE
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -22,6 +22,15 @@ Smoke-Test:
 ```powershell
 .\tools\run-mobile-spatial-surface.ps1 -SmokeTest
 ```
+
+MA006.13 ergaenzt den neuen Glass-Edge-Testpfad:
+
+```powershell
+.\tools\run-mobile-glass-edge.ps1
+.\tools\run-mobile-glass-edge.ps1 -SmokeTest
+```
+
+Dieser Pfad zeigt nach einer Geste genau eine gläserne Kante zur naechsten Ablage und bereitet Gegenkante, Ghost und Haptik vor.
 
 Das Script gibt eine URL aus:
 

@@ -1,7 +1,7 @@
 # Visual Reality Blueprint
 
 Dokument-ID: RKWS-VISUAL-REALITY-BLUEPRINT
-Version: 1.27.0
+Version: 1.28.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -10,6 +10,8 @@ Datum: 2026-07-04
 Eine Ablage-Linse ist keine Schaltflaeche.
 
 Sie ist eine lebendige raeumliche Oeffnung zu einer anderen Ablage.
+
+MA006.13 korrigiert diese Richtung: Im Produktpfad wird aus vielen Linsen/Bubbles eine einzige gläserne Kante zur naechsten Ablage. Das Zielgefuehl bleibt `Dort geht mein Raum weiter`, aber die Darstellung wird ruhiger und eindeutiger.
 
 ## Ziel
 

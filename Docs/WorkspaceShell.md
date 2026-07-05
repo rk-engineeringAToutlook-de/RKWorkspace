@@ -1,7 +1,7 @@
 # Workspace Shell
 
 Dokument-ID: RKWS-WORKSPACE-SHELL
-Version: 1.37.0
+Version: 1.38.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -58,6 +58,23 @@ Aktuelle Architekturdateien:
 - `WorkspaceObject.cs`
 
 Die Foundation enthaelt nur neutrale Architekturmodelle. Sie enthaelt keine Betriebssystemintegration, keine Fensterlogik, keine Netzwerkfunktion, keine Discovery, kein Pairing und keine Transportlogik.
+
+## Single Glass Edge
+
+MA006.13 fuegt Shell-nahe Ablage-Proximity-Modelle hinzu. Die Shell kann damit eine simulierte Raumkarte auswerten und genau eine naechste Ablage bestimmen.
+
+Neue Modelle:
+
+- `AblageIdentity`
+- `AblageSurface`
+- `AblageProximitySnapshot`
+- `AblageDistance`
+- `AblageDirection`
+- `NearestAblageResult`
+- `GlassEdge`
+- `WorkspaceSurfaceHandoff`
+
+Der sichtbare Produktpfad ist nicht mehr ein Feld aus Bubbles. Der Raum zeigt nur die naechste sinnvolle Ablage als gläserne Kante.
 
 ## Runtime Host
 

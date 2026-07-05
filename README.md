@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.54.0
+Version: 2.55.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -81,6 +81,8 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA006.12 fuehrt den Real3D Lens Renderer ein: ein separater WebGL-/Three.js-Look-Slice mit echter 3D-Szene, MeshPhysicalMaterial, Transmission, IOR, Thickness, Environment Lighting, Soft Shadows, Tunnelgeometrie und optionaler Desktop-Live-Textur.
 - MA006.13 korrigiert den Produktpfad: Real3D bleibt Look-Labor, waehrend `NativeGlassOverlay.Windows` als natives transparentes Desktop-Overlay ohne Browser, ohne WebView und ohne synthetische Buehne startet.
 - Der Extreme Tunnel / Bubble FX Spike fuehrt fuenf sofort testbare Presets ein: Extreme Glass Bubble, Extreme Water Lens, Extreme Wormhole Tunnel, Extreme Gravity Well und Extreme Portal Absorption. `EffectIntensity`, Timing-Varianten, verstecktes Debug, staerkere Absorption, Visual Targets und Mobile Spatial Surface fuer Tablet/iPhone sind vorbereitet.
+- MA006.13 fokussiert den Produktpfad auf Single Glass Edge: Wenn ein Ding genommen wird, zeigt RK Workspace genau eine gläserne Kante zur naechsten passenden Ablage. Viele Bubbles, Radar-Optik und mehrere Zielpunkte sind nicht mehr Hauptpfad.
+- Die neue Ablage-Proximity-Schicht bereitet simulierte Entfernung, Richtung, Confidence, Windows/macOS/iOS/Android-Surfaces, Gegenkante, Ziel-Ghost und spaetere Provider fuer BLE, UWB, WiFi, Dongle und Sensorfusion vor.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.

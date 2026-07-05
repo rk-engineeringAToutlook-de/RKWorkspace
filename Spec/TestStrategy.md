@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.36.0
+Version: 2.37.0
 Status: Accepted  
 Datum: 2026-07-04
 
@@ -80,6 +80,8 @@ Der Premiumblock ergaenzt diesen Test um saubere Desktop-Plates, Selbst-Sampling
 Der zweite Premiumblock ergaenzt fließende Pickup-Skalierung, geglaettete Linsenannaeherung, feinere Glasoptik und hochaufloesende Vektoroptik. Damit wird getestet, dass das Ding beim Greifen nicht sprunghaft kleiner wird und die Blase nicht hart anspringt.
 
 Der dritte Premiumblock ergaenzt Live-Desktop-Refraction, Capture-Ausschluss, stabileren Lens-Center-Lock und Mikro-Highlights. Damit wird festgehalten, dass die Blase wieder auf den aktuellen Hintergrund reagieren soll, ohne das eigene Overlay als Echo einzusampeln.
+
+Ab MA006.13 pruefen `tools/run-glass-edge.ps1 -SmokeTest` und `tools/run-mobile-glass-edge.ps1 -SmokeTest` den neuen Single-Glass-Edge-Hauptpfad. Geprueft werden simulierte Ablage-Proximity, genau eine naechste Ablage, Richtung, Distanz-Intensitaet, drei Edge-Absorption-Varianten, Gegenkante, Ziel-Ghost, Zielposition, Windows/macOS/iOS/Android-Contracts, mobile Haptik und ExportFrames.
 
 ## MA003.05 Core Integration Tests
 

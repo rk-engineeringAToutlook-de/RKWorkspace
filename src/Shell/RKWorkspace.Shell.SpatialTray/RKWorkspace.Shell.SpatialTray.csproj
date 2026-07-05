@@ -11,4 +11,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
+  </ItemGroup>
 </Project>

@@ -75,21 +75,21 @@ public sealed class GpuLivingLensWindow : Window
         if (e.Key is Key.D1 or Key.NumPad1)
         {
             e.Handled = true;
-            _surface.SetLensLook(GpuLivingLensLook.GlassBubble);
+            _surface.SetEdgeAbsorptionVariant(GlassEdgeAbsorptionVariant.WholeEdge);
             return;
         }
 
         if (e.Key is Key.D2 or Key.NumPad2)
         {
             e.Handled = true;
-            _surface.SetLensLook(GpuLivingLensLook.WaterLens);
+            _surface.SetEdgeAbsorptionVariant(GlassEdgeAbsorptionVariant.FocusPoint);
             return;
         }
 
         if (e.Key is Key.D3 or Key.NumPad3)
         {
             e.Handled = true;
-            _surface.SetLensLook(GpuLivingLensLook.Wormhole);
+            _surface.SetEdgeAbsorptionVariant(GlassEdgeAbsorptionVariant.DirectionalSlot);
             return;
         }
 

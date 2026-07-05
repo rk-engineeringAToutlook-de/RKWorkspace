@@ -1,7 +1,7 @@
 # Workspace Adapter Model
 
 Dokument-ID: RKWS-WORKSPACE-ADAPTER-MODEL
-Version: 1.0.0
+Version: 1.1.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -55,6 +55,10 @@ Workspace Objects gehoeren nicht Geraeten.
 Workspace Objects gehoeren Workspace Sessions.
 
 Der Adapter liefert nur die Uebersetzung.
+
+## Beziehung Zur Glass Edge
+
+MA006.13 aendert nicht die Adapter-Aufgabe. Adapter erzeugen weiterhin nur Workspace Objects. Die Entscheidung, welche Ablage als naechste gläserne Kante erscheint, liegt in der Shell-nahen Ablage-Proximity-Schicht, nicht im Adapter.
 
 ## Adapter-Vertrag V0
 

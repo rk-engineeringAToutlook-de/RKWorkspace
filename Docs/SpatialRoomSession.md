@@ -1,7 +1,7 @@
 # Spatial Room Session
 
 Dokument-ID: RKWS-SPATIAL-ROOM-SESSION
-Version: 1.7.0
+Version: 1.8.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -62,6 +62,8 @@ MA006.04 fuehrt Oberflaechen ein:
 Jede Surface ist eine Ablage im Raum.
 
 Handy, Tablet, Monitor, Desktop und Beamer sind in der Wahrnehmung keine Geraete. Sie sind Orte, auf denen ein Ding liegen, ankommen oder genommen werden kann.
+
+Ab MA006.13 werden diese Orte nicht mehr als mehrere Bubbles gleichzeitig angeboten. Der neue Hauptpfad zeigt genau eine naechste Ablage als gläserne Kante. Die Spatial Room Session bleibt das gemeinsame Raummodell; die Kante ist nur die ruhigere Darstellung der naechsten Moeglichkeit.
 
 Ab dem Tablet-Testpfad ist `/surface/tablet` die Default-Ablage. Das erste digitale Ding liegt initial auf dem Tablet, damit der Owner den mobilen Gefuehlstest auf der groesseren Handflaeche fortsetzen kann. Handy bleibt eine normale Ablage im selben Raum.
 

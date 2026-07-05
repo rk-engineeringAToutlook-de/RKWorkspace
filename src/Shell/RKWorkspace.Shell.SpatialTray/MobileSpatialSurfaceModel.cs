@@ -1,5 +1,7 @@
 namespace RKWorkspace.Shell.SpatialTray;
 
+using RKWorkspace.Shell;
+
 public static class MobileSpatialSurfaceModel
 {
     public const double MobileLensNameRevealThreshold = 0.62;
@@ -34,6 +36,66 @@ public static class MobileSpatialSurfaceModel
                 Lens("tablet", "Ablage", "Medium", 0.13, 0.16, 0.72, 0.46, false, false, "Visible"),
                 Lens("iphone", "Ablage", "Near", 0.16, 0.62, 0.98, 0.72, true, false, "Visible"),
                 Lens("beamer", "Ablage", "Far", 0.84, 0.14, 0.52, 0.26, false, false, "Distant")
+            }
+        };
+    }
+
+    public static object ActivateGlassEdgeGesture()
+    {
+        var current = SimulatedAblageProximityProvider.WindowsAblageId;
+        var selector = new NearestAblageSelector();
+        var nearest = selector.Select(new SimulatedAblageProximityProvider().GetSnapshot(current));
+        var edge = GlassEdge.FromNearest(nearest, GlassEdgeState.Near, 0.72, 0.0);
+        var profile = GlassEdgeVisualProfile.FromDistance(nearest.Distance);
+
+        return new
+        {
+            mobileGlassEdgeMode = "Active",
+            gesture = "long-touch",
+            glassEdgeVisible = edge.IsVisible,
+            visibleGlassEdges = edge.IsVisible ? 1 : 0,
+            forbiddenWordsVisible = false,
+            nearestAblage = new
+            {
+                ablageId = nearest.TargetAblageId?.Value,
+                displayName = nearest.TargetDisplayName,
+                platform = nearest.Platform.ToString(),
+                direction = nearest.EdgeHint.ToString(),
+                distance = nearest.Distance.ToString(),
+                confidence = nearest.Confidence,
+                source = nearest.Source.ToString()
+            },
+            glassEdge = new
+            {
+                direction = edge.Direction.ToString(),
+                counterDirection = edge.CounterDirection.ToString(),
+                state = edge.State.ToString(),
+                edge.AppearanceProgress,
+                edge.ActivationProgress,
+                edge.AbsorptionProgress,
+                edge.TargetEmergenceProgress,
+                profile.Opacity,
+                profile.Thickness,
+                profile.Glow,
+                profile.NameRevealThreshold,
+                profile.ActivationThreshold,
+                absorptionVariants = new[] { "WholeEdge", "FocusPoint", "DirectionalSlot" },
+                textWhenNear = "Hier ablegen"
+            },
+            incomingGhost = new
+            {
+                visible = true,
+                counterEdge = edge.CounterDirection.ToString(),
+                emergenceProgress = 0.44,
+                placement = new { x = 0.62, y = 0.42, simulated = true }
+            },
+            haptics = new
+            {
+                requested = true,
+                mode = "navigator.vibrate-or-optical",
+                skippedSafely = true,
+                opticalFallback = true,
+                moments = Enum.GetNames<SurfaceHapticMoment>()
             }
         };
     }

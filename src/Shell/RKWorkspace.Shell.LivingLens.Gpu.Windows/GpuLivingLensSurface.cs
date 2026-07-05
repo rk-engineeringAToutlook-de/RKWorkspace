@@ -18,15 +18,22 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     private readonly GpuLivingLensSession _session = new();
     private readonly StopwatchClock _clock = new();
     private readonly Dictionary<string, BitmapSource> _lensSamples = new();
+    private readonly Dictionary<string, double> _lensActivationLevels = new();
+    private readonly IAblageProximityProvider _proximityProvider = new SimulatedAblageProximityProvider();
+    private readonly INearestAblageSelector _nearestSelector = new NearestAblageSelector();
+    private readonly AblageIdentity _currentAblageId = SimulatedAblageProximityProvider.WindowsAblageId;
     private WPoint _thingCenter;
     private WPoint _targetCenter;
     private WPoint _lastTargetCenter;
     private WPoint _activeLensCenter;
+    private NearestAblageResult _nearestAblage;
     private Vector _velocity;
     private Vector _grabOffset;
     private GpuLivingLensLook _lensLook = GpuLivingLensLook.Hybrid;
+    private GlassEdgeAbsorptionVariant _edgeAbsorptionVariant = GlassEdgeAbsorptionVariant.WholeEdge;
     private bool _isHolding;
     private int _sampleFrame;
+    private int _glassPreSampleFrame;
     private double _phase;
 
     public GpuLivingLensSurface(WorkspaceShellRuntime runtime, System.Drawing.Rectangle screenBounds)
@@ -44,6 +51,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         _targetCenter = _thingCenter;
         _lastTargetCenter = _thingCenter;
         _activeLensCenter = new WPoint(screenBounds.Width - 88, screenBounds.Height * 0.50);
+        _nearestAblage = _nearestSelector.Select(_proximityProvider.GetSnapshot(_currentAblageId));
         _session.SetLensLook(_lensLook);
         WarmCleanDesktopPlates();
     }
@@ -75,6 +83,12 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         InvalidateVisual();
     }
 
+    public void SetEdgeAbsorptionVariant(GlassEdgeAbsorptionVariant variant)
+    {
+        _edgeAbsorptionVariant = variant;
+        InvalidateVisual();
+    }
+
     public void ToggleDebug()
     {
         _session.ToggleDebug();
@@ -83,14 +97,14 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     public void OpenActiveLens()
     {
-        _activeLensCenter = NearestLensCenter(_thingCenter);
+        _activeLensCenter = GlassEdgeCenter();
         _session.OpenLens();
         InvalidateVisual();
     }
 
     public void PlayAbsorption()
     {
-        _activeLensCenter = NearestLensCenter(_thingCenter);
+        _activeLensCenter = GlassEdgeCenter();
         _targetCenter = _thingCenter;
         _lastTargetCenter = _thingCenter;
         _isHolding = false;
@@ -123,6 +137,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         Cursor = WCursors.Arrow;
+        _lensActivationLevels.Clear();
         _session.ResetExperiment();
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Empty, "HX-000");
         InvalidateVisual();
@@ -148,6 +163,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var elapsed = _clock.TakeElapsedMilliseconds();
         _phase += elapsed / 1000.0;
         _session.Advance(elapsed);
+        RefreshNearestAblage();
 
         var delta = _targetCenter - _thingCenter;
         var spring = _isHolding ? 0.34 : 0.16;
@@ -161,6 +177,8 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             _session.Carry((float)(_velocity.X * 1.12), (float)(_velocity.Y * 1.12));
         }
 
+        UpdateLensActivationLevels(elapsed);
+        PrimeGlassDesktopSamples();
         InvalidateVisual();
     }
 
@@ -213,10 +231,11 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var point = ProjectThroughScreenEdge(e.GetPosition(this));
         _targetCenter = point - _grabOffset;
         _lastTargetCenter = _targetCenter;
-        _activeLensCenter = ResolveActiveLensCenter(_targetCenter);
-        if (IsNearLens(_targetCenter, 210))
+        _activeLensCenter = GlassEdgeCenter();
+        var edgeNearness = NormalizedGlassEdgeNearness(_targetCenter);
+        if (edgeNearness > 0.02)
         {
-            _session.ApproachLens((float)NormalizedLensNearness(_targetCenter));
+            _session.ApproachLens((float)edgeNearness);
         }
         else
         {
@@ -236,9 +255,9 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         _isHolding = false;
         ReleaseMouseCapture();
         Cursor = WCursors.Arrow;
-        if (IsNearLens(_targetCenter, 210))
+        if (NormalizedGlassEdgeNearness(_targetCenter) >= GlassEdgeVisualProfile.FromDistance(_nearestAblage.Distance).ActivationThreshold)
         {
-            _activeLensCenter = NearestLensCenter(_targetCenter);
+            _activeLensCenter = GlassEdgeCenter();
             _session.ApproachLens(1f);
             _session.PlaceIntoLens();
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
@@ -269,7 +288,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         var text = new FormattedText(
-            $"Look: {LensLookLabel(_lensLook)}   FX {_session.EffectIntensity}   {_session.AbsorptionDurationMilliseconds}ms   1 Glas   2 Wasser   3 Tunnel   4 Schwerkraft   5 Portal   A/O/T +/- R Esc",
+            $"Glass Edge: {_nearestAblage.TargetDisplayName} {_nearestAblage.EdgeHint}   Variante {(int)_edgeAbsorptionVariant}   {_session.AbsorptionDurationMilliseconds}ms   1 Kante   2 Fokus   3 Spalt   A/O/T +/- R Esc",
             CultureInfo.CurrentCulture,
             System.Windows.FlowDirection.LeftToRight,
             new Typeface("Segoe UI"),
@@ -290,20 +309,142 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return;
         }
 
-        foreach (var center in LensCenters())
-        {
-            var activation = LensActivation(center);
-            if (activation <= 0.02)
-            {
-                continue;
-            }
+        DrawSingleGlassEdge(drawingContext);
+    }
 
-            DrawLens(drawingContext, center, activation);
+    private void DrawSingleGlassEdge(DrawingContext drawingContext)
+    {
+        if (!_nearestAblage.HasTarget)
+        {
+            return;
         }
+
+        var direction = _nearestAblage.EdgeHint;
+        var profile = GlassEdgeVisualProfile.FromDistance(_nearestAblage.Distance);
+        var nearness = NormalizedGlassEdgeNearness(_targetCenter);
+        var emergence = EaseOut(_session.LensEmergence);
+        var open = EaseOut(_session.LensOpen);
+        var absorption = Math.Clamp(_session.Absorption, 0.0, 1.0);
+        var activation = Math.Clamp((nearness * 0.62) + (open * 0.24) + (absorption * 0.28), 0.0, 1.0);
+        var edge = GlassEdge.FromNearest(
+            _nearestAblage,
+            absorption > 0.01
+                ? GlassEdgeState.Absorbing
+                : activation > profile.ActivationThreshold
+                    ? GlassEdgeState.Opening
+                    : nearness > 0.22
+                        ? GlassEdgeState.Near
+                        : GlassEdgeState.Visible,
+            activation,
+            absorption);
+        var thickness = profile.Thickness * (0.72 + (edge.AppearanceProgress * 0.34) + (open * 0.22));
+        var bounds = GlassEdgeBounds(direction, thickness);
+        var opacity = profile.Opacity * emergence * (0.48 + (edge.ActivationProgress * 0.52));
+
+        drawingContext.DrawRectangle(GlassEdgeMaterialBrush(direction, opacity), null, bounds);
+
+        var rimAlpha = (byte)Math.Clamp(54 + (edge.ActivationProgress * 86), 28, 146);
+        var darkAlpha = (byte)Math.Clamp(52 + (edge.ActivationProgress * 68), 28, 136);
+        var glintAlpha = (byte)Math.Clamp(28 + (edge.ActivationProgress * 74), 18, 116);
+        DrawGlassEdgeLine(drawingContext, direction, new WPen(new SolidColorBrush(WColor.FromArgb(darkAlpha, 7, 22, 26)), 1.45), thickness * 0.86);
+        DrawGlassEdgeLine(drawingContext, direction, new WPen(new SolidColorBrush(WColor.FromArgb(rimAlpha, 120, 230, 238)), 1.16), thickness * 0.32);
+        DrawGlassEdgeLine(drawingContext, direction, new WPen(new SolidColorBrush(WColor.FromArgb(glintAlpha, 255, 255, 255)), 0.72), thickness * 0.08);
+
+        DrawGlassEdgeSlot(drawingContext, direction, edge, thickness);
+
+        if (nearness >= profile.NameRevealThreshold)
+        {
+            DrawGlassEdgeHint(drawingContext, direction, activation >= profile.ActivationThreshold ? "Hier ablegen" : _nearestAblage.TargetDisplayName);
+        }
+    }
+
+    private void DrawGlassEdgeSlot(DrawingContext drawingContext, AblageDirection direction, GlassEdge edge, double thickness)
+    {
+        var point = GlassEdgeEntryPoint(_targetCenter, direction, _edgeAbsorptionVariant);
+        var slotLength = 98 + (edge.ActivationProgress * 146);
+        var slotWidth = Math.Max(10, thickness * (0.22 + edge.ActivationProgress * 0.28));
+        var slot = direction switch
+        {
+            AblageDirection.Left => new Rect(0, point.Y - slotLength / 2, slotWidth, slotLength),
+            AblageDirection.Right => new Rect(RenderWidth() - slotWidth, point.Y - slotLength / 2, slotWidth, slotLength),
+            AblageDirection.Up => new Rect(point.X - slotLength / 2, 0, slotLength, slotWidth),
+            AblageDirection.Down => new Rect(point.X - slotLength / 2, RenderHeight() - slotWidth, slotLength, slotWidth),
+            _ => new Rect(RenderWidth() - slotWidth, point.Y - slotLength / 2, slotWidth, slotLength)
+        };
+
+        var slotBrush = new RadialGradientBrush
+        {
+            Center = new WPoint(0.5, 0.5),
+            RadiusX = 0.78,
+            RadiusY = 0.64,
+            Opacity = 0.32 + edge.ActivationProgress * 0.42
+        };
+        slotBrush.GradientStops.Add(new GradientStop(WColor.FromArgb(92, 238, 255, 255), 0.0));
+        slotBrush.GradientStops.Add(new GradientStop(WColor.FromArgb(48, 92, 210, 224), 0.52));
+        slotBrush.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawRectangle(slotBrush, null, slot);
+    }
+
+    private void DrawGlassEdgeHint(DrawingContext drawingContext, AblageDirection direction, string text)
+    {
+        var formatted = new FormattedText(
+            text,
+            CultureInfo.CurrentCulture,
+            System.Windows.FlowDirection.LeftToRight,
+            new Typeface("Segoe UI Semibold"),
+            13,
+            new SolidColorBrush(WColor.FromArgb(156, 31, 45, 44)),
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        var padding = 10.0;
+        var width = formatted.Width + padding * 2;
+        var height = formatted.Height + padding;
+        var x = direction switch
+        {
+            AblageDirection.Left => 22,
+            AblageDirection.Right => RenderWidth() - width - 22,
+            _ => (RenderWidth() - width) / 2
+        };
+        var y = direction switch
+        {
+            AblageDirection.Up => 22,
+            AblageDirection.Down => RenderHeight() - height - 22,
+            _ => (RenderHeight() - height) / 2
+        };
+        var rect = new Rect(x, y, width, height);
+        drawingContext.DrawRoundedRectangle(new SolidColorBrush(WColor.FromArgb(64, 246, 252, 250)), new WPen(new SolidColorBrush(WColor.FromArgb(38, 255, 255, 255)), 0.8), rect, 6, 6);
+        drawingContext.DrawText(formatted, new WPoint(rect.X + padding, rect.Y + padding / 2));
+    }
+
+    private System.Windows.Media.Brush GlassEdgeMaterialBrush(AblageDirection direction, double opacity)
+    {
+        var points = direction switch
+        {
+            AblageDirection.Left => (Start: new WPoint(0, 0), End: new WPoint(1, 0)),
+            AblageDirection.Right => (Start: new WPoint(1, 0), End: new WPoint(0, 0)),
+            AblageDirection.Up => (Start: new WPoint(0, 0), End: new WPoint(0, 1)),
+            AblageDirection.Down => (Start: new WPoint(0, 1), End: new WPoint(0, 0)),
+            _ => (Start: new WPoint(1, 0), End: new WPoint(0, 0))
+        };
+        var brush = new LinearGradientBrush
+        {
+            StartPoint = points.Start,
+            EndPoint = points.End,
+            Opacity = opacity
+        };
+        brush.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
+        brush.GradientStops.Add(new GradientStop(WColor.FromArgb(20, 235, 252, 252), 0.30));
+        brush.GradientStops.Add(new GradientStop(WColor.FromArgb(72, 140, 224, 235), 0.74));
+        brush.GradientStops.Add(new GradientStop(WColor.FromArgb(42, 6, 18, 22), 1.0));
+        return brush;
     }
 
     public GpuLivingLensShaderSnapshot CreateShaderSnapshot()
     {
+        if (_nearestAblage.HasTarget)
+        {
+            return default;
+        }
+
         if (_session.LensEmergence <= 0.001f)
         {
             return default;
@@ -366,49 +507,62 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         var bounds = LensBounds(center, activation);
         var throatCenter = TunnelThroatPoint(bounds, center, open);
         var profile = LensVisualProfile.For(_lensLook);
+        var trueGlassBubble = _lensLook == GpuLivingLensLook.GlassBubble;
+        var materialOpen = trueGlassBubble ? 0.0 : open;
 
         var desktopSample = UpdateDesktopSample(bounds, center, activation);
-        DrawLensContactShadow(drawingContext, bounds, center, open, profile);
+        DrawLensContactShadow(drawingContext, bounds, center, materialOpen, profile);
 
         var clip = new EllipseGeometry(bounds);
         drawingContext.PushClip(clip);
         if (desktopSample is not null)
         {
-            var refracted = new Rect(
-                bounds.X - (bounds.Width * profile.RefractionOverscanX),
-                bounds.Y - (bounds.Height * profile.RefractionOverscanY),
-                bounds.Width * (1.0 + (profile.RefractionOverscanX * 2.0)),
-                bounds.Height * (1.0 + (profile.RefractionOverscanY * 2.0)));
-            drawingContext.PushOpacity(profile.BaseDesktopOpacity);
-            drawingContext.DrawImage(desktopSample, refracted);
-            drawingContext.Pop();
-
-            for (var index = 1; index <= profile.RefractionLayers; index++)
+            if (trueGlassBubble)
             {
-                var layer = index / (double)profile.RefractionLayers;
-                var depthCurve = Math.Pow(layer, profile.RefractionCurve);
-                var tunnelScale = 1.0 - (depthCurve * profile.RefractionDepth);
-                var tunnelWidth = bounds.Width * tunnelScale;
-                var tunnelHeight = bounds.Height * (1.0 - (depthCurve * profile.RefractionCompression));
-                var outward = LensOutwardDirection(center);
-                var tangent = new Vector(-outward.Y, outward.X);
-                var tunnelOffset = (outward * (open * profile.RefractionPull * depthCurve)) +
-                    (tangent * (Math.Sin(_phase * profile.ShimmerSpeed + index) * profile.ShimmerAmount));
-                var tunnel = new Rect(
-                    center.X - (tunnelWidth / 2) + tunnelOffset.X,
-                    center.Y - (tunnelHeight / 2) + tunnelOffset.Y,
-                    tunnelWidth,
-                    tunnelHeight);
-
-                drawingContext.PushOpacity(profile.RefractionLayerOpacity + (open * profile.RefractionOpenBoost));
-                drawingContext.DrawImage(desktopSample, tunnel);
+                DrawTrueGlassDesktopRefraction(drawingContext, bounds, center, desktopSample, profile);
+            }
+            else
+            {
+                var refracted = new Rect(
+                    bounds.X - (bounds.Width * profile.RefractionOverscanX),
+                    bounds.Y - (bounds.Height * profile.RefractionOverscanY),
+                    bounds.Width * (1.0 + (profile.RefractionOverscanX * 2.0)),
+                    bounds.Height * (1.0 + (profile.RefractionOverscanY * 2.0)));
+                drawingContext.PushOpacity(profile.BaseDesktopOpacity);
+                drawingContext.DrawImage(desktopSample, refracted);
                 drawingContext.Pop();
+
+                for (var index = 1; index <= profile.RefractionLayers; index++)
+                {
+                    var layer = index / (double)profile.RefractionLayers;
+                    var depthCurve = Math.Pow(layer, profile.RefractionCurve);
+                    var tunnelScale = 1.0 - (depthCurve * profile.RefractionDepth);
+                    var tunnelWidth = bounds.Width * tunnelScale;
+                    var tunnelHeight = bounds.Height * (1.0 - (depthCurve * profile.RefractionCompression));
+                    var outward = LensOutwardDirection(center);
+                    var tangent = new Vector(-outward.Y, outward.X);
+                    var tunnelOffset = (outward * (open * profile.RefractionPull * depthCurve)) +
+                        (tangent * (Math.Sin(_phase * profile.ShimmerSpeed + index) * profile.ShimmerAmount));
+                    var tunnel = new Rect(
+                        center.X - (tunnelWidth / 2) + tunnelOffset.X,
+                        center.Y - (tunnelHeight / 2) + tunnelOffset.Y,
+                        tunnelWidth,
+                        tunnelHeight);
+
+                    drawingContext.PushOpacity(profile.RefractionLayerOpacity + (open * profile.RefractionOpenBoost));
+                    drawingContext.DrawImage(desktopSample, tunnel);
+                    drawingContext.Pop();
+                }
             }
         }
 
-        DrawTunnelVolume(drawingContext, bounds, center, throatCenter, open, profile);
-        DrawGlassCaustics(drawingContext, bounds, center, open, profile);
-        DrawSpecularGlassSweeps(drawingContext, bounds, center, open, profile);
+        if (!trueGlassBubble)
+        {
+            DrawTunnelVolume(drawingContext, bounds, center, throatCenter, open, profile);
+        }
+
+        DrawGlassCaustics(drawingContext, bounds, center, materialOpen, profile);
+        DrawSpecularGlassSweeps(drawingContext, bounds, center, materialOpen, profile);
 
         var glass = new RadialGradientBrush
         {
@@ -416,40 +570,193 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             Center = new WPoint(0.48, 0.52),
             RadiusX = 0.76,
             RadiusY = 0.70,
-            Opacity = profile.GlassOpacity
+            Opacity = trueGlassBubble ? 0.10 : profile.GlassOpacity
         };
         glass.GradientStops.Add(new GradientStop(WColor.FromArgb(profile.GlassCoreAlpha, 255, 255, 255), 0.0));
         glass.GradientStops.Add(new GradientStop(WColor.FromArgb(profile.GlassMidAlpha, 232, 244, 246), 0.42));
         glass.GradientStops.Add(new GradientStop(WColor.FromArgb(profile.GlassEdgeAlpha, 78, 94, 98), 1.0));
         drawingContext.DrawEllipse(glass, null, center, bounds.Width / 2, bounds.Height / 2);
 
-        for (var index = 0; index < profile.GlassRingCount; index++)
+        if (trueGlassBubble)
         {
-            var layer = index / Math.Max(1.0, profile.GlassRingCount - 1.0);
-            var depthCurve = Math.Pow(layer, 1.52);
-            var alpha = (byte)Math.Clamp(profile.GlassRingAlpha - (index * profile.GlassRingFade) + (open * profile.GlassRingOpenBoost), 6, 112);
-            var ringPen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 248, 255, 255)), profile.GlassRingWidth + (open * 0.18));
-            var rx = (bounds.Width / 2) * (1.0 - (depthCurve * profile.GlassRingDepthX));
-            var ry = (bounds.Height / 2) * (1.0 - (depthCurve * profile.GlassRingDepthY));
-            var ringCenter = Interpolate(center, throatCenter, depthCurve * profile.GlassRingThroatPull);
-            drawingContext.DrawEllipse(null, ringPen, ringCenter, rx, ry);
+            DrawTrueGlassInterior(drawingContext, bounds, center, materialOpen, profile);
+        }
+        else
+        {
+            for (var index = 0; index < profile.GlassRingCount; index++)
+            {
+                var layer = index / Math.Max(1.0, profile.GlassRingCount - 1.0);
+                var depthCurve = Math.Pow(layer, 1.52);
+                var alpha = (byte)Math.Clamp(profile.GlassRingAlpha - (index * profile.GlassRingFade) + (open * profile.GlassRingOpenBoost), 6, 112);
+                var ringPen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 248, 255, 255)), profile.GlassRingWidth + (open * 0.18));
+                var rx = (bounds.Width / 2) * (1.0 - (depthCurve * profile.GlassRingDepthX));
+                var ry = (bounds.Height / 2) * (1.0 - (depthCurve * profile.GlassRingDepthY));
+                var ringCenter = Interpolate(center, throatCenter, depthCurve * profile.GlassRingThroatPull);
+                drawingContext.DrawEllipse(null, ringPen, ringCenter, rx, ry);
+            }
         }
 
         drawingContext.Pop();
 
-        DrawPhysicalGlassThickness(drawingContext, bounds, center, open, profile);
-        DrawChromaticEdge(drawingContext, bounds, center, open, profile);
-        var outer = new WPen(new SolidColorBrush(WColor.FromArgb(profile.OuterRimAlpha, 255, 255, 255)), profile.OuterRimWidth + (open * profile.OuterRimOpenWidth));
-        var inner = new WPen(new SolidColorBrush(WColor.FromArgb(86, 18, 24, 26)), 1.0);
-        DrawSoftFresnelEdge(drawingContext, bounds, center, open, profile);
+        if (!trueGlassBubble)
+        {
+            DrawPhysicalGlassThickness(drawingContext, bounds, center, materialOpen, profile);
+        }
+
+        DrawChromaticEdge(drawingContext, bounds, center, materialOpen, profile);
+        var outerAlpha = trueGlassBubble ? (byte)46 : profile.OuterRimAlpha;
+        var outer = new WPen(new SolidColorBrush(WColor.FromArgb(outerAlpha, 255, 255, 255)), trueGlassBubble ? 0.58 : profile.OuterRimWidth + (materialOpen * profile.OuterRimOpenWidth));
+        if (!trueGlassBubble)
+        {
+            DrawSoftFresnelEdge(drawingContext, bounds, center, materialOpen, profile);
+        }
+
         drawingContext.DrawEllipse(null, outer, center, bounds.Width / 2, bounds.Height / 2);
-        drawingContext.DrawEllipse(null, inner, throatCenter, bounds.Width * (0.18 + (open * 0.10)), bounds.Height * (0.07 + (open * 0.05)));
+        if (!trueGlassBubble)
+        {
+            var inner = new WPen(new SolidColorBrush(WColor.FromArgb(86, 18, 24, 26)), 1.0);
+            drawingContext.DrawEllipse(null, inner, throatCenter, bounds.Width * (0.18 + (open * 0.10)), bounds.Height * (0.07 + (open * 0.05)));
+        }
 
-        var highlight = new RadialGradientBrush(WColor.FromArgb(profile.HighlightAlpha, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255));
-        drawingContext.DrawEllipse(highlight, null, new WPoint(bounds.X + (bounds.Width * 0.66), bounds.Y + (bounds.Height * 0.23)), bounds.Width * profile.HighlightRadiusX, bounds.Height * profile.HighlightRadiusY);
+        var highlightAlpha = trueGlassBubble ? (byte)54 : profile.HighlightAlpha;
+        var highlight = new RadialGradientBrush(WColor.FromArgb(highlightAlpha, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255));
+        var highlightRadiusX = trueGlassBubble ? bounds.Width * 0.074 : bounds.Width * profile.HighlightRadiusX;
+        var highlightRadiusY = trueGlassBubble ? bounds.Height * 0.044 : bounds.Height * profile.HighlightRadiusY;
+        drawingContext.DrawEllipse(highlight, null, new WPoint(bounds.X + (bounds.Width * 0.66), bounds.Y + (bounds.Height * 0.23)), highlightRadiusX, highlightRadiusY);
 
-        var depth = new RadialGradientBrush(WColor.FromArgb((byte)(profile.ThroatAlpha + (open * profile.ThroatOpenAlpha)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
-        drawingContext.DrawEllipse(depth, null, throatCenter, bounds.Width * (0.15 + (open * 0.11)), bounds.Height * (0.05 + (open * 0.06)));
+        if (trueGlassBubble)
+        {
+            DrawTrueGlassOuterHighlights(drawingContext, bounds, center);
+        }
+        else
+        {
+            var depth = new RadialGradientBrush(WColor.FromArgb((byte)(profile.ThroatAlpha + (open * profile.ThroatOpenAlpha)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0));
+            drawingContext.DrawEllipse(depth, null, throatCenter, bounds.Width * (0.15 + (open * 0.11)), bounds.Height * (0.05 + (open * 0.06)));
+        }
+    }
+
+    private void DrawTrueGlassDesktopRefraction(DrawingContext drawingContext, Rect bounds, WPoint center, BitmapSource desktopSample, LensVisualProfile profile)
+    {
+        var sampleBounds = new Rect(
+            bounds.X - (bounds.Width * 0.28),
+            bounds.Y - (bounds.Height * 0.24),
+            bounds.Width * 1.56,
+            bounds.Height * 1.48);
+
+        drawingContext.PushOpacity(0.64);
+        drawingContext.DrawImage(desktopSample, sampleBounds);
+        drawingContext.Pop();
+
+        drawingContext.PushTransform(new ScaleTransform(-1.0, -1.0, center.X, center.Y));
+        drawingContext.PushOpacity(0.06);
+        drawingContext.DrawImage(desktopSample, sampleBounds);
+        drawingContext.Pop();
+        drawingContext.Pop();
+
+        var lowerMagnification = new Rect(
+            bounds.X - (bounds.Width * 0.18),
+            bounds.Y + (bounds.Height * 0.30),
+            bounds.Width * 1.36,
+            bounds.Height * 0.72);
+        drawingContext.PushTransform(new ScaleTransform(-1.0, -0.54, center.X, bounds.Y + (bounds.Height * 0.55)));
+        drawingContext.PushOpacity(0.06 + (profile.GlassOpacity * 0.12));
+        drawingContext.DrawImage(desktopSample, lowerMagnification);
+        drawingContext.Pop();
+        drawingContext.Pop();
+    }
+
+    private void DrawTrueGlassInterior(DrawingContext drawingContext, Rect bounds, WPoint center, double open, LensVisualProfile profile)
+    {
+        var upperMass = new LinearGradientBrush
+        {
+            StartPoint = new WPoint(0.50, 0.02),
+            EndPoint = new WPoint(0.50, 0.78),
+            Opacity = 0.30
+        };
+        upperMass.GradientStops.Add(new GradientStop(WColor.FromArgb(48, 7, 12, 13), 0.05));
+        upperMass.GradientStops.Add(new GradientStop(WColor.FromArgb(22, 10, 17, 18), 0.42));
+        upperMass.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.78));
+        drawingContext.DrawEllipse(upperMass, null, center + new Vector(0, -bounds.Height * 0.08), bounds.Width * 0.44, bounds.Height * 0.32);
+
+        var horizon = new LinearGradientBrush
+        {
+            StartPoint = new WPoint(0.0, 0.5),
+            EndPoint = new WPoint(1.0, 0.5),
+            Opacity = 0.18
+        };
+        horizon.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
+        horizon.GradientStops.Add(new GradientStop(WColor.FromArgb(68, 5, 10, 12), 0.46));
+        horizon.GradientStops.Add(new GradientStop(WColor.FromArgb(46, 250, 255, 255), 0.52));
+        horizon.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.PushTransform(new RotateTransform(-1.4 + (Math.Sin(_phase * 0.28) * 0.45), center.X, center.Y));
+        drawingContext.DrawRoundedRectangle(
+            horizon,
+            null,
+            new Rect(bounds.X + (bounds.Width * 0.09), bounds.Y + (bounds.Height * 0.49), bounds.Width * 0.82, Math.Max(2.0, bounds.Height * 0.028)),
+            bounds.Height * 0.012,
+            bounds.Height * 0.012);
+        drawingContext.Pop();
+
+        var bottomLight = new RadialGradientBrush(WColor.FromArgb(62, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255))
+        {
+            RadiusX = 0.42,
+            RadiusY = 0.22,
+            Opacity = 0.48
+        };
+        drawingContext.DrawEllipse(bottomLight, null, center + new Vector(-bounds.Width * 0.12, bounds.Height * 0.30), bounds.Width * 0.30, bounds.Height * 0.12);
+
+        var cyanEdge = new RadialGradientBrush
+        {
+            Center = new WPoint(0.50, 0.50),
+            RadiusX = 0.68,
+            RadiusY = 0.68,
+            Opacity = 0.62
+        };
+        cyanEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 96, 224, 242), 0.64));
+        cyanEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(64, 66, 214, 230), 0.89));
+        cyanEdge.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.0));
+        drawingContext.DrawEllipse(cyanEdge, null, center, bounds.Width * 0.49, bounds.Height * 0.49);
+    }
+
+    private void DrawTrueGlassOuterHighlights(DrawingContext drawingContext, Rect bounds, WPoint center)
+    {
+        var leftRim = new WPen(new SolidColorBrush(WColor.FromArgb(118, 36, 188, 214)), 1.42);
+        var darkRim = new WPen(new SolidColorBrush(WColor.FromArgb(106, 4, 14, 18)), 1.12);
+        var whiteRim = new WPen(new SolidColorBrush(WColor.FromArgb(68, 255, 255, 255)), 0.72);
+        drawingContext.DrawEllipse(null, darkRim, center + new Vector(bounds.Width * 0.010, bounds.Height * 0.010), (bounds.Width / 2) * 1.006, (bounds.Height / 2) * 1.002);
+        drawingContext.DrawEllipse(null, leftRim, center - new Vector(bounds.Width * 0.012, 0), (bounds.Width / 2) * 0.992, (bounds.Height / 2) * 0.988);
+        drawingContext.DrawEllipse(null, whiteRim, center + new Vector(bounds.Width * 0.006, -bounds.Height * 0.004), (bounds.Width / 2) * 0.952, (bounds.Height / 2) * 0.946);
+
+        var mainGlint = new RadialGradientBrush(WColor.FromArgb(142, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255))
+        {
+            RadiusX = 0.34,
+            RadiusY = 0.20,
+            Opacity = 0.68
+        };
+        drawingContext.DrawEllipse(mainGlint, null, new WPoint(bounds.X + (bounds.Width * 0.72), bounds.Y + (bounds.Height * 0.18)), bounds.Width * 0.072, bounds.Height * 0.046);
+
+        var floorGlint = new RadialGradientBrush(WColor.FromArgb(92, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255))
+        {
+            RadiusX = 0.44,
+            RadiusY = 0.18,
+            Opacity = 0.52
+        };
+        drawingContext.DrawEllipse(floorGlint, null, new WPoint(bounds.X + (bounds.Width * 0.36), bounds.Y + (bounds.Height * 0.82)), bounds.Width * 0.16, bounds.Height * 0.04);
+
+        for (var index = 0; index < 9; index++)
+        {
+            var angle = -2.68 + (index * 0.26);
+            var x = center.X + (Math.Cos(angle) * bounds.Width * 0.47);
+            var y = center.Y + (Math.Sin(angle) * bounds.Height * 0.47);
+            var alpha = (byte)(42 + (index % 3 * 18));
+            var rimGlint = new RadialGradientBrush(WColor.FromArgb(alpha, 255, 255, 255), WColor.FromArgb(0, 255, 255, 255))
+            {
+                RadiusX = 0.42,
+                RadiusY = 0.42,
+                Opacity = 0.72
+            };
+            drawingContext.DrawEllipse(rimGlint, null, new WPoint(x, y), bounds.Width * 0.010, bounds.Height * 0.010);
+        }
     }
 
     private void DrawLensContactShadow(DrawingContext drawingContext, Rect bounds, WPoint center, double open, LensVisualProfile profile)
@@ -943,18 +1250,22 @@ public sealed class GpuLivingLensSurface : FrameworkElement
     {
         var key = LensSampleKey(center);
         _sampleFrame++;
+        var trueGlassBubble = _lensLook == GpuLivingLensLook.GlassBubble;
         var overlayIsOpticallyActive = _isHolding ||
             _session.IsHoldingThing ||
             _session.Absorption > 0.001f ||
             _session.LensEmergence > 0.06f ||
             _session.TransitState != GpuLivingLensTransitState.LocalReady;
         var isActiveLens = (center - _activeLensCenter).Length < 1.0;
-        if (_lensSamples.TryGetValue(key, out var cached) && overlayIsOpticallyActive && !isActiveLens)
+        var isNearPointer = (_targetCenter - center).Length < 420.0;
+        if (!trueGlassBubble && _lensSamples.TryGetValue(key, out var cached) && overlayIsOpticallyActive && !isActiveLens)
         {
             return cached;
         }
 
-        var refreshEvery = overlayIsOpticallyActive
+        var refreshEvery = trueGlassBubble
+            ? (isActiveLens || isNearPointer ? 1 : (overlayIsOpticallyActive ? 12 : 48))
+            : overlayIsOpticallyActive
             ? (isActiveLens ? 5 : 48)
             : 96;
         if (_lensSamples.TryGetValue(key, out cached) && _sampleFrame % refreshEvery != 0)
@@ -970,6 +1281,39 @@ public sealed class GpuLivingLensSurface : FrameworkElement
         }
 
         return desktopSample;
+    }
+
+    private void PrimeGlassDesktopSamples()
+    {
+        if (_lensLook != GpuLivingLensLook.GlassBubble || _session.LensEmergence <= 0.001f)
+        {
+            return;
+        }
+
+        _glassPreSampleFrame++;
+        foreach (var center in LensCenters())
+        {
+            var isActiveLens = (center - _activeLensCenter).Length < 1.0;
+            var targetDistance = (_targetCenter - center).Length;
+            if (!isActiveLens && targetDistance > 420.0)
+            {
+                continue;
+            }
+
+            if (!isActiveLens && _glassPreSampleFrame % 2 != 0)
+            {
+                continue;
+            }
+
+            var activation = Math.Max(LensActivation(center), RawLensActivation(center) * 0.62);
+            var bounds = LensBounds(center, Math.Max(activation, 0.14));
+            var sample = DesktopSampleRect(bounds);
+            var desktopSample = DesktopRefractionSampler.Capture(sample);
+            if (desktopSample is not null)
+            {
+                _lensSamples[LensSampleKey(center)] = desktopSample;
+            }
+        }
     }
 
     private void WarmCleanDesktopPlates()
@@ -1049,11 +1393,113 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private WPoint ActiveTunnelThroatPoint()
     {
+        if (_nearestAblage.HasTarget)
+        {
+            return GlassEdgeEntryPoint(_targetCenter, _nearestAblage.EdgeHint, _edgeAbsorptionVariant);
+        }
+
         var activation = LensActivation(_activeLensCenter);
         var open = EaseOut(_session.LensOpen) * activation;
         var bounds = LensBounds(_activeLensCenter, activation);
         return TunnelThroatPoint(bounds, _activeLensCenter, open);
     }
+
+    private void RefreshNearestAblage()
+    {
+        _nearestAblage = _nearestSelector.Select(_proximityProvider.GetSnapshot(_currentAblageId), _nearestAblage);
+        _activeLensCenter = GlassEdgeCenter();
+    }
+
+    private double NormalizedGlassEdgeNearness(WPoint point)
+    {
+        if (!_nearestAblage.HasTarget)
+        {
+            return 0;
+        }
+
+        var distance = _nearestAblage.EdgeHint switch
+        {
+            AblageDirection.Left => point.X,
+            AblageDirection.Right => RenderWidth() - point.X,
+            AblageDirection.Up => point.Y,
+            AblageDirection.Down => RenderHeight() - point.Y,
+            _ => double.PositiveInfinity
+        };
+        return SmoothStep(1.0 - (distance / 260.0));
+    }
+
+    private WPoint GlassEdgeCenter()
+    {
+        return _nearestAblage.EdgeHint switch
+        {
+            AblageDirection.Left => new WPoint(0, RenderHeight() / 2.0),
+            AblageDirection.Right => new WPoint(RenderWidth(), RenderHeight() / 2.0),
+            AblageDirection.Up => new WPoint(RenderWidth() / 2.0, 0),
+            AblageDirection.Down => new WPoint(RenderWidth() / 2.0, RenderHeight()),
+            _ => new WPoint(RenderWidth(), RenderHeight() / 2.0)
+        };
+    }
+
+    private WPoint GlassEdgeEntryPoint(WPoint source, AblageDirection direction, GlassEdgeAbsorptionVariant variant)
+    {
+        var margin = variant == GlassEdgeAbsorptionVariant.DirectionalSlot ? 68.0 : 32.0;
+        var width = RenderWidth();
+        var height = RenderHeight();
+        var x = Math.Clamp(source.X, margin, width - margin);
+        var y = Math.Clamp(source.Y, margin, height - margin);
+        if (variant == GlassEdgeAbsorptionVariant.FocusPoint)
+        {
+            x = Math.Clamp((_thingCenter.X * 0.64) + (source.X * 0.36), margin, width - margin);
+            y = Math.Clamp((_thingCenter.Y * 0.64) + (source.Y * 0.36), margin, height - margin);
+        }
+
+        return direction switch
+        {
+            AblageDirection.Left => new WPoint(-12, y),
+            AblageDirection.Right => new WPoint(width + 12, y),
+            AblageDirection.Up => new WPoint(x, -12),
+            AblageDirection.Down => new WPoint(x, height + 12),
+            _ => new WPoint(width + 12, y)
+        };
+    }
+
+    private Rect GlassEdgeBounds(AblageDirection direction, double thickness)
+    {
+        return direction switch
+        {
+            AblageDirection.Left => new Rect(0, 0, thickness, RenderHeight()),
+            AblageDirection.Right => new Rect(RenderWidth() - thickness, 0, thickness, RenderHeight()),
+            AblageDirection.Up => new Rect(0, 0, RenderWidth(), thickness),
+            AblageDirection.Down => new Rect(0, RenderHeight() - thickness, RenderWidth(), thickness),
+            _ => new Rect(RenderWidth() - thickness, 0, thickness, RenderHeight())
+        };
+    }
+
+    private void DrawGlassEdgeLine(DrawingContext drawingContext, AblageDirection direction, WPen pen, double inset)
+    {
+        switch (direction)
+        {
+            case AblageDirection.Left:
+                drawingContext.DrawLine(pen, new WPoint(inset, 0), new WPoint(inset, RenderHeight()));
+                break;
+            case AblageDirection.Right:
+                drawingContext.DrawLine(pen, new WPoint(RenderWidth() - inset, 0), new WPoint(RenderWidth() - inset, RenderHeight()));
+                break;
+            case AblageDirection.Up:
+                drawingContext.DrawLine(pen, new WPoint(0, inset), new WPoint(RenderWidth(), inset));
+                break;
+            case AblageDirection.Down:
+                drawingContext.DrawLine(pen, new WPoint(0, RenderHeight() - inset), new WPoint(RenderWidth(), RenderHeight() - inset));
+                break;
+            default:
+                drawingContext.DrawLine(pen, new WPoint(RenderWidth() - inset, 0), new WPoint(RenderWidth() - inset, RenderHeight()));
+                break;
+        }
+    }
+
+    private double RenderWidth() => RenderSize.Width > 1 ? RenderSize.Width : _screenBounds.Width;
+
+    private double RenderHeight() => RenderSize.Height > 1 ? RenderSize.Height : _screenBounds.Height;
 
     private Rect LensBounds(WPoint center, double activation)
     {
@@ -1172,14 +1618,35 @@ public sealed class GpuLivingLensSurface : FrameworkElement
 
     private double LensActivation(WPoint center)
     {
+        var key = LensSampleKey(center);
+        return _lensActivationLevels.TryGetValue(key, out var activation)
+            ? activation
+            : 0.0;
+    }
+
+    private void UpdateLensActivationLevels(int elapsedMilliseconds)
+    {
+        foreach (var center in LensCenters())
+        {
+            var target = RawLensActivation(center);
+            var key = LensSampleKey(center);
+            var current = _lensActivationLevels.TryGetValue(key, out var value) ? value : 0.0;
+            var duration = target > current ? 720.0 : 340.0;
+            var amount = Math.Clamp(elapsedMilliseconds / duration, 0.0, 1.0);
+            _lensActivationLevels[key] = current + ((target - current) * amount);
+        }
+    }
+
+    private double RawLensActivation(WPoint center)
+    {
         var isActive = (center - _activeLensCenter).Length < 1.0;
         if (_isHolding || _session.IsHoldingThing)
         {
             var pick = EaseOut(_session.PickProgress);
             var nearness = SmoothStep(1.0 - ((_targetCenter - center).Length / 360.0));
             return isActive
-                ? 0.16 + (pick * 0.20) + (nearness * 0.54)
-                : 0.035 + (pick * 0.06) + (nearness * 0.20);
+                ? 0.12 + (pick * 0.16) + (nearness * 0.48)
+                : 0.025 + (pick * 0.04) + (nearness * 0.16);
         }
 
         if (_session.Absorption > 0 || _session.CanPullOutFromLens || _session.TransitState != GpuLivingLensTransitState.LocalReady)
@@ -1187,7 +1654,7 @@ public sealed class GpuLivingLensSurface : FrameworkElement
             return isActive ? 1.0 : 0.0;
         }
 
-        return isActive ? 0.22 : 0.0;
+        return isActive ? 0.16 : 0.0;
     }
 
     private static WPoint Interpolate(WPoint source, WPoint target, double amount)

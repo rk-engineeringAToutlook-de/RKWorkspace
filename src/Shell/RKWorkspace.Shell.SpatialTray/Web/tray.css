@@ -20,6 +20,8 @@
     --hand-opacity: 0;
     --hand-pressure: 0;
     --bubble-opacity: 1;
+    --glass-edge-opacity: 0;
+    --glass-edge-thickness: 0px;
 }
 
 * {
@@ -47,6 +49,48 @@ body.is-carrying {
         radial-gradient(ellipse at 52% 74%, rgba(108, 125, 116, .12), transparent 48%),
         linear-gradient(140deg, rgba(232, 231, 224, .99), rgba(213, 224, 220, .96) 56%, rgba(228, 229, 220, .97)),
         #e2e0d8;
+}
+
+body.is-single-glass-edge {
+    --glass-edge-opacity: .72;
+    --glass-edge-thickness: 42px;
+}
+
+.glass-edge {
+    position: absolute;
+    inset: 0 0 0 auto;
+    z-index: 2;
+    width: var(--glass-edge-thickness);
+    opacity: var(--glass-edge-opacity);
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, transparent, rgba(218, 251, 253, .28) 42%, rgba(73, 194, 210, .34) 76%, rgba(8, 26, 30, .20)),
+        linear-gradient(180deg, transparent, rgba(255, 255, 255, .24), transparent);
+    box-shadow:
+        -1px 0 0 rgba(255, 255, 255, .42) inset,
+        -16px 0 38px rgba(69, 168, 178, .16);
+    transition: opacity 420ms ease, width 420ms ease;
+}
+
+.glass-edge[data-direction="Left"] {
+    inset: 0 auto 0 0;
+    transform: scaleX(-1);
+}
+
+.glass-edge[data-direction="Up"] {
+    inset: 0 0 auto 0;
+    width: auto;
+    height: var(--glass-edge-thickness);
+    background:
+        linear-gradient(180deg, transparent, rgba(218, 251, 253, .28) 42%, rgba(73, 194, 210, .34) 76%, rgba(8, 26, 30, .20)),
+        linear-gradient(90deg, transparent, rgba(255, 255, 255, .24), transparent);
+}
+
+.glass-edge[data-direction="Down"] {
+    inset: auto 0 0 0;
+    width: auto;
+    height: var(--glass-edge-thickness);
+    transform: scaleY(-1);
 }
 
 button {

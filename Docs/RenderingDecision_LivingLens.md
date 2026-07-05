@@ -1,7 +1,7 @@
 # Rendering Decision Living Lens
 
 Dokument-ID: RKWS-RENDERING-DECISION-LIVING-LENS
-Version: 1.9.0
+Version: 1.10.0
 Status: Accepted
 Datum: 2026-07-04
 
@@ -82,6 +82,8 @@ Das nachfolgende Owner-Feedback korrigiert die Produktgrenze: Ein Real3D-Webfens
 
 MA006.12 Extreme Tunnel / Bubble FX ist bewusst ein Labor der Uebertreibung. Der GPU-/Living-Lens-Pfad bietet fuenf Presets, `EffectIntensity`, Timing-Varianten, verstecktes Debug und staerkere Absorption. Der Mobile-Spatial-Surface-Pfad nutzt noch Browser/PWA-Technik, ist aber als mobile Ablage im Raum modelliert. Fuer das finale Zielgefuehl reicht diese Technik weiterhin nicht aus: echte Mesh-/Quad-Verformung, hochwertige Glasbrechung, mobile native Haptik und stabile Live-Desktop-Refraction brauchen einen staerkeren nativen Shader-/Composition-Pfad.
 
+MA006.13 beendet die Bubble-/Tunnel-Suche als Hauptpfad. Die Grafikaufgabe wird kleiner und klarer: eine gläserne Kante statt vieler gläserner Koerper. Der GPU-Living-Lens-Code bleibt als Labor erhalten, aber der sichtbare Standard in der neuen Glass-Edge-Demo zeigt nur noch die naechste Ablagekante.
+
 Owner-Video-Feedback vom 2026-07-04 bestaetigt diese Grenze: Die Blase ist in der aktuellen Richtung richtig, aber fuer "mega" Brillanz, echte Spiegelung, perfekte Fluessigkeit und glaubwuerdige dreidimensionale Materialtiefe sollte der naechste Sprint einen GPU-Pfad pruefen. Der CPU/GDI-Slice bleibt Wahrnehmungs- und Ablaufprototyp, nicht Endrenderer.
 
 Naechster Renderer-Kandidat fuer reine visuelle Wahrnehmungsstudien:
@@ -97,6 +99,7 @@ Die Vision wird nicht reduziert, nur weil WinForms/GDI+ begrenzt ist.
 | Version | Datum | Aenderung |
 | --- | --- | --- |
 | 1.9.0 | 2026-07-04 | MA006.12 Extreme FX Mode, Mobile Spatial Surface und Renderer-Grenzen fuer maximale Glas-/Tunnelwirkung eingeordnet. |
+| 1.10.0 | 2026-07-05 | MA006.13 Single Glass Edge als neuen Hauptpfad festgelegt; Bubble-/Tunnel-Labor vom Produktpfad getrennt. |
 | 1.8.0 | 2026-07-04 | Native Glass Overlay Foundation als korrigierten Produktpfad nach dem Real3D-Look-Labor eingeordnet. |
 | 1.7.0 | 2026-07-04 | WebGL-/Three.js Real3D Lens Renderer als separaten Look-Laborpfad fuer Videospiel-artige Materialwirkung eingeordnet. |
 | 1.6.0 | 2026-07-04 | Aktive HLSL/WPF-PixelShader-Layer mit kompiliertem LivingLensMaterial-Shader als naechsten Renderer-Schritt eingeordnet. |

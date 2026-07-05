@@ -1,7 +1,7 @@
 # Workspace Layer
 
 Dokument-ID: RKWS-WORKSPACE-LAYER
-Version: 1.3.0
+Version: 1.4.0
 Status: Accepted
 Datum: 2026-07-03
 
@@ -58,6 +58,8 @@ src/Shell/RKWorkspace.Shell.SpatialTray
 ```
 
 Hier wird Handy oder Tablet als digitales Tablett getestet. Die Shell denkt Desktop und Monitor als Ablagen im Raum, nicht als Geraete.
+
+Ab MA006.13 fokussiert die Shell den sichtbaren Produktpfad auf Single Glass Edge. Wenn ein Ding getragen wird, zeigt die Shell nur die naechste sinnvolle Ablage als gläserne Kante. Entfernung und Richtung werden ueber `IAblageProximityProvider` und `INearestAblageSelector` vorbereitet.
 
 ## Ebene 3: Workspace Adapter
 

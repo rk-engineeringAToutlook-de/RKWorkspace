@@ -866,3 +866,69 @@ if (-not $real3dLensText.Contains('Real3DLensSmoke: SUCCESS')) {
 if (-not $real3dLensText.Contains('RESULT: SUCCESS')) {
     throw "Real3D Lens Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Glass Edge Nearest Ablage Smoke Test'
+Write-Host '------------------------------------'
+$glassEdgeOutput = & (Join-Path $root 'tools\run-glass-edge.ps1') -SmokeTest 2>&1
+$glassEdgeExitCode = $LASTEXITCODE
+$glassEdgeText = $glassEdgeOutput -join [Environment]::NewLine
+$glassEdgeOutput | ForEach-Object { Write-Host $_ }
+if ($glassEdgeExitCode -ne 0) {
+    throw "Glass Edge Nearest Ablage Smoke Test failed with exit code $glassEdgeExitCode."
+}
+
+if (-not $glassEdgeText.Contains('RK Workspace Glass Edge Nearest Ablage Smoke Test')) {
+    throw "Glass Edge Smoke Test failed because output did not contain RK Workspace Glass Edge Nearest Ablage Smoke Test."
+}
+
+if (-not $glassEdgeText.Contains('SingleGlassEdge: OK')) {
+    throw "Glass Edge Smoke Test failed because output did not contain SingleGlassEdge: OK."
+}
+
+if (-not $glassEdgeText.Contains('NearestDirection: OK')) {
+    throw "Glass Edge Smoke Test failed because output did not contain NearestDirection: OK."
+}
+
+if (-not $glassEdgeText.Contains('CrossPlatformSurfaces: OK')) {
+    throw "Glass Edge Smoke Test failed because output did not contain CrossPlatformSurfaces: OK."
+}
+
+if (-not $glassEdgeText.Contains('GlassEdgeSmoke: SUCCESS')) {
+    throw "Glass Edge Smoke Test failed because output did not contain GlassEdgeSmoke: SUCCESS."
+}
+
+if (-not $glassEdgeText.Contains('RESULT: SUCCESS')) {
+    throw "Glass Edge Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
+Write-Host 'Mobile Glass Edge Smoke Test'
+Write-Host '----------------------------'
+$mobileGlassEdgeOutput = & (Join-Path $root 'tools\run-mobile-glass-edge.ps1') -SmokeTest 2>&1
+$mobileGlassEdgeExitCode = $LASTEXITCODE
+$mobileGlassEdgeText = $mobileGlassEdgeOutput -join [Environment]::NewLine
+$mobileGlassEdgeOutput | ForEach-Object { Write-Host $_ }
+if ($mobileGlassEdgeExitCode -ne 0) {
+    throw "Mobile Glass Edge Smoke Test failed with exit code $mobileGlassEdgeExitCode."
+}
+
+if (-not $mobileGlassEdgeText.Contains('RK Workspace Mobile Glass Edge Smoke Test')) {
+    throw "Mobile Glass Edge Smoke Test failed because output did not contain RK Workspace Mobile Glass Edge Smoke Test."
+}
+
+if (-not $mobileGlassEdgeText.Contains('SingleGlassEdge: OK')) {
+    throw "Mobile Glass Edge Smoke Test failed because output did not contain SingleGlassEdge: OK."
+}
+
+if (-not $mobileGlassEdgeText.Contains('NearestAblage: OK')) {
+    throw "Mobile Glass Edge Smoke Test failed because output did not contain NearestAblage: OK."
+}
+
+if (-not $mobileGlassEdgeText.Contains('MobileGlassEdgeSmoke: SUCCESS')) {
+    throw "Mobile Glass Edge Smoke Test failed because output did not contain MobileGlassEdgeSmoke: SUCCESS."
+}
+
+if (-not $mobileGlassEdgeText.Contains('RESULT: SUCCESS')) {
+    throw "Mobile Glass Edge Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

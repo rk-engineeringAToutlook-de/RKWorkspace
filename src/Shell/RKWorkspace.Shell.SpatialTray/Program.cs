@@ -17,6 +17,11 @@ if (options.MobileSmokeTest)
     return await MobileSpatialSurfaceSmokeTest.RunAsync(options.Port);
 }
 
+if (options.MobileGlassEdgeSmokeTest)
+{
+    return await MobileGlassEdgeSmokeTest.RunAsync(options.Port);
+}
+
 var configuration = new SpatialTrayConfiguration
 {
     Port = options.Port ?? SpatialTrayConfiguration.DefaultPort
@@ -71,6 +76,7 @@ static void PrintHelp()
     Console.WriteLine("Options:");
     Console.WriteLine("  --smoke-test   Run the local smoke test and stop.");
     Console.WriteLine("  --mobile-smoke-test  Run the mobile spatial surface smoke test and stop.");
+    Console.WriteLine("  --mobile-glass-edge-smoke-test  Run the mobile glass edge smoke test and stop.");
     Console.WriteLine("  --port <port>  Use a specific local port.");
     Console.WriteLine("  --help         Show help.");
 }
@@ -80,6 +86,8 @@ internal sealed record SpatialTrayCliOptions
     public bool SmokeTest { get; init; }
 
     public bool MobileSmokeTest { get; init; }
+
+    public bool MobileGlassEdgeSmokeTest { get; init; }
 
     public int? Port { get; init; }
 
@@ -100,6 +108,12 @@ internal sealed record SpatialTrayCliOptions
             if (Is(arg, "--mobile-smoke-test"))
             {
                 options = options with { MobileSmokeTest = true };
+                continue;
+            }
+
+            if (Is(arg, "--mobile-glass-edge-smoke-test"))
+            {
+                options = options with { MobileGlassEdgeSmokeTest = true };
                 continue;
             }
 
