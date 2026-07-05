@@ -10,7 +10,7 @@ feature/ma007-followup-original-owned-frame-platforms
 
 ## Aktueller Auftrag
 
-MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Handoffs vor. Aktueller Stand: MA007.12 Android und Linux Surface Starter Kits.
+MA007-Folgepaket fuehrt Original-Owned Frame weiter und bereitet Plattform-Handoffs vor. Aktueller Stand: MA007.14 Readiness Review, Cross-Device-Testplan und Context Pack.
 
 ## Implementierte Schichten
 
@@ -80,3 +80,33 @@ MA007.12 liefert:
 - `src/Surfaces/RKWorkspace.Surface.Linux/LinuxSurfacePlan.md`
 - `src/Surfaces/RKWorkspace.Surface.Linux/LinuxPermissions.md`
 - `src/Surfaces/RKWorkspace.Surface.Linux/LinuxDisplayServerNotes.md`
+
+## Proximity / Manual Map
+
+MA007.13 liefert:
+
+- `AblageProximitySource`
+- `ManualAblageMap`
+- `ManualMapAblageProximityProvider`
+- stabileren `NearestAblageSelector` mit Confidence, Hysterese und EdgeSwitchDelay
+- `ProximityTests: SUCCESS` im Glass-Edge-Smoke
+- aktualisierte Dongle-/Transport-/Roadmap-Dokumentation
+
+## Readiness / Cross Device
+
+MA007.14 liefert:
+
+- `Docs/Readiness/MA007_ReadinessReview.md`
+- `Docs/Readiness/CrossDeviceTestPlan_Windows_macOS_iPad.md`
+- `Docs/Readiness/NextCodexActions.md`
+- `release/MA007_READINESS_SUMMARY.md`
+
+## Context Pack
+
+Stabiler Pfad:
+
+```text
+release/codex-context/RKWorkspace_Context_latest.zip
+```
+
+Der Zeitstempel-Pfad wird bei jedem Export zusaetzlich ausgegeben.

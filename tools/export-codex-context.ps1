@@ -5,6 +5,7 @@ $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $exportRoot = Join-Path $root 'release\codex-context'
 $staging = Join-Path $env:TEMP "RKWorkspace_Context_$timestamp"
 $zipPath = Join-Path $exportRoot "RKWorkspace_Context_$timestamp.zip"
+$latestZipPath = Join-Path $exportRoot 'RKWorkspace_Context_latest.zip'
 
 New-Item -ItemType Directory -Path $exportRoot -Force | Out-Null
 Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
@@ -46,6 +47,9 @@ $files = @(
     'Docs\Protocol\RKWP_OwnershipTransfer.md',
     'Docs\Protocol\RKWP_PlatformStrategy.md',
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
+    'Docs\Readiness\MA007_ReadinessReview.md',
+    'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
+    'Docs\Readiness\NextCodexActions.md',
     'Docs\Platform\macOS_SurfaceStarterKit.md',
     'Docs\Platform\iOS_iPadOS_SurfaceStarterKit.md',
     'Docs\Platform\Android_SurfaceStarterKit.md',
@@ -59,7 +63,8 @@ $files = @(
     'Docs\Codex\PlatformTasks\Android.md',
     'Docs\Codex\PlatformTasks\Linux.md',
     'Spec\TestStrategy.md',
-    'Spec\ProductPhilosophy.md'
+    'Spec\ProductPhilosophy.md',
+    'release\MA007_READINESS_SUMMARY.md'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }
@@ -85,8 +90,10 @@ Linux: Minimal Surface Host fuer Desktop/Industrie planen.
 '@ | Set-Content -Path (Join-Path $staging 'platform-next-steps.txt') -Encoding UTF8
 
 Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $zipPath -Force
+Copy-Item -LiteralPath $zipPath -Destination $latestZipPath -Force
 Remove-Item -LiteralPath $staging -Recurse -Force
 
 Write-Host 'RK Workspace Codex Context Export'
 Write-Host "Output: $zipPath"
+Write-Host "Latest: $latestZipPath"
 Write-Host 'RESULT: SUCCESS'
