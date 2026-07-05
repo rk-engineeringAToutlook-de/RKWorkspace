@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA008.02 fuehrt Ablage Identity, Trust Bootstrap und Pairing-Grundlage ein. `AblageHello` und `AblageCapabilities` koennen Identitaet tragen, und das Trust-Gate blockiert unbekannte, untrusted, widerrufene oder pending Ablagen vor Lease und Frame.
+MA008.03 fuehrt den ersten lokalen Windows Owner + Windows Guest PDF Frame E2E-Smoke ein. Eine echte PDF bleibt beim Owner, DevPairing und NamedPipeDev verbinden die Ablagen, der Guest sieht nur einen Frame, No File Ingress, Return und Recovery sind erfolgreich.
 
 ## Naechster Fokus
 
-Nach MA008.02 liegt der Fokus auf Windows Owner + Windows Guest Real PDF Frame E2E lokal. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA008.03 liegt der Fokus auf der Verbindung des Glass-Edge-Hauptpfads mit dem lokalen Real-PDF-E2E. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 ## Entfernung und Ablage-Anker
 

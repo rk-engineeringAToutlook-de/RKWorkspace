@@ -103,6 +103,12 @@ Ab MA007.08 pruefen die RKWP-Tests zusaetzlich Ownership Transfer und Materializ
 
 Ab MA007.09 pruefen die RKWP-Tests zusaetzlich Windows Object Adapter. Geprueft werden PDF-Dateierkennung als `PdfDocument`, OriginalOwned-Referenz, kein Guest File, ClipboardText als Text oder sauber vorbereitet, ScreenshotRegion Stub, WindowSnapshot Stub und unbekannte Dateitypen als FileReference ohne No-File-Ingress-Verletzung.
 
+Ab MA008.01 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-transport.ps1 -SmokeTest`. Geprueft werden `NamedPipeDev`, Timeout, ungueltige Nachrichten, `AblageHello`, Session-Verhandlung, `AblageCapabilities`, `CarryLeaseHeartbeat`, `FrameUpdate`, Error Message, Disconnect, Diagnostics und No-Hang-Verhalten.
+
+Ab MA008.02 pruefen die RKWP-Tests zusaetzlich Ablage Identity, Trust Bootstrap und Pairing-Grundlage. Geprueft werden Identity-Payloads in Hello/Capabilities, Unknown/Untrusted/Revoked Denials, DevTrusted FrameOnly im DevMode, Pairing Pending, Pairing Denied, PolicyTrusted Paired und SecureSessionRequired gegen `DevelopmentInsecure`.
+
+Ab MA008.03 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-windows-local-frame-e2e.ps1 -SmokeTest`. Geprueft werden Windows Owner, Windows Guest, DevPairing, DevTransport, echte Sample-PDF als Original, aktive CarryLease, Owner-Lock, aktive FrameSession, Guest Frame, No File Ingress, Return und Recovery.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

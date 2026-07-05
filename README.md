@@ -91,6 +91,9 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA007.03 haertet RKWP mit SecurityMode, Nonce-/Sequence-Replay-Schutz, Lease-/Policy-Binding, Audit, Revocation und Recovery-Gruenden.
 - MA007.04 verbindet Glass Edge und Original-Owned PDF Frame: eine echte PDF bleibt beim Owner, die naechste Ablage wird gewaehlt, die Glass Edge wird aktiv und die Zielablage sieht nur einen Frame ohne File Ingress.
 - MA007.05 verbessert den Real PDF Frame Viewer: die Gastablage erhaelt eine explizite sichere Frame-Repräsentation mit vorbereiteten Scroll-/Zoom-Faehigkeiten; echter PDF-Seitenrenderer ist weiterhin dokumentierter Blocker.
+- MA008.01 fuehrt `NamedPipeDev` als RKWP Dev-Transport fuer lokale End-to-End-Tests ein.
+- MA008.02 fuehrt Ablage Identity, Trust Bootstrap und Pairing-Grundlage ein. Unknown, Untrusted, Revoked, Denied und Pending blockieren Lease und Frame.
+- MA008.03 fuehrt den Windows Local Frame E2E-Smoke ein: echte PDF, Windows Owner, Windows Guest, DevPairing, DevTransport, FrameOnly, No File Ingress, Return und Recovery.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -186,6 +189,7 @@ src/Communication/RKWorkspace.LocalIpc/ Kompatibilitaetsschicht fuer lokale IPC 
 src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und Netzwerk
 src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche mit interaktivem Workspace-Prototyp
 src/Tools/RKWorkspace.GlassEdgePdfFrameDemo/ Lokale Integration von Glass Edge, echter PDF, CarryLease, FrameSession und No File Ingress
+src/Tools/RKWorkspace.WindowsLocalFrameE2E/ Lokaler Windows Owner/Guest E2E-Smoke fuer RKWP DevTransport, PDF FrameOnly, Return und Recovery
 src/Agents/RKWorkspace.Agent/ LocalOnly Workspace Agent Runtime als Konsolenprozess
 tools/DualAgentHarness/ Dual Local Agent Simulation ohne Netzwerk und IPC
 tools/LocalIpcHarness/ Zwei-Prozess-Harness fuer lokale Named-Pipe-IPC
@@ -218,6 +222,7 @@ dotnet run --project .\tools\LocalSimulation\RKWorkspace.LocalSimulation.csproj
 .\tools\run-dual-agent.ps1
 .\tools\run-local-ipc.ps1
 .\tools\run-shell.ps1 -Once
+.\tools\run-windows-local-frame-e2e.ps1 -SmokeTest
 .\tools\run-shell.ps1 -OverlaySmokeTest
 .\tools\run-spatial-tray.ps1 -SmokeTest
 .\tools\run-native-overlay.ps1 -SmokeTest

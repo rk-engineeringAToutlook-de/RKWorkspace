@@ -1036,3 +1036,38 @@ if (-not $pdfFrameText.Contains('PdfFrameSmoke: SUCCESS')) {
 if (-not $pdfFrameText.Contains('RESULT: SUCCESS')) {
     throw "PDF Frame Smoke Test failed because output did not contain RESULT: SUCCESS."
 }
+
+Write-Host ''
+Write-Host 'Windows Local Frame E2E Smoke Test'
+Write-Host '----------------------------------'
+$windowsLocalFrameOutput = & (Join-Path $root 'tools\run-windows-local-frame-e2e.ps1') -SmokeTest 2>&1
+$windowsLocalFrameExitCode = $LASTEXITCODE
+$windowsLocalFrameText = $windowsLocalFrameOutput -join [Environment]::NewLine
+$windowsLocalFrameOutput | ForEach-Object { Write-Host $_ }
+if ($windowsLocalFrameExitCode -ne 0) {
+    throw "Windows Local Frame E2E Smoke Test failed with exit code $windowsLocalFrameExitCode."
+}
+
+if (-not $windowsLocalFrameText.Contains('DevPairing: SUCCESS')) {
+    throw "Windows Local Frame E2E Smoke Test failed because output did not contain DevPairing: SUCCESS."
+}
+
+if (-not $windowsLocalFrameText.Contains('TransportConnected: SUCCESS')) {
+    throw "Windows Local Frame E2E Smoke Test failed because output did not contain TransportConnected: SUCCESS."
+}
+
+if (-not $windowsLocalFrameText.Contains('NoFileIngress: SUCCESS')) {
+    throw "Windows Local Frame E2E Smoke Test failed because output did not contain NoFileIngress: SUCCESS."
+}
+
+if (-not $windowsLocalFrameText.Contains('Return: SUCCESS')) {
+    throw "Windows Local Frame E2E Smoke Test failed because output did not contain Return: SUCCESS."
+}
+
+if (-not $windowsLocalFrameText.Contains('Recovery: SUCCESS')) {
+    throw "Windows Local Frame E2E Smoke Test failed because output did not contain Recovery: SUCCESS."
+}
+
+if (-not $windowsLocalFrameText.Contains('RESULT: SUCCESS')) {
+    throw "Windows Local Frame E2E Smoke Test failed because output did not contain RESULT: SUCCESS."
+}

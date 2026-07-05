@@ -10,7 +10,7 @@ feature/ma008-rkwp-devtransport-e2e-frame
 
 ## Aktueller Auftrag
 
-MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.02 Ablage Identity, Trust Bootstrap und Pairing-Grundlage. Naechster Schritt: MA008.03 Windows Owner + Windows Guest Real PDF Frame End-to-End lokal.
+MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen und Windows-End-to-End-Frame-Tests auf. Aktueller Stand: MA008.03 Windows Owner + Windows Guest Real PDF Frame End-to-End lokal. Naechster Schritt: MA008.04 Glass Edge mit Real PDF Frame E2E verbinden.
 
 ## Implementierte Schichten
 
@@ -31,6 +31,7 @@ MA008-Folgepaket baut den ersten RKWP Dev-Transport, Trust/Pairing-Grundlagen un
 - `src/Communication/RKWorkspace.Transport.Dev`
 - `src/Tools/RKWorkspace.RkwpTransportHarness`
 - `src/Protocol/RKWorkspace.Protocol/Identity`
+- `src/Tools/RKWorkspace.WindowsLocalFrameE2E`
 
 ## Semantik
 
@@ -146,6 +147,22 @@ MA008.02 liefert:
 - `Docs/Protocol/RKWP_Pairing.md`
 
 Regel: Unknown, Untrusted, Revoked, Denied und Pending blockieren Lease und Frame. DevTrusted ist nur fuer lokale Dev-Tests gedacht. SecureSessionRequired blockiert `DevelopmentInsecure`.
+
+## Windows Local Frame E2E
+
+MA008.03 liefert:
+
+- `src/Tools/RKWorkspace.WindowsLocalFrameE2E/`
+- `tools/run-windows-local-frame-e2e.ps1`
+- `Docs/Development/WindowsLocalFrameE2E.md`
+
+Smoke:
+
+```powershell
+.\tools\run-windows-local-frame-e2e.ps1 -SmokeTest
+```
+
+Geprueft werden Windows Owner, Windows Guest, DevPairing, NamedPipeDev, echte Sample-PDF, OriginalOwned FrameOnly, aktive CarryLease, Owner-Lock, aktive FrameSession, Guest Frame, No File Ingress, Return und Recovery.
 
 ## Context Pack
 

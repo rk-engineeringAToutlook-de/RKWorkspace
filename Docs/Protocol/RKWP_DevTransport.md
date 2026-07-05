@@ -69,6 +69,7 @@ Der Smoke prueft:
 - `AblageCapabilities` wird ausgetauscht.
 - `SessionId` wird vereinbart.
 - `CarryLeaseHeartbeat` wird gesendet.
+- `CarryLeaseReturn` ist fuer lokale E2E-Rueckgabe vorbereitet.
 - `FrameUpdate` wird gesendet.
 - Error Message wird gesendet.
 - Disconnect wird erkannt.

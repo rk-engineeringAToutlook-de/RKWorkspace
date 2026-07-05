@@ -18,5 +18,6 @@ public enum TransportMessageType
     AblageHello,
     AblageCapabilities,
     CarryLeaseHeartbeat,
+    CarryLeaseReturn,
     FrameUpdate
 }

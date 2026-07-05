@@ -130,7 +130,7 @@ Erfolgskriterien:
 
 ## Reihenfolge Fuer Den Ersten Realen Test
 
-1. Windows Owner + Windows Local Guest Surface End-to-End.
+1. Windows Owner + Windows Local Guest Surface End-to-End. MA008.03 liefert diesen lokalen Smoke mit DevPairing, NamedPipeDev, FrameOnly, No File Ingress, Return und Recovery.
 2. Windows Owner + macOS Guest Surface.
 3. Windows Owner + iPad Guest Surface.
 4. macOS Owner + Windows Guest.
