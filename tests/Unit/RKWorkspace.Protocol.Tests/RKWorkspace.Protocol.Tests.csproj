@@ -11,5 +11,6 @@
     <ProjectReference Include="..\..\..\src\Protocol\RKWorkspace.Protocol\RKWorkspace.Protocol.csproj" />
     <ProjectReference Include="..\..\..\src\Frame\RKWorkspace.Frame.Pdf\RKWorkspace.Frame.Pdf.csproj" />
     <ProjectReference Include="..\..\..\src\Surfaces\RKWorkspace.Surface.Abstractions\RKWorkspace.Surface.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Adapters\RKWorkspace.ObjectAdapter.Windows\RKWorkspace.ObjectAdapter.Windows.csproj" />
   </ItemGroup>
 </Project>

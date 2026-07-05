@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.44.0
+Version: 2.45.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -100,6 +100,8 @@ Ab MA007.06 pruefen die RKWP-Tests zusaetzlich den Interactive Frame Input Chann
 Ab MA007.07 pruefen die RKWP-Tests zusaetzlich ChangeSet, Return und Versionierung. Geprueft werden ChangeSet-Erstellung, ungueltige Erstellung ohne Lease, ViewOnly-Ablehnung, Annotate-Erlaubnis, Owner Accept, Owner Reject ohne Originalaenderung, ForkVersion mit `VersionReference`, Expired Lease, Unsupported Operation und PolicyChanged mit RequireReview/Conflict.
 
 Ab MA007.08 pruefen die RKWP-Tests zusaetzlich Ownership Transfer und Materialization. Geprueft werden Default-Deny, Policy-erlaubtes CopyOut, bestaetigungspflichtiges MoveOwnership, SettingsWindow NotSupported, RemoteSession Capability Gate, MaterializationResult mit OriginalDisposition, MoveOwnership nur bei Approved, RetainOriginal, MarkAsMoved, CreateVersionLink mit VersionReference und Denied ohne Ownership-Aenderung.
+
+Ab MA007.09 pruefen die RKWP-Tests zusaetzlich Windows Object Adapter. Geprueft werden PDF-Dateierkennung als `PdfDocument`, OriginalOwned-Referenz, kein Guest File, ClipboardText als Text oder sauber vorbereitet, ScreenshotRegion Stub, WindowSnapshot Stub und unbekannte Dateitypen als FileReference ohne No-File-Ingress-Verletzung.
 
 ## MA003.05 Core Integration Tests
 
@@ -918,6 +920,7 @@ Smoke-Test:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.45.0 | 2026-07-05 | MA007.09 Windows Object Adapter, PDF FileReference, ClipboardText und Screenshot/WindowSnapshot-Stubs dokumentiert. |
 | 2.44.0 | 2026-07-05 | MA007.08 Ownership Transfer Gate, MaterializationResult, OriginalDisposition und Objektartregeln dokumentiert. |
 | 2.43.0 | 2026-07-05 | MA007.07 ChangeSet, Return, VersionReference, Owner-Entscheidung und Konfliktregeln dokumentiert. |
 | 2.42.0 | 2026-07-05 | MA007.06 Interactive Frame Input Channel mit Policy-Pruefung, Lease-/FrameSession-Bindung und Audit-Denials dokumentiert. |

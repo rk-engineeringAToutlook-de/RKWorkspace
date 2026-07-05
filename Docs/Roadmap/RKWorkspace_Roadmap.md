@@ -28,10 +28,10 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA007.08 modelliert Ownership Transfer und Materialization als eigenes Gate. Default bleibt OriginalOwned + FrameOnly. CopyOut/ForkVersion/MoveOwnership brauchen Policy, Objektartregeln und bei MoveOwnership starke Bestaetigung. Denied/NotSupported erzeugen keine neue Quelle der Wahrheit.
+MA007.09 bereitet die ersten Windows Object Adapter vor. Eine echte PDF-Datei kann als `PdfDocument`/OriginReference erkannt werden, bleibt OriginalOwned und erzeugt keine Guest-Datei. ClipboardText, ScreenshotRegion und WindowSnapshot sind als sichere Starterpfade vorbereitet.
 
 ## Naechster Fokus
 
-Nach MA007.08 liegt der Fokus auf echten Windows-Objektquellen, Plattform-Handoff fuer macOS/iOS/iPadOS/Android/Linux und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
+Nach MA007.09 liegt der Fokus auf Plattform-Handoff fuer macOS/iOS/iPadOS/Android/Linux und Proximity/ManualMap. Echte PDF-Seitenrendering-Pfade bleiben ein separater Renderer-Blocker.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.

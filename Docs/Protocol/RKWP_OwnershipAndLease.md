@@ -75,6 +75,8 @@ MA007.06 ergaenzt den Input Channel. Eingaben im Frame sind keine Besitzuebernah
 
 MA007.07 fuehrt `ChangeSet` als Rueckgabemodell fuer kontrollierte Aenderungen ein. Der Guest kann damit nur einen Aenderungsvorschlag einreichen. `Reject` veraendert das Original nicht; `ForkVersion` erzeugt eine `VersionReference`; `ApplyToOriginal` bleibt eine bewusste Owner-Entscheidung.
 
+MA007.09 bereitet Windows Object Adapter vor. Eine echte PDF-Datei wird als `PdfDocument` und `OriginReference` auf der Owner-Ablage registriert. Der Adapter erzeugt keine Guest-Datei und aendert Ownership nicht.
+
 ## MA007.01 PDF FrameOnly Smoke
 
 Die erste echte Datei im Test ist `samples/Objects/Rechnung.pdf`. Sie bleibt auf der Owner-Ablage, wird waehrend der Lease logisch gesperrt und erscheint auf der Gastablage nur als Frame-Repräsentation.

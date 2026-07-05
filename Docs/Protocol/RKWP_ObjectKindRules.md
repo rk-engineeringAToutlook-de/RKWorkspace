@@ -50,3 +50,15 @@ Besitzuebernahme ist objektartabhaengig:
 - SnapshotRegion: SnapshotExport nur nach Policy.
 
 Default bleibt `OriginalOwned + FrameOnly`.
+
+## MA007.09 Windows Object Adapter
+
+Der erste echte Windows-Adapter erkennt PDF-Dateien ueber `WindowsFileReferenceAdapter` als `PdfDocument`. Er erzeugt eine `OriginReference`, bleibt OriginalOwned und erzeugt keine Guest-Datei.
+
+Weitere Windows-Quellen sind vorbereitet:
+
+- ClipboardText als `Text`
+- ScreenshotRegion als Stub
+- WindowSnapshot/SettingsWindow als Stub
+
+Alle Pfade respektieren No File Ingress.

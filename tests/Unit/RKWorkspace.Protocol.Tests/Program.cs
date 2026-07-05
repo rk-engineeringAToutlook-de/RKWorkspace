@@ -1,4 +1,5 @@
 using RKWorkspace.Frame.Pdf;
+using RKWorkspace.ObjectAdapter.Windows;
 using RKWorkspace.Protocol;
 using RKWorkspace.Protocol.Ownership;
 using RKWorkspace.Surface.Abstractions;
@@ -48,6 +49,13 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("OwnershipTransferMarkAsMoved", OwnershipTransferMarkAsMoved),
     ("OwnershipTransferCreateVersionLink", OwnershipTransferCreateVersionLink),
     ("OwnershipTransferDeniedDoesNotChangeOwnership", OwnershipTransferDeniedDoesNotChangeOwnership),
+    ("WindowsFileReferenceRecognizesPdf", WindowsFileReferenceRecognizesPdf),
+    ("WindowsFileReferenceKeepsOriginalOwned", WindowsFileReferenceKeepsOriginalOwned),
+    ("WindowsFileReferenceCreatesNoGuestFile", WindowsFileReferenceCreatesNoGuestFile),
+    ("WindowsClipboardTextRecognizedOrPrepared", WindowsClipboardTextRecognizedOrPrepared),
+    ("WindowsScreenshotRegionStubPrepared", WindowsScreenshotRegionStubPrepared),
+    ("WindowsWindowSnapshotStubPrepared", WindowsWindowSnapshotStubPrepared),
+    ("WindowsUnknownFileTypeCapturedAsFileReference", WindowsUnknownFileTypeCapturedAsFileReference),
     ("ObjectKindRules", ObjectKindRuleChecks),
     ("NoFileIngress", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).GuestHasNoFileIngress),
     ("PdfFrameOnly", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).IsSuccessful),
@@ -547,6 +555,85 @@ static bool OwnershipTransferDeniedDoesNotChangeOwnership()
            !materialized.CreatedGuestThing;
 }
 
+static bool WindowsFileReferenceRecognizesPdf()
+{
+    var adapter = new WindowsFileReferenceAdapter();
+    var result = adapter.CaptureFileReference(SamplePdfPath(), "ablage-windows-owner", DateTimeOffset.UtcNow);
+    return result.Succeeded &&
+           result.ObjectKind == ObjectKind.PdfDocument &&
+           result.CaptureMode == ObjectCaptureMode.FileReference &&
+           result.DefaultMode == OwnershipMode.FrameOnly;
+}
+
+static bool WindowsFileReferenceKeepsOriginalOwned()
+{
+    var adapter = new WindowsFileReferenceAdapter();
+    var result = adapter.CaptureFileReference(SamplePdfPath(), "ablage-windows-owner", DateTimeOffset.UtcNow);
+    return result.OriginalOwned &&
+           result.OwnerAblageId == "ablage-windows-owner" &&
+           result.OriginReference.OwnerAblageId == "ablage-windows-owner" &&
+           result.OriginReference.SourceKind == "WindowsFileReference";
+}
+
+static bool WindowsFileReferenceCreatesNoGuestFile()
+{
+    var adapter = new WindowsFileReferenceAdapter();
+    var result = adapter.CaptureFileReference(SamplePdfPath(), "ablage-windows-owner", DateTimeOffset.UtcNow);
+    return !result.GuestFileCreated &&
+           result.GuestHasNoFileIngress &&
+           result.OriginReference.SourceLocation is not null;
+}
+
+static bool WindowsClipboardTextRecognizedOrPrepared()
+{
+    var adapter = new WindowsClipboardTextAdapter();
+    var captured = adapter.CaptureText("RK Workspace Text", "ablage-windows-owner", DateTimeOffset.UtcNow);
+    var prepared = adapter.CaptureText(string.Empty, "ablage-windows-owner", DateTimeOffset.UtcNow);
+    return captured.Succeeded &&
+           captured.ObjectKind == ObjectKind.Text &&
+           captured.DefaultMode == OwnershipMode.FrameOnly &&
+           prepared.Status == ObjectCaptureStatus.Prepared;
+}
+
+static bool WindowsScreenshotRegionStubPrepared()
+{
+    var adapter = new WindowsScreenshotRegionAdapter();
+    var result = adapter.Prepare("ablage-windows-owner", DateTimeOffset.UtcNow);
+    return result.Status == ObjectCaptureStatus.Prepared &&
+           result.ObjectKind == ObjectKind.ScreenshotRegion &&
+           result.Metadata.ContainsKey("stub") &&
+           !result.GuestFileCreated;
+}
+
+static bool WindowsWindowSnapshotStubPrepared()
+{
+    var adapter = new WindowsWindowSnapshotAdapter();
+    var result = adapter.Prepare("ablage-windows-owner", DateTimeOffset.UtcNow);
+    return result.Status == ObjectCaptureStatus.Prepared &&
+           result.ObjectKind == ObjectKind.SettingsWindow &&
+           result.DefaultMode == OwnershipMode.InteractiveFrame &&
+           !result.GuestFileCreated;
+}
+
+static bool WindowsUnknownFileTypeCapturedAsFileReference()
+{
+    var tempFile = Path.Combine(Path.GetTempPath(), $"rkws-unknown-{Guid.NewGuid():N}.rkws-test");
+    File.WriteAllText(tempFile, "unknown file type");
+    try
+    {
+        var adapter = new WindowsFileReferenceAdapter();
+        var result = adapter.CaptureFileReference(tempFile, "ablage-windows-owner", DateTimeOffset.UtcNow);
+        return result.Succeeded &&
+               result.ObjectKind == ObjectKind.ExplorerFile &&
+               result.CaptureMode == ObjectCaptureMode.FileReference &&
+               !result.GuestFileCreated;
+    }
+    finally
+    {
+        File.Delete(tempFile);
+    }
+}
+
 static bool ObjectKindRuleChecks()
 {
     var pdf = ObjectKindRules.For(ObjectKind.PdfDocument);
@@ -790,6 +877,11 @@ static OwnershipPolicy OwnershipTransferPolicy(RkwpAllowedAction actions, bool r
         OwnershipTransferAllowed = true,
         RequiresUserConfirmation = requiresUserConfirmation
     };
+}
+
+static string SamplePdfPath()
+{
+    return Path.Combine(FindRoot(), "samples", "Objects", "Rechnung.pdf");
 }
 
 static FrameInputEvent Input(
