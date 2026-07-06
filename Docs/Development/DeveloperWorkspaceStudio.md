@@ -209,6 +209,8 @@ Der Human Experience Playground veraendert ebenfalls keine Core-Komponenten und 
 
 Workspace Shell Runtime Host und Developer Studio teilen keine Produktoberflaeche. Der Shell Host ist vorbereitet fuer Overlay, Adapter und Carry State, zeigt aber noch kein Fenster und besitzt keine OS-Hooks. Das Studio darf Shell-Ideen sichtbar erproben, ist aber nicht der spaetere Benutzerzugang.
 
+Die Manual-Map-Bedienung wird als naechste Diagnose-Registerkarte geplant. Der aktuelle verbindliche UI-Plan liegt unter `Docs/Development/ManualMapStudioUiPlan.md`. Bis zur sichtbaren Umsetzung bleibt die CLI `tools/run-manual-map.ps1` der stabile Owner-Lab-Pfad fuer Ablagen, Richtung, Entfernung, Confidence und Plattformhinweis.
+
 Der Workspace Overlay Prototype wird nicht im Studio gestartet. Er laeuft ueber:
 
 ```powershell

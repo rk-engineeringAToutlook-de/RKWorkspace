@@ -76,3 +76,15 @@ Der Dongle darf spaeter helfen bei:
 - Revocation-Hinweis
 
 Er darf weiterhin keine Originaldaten aufnehmen und keine Ownership-Entscheidung treffen.
+
+## MA013 Hardware Readiness
+
+Die naechsten Dongle-Dokumente liegen unter:
+
+```text
+Docs/Hardware/AblageAnchorDongle_MVP.md
+Docs/Hardware/DongleFirmwareArchitecture.md
+Docs/Hardware/UsbDongleControlProtocol.md
+```
+
+Sie fixieren den Dongle weiterhin als Ablage-Anker, nicht als Transferstick.

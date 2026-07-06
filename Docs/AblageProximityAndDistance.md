@@ -68,6 +68,16 @@ MA011.07 erweitert die Manual Map zur vollstaendigen Lab-CLI. Der Owner kann Abl
 
 Der `NearestAblageSelector` nutzt diese Map direkt. Trotz mehrerer Ablagen bleibt die Glass Edge bei genau einer naechsten Ablage.
 
+MA013.51 bis MA013.60 bereiten die echte Entfernungsthematik weiter vor:
+
+- `Docs/Development/ManualMapStudioUiPlan.md` beschreibt die geplante Studio-Sicht.
+- `Docs/Proximity/BleDiscoverySpike.md` beschreibt BLE als grobe Naehequelle.
+- `Docs/Proximity/WiFiPresenceProvider.md` beschreibt WiFi Presence und den ersten Shell-Modell-Slice.
+- `Docs/Proximity/UwbRequirements.md` definiert UWB-Anforderungen.
+- `Docs/Hardware/AblageAnchorDongle_MVP.md` beschreibt den Dongle als Ablage-Anker.
+- `Docs/Proximity/SensorFusionRoadmap.md` ordnet alle Quellen in eine spaetere Fusion ein.
+- `Docs/Proximity/EdgeSelectionUserControl.md` beschreibt Owner-Overrides fuer die eine Glass Edge.
+
 ## Manual Map
 
 `ManualAblageMap` beschreibt eine Ablage relativ zur aktuellen Arbeitsflaeche:

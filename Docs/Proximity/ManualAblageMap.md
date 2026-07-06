@@ -155,3 +155,13 @@ Dadurch entstehen:
 - FrameSession.
 - No File Ingress.
 - Return und Recovery.
+
+## Developer Studio Plan
+
+AP151 haelt fest, dass die sichtbare Studio-Bedienung fuer Manual Map geplant ist, aber in diesem Schritt nicht als grosser GUI-Umbau erfolgt. Der verbindliche Plan liegt hier:
+
+```text
+Docs/Development/ManualMapStudioUiPlan.md
+```
+
+Bis dahin bleibt `tools/run-manual-map.ps1` die stabile Owner-Lab-Bedienung.

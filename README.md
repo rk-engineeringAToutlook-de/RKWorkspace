@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.63.0
+Version: 2.64.0
 Status: Accepted  
 Datum: 2026-07-06
 
@@ -109,6 +109,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA013.21 bis MA013.30 vertiefen Security: Crypto-Entscheidung, Mutual Authentication, Zertifikatsprovisioning, Pairing Experience, Emergency Return, Product Transport, Secrets Storage, Audit Tamper Resistance, Security Regression Suite und Security Readiness Gate.
 - MA013.31 bis MA013.40 vertiefen den PDF/Frame-Produktpfad: Renderer-Produktentscheidung, Multi-Page, Tiles/Viewport, Annotation-ChangeSets, Text-Extraction-Policy, Renderer-Sandbox, Performance-Baseline, Malformed-PDF-Handling, Pilot-UI und PDF Renderer Readiness Gate.
 - MA013.41 bis MA013.50 vertiefen Object Adapter: Explorer-Auswahl, Clipboard Text/Image, ScreenshotRegion, WindowSnapshot, AppWindow InteractiveFrame Roadmap, SettingsWindow-Policy, RemoteSession-Handoff-Simulation, BrowserTab-Strategie, EmailDraft-Roadmap und ObjectAdapter Readiness Gate.
+- MA013.51 bis MA013.60 vertiefen Proximity und Hardware Readiness: Manual-Map-Studio-Plan, BLE Discovery Spike, WiFi Presence Provider, UWB Requirements, Ablage Anchor Dongle MVP, Firmware-Architektur, USB-Control-Protokoll, Sensor-Fusion-Roadmap, Edge Selection User Control und Proximity Readiness Gate.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.

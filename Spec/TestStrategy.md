@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.47.0
+Version: 2.48.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -128,6 +128,8 @@ Ab MA013.29 buendelt `tools/run-security-regression.ps1` die sicherheitskritisch
 Ab MA013.31 bis MA013.40 pruefen PDF/Frame-Tests den Produktpfad. `run-pdf-frame-smoke.ps1` verlangt Multi-Page-Navigation und PageFrameUpdates, `run-rkwp-tests.ps1` prueft PdfDocumentFrameState, TilePipeline, AnnotationKinds, TextExtractionPolicy und MalformedPdfHandling, `run-rkwp-perf.ps1 -SmokeTest` misst First/Next Page Render, Tile-Generation, Framegroesse und Speicher, und `run-windows-pdf-frame-pilot.ps1 -SmokeTest` prueft Seitennavigation, Zoom, Scroll, Rueckgabe, Recovery und No File Ingress.
 
 Ab MA013.41 bis MA013.50 prueft `tools/run-windows-object-adapter.ps1 -SmokeTest` ExplorerSelection, ClipboardText, ClipboardImage, ScreenshotRegion, WindowSnapshot, RemoteSession, No File Ingress und NoAutoOwnershipTransfer. `tools/run-tests.ps1` fuehrt diesen Smoke in der Foundation-Kette aus. Die RKWP-Tests pruefen zusaetzlich SettingsWindow Input Policy und RemoteSession SessionHandoff Capability Gates.
+
+Ab MA013.51 bis MA013.60 bleiben Proximity und Hardware Readiness bewusst im Shell-/Dokumentationspfad. Verifiziert werden `run-studio.ps1 -SmokeTest`, `run-rkwp-tests.ps1`, `run-tests.ps1` und `export-codex-context.ps1`. Der Block verlangt, dass Manual Map, BLE, WiFi, UWB, Dongle, USB Control, Sensor Fusion und Edge Selection User Control dokumentiert sind, dass `WiFiPresenceProvider` und `EdgeSelectionOverride` mitgebaut werden und dass trotzdem keine Discovery-, Transport-, Ownership- oder Frame-Policy geaendert wird.
 
 ## MA003.05 Core Integration Tests
 
