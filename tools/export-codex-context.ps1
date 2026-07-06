@@ -65,8 +65,12 @@ $files = @(
     'Docs\Readiness\MA009_ReadinessReview.md',
     'Docs\Readiness\MA009_RealLabTestPlan.md',
     'Docs\Readiness\MA009_NextCodexActions.md',
+    'Docs\Readiness\MA010_ReadinessReview.md',
+    'Docs\Readiness\MA010_PilotTestPlan.md',
+    'Docs\Readiness\MA010_NextPlatformCodexActions.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
+    'Docs\Readiness\WindowsToMac_LanTestPlan.md',
     'Docs\Readiness\iPad_iPhone_Surface_TestPlan.md',
     'Docs\Readiness\NextCodexActions.md',
     'Docs\Platform\macOS_SurfaceStarterKit.md',
@@ -92,14 +96,32 @@ $files = @(
     'Docs\Codex\PlatformTasks\Linux.md',
     'Spec\TestStrategy.md',
     'Spec\ProductPhilosophy.md',
+    'Docs\Configuration\RKWorkspaceConfiguration.md',
+    'Docs\Development\WindowsPdfFramePilot.md',
+    'Docs\Development\MacGuestCompatibilityHarness.md',
+    'Docs\Development\iOSGuestCompatibilityHarness.md',
+    'Docs\Development\WindowsOwnerForMac.md',
+    'Docs\Frame\PdfFrameRendererDecision.md',
+    'Docs\Frame\PdfFrameRendererAbstraction.md',
+    'Docs\Frame\FrameCachePolicy.md',
+    'Docs\Platform\WindowsAgentInstallationPlan.md',
+    'Docs\Platform\WindowsServicePlan.md',
+    'Docs\Platform\WindowsPermissions.md',
     'release\MA007_READINESS_SUMMARY.md',
     'release\MA009_READINESS_SUMMARY.md',
+    'release\MA010_READINESS_SUMMARY.md',
     'release\handoff\WindowsToMac_MA008_Handoff.md',
     'release\handoff\WindowsToMac_MA009_Handoff.md',
     'release\handoff\macOS_Codex_MA009_FrameGuestSurface.md',
     'release\handoff\iOS_iPadOS_Codex_MA009_SurfaceApp.md',
     'release\handoff\iOS_iPadOS_MA008_Handoff.md',
     'config\samples\manual-ablage-map.sample.json',
+    'config\samples\rkworkspace.sample.json',
+    'config\samples\ablage.sample.json',
+    'config\samples\rkwp-dev.sample.json',
+    'config\samples\rkwp-dev-lan-owner.sample.json',
+    'config\samples\rkwp-dev-lan-guest.sample.json',
+    'config\samples\policy-critical.sample.json',
     'src\Shell\RKWorkspace.Shell\Ablage\ManualAblageMap.cs',
     'src\Frame\RKWorkspace.Frame.Pdf\OwnerGuestFrameStateUx.cs',
     'src\Protocol\RKWorkspace.Protocol\Ownership\RkwpPolicyProfiles.cs',
@@ -110,7 +132,13 @@ $files = @(
     'tools\run-rkwp-diagnostics.ps1',
     'tools\run-manual-map.ps1',
     'tools\run-policy-profile.ps1',
-    'tools\run-rkwp-perf.ps1'
+    'tools\run-rkwp-perf.ps1',
+    'tools\run-rkwp-lan-smoke.ps1',
+    'tools\run-windows-pdf-frame-pilot.ps1',
+    'tools\run-config-tool.ps1',
+    'tools\run-windows-agent-dev.ps1',
+    'tools\run-mac-guest-compat.ps1',
+    'tools\run-ios-guest-compat.ps1'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }
@@ -127,15 +155,23 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-windows-owner-for-mac.ps1 -InfoOnly
 .\tools\run-rkwp-diagnostics.ps1 -SmokeTest
 .\tools\run-rkwp-perf.ps1 -SmokeTest
+.\tools\run-rkwp-lan-smoke.ps1
+.\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
+.\tools\run-config-tool.ps1 -SmokeTest
+.\tools\run-windows-agent-dev.ps1 -SmokeTest
+.\tools\run-mac-guest-compat.ps1 -SmokeTest
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
 .\tools\export-codex-context.ps1
 '@ | Set-Content -Path (Join-Path $staging 'test-commands.txt') -Encoding UTF8
 
 @'
 Windows: RKWP Frame Presenter an Native Glass Edge anbinden.
-macOS: Surface Host, Gesten und FrameOnly View planen.
-iOS/iPadOS: Tablet-/Phone-Ablage mit TouchHold und FrameOnly View planen.
-Android: Touch/Haptik und FrameOnly View planen.
-Linux: Minimal Surface Host fuer Desktop/Industrie planen.
+Windows: Baue sichtbaren Windows PDF Owner/Guest Pilot weiter aus und stabilisiere Frame UI.
+macOS: Baue macOS Frame Guest Surface mit RKWP DevLan Client.
+iOS/iPadOS: Baue iPad/iPhone RK Workspace Surface App, die RKWP Frame anzeigen kann, Haptik unterstuetzt und No File Ingress respektiert.
+Android: Baue Android Frame Guest Surface mit RKWP DevTransport.
+Linux: Baue Linux Frame Guest Surface unter Wayland/X11-Beruecksichtigung.
+Hardware: Definiere Dongle Hardware MVP fuer Ablage-Anker mit BLE/UWB/USB.
 '@ | Set-Content -Path (Join-Path $staging 'platform-next-steps.txt') -Encoding UTF8
 
 Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $zipPath -Force
