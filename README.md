@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.66.0
+Version: 2.67.0
 Status: Accepted  
 Datum: 2026-07-06
 
@@ -112,6 +112,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA013.51 bis MA013.60 vertiefen Proximity und Hardware Readiness: Manual-Map-Studio-Plan, BLE Discovery Spike, WiFi Presence Provider, UWB Requirements, Ablage Anchor Dongle MVP, Firmware-Architektur, USB-Control-Protokoll, Sensor-Fusion-Roadmap, Edge Selection User Control und Proximity Readiness Gate.
 - MA013.61 bis MA013.70 vertiefen UX und Human Experience fuer Original-Owned Frame: Glass Edge nach Frame-Flow, digitale Hand fuer echte Objekte, Owner/Guest Frame State Machine, Haptics Abstraction v1, Interaction Timing Lab, Accessibility, menschliche Fehler-UX, Original-Owned Frame Test Harness, Owner Feedback Log und UX Readiness Gate.
 - MA013.71 bis MA013.80 vertiefen Operations Readiness: Config-Tool-Modi List/Show/Validate/UseProfile/CreateLocal/Redact, Policy Editor Plan, Critical Infrastructure Policy Pack, Audit Viewer CLI, Diagnostics Dashboard Plan, Log Retention/Redaction, Offline/Reconnect, Ablage Identity Backup/Restore, Lab Admin Guide und Operations Readiness Gate.
+- MA013.81 bis MA013.90 vertiefen Installations- und Plattform-Readiness: Windows Agent Dev Service v2, Windows Dev Package, macOS Agent Installer Plan, iOS TestFlight/Dev Install Plan, Android und Linux Implementation Plans, Cross-Platform CI Plan, Code Signing Plan, Update Mechanism Plan und Install Readiness Gate.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.

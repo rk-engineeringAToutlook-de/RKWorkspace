@@ -1,4 +1,11 @@
 param(
+    [switch] $Start,
+    [switch] $Stop,
+    [switch] $Status,
+    [switch] $Identity,
+    [switch] $Transport,
+    [switch] $FrameOwner,
+    [switch] $GuestSurface,
     [switch] $SmokeTest,
     [string] $AblageId = 'ablage-windows-dev-agent',
     [string] $BindAddress = '127.0.0.1',
@@ -16,6 +23,13 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $arguments = @('--ablage-id', $AblageId, '--bind-address', $BindAddress, '--port', $Port.ToString())
+if ($Start) { $arguments += '--start' }
+if ($Stop) { $arguments += '--stop' }
+if ($Status) { $arguments += '--status' }
+if ($Identity) { $arguments += '--identity' }
+if ($Transport) { $arguments += '--transport' }
+if ($FrameOwner) { $arguments += '--frame-owner' }
+if ($GuestSurface) { $arguments += '--guest-surface' }
 if ($SmokeTest) {
     $arguments += '--smoke-test'
 }
@@ -33,6 +47,12 @@ if ($SmokeTest) {
         'AgentStarted: OK',
         'NoInstallationRequired: OK',
         'AblageIdentity: OK',
+        'IdentityMode: OK',
+        'TransportMode: OK',
+        'FrameOwnerMode: OK',
+        'GuestSurfaceMode: OK',
+        'StatusMode: OK',
+        'StopMode: OK',
         'RkwpComponentsReachable: OK',
         'Shutdown: OK',
         'WindowsAgentDevSmoke: SUCCESS',

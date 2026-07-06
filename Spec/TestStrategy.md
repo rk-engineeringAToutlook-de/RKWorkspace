@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.50.0
+Version: 2.51.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -134,6 +134,8 @@ Ab MA013.51 bis MA013.60 bleiben Proximity und Hardware Readiness bewusst im She
 Ab MA013.61 bis MA013.70 pruefen die RKWP-Tests zusaetzlich die Haptics Abstraction v1: `HapticHint`, `HapticPattern`, `HapticIntensity` und `HapticCapability` muessen Pick, EdgeNear, EdgeEnter, FrameArrived, Return, Denied und ConnectionLost abdecken. Der restliche Block ist UX-/HX-Readiness und wird ueber Dokumente plus Foundation-Tests verifiziert: Glass Edge nach Frame-Flow, digitale Hand fuer echte Objekte, Owner/Guest Frame State Machine, Interaction Timing, Accessibility, Fehler-UX, Original-Owned Frame Test Harness, Owner Feedback Log und UX Readiness Gate.
 
 Ab MA013.71 bis MA013.80 pruefen `run-config-tool.ps1 -SmokeTest`, `run-policy-profile.ps1 -SmokeTest`, `run-rkwp-diagnostics.ps1 -SmokeTest`, `run-rkwp-tests.ps1` und `run-tests.ps1` die Operations-Vorstufe. Config muss List, Show, Validate, UseProfile, CreateLocal und Redact koennen. Policy muss das Critical-Infrastructure-Pack kennen. Diagnostics muss AuditList, Session, Lease, Violations und Markdown Export vorbereiten. Offline/Reconnect, Log Retention, Identity Backup/Restore, Lab Admin Guide und Operations Readiness sind dokumentierte Gates.
+
+Ab MA013.81 bis MA013.90 pruefen `run-windows-agent-dev.ps1 -SmokeTest`, `package-windows-dev.ps1 -SmokeTest` und `run-tests.ps1` die Installationsvorbereitung. Windows Agent Dev muss Start, Stop, Status, Identity, Transport, FrameOwner und GuestSurface melden. Windows Dev Package muss Scripts, Config Samples, Critical Infrastructure Policy Pack, NoSecrets und Uninstall-Vorbereitung enthalten. macOS, iOS, Android, Linux, Cross-Platform CI, Code Signing, Updates und Install Readiness sind dokumentierte Gates.
 
 ## MA003.05 Core Integration Tests
 
