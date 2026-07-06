@@ -29,6 +29,18 @@ public sealed record PdfFrameSmokeResult(
             PdfFrameRepresentationKind.RenderedFirstPage or
             PdfFrameRepresentationKind.RenderedPageImage;
 
+    public IReadOnlyList<VisibleFrameState> VisibleStates =>
+        OwnerGuestFrameStateUx.CreateTimeline(Ownership, Lease, FrameSession, ReturnedLease, Recovery);
+
+    public string OwnerVisibleStatus =>
+        OwnerGuestFrameStateUx.GetOwnerText(OwnerGuestFrameStateUx.GetOwnerState(Ownership, Lease));
+
+    public string GuestVisibleStatus =>
+        OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(FrameSession));
+
+    public bool VisibleStateLanguageIsValid =>
+        OwnerGuestFrameStateUx.ValidateVisibleText(VisibleStates.Select(state => state.Text)).IsValid;
+
     public bool IsSuccessful =>
         OwnerStillOwnsOriginal &&
         GuestHasNoFileIngress &&
@@ -37,5 +49,6 @@ public sealed record PdfFrameSmokeResult(
         FrameSession.State == FrameSessionState.Active &&
         ReturnedLease.State == CarryLeaseState.Returned &&
         Recovery.OwnerRecoveredThing &&
-        Recovery.GuestFrameInvalidated;
+        Recovery.GuestFrameInvalidated &&
+        VisibleStateLanguageIsValid;
 }

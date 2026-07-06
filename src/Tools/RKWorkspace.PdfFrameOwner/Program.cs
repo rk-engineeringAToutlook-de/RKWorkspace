@@ -17,6 +17,11 @@ Console.WriteLine($"FrameRepresentation: {(result.GuestShowsFrameRepresentation 
 Console.WriteLine($"PreviewKind: {result.GuestFrame.RepresentationKind}");
 Console.WriteLine($"RendererStatus: {result.GuestFrame.RendererStatus}");
 Console.WriteLine($"OwnerLocked: {(result.OwnerStillOwnsOriginal ? "OK" : "FAILED")}");
+Console.WriteLine($"OwnerVisibleStatus: {result.OwnerVisibleStatus}");
+Console.WriteLine($"GuestVisibleStatus: {result.GuestVisibleStatus}");
+Console.WriteLine($"OwnerStateFlow: {FormatFlow(result.VisibleStates, "Owner")}");
+Console.WriteLine($"GuestStateFlow: {FormatFlow(result.VisibleStates, "Guest")}");
+Console.WriteLine($"VisibleStateLanguage: {(result.VisibleStateLanguageIsValid ? "SUCCESS" : "FAILED")}");
 Console.WriteLine($"NoFileIngress: {(result.GuestHasNoFileIngress ? "OK" : "FAILED")}");
 Console.WriteLine($"ReturnState: {result.ReturnedLease.State}");
 Console.WriteLine("Rueckgabe: PDF auf Owner-Ablage logisch freigegeben.");
@@ -35,6 +40,13 @@ static string? GetArgument(IReadOnlyList<string> args, string name)
     }
 
     return null;
+}
+
+static string FormatFlow(IReadOnlyList<VisibleFrameState> states, string scope)
+{
+    return string.Join(" -> ", states
+        .Where(state => string.Equals(state.Scope, scope, StringComparison.Ordinal))
+        .Select(state => state.Text));
 }
 
 static string FindSamplePdf()

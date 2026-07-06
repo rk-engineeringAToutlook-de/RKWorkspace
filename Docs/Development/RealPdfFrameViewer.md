@@ -58,6 +58,16 @@ Auch bei echtem Rendering bleibt:
 
 Der Smoke prueft Sample-PDF, CarryLease, FrameSession, FrameRepresentation, GuestHasPdfFile `NO`, OriginalFileBytes `NO`, Rueckgabe, Recovery und `NoFileIngress: SUCCESS`.
 
+Ab MA009.08 prueft der Smoke zusaetzlich die testbare Owner/Guest-State-UX:
+
+- Owner sichtbar: `wartet auf Rueckgabe`
+- Guest sichtbar: `liegt hier im Frame`
+- Rueckgabe sichtbar: `zurueckgegeben`
+- Recovery sichtbar: `wieder verfuegbar`
+- Revocation sichtbar: `nicht verfuegbar`
+- Ablauf sichtbar: `Verbindung verloren`
+- sichtbare Zustandstexte enthalten keine verbotenen Produktwoerter
+
 ## Naechster Schritt
 
 Der naechste echte Viewer-Schritt ist ein Owner-seitiger Renderer-Prototyp, der die erste Seite als Bild-/FrameUpdate erzeugt. Erst danach soll eine Gastoberflaeche das Bild anzeigen.

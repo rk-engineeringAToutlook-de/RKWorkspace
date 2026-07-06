@@ -91,6 +91,26 @@ Wichtige Regeln:
 - PresentationOnly blockiert Input und Extract.
 - TrustedPersonalDevices erlaubt interaktive Frames, aber CopyOut bleibt bestaetigungsgebunden.
 
+## Owner/Guest Frame State UX
+
+MA009.08 macht die wichtigsten Lease- und Frame-Zustaende fuer Tests sichtbar. Die gemeinsame Logik liegt in `OwnerGuestFrameStateUx`.
+
+Owner-Texte:
+
+- `ausgeliehen`
+- `wartet auf Rueckgabe`
+- `zurueckgegeben`
+- `wieder verfuegbar`
+
+Guest-Texte:
+
+- `liegt hier im Frame`
+- `zurueckgeben`
+- `nicht verfuegbar`
+- `Verbindung verloren`
+
+Diese Texte sind bewusst menschennaeher als die technischen Enums. Sie duerfen nicht suggerieren, dass eine Datei auf die Gastablage kopiert wurde.
+
 ## Glass Edge Integration
 
 MA007.04 nutzt die Glass Edge als Ausloeser fuer den FrameOnly-Pfad. Die Kante zeigt die naechste Ablage, die CarryLease bleibt an den Owner gebunden, und die Zielablage bekommt nur eine Frame-Darstellung. Rueckgabe setzt die Lease auf `Returned`; Recovery nach Heartbeat-Verlust fuehrt zu `RecoveredByOwner`.

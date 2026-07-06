@@ -335,6 +335,14 @@ MA009.07 liefert Policy Profiles:
 
 Profile: CriticalInfrastructure, OfficeDefault, DevelopmentLab, PresentationOnly, TrustedPersonalDevices. CriticalInfrastructure verlangt SecureSession/Audit und blockiert OwnershipTransfer. OfficeDefault erlaubt CopyOut nur mit Bestaetigung. DevelopmentLab erlaubt DevMode nur fuer Tests.
 
+MA009.08 liefert Owner/Guest Frame State UX fuer Tests:
+
+- `src/Frame/RKWorkspace.Frame.Pdf/OwnerGuestFrameStateUx.cs`
+- `Docs/Development/OwnerGuestFrameStateUX.md`
+- Owner sichtbar: `wartet auf Rueckgabe`, `zurueckgegeben`, `wieder verfuegbar`
+- Guest sichtbar: `liegt hier im Frame`, `nicht verfuegbar`, `Verbindung verloren`
+- `run-pdf-frame-smoke.ps1` und `run-windows-local-frame-e2e.ps1 -SmokeTest` pruefen die sichtbaren Zustandstexte.
+
 ## Context Pack
 
 Stabiler Pfad:

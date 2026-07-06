@@ -37,6 +37,7 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PdfFrameInteractionAcceptApplied", PdfFrameInteractionAcceptApplied),
     ("PdfFrameInteractionRejectKeepsOriginal", PdfFrameInteractionRejectKeepsOriginal),
     ("PdfFrameInteractionNoFileIngress", PdfFrameInteractionNoFileIngress),
+    ("OwnerGuestFrameStateUx", OwnerGuestFrameStateUxChecks),
     ("ChangeSetCanBeCreated", ChangeSetCanBeCreated),
     ("ChangeSetWithoutLeaseInvalid", ChangeSetWithoutLeaseInvalid),
     ("ChangeSetViewOnlyRejected", ChangeSetViewOnlyRejected),
@@ -442,6 +443,26 @@ static bool PdfFrameInteractionNoFileIngress()
     var now = DateTimeOffset.UtcNow;
     var result = new PdfFrameInteractionService().Scroll(smoke.Lease, smoke.FrameSession, FramePolicy.InteractiveView, 120.0, 1, now);
     return result.Accepted && smoke.GuestHasNoFileIngress;
+}
+
+static bool OwnerGuestFrameStateUxChecks()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    var revoked = smoke.FrameSession.Revoke(DateTimeOffset.UtcNow);
+    var expired = smoke.FrameSession.Expire(DateTimeOffset.UtcNow);
+    var texts = smoke.VisibleStates.Select(state => state.Text)
+        .Concat([
+            OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(revoked)),
+            OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(expired))
+        ]);
+    var language = OwnerGuestFrameStateUx.ValidateVisibleText(texts);
+
+    return smoke.OwnerVisibleStatus == "wartet auf Rueckgabe" &&
+           smoke.GuestVisibleStatus == "liegt hier im Frame" &&
+           OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.Returned) == "zurueckgegeben" &&
+           OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(revoked)) == "nicht verfuegbar" &&
+           OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(expired)) == "Verbindung verloren" &&
+           language.IsValid;
 }
 
 static bool ChangeSetCanBeCreated()

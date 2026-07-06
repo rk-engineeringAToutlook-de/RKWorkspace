@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.07 liefert Policy-Profile fuer kritische Umgebungen, Buero, Entwicklung, PresentationOnly und vertrauenswuerdige private Ablagen. `run-policy-profile.ps1 -SmokeTest` prueft die wichtigsten Gate-Regeln.
+MA009.08 liefert Owner/Guest Frame State UX fuer Tests. Owner und Guest zeigen jetzt nachvollziehbare menschliche Zustandstexte wie `wartet auf Rueckgabe`, `liegt hier im Frame`, `zurueckgegeben`, `nicht verfuegbar` und `Verbindung verloren`. Die Smokes pruefen diese sichtbaren Zustandstexte gegen verbotene Produktwoerter.
 
 ## Naechster Fokus
 
-Nach MA009.07 liegt der Fokus auf Owner/Guest Frame State UX fuer Tests. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009.08 liegt der Fokus auf der RKWP Transport/Frame Performance Baseline. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

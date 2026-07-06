@@ -98,3 +98,21 @@ MA007.04 verbindet FrameSession erstmals mit Glass Edge und einer echten Sample-
 ## Glass Edge PDF Frame E2E
 
 MA008.04 erweitert diesen Pfad zu einem E2E-Smoke. `ObjectEnteringEdge` fuehrt zu CarryLease und FrameSession. `FrameSessionOpen` und `FrameSessionReady` sind Teil des RKWP-Eventflows. Der Guest sieht weiterhin nur eine Frame-Repräsentation und keinen Originaldateizugriff.
+
+## Owner/Guest State UX fuer Tests
+
+MA009.08 fuehrt eine gemeinsame Zustandsuebersetzung fuer Owner- und Guest-Smokes ein. Sie ist noch keine finale Produktoberflaeche, aber sie verhindert, dass Tests wieder technische oder missverstaendliche Woerter anzeigen.
+
+Owner:
+
+- `LockedOnOwner` wird sichtbar zu `wartet auf Rueckgabe`.
+- `Returned` wird sichtbar zu `zurueckgegeben`.
+- `RecoveredByOwner` wird sichtbar zu `wieder verfuegbar`.
+
+Guest:
+
+- `FrameActive` wird sichtbar zu `liegt hier im Frame`.
+- `Revoked` wird sichtbar zu `nicht verfuegbar`.
+- `Expired` wird sichtbar zu `Verbindung verloren`.
+
+Die Validierung prueft die sichtbaren Zustandstexte gegen verbotene Produktwoerter wie `uebertragen`, `empfangen`, `download`, `geraet`, `agent` und `workspace`.

@@ -12,6 +12,10 @@ Console.WriteLine($"FrameSession: {result.GuestFrame.FrameSessionId}");
 Console.WriteLine($"DisplayName: {result.GuestFrame.DisplayName}");
 Console.WriteLine("Frame geoeffnet.");
 Console.WriteLine("Liegt hier im Frame.");
+Console.WriteLine($"GuestVisibleStatus: {result.GuestVisibleStatus}");
+Console.WriteLine($"OwnerVisibleStatus: {result.OwnerVisibleStatus}");
+Console.WriteLine($"GuestStateFlow: {FormatFlow(result.VisibleStates, "Guest")}");
+Console.WriteLine($"VisibleStateLanguage: {(result.VisibleStateLanguageIsValid ? "SUCCESS" : "FAILED")}");
 Console.WriteLine($"FrameRepresentation: {(result.GuestShowsFrameRepresentation ? "OK" : "FAILED")}");
 Console.WriteLine($"PreviewKind: {result.GuestFrame.RepresentationKind}");
 Console.WriteLine($"RendererStatus: {result.GuestFrame.RendererStatus}");
@@ -21,8 +25,16 @@ Console.WriteLine($"GuestHasPdfFile: {(result.GuestFrame.HasOriginalFilePath ? "
 Console.WriteLine($"OriginalFileBytes: {(result.GuestFrame.ContainsOriginalFileBytes ? "YES" : "NO")}");
 Console.WriteLine($"FrameOnly: {(result.GuestHasNoFileIngress ? "OK" : "FAILED")}");
 Console.WriteLine("Zurueckgegeben.");
-Console.WriteLine(result.GuestHasNoFileIngress ? "RESULT: SUCCESS" : "RESULT: FAILED");
-return result.GuestHasNoFileIngress ? 0 : 1;
+var isSuccessful = result.GuestHasNoFileIngress && result.VisibleStateLanguageIsValid;
+Console.WriteLine(isSuccessful ? "RESULT: SUCCESS" : "RESULT: FAILED");
+return isSuccessful ? 0 : 1;
+
+static string FormatFlow(IReadOnlyList<VisibleFrameState> states, string scope)
+{
+    return string.Join(" -> ", states
+        .Where(state => string.Equals(state.Scope, scope, StringComparison.Ordinal))
+        .Select(state => state.Text));
+}
 
 static string FindSamplePdf()
 {

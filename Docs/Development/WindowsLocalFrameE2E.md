@@ -49,8 +49,15 @@ Der Smoke muss melden:
 - `PdfOriginalRegistered: OK`
 - `CarryLease: Active`
 - `OwnerLocked: OK`
+- `OwnerVisibleStatus: wartet auf Rueckgabe`
+- `OwnerReturnedStatus: zurueckgegeben`
+- `OwnerRecoveryStatus: wieder verfuegbar`
 - `FrameSession: Active`
 - `GuestFrame: OK`
+- `GuestVisibleStatus: liegt hier im Frame`
+- `GuestRevokedStatus: nicht verfuegbar`
+- `GuestExpiredStatus: Verbindung verloren`
+- `VisibleStateLanguage: SUCCESS`
 - `NoFileIngress: SUCCESS`
 - `Return: SUCCESS`
 - `Recovery: SUCCESS`

@@ -49,6 +49,18 @@ if (-not $combinedText.Contains('Zurueckgegeben')) {
     throw 'PDF Frame Smoke failed because output did not contain Zurueckgegeben.'
 }
 
+if (-not $combinedText.Contains('OwnerVisibleStatus: wartet auf Rueckgabe')) {
+    throw 'PDF Frame Smoke failed because owner visible status was not shown.'
+}
+
+if (-not $combinedText.Contains('GuestVisibleStatus: liegt hier im Frame')) {
+    throw 'PDF Frame Smoke failed because guest visible status was not shown.'
+}
+
+if (-not $combinedText.Contains('VisibleStateLanguage: SUCCESS')) {
+    throw 'PDF Frame Smoke failed because visible state language validation did not pass.'
+}
+
 Write-Output 'NoFileIngress: SUCCESS'
 Write-Output 'PdfFrameSmoke: SUCCESS'
 Write-Output 'RESULT: SUCCESS'

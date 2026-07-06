@@ -40,9 +40,18 @@ static void Print(WindowsLocalFrameE2EResult result)
     Console.WriteLine($"PdfOriginalRegistered: {(result.PdfOriginalRegistered ? "OK" : "FAILED")}");
     Console.WriteLine($"CarryLease: {result.Lease.State}");
     Console.WriteLine($"OwnerLocked: {(result.OwnerLocked ? "OK" : "FAILED")}");
+    Console.WriteLine($"OwnerVisibleStatus: {result.OwnerVisibleStatus}");
+    Console.WriteLine($"OwnerReturnedStatus: {result.OwnerReturnedStatus}");
+    Console.WriteLine($"OwnerRecoveryStatus: {result.OwnerRecoveryStatus}");
     Console.WriteLine($"FrameSession: {result.FrameSession.State}");
     Console.WriteLine("PDF liegt im Frame.");
     Console.WriteLine($"GuestFrame: {(result.GuestFrameReady ? "OK" : "FAILED")}");
+    Console.WriteLine($"GuestVisibleStatus: {result.GuestVisibleStatus}");
+    Console.WriteLine($"GuestRevokedStatus: {result.GuestRevokedStatus}");
+    Console.WriteLine($"GuestExpiredStatus: {result.GuestExpiredStatus}");
+    Console.WriteLine($"OwnerStateFlow: {FormatFlow(result.VisibleStates, "Owner")}");
+    Console.WriteLine($"GuestStateFlow: {FormatFlow(result.VisibleStates, "Guest")}");
+    Console.WriteLine($"VisibleStateLanguage: {(result.VisibleStateLanguageIsValid ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"PreviewKind: {result.GuestFrame.RepresentationKind}");
     Console.WriteLine($"RendererStatus: {result.GuestFrame.RendererStatus}");
     Console.WriteLine($"GuestHasPdfFile: {(result.GuestHasPdfFile ? "YES" : "NO")}");
@@ -56,6 +65,13 @@ static void Print(WindowsLocalFrameE2EResult result)
     Console.WriteLine($"Blocker: {(result.RendererBlocked ? "PDF renderer still blocked; metadata frame used." : "None")}");
     Console.WriteLine($"WindowsLocalFrameE2E: {(result.IsSuccessful ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"RESULT: {(result.IsSuccessful ? "SUCCESS" : "FAILED")}");
+}
+
+static string FormatFlow(IReadOnlyList<VisibleFrameState> states, string scope)
+{
+    return string.Join(" -> ", states
+        .Where(state => string.Equals(state.Scope, scope, StringComparison.Ordinal))
+        .Select(state => state.Text));
 }
 
 static string FindRoot()
@@ -254,6 +270,8 @@ public static class WindowsLocalFrameE2E
 
         var returnedLease = lease.Return(now.AddSeconds(1));
         var returnedFrame = frame.Close(now.AddSeconds(1));
+        var revokedFrame = frame.Revoke(now.AddSeconds(2));
+        var expiredFrame = frame.Expire(now.AddSeconds(3));
         var returnResponse = await client.RequestAsync(
             RkwpTransportMessage.Create(
                 TransportMessageType.CarryLeaseReturn,
@@ -289,6 +307,8 @@ public static class WindowsLocalFrameE2E
             guestFrame,
             returnedLease,
             returnedFrame,
+            revokedFrame,
+            expiredFrame,
             recovery,
             devPairingSuccessful,
             OwnerStarted: true,
@@ -409,6 +429,8 @@ public sealed record WindowsLocalFrameE2EResult(
     PdfGuestFrame GuestFrame,
     CarryLease ReturnedLease,
     FrameSession ReturnedFrame,
+    FrameSession RevokedFrame,
+    FrameSession ExpiredFrame,
     CarryLeaseRecovery Recovery,
     bool DevPairingSuccessful,
     bool OwnerStarted,
@@ -428,6 +450,30 @@ public sealed record WindowsLocalFrameE2EResult(
         FrameSession.State == FrameSessionState.Active &&
         !string.IsNullOrWhiteSpace(GuestFrame.DisplayText) &&
         GuestEvents.Contains("FrameOpened");
+
+    public IReadOnlyList<VisibleFrameState> VisibleStates =>
+        OwnerGuestFrameStateUx.CreateTimeline(Ownership, Lease, FrameSession, ReturnedLease, Recovery);
+
+    public string OwnerVisibleStatus =>
+        OwnerGuestFrameStateUx.GetOwnerText(OwnerGuestFrameStateUx.GetOwnerState(Ownership, Lease));
+
+    public string OwnerReturnedStatus =>
+        OwnerGuestFrameStateUx.GetOwnerText(OwnerGuestFrameStateUx.GetOwnerState(Ownership.ReturnToOwner(), ReturnedLease));
+
+    public string OwnerRecoveryStatus =>
+        OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.RecoveredByOwner);
+
+    public string GuestVisibleStatus =>
+        OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(FrameSession));
+
+    public string GuestRevokedStatus =>
+        OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(RevokedFrame));
+
+    public string GuestExpiredStatus =>
+        OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(ExpiredFrame));
+
+    public bool VisibleStateLanguageIsValid =>
+        OwnerGuestFrameStateUx.ValidateVisibleText(VisibleStates.Select(state => state.Text)).IsValid;
 
     public bool GuestHasPdfFile => GuestFrame.HasOriginalFilePath;
 
@@ -462,6 +508,13 @@ public sealed record WindowsLocalFrameE2EResult(
         FrameSession.State == FrameSessionState.Active &&
         OwnerLocked &&
         GuestFrameReady &&
+        OwnerVisibleStatus == "wartet auf Rueckgabe" &&
+        OwnerReturnedStatus == "zurueckgegeben" &&
+        OwnerRecoveryStatus == "wieder verfuegbar" &&
+        GuestVisibleStatus == "liegt hier im Frame" &&
+        GuestRevokedStatus == "nicht verfuegbar" &&
+        GuestExpiredStatus == "Verbindung verloren" &&
+        VisibleStateLanguageIsValid &&
         NoFileIngress &&
         ReturnSuccessful &&
         RecoverySuccessful;
