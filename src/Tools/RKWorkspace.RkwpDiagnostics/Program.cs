@@ -18,12 +18,26 @@ try
         var records = store.ReadAll(logPath);
         var diagnostics = RkwpSessionDiagnostics.FromEvents(records);
         Print("SmokeTest", logPath, records, diagnostics);
+        PrintAuditList(records);
+        PrintSessionView(records);
+        PrintLeaseView(records);
+        PrintViolations(records);
+        var exportPath = Path.Combine(Path.GetTempPath(), $"rkws-diagnostics-{Guid.NewGuid():N}.md");
+        ExportMarkdown(exportPath, logPath, records, diagnostics);
+        var markdownOk = File.Exists(exportPath) && File.ReadAllText(exportPath).Contains("RK Workspace Diagnostics", StringComparison.OrdinalIgnoreCase);
+        File.Delete(exportPath);
         var success = diagnostics.ActiveSessions == 1 &&
                       diagnostics.FrameSessions == 1 &&
                       diagnostics.Heartbeats == 1 &&
                       diagnostics.PolicyDeniedEvents == 1 &&
                       diagnostics.RecoveredLeases == 1 &&
-                      diagnostics.NoFileIngressPassed;
+                      diagnostics.NoFileIngressPassed &&
+                      markdownOk;
+        Console.WriteLine("AuditList: OK");
+        Console.WriteLine("SessionView: OK");
+        Console.WriteLine("LeaseView: OK");
+        Console.WriteLine("ViolationsView: OK");
+        Console.WriteLine($"MarkdownExport: {(markdownOk ? "OK" : "FAILED")}");
         Console.WriteLine($"RkwpDiagnosticsSmoke: {(success ? "SUCCESS" : "FAILED")}");
         Console.WriteLine($"RESULT: {(success ? "SUCCESS" : "FAILED")}");
         return success ? 0 : 1;
@@ -43,6 +57,32 @@ try
     var readRecords = store.ReadAll(readPath);
     var readDiagnostics = RkwpSessionDiagnostics.FromEvents(readRecords);
     Print(options.ReadLogPath is null ? "Latest" : "ReadLog", readPath, readRecords, readDiagnostics);
+    if (options.AuditList)
+    {
+        PrintAuditList(readRecords);
+    }
+
+    if (options.Session)
+    {
+        PrintSessionView(readRecords);
+    }
+
+    if (options.Lease)
+    {
+        PrintLeaseView(readRecords);
+    }
+
+    if (options.Violations)
+    {
+        PrintViolations(readRecords);
+    }
+
+    if (!string.IsNullOrWhiteSpace(options.ExportMarkdownPath))
+    {
+        ExportMarkdown(options.ExportMarkdownPath, readPath, readRecords, readDiagnostics);
+        Console.WriteLine($"MarkdownExport: {Path.GetFullPath(options.ExportMarkdownPath)}");
+    }
+
     Console.WriteLine("RESULT: SUCCESS");
     return 0;
 }
@@ -62,6 +102,8 @@ static void PrintHelp()
     Console.WriteLine("  run-rkwp-diagnostics.ps1");
     Console.WriteLine("  run-rkwp-diagnostics.ps1 -SmokeTest");
     Console.WriteLine("  run-rkwp-diagnostics.ps1 -ReadLog <path>");
+    Console.WriteLine("  run-rkwp-diagnostics.ps1 -AuditList -Session -Lease -Violations");
+    Console.WriteLine("  run-rkwp-diagnostics.ps1 -ExportMarkdown diagnostics.md");
 }
 
 static string CreateSmokeLog(string root, JsonlRkwpAuditLogStore store)
@@ -190,6 +232,81 @@ static void Print(string mode, string logPath, IReadOnlyList<RkwpAuditLogRecord>
     Console.WriteLine($"NoFileIngress: {(diagnostics.NoFileIngressPassed ? "SUCCESS" : "UNKNOWN")}");
 }
 
+static void PrintAuditList(IReadOnlyList<RkwpAuditLogRecord> records)
+{
+    Console.WriteLine("Audit List");
+    Console.WriteLine("----------");
+    foreach (var record in records.Take(20))
+    {
+        Console.WriteLine($"{record.Timestamp:O} {record.EventType} {record.Severity} {record.Message}");
+    }
+}
+
+static void PrintSessionView(IReadOnlyList<RkwpAuditLogRecord> records)
+{
+    Console.WriteLine("Sessions");
+    Console.WriteLine("--------");
+    foreach (var group in records.GroupBy(record => record.SessionId).OrderBy(group => group.Key))
+    {
+        Console.WriteLine($"{group.Key}: Events={group.Count()} Last={group.Max(record => record.Timestamp):O}");
+    }
+}
+
+static void PrintLeaseView(IReadOnlyList<RkwpAuditLogRecord> records)
+{
+    Console.WriteLine("Leases");
+    Console.WriteLine("------");
+    foreach (var group in records.Where(record => !string.IsNullOrWhiteSpace(record.LeaseId)).GroupBy(record => record.LeaseId).OrderBy(group => group.Key))
+    {
+        Console.WriteLine($"{group.Key}: Events={group.Count()} Last={group.Max(record => record.Timestamp):O}");
+    }
+}
+
+static void PrintViolations(IReadOnlyList<RkwpAuditLogRecord> records)
+{
+    Console.WriteLine("Violations");
+    Console.WriteLine("----------");
+    var violations = records
+        .Where(record => record.EventType is RkwpAuditEventType.PolicyDenied or RkwpAuditEventType.SecurityViolation)
+        .ToArray();
+    if (violations.Length == 0)
+    {
+        Console.WriteLine("NONE");
+        return;
+    }
+
+    foreach (var record in violations)
+    {
+        Console.WriteLine($"{record.EventType}: {record.Message}");
+    }
+}
+
+static void ExportMarkdown(string path, string logPath, IReadOnlyList<RkwpAuditLogRecord> records, RkwpSessionDiagnostics diagnostics)
+{
+    var directory = Path.GetDirectoryName(Path.GetFullPath(path));
+    if (!string.IsNullOrWhiteSpace(directory))
+    {
+        Directory.CreateDirectory(directory);
+    }
+
+    var lines = new List<string>
+    {
+        "# RK Workspace Diagnostics",
+        string.Empty,
+        $"AuditLog: `{logPath}`",
+        $"Events: {records.Count}",
+        $"ActiveSessions: {diagnostics.ActiveSessions}",
+        $"FrameSessions: {diagnostics.FrameSessions}",
+        $"PolicyDenied: {diagnostics.PolicyDeniedEvents}",
+        $"SecurityViolations: {diagnostics.SecurityViolations}",
+        $"NoFileIngress: {(diagnostics.NoFileIngressPassed ? "SUCCESS" : "UNKNOWN")}",
+        string.Empty,
+        "## Recent Events"
+    };
+    lines.AddRange(records.Take(20).Select(record => $"- `{record.Timestamp:O}` {record.EventType}: {record.Message}"));
+    File.WriteAllLines(path, lines);
+}
+
 static string? FindLatestLog(string root)
 {
     var directory = Path.Combine(root, "logs", "rkwp-audit");
@@ -220,13 +337,27 @@ static string FindRoot()
     return directory.FullName;
 }
 
-internal sealed record RkwpDiagnosticsOptions(string Root, bool SmokeTest, string? ReadLogPath, bool ShowHelp)
+internal sealed record RkwpDiagnosticsOptions(
+    string Root,
+    bool SmokeTest,
+    string? ReadLogPath,
+    bool ShowHelp,
+    bool AuditList,
+    bool Session,
+    bool Lease,
+    bool Violations,
+    string? ExportMarkdownPath)
 {
     public static RkwpDiagnosticsOptions Parse(string[] args, string root)
     {
         var smokeTest = false;
         var readLogPath = (string?)null;
         var showHelp = false;
+        var auditList = false;
+        var session = false;
+        var lease = false;
+        var violations = false;
+        var exportMarkdownPath = (string?)null;
 
         for (var index = 0; index < args.Length; index++)
         {
@@ -250,9 +381,45 @@ internal sealed record RkwpDiagnosticsOptions(string Root, bool SmokeTest, strin
                 index + 1 < args.Length)
             {
                 readLogPath = Path.GetFullPath(args[++index]);
+                continue;
+            }
+
+            if (string.Equals(arg, "--audit-list", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-AuditList", StringComparison.OrdinalIgnoreCase))
+            {
+                auditList = true;
+                continue;
+            }
+
+            if (string.Equals(arg, "--session", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-Session", StringComparison.OrdinalIgnoreCase))
+            {
+                session = true;
+                continue;
+            }
+
+            if (string.Equals(arg, "--lease", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-Lease", StringComparison.OrdinalIgnoreCase))
+            {
+                lease = true;
+                continue;
+            }
+
+            if (string.Equals(arg, "--violations", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-Violations", StringComparison.OrdinalIgnoreCase))
+            {
+                violations = true;
+                continue;
+            }
+
+            if ((string.Equals(arg, "--export-markdown", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(arg, "-ExportMarkdown", StringComparison.OrdinalIgnoreCase)) &&
+                index + 1 < args.Length)
+            {
+                exportMarkdownPath = Path.GetFullPath(args[++index]);
             }
         }
 
-        return new RkwpDiagnosticsOptions(root, smokeTest, readLogPath, showHelp);
+        return new RkwpDiagnosticsOptions(root, smokeTest, readLogPath, showHelp, auditList, session, lease, violations, exportMarkdownPath);
     }
 }

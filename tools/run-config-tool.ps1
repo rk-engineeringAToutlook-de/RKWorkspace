@@ -1,7 +1,11 @@
 param(
+    [switch] $List,
     [switch] $Validate,
     [switch] $Show,
     [switch] $CreateSample,
+    [switch] $CreateLocal,
+    [switch] $Redact,
+    [string] $UseProfile,
     [switch] $SmokeTest,
     [string] $Config
 )
@@ -11,7 +15,10 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $root 'src\Tools\RKWorkspace.ConfigTool\RKWorkspace.ConfigTool.csproj'
 
-if ([string]::IsNullOrWhiteSpace($Config)) {
+if ([string]::IsNullOrWhiteSpace($Config) -and ($CreateLocal -or -not [string]::IsNullOrWhiteSpace($UseProfile))) {
+    $Config = Join-Path $root 'config\rkworkspace.local.json'
+}
+elseif ([string]::IsNullOrWhiteSpace($Config)) {
     $Config = Join-Path $root 'config\samples\rkworkspace.sample.json'
 }
 
@@ -24,11 +31,24 @@ $arguments = @('--config', $Config)
 if ($SmokeTest) {
     $arguments += '--smoke-test'
 }
+elseif ($List) {
+    $arguments += '--list'
+}
 elseif ($Show) {
     $arguments += '--show'
 }
+elseif (-not [string]::IsNullOrWhiteSpace($UseProfile)) {
+    $arguments += '--use-profile'
+    $arguments += $UseProfile
+}
+elseif ($CreateLocal) {
+    $arguments += '--create-local'
+}
 elseif ($CreateSample) {
     $arguments += '--create-sample'
+}
+elseif ($Redact) {
+    $arguments += '--redact'
 }
 else {
     $arguments += '--validate'
@@ -50,6 +70,10 @@ if ($SmokeTest) {
         'CriticalPolicy: OK',
         'RkwpDevConfig: OK',
         'ManualMapConfig: OK',
+        'ListMode: OK',
+        'UseProfileMode: OK',
+        'CreateLocalMode: OK',
+        'RedactMode: OK',
         'LocalSecretsNotRequired: OK',
         'ConfigToolSmoke: SUCCESS',
         'RESULT: SUCCESS'

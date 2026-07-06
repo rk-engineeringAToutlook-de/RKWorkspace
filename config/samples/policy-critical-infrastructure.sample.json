@@ -1,0 +1,19 @@
+{
+  "profileId": "critical-infrastructure",
+  "displayName": "Critical Infrastructure",
+  "rules": {
+    "defaultMode": "FrameOnly",
+    "extraction": "NoExtract",
+    "ownershipTransfer": "NoOwnershipTransfer",
+    "secureSession": "SecureRequired",
+    "audit": "AuditRequired",
+    "lease": "ShortLease"
+  },
+  "noFileIngress": true,
+  "ownershipTransferAllowed": false,
+  "textExtractionAllowed": false,
+  "imageExtractionAllowed": false,
+  "secureSessionRequired": true,
+  "auditRequired": true,
+  "leaseTimeoutSeconds": 120
+}

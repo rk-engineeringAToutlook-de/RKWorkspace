@@ -75,13 +75,15 @@ static int RunSmokeTest()
         ObjectKind.PdfDocument,
         Request("office-copyout", OwnershipMode.CopyOut, office.Ownership),
         office.Ownership).Decision == OwnershipTransferDecisionKind.RequiresUserConfirmation;
+    var criticalSampleOk = CriticalInfrastructureSampleOk();
 
     var success = validation.IsValid &&
         criticalBlocksOwnership &&
         criticalSecure &&
         presentationBlocksInput &&
         developmentAllowsDev &&
-        officeCopyOutNeedsConfirmation;
+        officeCopyOutNeedsConfirmation &&
+        criticalSampleOk;
 
     PrintHeader("SmokeTest");
     Console.WriteLine($"Profiles: {RkwpPolicyProfileStore.All.Count}");
@@ -90,9 +92,28 @@ static int RunSmokeTest()
     Console.WriteLine($"PresentationOnlyBlocksInput: {(presentationBlocksInput ? "OK" : "FAILED")}");
     Console.WriteLine($"DevelopmentLabAllowsDevMode: {(developmentAllowsDev ? "OK" : "FAILED")}");
     Console.WriteLine($"OfficeDefaultCopyOutRequiresConfirmation: {(officeCopyOutNeedsConfirmation ? "OK" : "FAILED")}");
+    Console.WriteLine($"CriticalInfrastructurePolicyPack: {(criticalSampleOk ? "OK" : "FAILED")}");
     Console.WriteLine($"PolicyProfileValidate: {(validation.IsValid ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"RESULT: {(success ? "SUCCESS" : "FAILED")}");
     return success ? 0 : 1;
+}
+
+static bool CriticalInfrastructureSampleOk()
+{
+    var root = FindRoot();
+    var path = Path.Combine(root, "config", "samples", "policy-critical-infrastructure.sample.json");
+    if (!File.Exists(path))
+    {
+        return false;
+    }
+
+    var json = File.ReadAllText(path);
+    return json.Contains("FrameOnly", StringComparison.OrdinalIgnoreCase) &&
+           json.Contains("NoExtract", StringComparison.OrdinalIgnoreCase) &&
+           json.Contains("NoOwnershipTransfer", StringComparison.OrdinalIgnoreCase) &&
+           json.Contains("SecureRequired", StringComparison.OrdinalIgnoreCase) &&
+           json.Contains("AuditRequired", StringComparison.OrdinalIgnoreCase) &&
+           json.Contains("ShortLease", StringComparison.OrdinalIgnoreCase);
 }
 
 static OwnershipTransferRequest Request(string id, OwnershipMode mode, OwnershipPolicy policy)
@@ -149,6 +170,17 @@ static void PrintValidation(RkwpPolicyProfileValidationResult validation)
     {
         Console.WriteLine($"Error: {error}");
     }
+}
+
+static string FindRoot()
+{
+    var directory = new DirectoryInfo(AppContext.BaseDirectory);
+    while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
+    {
+        directory = directory.Parent;
+    }
+
+    return directory?.FullName ?? Environment.CurrentDirectory;
 }
 
 public sealed record PolicyProfileToolOptions(
