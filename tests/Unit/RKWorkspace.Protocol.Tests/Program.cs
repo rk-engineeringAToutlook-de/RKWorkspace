@@ -92,6 +92,7 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SurfaceContracts", SurfaceContracts),
     ("GestureTypes", GestureTypes),
     ("SurfacePlatforms", SurfacePlatforms),
+    ("HapticAbstractionPatterns", HapticAbstractionPatterns),
     ("SurfaceDocs", SurfaceDocs),
     ("SecurityModeRequiresProductionProtector", SecurityModeRequiresProductionProtector),
     ("DevelopmentModeMarkedUnsafe", DevelopmentModeMarkedUnsafe),
@@ -1142,6 +1143,24 @@ static bool SurfacePlatforms()
            values.Contains(SurfacePlatform.IPadOS) &&
            values.Contains(SurfacePlatform.Android) &&
            values.Contains(SurfacePlatform.Linux);
+}
+
+static bool HapticAbstractionPatterns()
+{
+    var patterns = Enum.GetValues<HapticPattern>();
+    var defaults = HapticHint.Defaults.Select(hint => hint.Pattern).ToHashSet();
+    return patterns.Contains(HapticPattern.Pick) &&
+           patterns.Contains(HapticPattern.EdgeNear) &&
+           patterns.Contains(HapticPattern.EdgeEnter) &&
+           patterns.Contains(HapticPattern.FrameArrived) &&
+           patterns.Contains(HapticPattern.Return) &&
+           patterns.Contains(HapticPattern.Denied) &&
+           patterns.Contains(HapticPattern.ConnectionLost) &&
+           defaults.Count == patterns.Length &&
+           HapticCapability.Basic.IsAvailable &&
+           HapticCapability.Rich.SupportsIntensity &&
+           HapticHint.Denied.Intensity == HapticIntensity.Strong &&
+           HapticHint.Pick.Duration < TimeSpan.FromMilliseconds(60);
 }
 
 static bool SurfaceDocs()

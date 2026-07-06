@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.48.0
+Version: 2.49.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -130,6 +130,8 @@ Ab MA013.31 bis MA013.40 pruefen PDF/Frame-Tests den Produktpfad. `run-pdf-frame
 Ab MA013.41 bis MA013.50 prueft `tools/run-windows-object-adapter.ps1 -SmokeTest` ExplorerSelection, ClipboardText, ClipboardImage, ScreenshotRegion, WindowSnapshot, RemoteSession, No File Ingress und NoAutoOwnershipTransfer. `tools/run-tests.ps1` fuehrt diesen Smoke in der Foundation-Kette aus. Die RKWP-Tests pruefen zusaetzlich SettingsWindow Input Policy und RemoteSession SessionHandoff Capability Gates.
 
 Ab MA013.51 bis MA013.60 bleiben Proximity und Hardware Readiness bewusst im Shell-/Dokumentationspfad. Verifiziert werden `run-studio.ps1 -SmokeTest`, `run-rkwp-tests.ps1`, `run-tests.ps1` und `export-codex-context.ps1`. Der Block verlangt, dass Manual Map, BLE, WiFi, UWB, Dongle, USB Control, Sensor Fusion und Edge Selection User Control dokumentiert sind, dass `WiFiPresenceProvider` und `EdgeSelectionOverride` mitgebaut werden und dass trotzdem keine Discovery-, Transport-, Ownership- oder Frame-Policy geaendert wird.
+
+Ab MA013.61 bis MA013.70 pruefen die RKWP-Tests zusaetzlich die Haptics Abstraction v1: `HapticHint`, `HapticPattern`, `HapticIntensity` und `HapticCapability` muessen Pick, EdgeNear, EdgeEnter, FrameArrived, Return, Denied und ConnectionLost abdecken. Der restliche Block ist UX-/HX-Readiness und wird ueber Dokumente plus Foundation-Tests verifiziert: Glass Edge nach Frame-Flow, digitale Hand fuer echte Objekte, Owner/Guest Frame State Machine, Interaction Timing, Accessibility, Fehler-UX, Original-Owned Frame Test Harness, Owner Feedback Log und UX Readiness Gate.
 
 ## MA003.05 Core Integration Tests
 
