@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA010.02 liefert DevLan als erstes LAN-faehiges RKWP-Lab-Profil. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren.
+MA010.06 liefert DevLan, Windows/macOS/iOS-Kompatibilitaet und eine PDF-Renderer-Abstraktion. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren. Der PDF-Pfad nutzt noch den `MetadataPreviewDevRenderer` mit `IsPlaceholder: true`.
 
 ## Naechster Fokus
 
-Nach MA010.02 liegt der Fokus auf Windows Owner fuer macOS, macOS Guest Compatibility und danach iPad/iPhone ueber Xcode.
+Nach MA010.06 liegt der Fokus auf Frame Cache, Windows Agent Vorbereitung, einheitlicher Konfiguration und danach dem ersten echten PDFium/MuPDF-Renderer-Spike.
 
 ## Entfernung und Ablage-Anker
 

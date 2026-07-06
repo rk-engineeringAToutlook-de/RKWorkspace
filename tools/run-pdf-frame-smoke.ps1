@@ -37,6 +37,14 @@ if (-not $combinedText.Contains('FrameRepresentation: OK')) {
     throw 'PDF Frame Smoke failed because output did not contain FrameRepresentation: OK.'
 }
 
+if (-not $combinedText.Contains('RendererName: MetadataPreviewDevRenderer')) {
+    throw 'PDF Frame Smoke failed because output did not contain the dev renderer name.'
+}
+
+if (-not $combinedText.Contains('IsPlaceholder: True')) {
+    throw 'PDF Frame Smoke failed because placeholder renderer status was not explicit.'
+}
+
 if (-not $combinedText.Contains('GuestHasPdfFile: NO')) {
     throw 'PDF Frame Smoke failed because output did not contain GuestHasPdfFile: NO.'
 }

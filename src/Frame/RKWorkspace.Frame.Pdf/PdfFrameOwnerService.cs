@@ -4,6 +4,13 @@ namespace RKWorkspace.Frame.Pdf;
 
 public sealed class PdfFrameOwnerService
 {
+    private readonly IPdfFrameRenderer _renderer;
+
+    public PdfFrameOwnerService(IPdfFrameRenderer? renderer = null)
+    {
+        _renderer = renderer ?? new PlaceholderPdfFrameRenderer();
+    }
+
     public PdfFrameSmokeResult OpenFrameOnlySession(
         string pdfPath,
         string ownerAblageId = "ablage-windows-owner",
@@ -20,6 +27,12 @@ public sealed class PdfFrameOwnerService
             .Ready(timestamp.AddMilliseconds(20))
             .Activate(timestamp.AddMilliseconds(40));
 
+        var renderResult = _renderer.Render(new PdfFrameRenderRequest(
+            document,
+            PageNumber: 1,
+            Options: new PdfFrameRenderOptions(),
+            ownerAblageId,
+            document.ThingId));
         var update = CreateFrameUpdate(document, frame, timestamp.AddMilliseconds(60));
         var guestFrame = new PdfGuestFrame(
             frame.FrameSessionId,
@@ -27,9 +40,12 @@ public sealed class PdfFrameOwnerService
             document.FileName,
             document.PageCount,
             document.Sha256,
-            PdfFrameRepresentationKind.MetadataPreview,
+            renderResult.IsPlaceholder ? PdfFrameRepresentationKind.MetadataPreview : PdfFrameRepresentationKind.RenderedFirstPage,
             DisplayText: $"FrameOnly preview of {document.FileName}; pages={document.PageCount}; sha256={document.Sha256[..16]}",
-            RendererStatus: "RendererBlocked",
+            RendererStatus: renderResult.IsPlaceholder ? "RendererBlocked" : "Rendered",
+            RendererName: renderResult.RendererName,
+            IsPlaceholder: renderResult.IsPlaceholder,
+            FrameFormat: renderResult.FrameFormat,
             SupportsScroll: true,
             SupportsZoom: true,
             ContainsOriginalFileBytes: false,
@@ -72,6 +88,9 @@ public sealed record PdfGuestFrame(
     PdfFrameRepresentationKind RepresentationKind,
     string DisplayText,
     string RendererStatus,
+    string RendererName,
+    bool IsPlaceholder,
+    FrameFormat FrameFormat,
     bool SupportsScroll,
     bool SupportsZoom,
     bool ContainsOriginalFileBytes,

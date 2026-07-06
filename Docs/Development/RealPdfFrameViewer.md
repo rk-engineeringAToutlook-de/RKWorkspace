@@ -23,7 +23,24 @@ MA007.05 verbessert den bisherigen Smoke-Pfad:
 
 ## Renderer-Status
 
-Der PDF-Inhalt wird noch nicht als echte Seite gerendert. Der aktuelle Stand nutzt `PdfFrameRepresentationKind.MetadataPreview`. Damit ist die Frame- und Ownership-Mechanik testbar, aber der visuelle PDF-Viewer ist noch nicht final.
+Der PDF-Inhalt wird noch nicht als echte Seite gerendert. Ab MA010.06 existiert aber eine klare Renderer-Abstraktion:
+
+- `IPdfFrameRenderer`
+- `PdfFrameRenderRequest`
+- `PdfFrameRenderResult`
+- `PdfFrameRenderOptions`
+- `PdfFrameRendererDiagnostics`
+- `FrameFormat`
+
+Der aktuelle Dev Renderer heisst `MetadataPreviewDevRenderer` und meldet ausdruecklich:
+
+```text
+FrameFormat: Placeholder
+IsPlaceholder: true
+RendererStatus: RendererBlocked
+```
+
+Damit ist die Frame- und Ownership-Mechanik testbar, aber der visuelle PDF-Viewer ist noch nicht final.
 
 Renderer-Blocker:
 
@@ -34,11 +51,19 @@ Renderer-Blocker:
 
 ## Renderer-Kandidaten
 
-- PDFium: technisch stark, Lizenz und Packaging pruefen.
+- PDFium: bevorzugter Kandidat fuer den ersten echten Renderer-Spike, Lizenz und Packaging pruefen.
 - MuPDF: leistungsfaehig, Lizenz besonders sorgfaeltig pruefen.
 - Windows PDF Preview Handler: Windows-nah, aber nicht plattformneutral.
-- WebView2: nur Owner-seitig als Renderer denkbar, nicht als Dateiuebergabe an Guest.
-- Skia/PDF: pruefen, ob Darstellung ohne Gast-Dateimaterialisierung stabil moeglich ist.
+- WebView2/Edge: nur Owner-seitig als Renderer denkbar, nicht als Dateiuebergabe an Guest.
+- SkiaSharp/PDF: pruefen, ob Darstellung ohne Gast-Dateimaterialisierung stabil moeglich ist.
+- Commercial Renderer: spaeter nur mit sauberem Lizenz-/Update-Modell.
+
+Details:
+
+```text
+Docs/Frame/PdfFrameRendererDecision.md
+Docs/Frame/PdfFrameRendererAbstraction.md
+```
 
 ## Sicherheitsregel
 

@@ -34,6 +34,8 @@ Die Regeln werden spaeter pro Policy, Anwendung, Firmenumgebung und Sicherheitsz
 
 `PdfDocument` bleibt der erste echte ObjectKind-Test. Der aktuelle Frame zeigt eine sichere `MetadataPreview` und bereitet Scroll/Zoom vor. Ein echter PDF-Renderer muss Owner-seitig oder strikt framegebunden arbeiten und darf keine freie PDF-Datei auf der Gastablage materialisieren.
 
+Ab MA010.06 ist der Renderer-Pfad abstrahiert. `PdfDocument` verwendet `IPdfFrameRenderer`. Der aktuelle `MetadataPreviewDevRenderer` ist explizit `IsPlaceholder: true` und bleibt FrameOnly. Ein spaeterer echter Renderer darf nur gerenderte Frames liefern, keine Original-PDF und keinen Originalpfad.
+
 ## MA007.07 ChangeSet-Regeln
 
 PDF-Annotationen werden als erste ChangeSet-Operation vorbereitet. Die Gastablage erzeugt dabei keine freie PDF-Datei und schreibt nicht direkt in das Original.
