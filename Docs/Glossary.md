@@ -1,9 +1,9 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.21.0
+Version: 1.22.0
 Status: Accepted  
-Datum: 2026-07-05
+Datum: 2026-07-07
 
 ## Zweck
 
@@ -41,6 +41,13 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | Glass Edge | Glaeserne Kante | Eine transparente Kante am Rand der aktuellen Ablage, die genau die naechste sinnvolle Ablage zeigt. | Kein Bubble-Feld, kein Radar, keine Geraeteauswahl. |
 | Nearest Ablage | Naechste Ablage | Die vom Proximity-Selector bestimmte beste Zielablage nach Entfernung, Confidence, Richtung und Stabilitaet. | Nicht mehrere Ziele gleichzeitig anzeigen. |
 | RKWP | RK Workspace Protocol | Protokollsemantik fuer Ablagen, Leases, Frames und Ownership. | Kein Dateitransfer-Protokoll und kein Transportkanal. |
+| Frame-Kapsel | Frame Capsule | Geschlossene, owner-owned Kapsel, die ein PDF-Objekt kontrolliert auf einer Gastablage erlebbar macht. | Kein ZIP, keine kopierte PDF-Datei und kein Payload-Export. |
+| OpenFrame | Offener Frame | Laufende Frame-Darstellung eines owner-owned Objekts auf einer Gastablage. | Kein Remote Desktop und keine lokale Originaldatei. |
+| ClosedObject | Geschlossenes Objekt | Objektzustand, in dem die Gastablage nur eine geschlossene Kapsel und keine offene Arbeitsdarstellung sieht. | Nicht als fehlgeschlagene Oeffnung interpretieren. |
+| UWB | Ultra Wideband | Spaetere Naehe- und Richtungsquelle fuer Ablage-Proximity. | Kein Transportkanal fuer Objektinhalte. |
+| Proximity Fusion | Naehe-Fusion | Auswahl der besten Ablage aus ManualMap, UWB-Simulation und spaeteren Sensorquellen. | Keine Geraeteliste und keine manuelle Zielauswahl. |
+| No File Ingress | Kein Datei-Eintritt | Sicherheitsregel, dass eine Gastablage keine Originaldatei, keinen Originalpfad und keine kopierten PDF-Bytes bekommt. | Nicht mit fehlender Darstellung verwechseln. |
+| Owner Lock | Owner-Sperre | Zustand, in dem das Original beim Owner sichtbar gebunden bleibt, solange eine Gastablage einen Frame oder eine Kapsel nutzt. | Kein Besitzwechsel und kein Schreibverlust. |
 | Original-Owned Frame | Original-Owned Frame | Modell, bei dem das Original beim Owner bleibt und eine Gastablage nur eine kontrollierte Frame-Darstellung bekommt. | Nicht als Datei kopieren, senden oder synchronisieren beschreiben. |
 | CarryLease | Trage-Lease | Zeitlich und fachlich begrenzte Berechtigung, ein Ding auf einer Gastablage als Frame zu erleben. | Kein Besitzwechsel. |
 | FrameSession | Frame-Session | Sichtbare, kontrollierte Darstellung eines digitalen Dings auf einer Gastablage. | Keine lokale Originaldatei. |
@@ -153,6 +160,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.22.0 | 2026-07-07 | MA016-Begriffe fuer Frame-Kapsel, OpenFrame, ClosedObject, UWB, Proximity Fusion, No File Ingress und Owner Lock ergaenzt. |
 | 1.21.0 | 2026-07-05 | Begriffe fuer RKWP Secure Session, Replay Protection, Policy Binding, Audit Trail und Revocation ergaenzt. |
 | 1.20.0 | 2026-07-05 | RKWP, Original-Owned Frame, CarryLease, FrameSession, FrameOnly und Ownership Transfer ergaenzt. |
 | 1.18.0 | 2026-07-04 | Begriffe fuer GPU Living Lens, Refraction Map und Edge Continuation ergaenzt. |

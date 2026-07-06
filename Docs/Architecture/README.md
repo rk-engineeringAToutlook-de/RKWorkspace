@@ -1,9 +1,9 @@
 # RKWS Architecture Notes
 
 Dokument-ID: RKWS-ARCH-INDEX  
-Version: 0.5.0
+Version: 0.6.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-07
 
 ## Zweck
 
@@ -26,6 +26,7 @@ flowchart TB
 ## Startpunkte
 
 - `Spec/HumanExperienceSpecification_HX000.md`
+- `Docs/README.md`
 - `Docs/Architecture/ArchitectureFreeze.md`
 - `Docs/Architecture/ArchitectureBaseline.md`
 - `Docs/Architecture/ArchitectureBaseline_v1.0.md`
@@ -43,16 +44,31 @@ flowchart TB
 - `Docs/04_CommunicationProtocol.md`
 - `Docs/06_SecurityModel.md`
 
+## MA016 Architekturpfad
+
+MA016 verbindet RKWP, PDF Lifecycle, Cross-Platform Surfaces, Proximity und SecureDev zu einem kontrollierten Pilotpfad:
+
+- RKWP beschreibt Ownership, Leases, FrameSession, Policy und Audit.
+- PDF Lifecycle trennt Closed Capsule und OpenFrame.
+- Surface Contracts halten Windows, macOS und iOS/iPadOS auf einer gemeinsamen Semantik.
+- Proximity Fusion waehlt genau eine naechste Ablage fuer die Glass Edge.
+- SecureDev bleibt ein Entwicklungsmodus; Production Security ist ein eigener Folgeschritt.
+
+Die Architekturentscheidung fuer Original-Owned PDF Lifecycle und Proximity Fusion ist in den MA016-ADRs dokumentiert.
+
 ## Querverweise
 
 - `Spec/HumanExperienceSpecification_HX000.md`
 - `Docs/ADR/README.md`
+- `Docs/ADR/ADR_MA016_OriginalOwnedPdfLifecycle.md`
+- `Docs/ADR/ADR_MA016_ProximityFusion.md`
 - `Spec/DocumentationQuality.md`
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.6.0 | 2026-07-07 | MA016 Architekturpfad fuer RKWP, PDF Lifecycle, Surface, Proximity und SecureDev ergaenzt. |
 | 0.5.0 | 2026-07-03 | HX-000 als uebergeordnete Regel fuer Architekturentscheidungen ergaenzt. |
 | 0.4.0 | 2026-07-02 | Engineering Readiness Check und Baseline v1.0 aufgenommen. |
 | 0.3.0 | 2026-07-02 | Architecture Baseline Completion aufgenommen. |

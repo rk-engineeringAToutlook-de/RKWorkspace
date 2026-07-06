@@ -1,9 +1,9 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.68.0
+Version: 2.69.0
 Status: Accepted  
-Datum: 2026-07-06
+Datum: 2026-07-07
 
 RK Workspace (RKWS) ist ein eigenstaendiges Software- und Hardwareprodukt fuer raeumlich gedachte digitale Arbeitsflaechen. Das Projekt ist kein Bestandteil von RKOS und wird mit eigener Roadmap, eigener Dokumentation, eigenen Releases und eigener Architektur gefuehrt.
 
@@ -18,6 +18,24 @@ Die zentrale Produktidee ist einfach: Der Benutzer soll nicht "Datei an Geraet s
 ## Status
 
 Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwicklung laeuft in MA003. Der aktuelle Stand enthaelt die freigegebene Architekturgrundlage und die ersten plattformneutralen Core-Bausteine:
+
+## MA016 Pilotstand und Startbefehle
+
+MA016 stellt den ersten kontrollierten Cross-Device-Pilotpfad bereit. Windows ist der Owner-Pfad fuer echte PDF-Objekte; macOS und iOS/iPadOS sind als native Surface-Handovers vorbereitet. Der Produktpfad bleibt Original-Owned: Closed PDF Capsule und Open PDF Frame duerfen keinen File Ingress auf der Gastablage erzeugen.
+
+Wichtige Start- und Pruefbefehle:
+
+~~~powershell
+.\tools\run-ma016-smoke.ps1 -SkipHeavy
+.\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf
+.\tools\run-ma016-pilot-lab.ps1 -SmokeTest
+.\tools\test-context-pack-no-secrets.ps1
+.\tools\check-ma016-final-status.ps1
+~~~
+
+Vor Handover oder Owner-Test werden Build- und lokale Pilot-Artefakte mit `tools/clean-build-artifacts.ps1` und `tools/clean-pilot-artifacts.ps1` bereinigt.
 
 - Human Experience Specification HX-000 definiert die oberste Wahrnehmung: `Ich betrete meinen Arbeitsraum`.
 - Der Nordstern ist als Projektorientierung dokumentiert und folgt HX-000 als verbindlichem Kompass fuer Architektur, UX und Implementierung.

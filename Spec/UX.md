@@ -1,9 +1,9 @@
 # RKWS UX Specification
 
 Dokument-ID: RKWS-SPEC-UX-001  
-Version: 0.7.0
+Version: 0.8.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-07
 
 ## Principle
 
@@ -55,6 +55,18 @@ Aus Human Experience Specifications und Emotion Specifications folgen Experiment
 
 Eine Geste wird im Core als Richtung modelliert. V1 nutzt explizite Richtungen wie `Right`, um die Logik testbar zu machen.
 
+## MA016 PDF Lifecycle UX
+
+Der MA016-Pilotpfad trennt die Wahrnehmung des Menschen strikt von Dateiuebertragung:
+
+- Ein PDF bleibt Original-Owned beim Owner.
+- Eine Gastablage erlebt entweder eine geschlossene Frame-Kapsel oder einen offenen Frame.
+- No File Ingress ist sichtbarer Schutz, nicht nur technische Policy.
+- Die Glass Edge zeigt genau die naechste Ablage, nicht mehrere technische Ziele.
+- Proximity und Kante dienen dem Gefuehl von Richtung im Arbeitsraum.
+
+Closed PDF Capsule muss sich wie geschuetztes Ablegen anfuehlen. OpenFrame muss sich wie Weiterarbeiten auf einer anderen Ablage anfuehlen. Beide duerfen nicht wie Senden, Upload, Synchronisieren oder Kopieren wirken.
+
 ## Feedback
 
 Spaetere Agenten muessen Aktivierung, Zielrand, moegliche Ziele, Ablehnung und erfolgreichen Abschluss sichtbar oder haptisch rueckmelden.
@@ -80,11 +92,14 @@ flowchart LR
 - `Spec/GestureModel.md`
 - `Spec/StateMachine.md`
 - `Docs/05_UX_Gestures.md`
+- `Docs/HumanExperience/MA016_HumanExperienceSummary.md`
+- `Docs/GlassEdgeNearestAblage.md`
 
 ## Aenderungsverlauf
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.8.0 | 2026-07-07 | MA016 PDF Lifecycle UX fuer Kapsel, OpenFrame, Original-Owned, Proximity und Glass Edge ergaenzt. |
 | 0.7.0 | 2026-07-03 | Human Experience Specification HX-001A als digitale Antwort vor Besitzgefuehl referenziert. |
 | 0.6.0 | 2026-07-03 | Human Experience Specification HX-000 als Wahrnehmung vor allen Interaktionen referenziert. |
 | 0.5.0 | 2026-07-03 | Human Experience Specification HX-001 als Wahrnehmung vor dem Greifen referenziert. |

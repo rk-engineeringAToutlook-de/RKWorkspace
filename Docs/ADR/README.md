@@ -1,9 +1,9 @@
 # RKWS-0200 Architecture Decision Records
 
 Dokument-ID: RKWS-ADR-INDEX  
-Version: 0.3.0
+Version: 0.4.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-07
 
 ## Zweck
 
@@ -46,6 +46,8 @@ flowchart LR
 - `ADR-0007-smart-devices-and-display-nodes.md`
 - `ADR-0008-uwb-for-positioning-only.md`
 - `ADR-0009-rk-workspace-separate-from-rkos.md`
+- `ADR_MA016_OriginalOwnedPdfLifecycle.md`
+- `ADR_MA016_ProximityFusion.md`
 
 ## Querverweise
 
@@ -58,6 +60,7 @@ flowchart LR
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 0.4.0 | 2026-07-07 | MA016 ADRs fuer Original-Owned PDF Lifecycle und Proximity Fusion aufgenommen. |
 | 0.3.0 | 2026-07-03 | HX-000 als Vorrangregel fuer ADRs ergaenzt. |
 | 0.2.0 | 2026-07-02 | ADR-Struktur fuer Master-Arbeitsauftrag 002 vervollstaendigt. |
 | 0.1.0 | 2026-07-02 | Erste ADR-Struktur angelegt. |

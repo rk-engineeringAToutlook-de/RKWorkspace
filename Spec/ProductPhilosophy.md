@@ -1,9 +1,9 @@
 # RKWS-0350 Product Philosophy
 
 Dokument-ID: RKWS-SPEC-PHILOSOPHY-001  
-Version: 1.6.0
+Version: 1.8.0
 Status: Accepted  
-Datum: 2026-07-02
+Datum: 2026-07-07
 
 ## Zweck
 
@@ -58,6 +58,20 @@ Das ist keine Einschraenkung der Human Experience, sondern deren Schutz. Der Men
 
 Wenn spaeter CopyOut, ForkVersion oder MoveOwnership noetig werden, sind sie eigene bestaetigte Entscheidungen. Sie passieren nicht automatisch durch Ablegen.
 
+## Sicherheit durch Ursprungseigentum
+
+MA016 verankert Sicherheit als Produktgefuehl: Der Benutzer soll weiterarbeiten koennen, ohne zu befuerchten, dass das Original still auf eine andere Ablage gewandert ist.
+
+Ursprungseigentum bedeutet:
+
+- Das Original bleibt beim Owner.
+- Die Gastablage bekommt Frame-, Kapsel- oder Darstellungsrechte.
+- No File Ingress ist Standard fuer kritische Objekte.
+- Owner Lock macht sichtbar, dass das Original gerade gebunden ist.
+- CopyOut, Fork oder MoveOwnership sind spaetere explizite Entscheidungen.
+
+Damit ist Sicherheit nicht nur Verschluesselung oder Policy. Sicherheit ist die Wahrnehmung, dass der Mensch Kontrolle, Rueckweg und Ursprung versteht.
+
 ## Architekturfolgen
 
 ```mermaid
@@ -87,6 +101,8 @@ flowchart TB
 - `Spec/EmotionSpecification_ES002.md`
 - `Docs/00_ProductVision.md`
 - `Docs/ADR/ADR-0001-workspaces-instead-of-devices.md`
+- `Docs/ADR/ADR_MA016_OriginalOwnedPdfLifecycle.md`
+- `Docs/ADR/ADR_MA016_ProximityFusion.md`
 - `Spec/CapabilityModel.md`
 - `Spec/PluginArchitecture.md`
 
@@ -94,6 +110,7 @@ flowchart TB
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 1.8.0 | 2026-07-07 | Sicherheit durch Ursprungseigentum fuer MA016 ergaenzt. |
 | 1.7.0 | 2026-07-05 | Original-Owned-Prinzip fuer RKWP FrameOnly ergaenzt. |
 | 1.6.0 | 2026-07-03 | HX-001A als Kontroll- und Antwortwahrnehmung ergaenzt. |
 | 1.5.0 | 2026-07-03 | HX-000 als oberste Human-Experience-Regel vor Nordstern und Implementierung verankert. |
