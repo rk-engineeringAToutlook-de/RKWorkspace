@@ -145,11 +145,16 @@ $files = @(
     'Docs\Readiness\MA016_UWBProximityCheckpoint.md',
     'Docs\Readiness\MA016_SecurityPolicyCheckpoint.md',
     'Docs\Readiness\MA016_PilotLabCheckpoint.md',
+    'Docs\Readiness\MA016_ReadinessReview.md',
+    'Docs\Readiness\MA016_GoNoGoDecision.md',
+    'Docs\Readiness\MA016_FullVerification.md',
+    'Docs\Readiness\MA016_CompletionReport.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
     'Docs\Testing\MA016_CrossDeviceFailurePlaybook.md',
     'Docs\Testing\MA016_SecurityOwnerChecklist.md',
+    'Docs\Testing\MA016_RealTestRunbook.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -181,6 +186,7 @@ $files = @(
     'release\ma016\handoff\macOS_START_HERE.md',
     'release\ma016\handoff\macOS_MinimalGuestAppTask.md',
     'release\ma016\handoff\macOS_ReturnRecovery_UXContract.md',
+    'release\ma016\handoff\macOS_FINAL_HANDOFF.md',
     'release\ma016\config\macos-guest.sample.json',
     'release\ma016\schemas\macos-capsule-contract.v0.1.json',
     'release\ma016\schemas\macos-openframe-contract.v0.1.json',
@@ -214,6 +220,7 @@ $files = @(
     'release\ma016\handoff\iOS_HapticMapping_CapsuleOpenFrame.md',
     'release\ma016\handoff\iPad_FrameCapsuleLayoutSpec.md',
     'release\ma016\handoff\iPhone_CompactCapsuleLayoutSpec.md',
+    'release\ma016\handoff\iOS_iPadOS_FINAL_HANDOFF.md',
     'release\ma016\config\ios-guest.sample.json',
     'release\ma016\config\windows-local.sample.json',
     'release\ma016\config\windows-to-mac.sample.json',
@@ -270,6 +277,7 @@ $files = @(
     'Docs\Platform\Linux_ImplementationPlan.md',
     'Docs\Operations\UpdateMechanismPlan.md',
     'Docs\Admin\LabSetupGuide.md',
+    'release\MA016_READINESS_SUMMARY.md',
     'release\MA007_READINESS_SUMMARY.md',
     'release\MA009_READINESS_SUMMARY.md',
     'release\MA010_READINESS_SUMMARY.md',
@@ -356,6 +364,7 @@ $files = @(
     'tools\cleanup-ma016-pilot.ps1',
     'tools\run-ma016-repeatability.ps1',
     'tools\export-ma016-performance-baseline.ps1',
+    'tools\package-ma016-owner-test.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -395,6 +404,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-cross-device-security-regression.ps1 -SmokeTest
 .\tools\run-cross-device-policy-regression.ps1 -SmokeTest
 .\tools\run-ma016-pilot-lab.ps1 -SmokeTest
+.\tools\package-ma016-owner-test.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest
 .\tools\run-mac-guest-compat.ps1 -SmokeTest

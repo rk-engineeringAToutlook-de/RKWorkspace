@@ -38,6 +38,7 @@ Invoke-RkwsSmoke 'Cross Device Audit' { & (Join-Path $root 'tools\export-cross-d
 Invoke-RkwsSmoke 'Cross Device Security Regression' { & (Join-Path $root 'tools\run-cross-device-security-regression.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'Cross Device Policy Regression' { & (Join-Path $root 'tools\run-cross-device-policy-regression.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA016 Pilot Lab' { & (Join-Path $root 'tools\run-ma016-pilot-lab.ps1') -SmokeTest }
+Invoke-RkwsSmoke 'MA016 Owner Test Package' { & (Join-Path $root 'tools\package-ma016-owner-test.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'Manual Map' { & (Join-Path $root 'tools\run-manual-map.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'RKWP Chaos' { & (Join-Path $root 'tools\run-rkwp-chaos.ps1') -SmokeTest }
 
