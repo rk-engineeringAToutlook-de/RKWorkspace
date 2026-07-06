@@ -19,6 +19,11 @@ Diese Baseline ist noch keine Produktoptimierung. Sie misst lokal reproduzierbar
 - No File Ingress Overhead
 - PDF-Ladezeit
 - PDF-Renderzeit, falls ein Renderer vorhanden ist
+- PDF-Renderzeit erste Seite
+- PDF-Renderzeit naechste Seite
+- PDF-Tile-Generation
+- PDF-Framegroesse
+- Speicher-Snapshot
 
 ## Tool
 
@@ -50,6 +55,11 @@ Der Smoke-Test muss melden:
 - `Iterations: 10`
 - `PerfSamples: OK`
 - `NoFileIngress: SUCCESS`
+- `PdfRenderFirstPageAverageMs`
+- `PdfRenderNextPageAverageMs`
+- `PdfTileGenerationAverageMs`
+- `PdfFrameSizeBytesAverage`
+- `MemorySnapshotBytesAverage`
 - `RESULT: SUCCESS`
 - JSON-Report existiert
 - Markdown-Report existiert
@@ -70,6 +80,11 @@ Lauf vom 2026-07-06:
 | Recovery avg ms | ca. 0.034 |
 | No File Ingress overhead avg ms | ca. 0.003 |
 | PDF render avg ms | 0.000 |
+| PDF render first page avg ms | ab MA013.37 gemessen |
+| PDF render next page avg ms | ab MA013.37 gemessen |
+| PDF tile generation avg ms | ab MA013.37 gemessen |
+| PDF frame size bytes avg | ab MA013.37 gemessen |
+| Memory snapshot bytes avg | ab MA013.37 gemessen |
 
 RendererStatus:
 

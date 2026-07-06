@@ -36,7 +36,14 @@ public sealed class PdfFrameOwnerService
             ownerAblageId,
             document.ThingId));
         var frameCache = new FrameCache(_cachePolicy);
-        var update = CreateFrameUpdate(document, frame, timestamp.AddMilliseconds(60));
+        var documentFrameState = PdfDocumentFrameState.Open(document, frame, timestamp.AddMilliseconds(60));
+        if (document.PageCount > 1)
+        {
+            documentFrameState = documentFrameState.NextPage(document, frame, timestamp.AddMilliseconds(65));
+        }
+
+        documentFrameState = documentFrameState.PreviousPage(document, frame, timestamp.AddMilliseconds(68));
+        var update = documentFrameState.Updates[0].FrameUpdate;
         var guestFrame = new PdfGuestFrame(
             frame.FrameSessionId,
             document.ThingId,
@@ -71,21 +78,10 @@ public sealed class PdfFrameOwnerService
             guestFrame,
             returnedLease,
             recovery,
+            documentFrameState,
             _cachePolicy,
             cacheBeforeClose,
             cacheAfterClose);
-    }
-
-    private static FrameUpdate CreateFrameUpdate(PdfFrameDocument document, FrameSession frame, DateTimeOffset timestamp)
-    {
-        return new FrameUpdate(
-            frame.FrameSessionId,
-            document.ThingId,
-            PageNumber: 1,
-            Representation: $"PDF frame representation; name={document.FileName}; pages={document.PageCount}; sha256={document.Sha256[..16]}",
-            ContentHash: document.Sha256,
-            ContainsOriginalFileBytes: false,
-            Timestamp: timestamp);
     }
 }
 

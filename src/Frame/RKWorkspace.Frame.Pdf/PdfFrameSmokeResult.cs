@@ -11,6 +11,7 @@ public sealed record PdfFrameSmokeResult(
     PdfGuestFrame GuestFrame,
     CarryLease ReturnedLease,
     CarryLeaseRecovery Recovery,
+    PdfDocumentFrameState DocumentFrameState,
     FrameCachePolicy CachePolicy,
     FrameCacheDiagnostics CacheBeforeClose,
     FrameCacheDiagnostics CacheAfterClose)
@@ -28,9 +29,16 @@ public sealed record PdfFrameSmokeResult(
     public bool GuestShowsFrameRepresentation =>
         !string.IsNullOrWhiteSpace(GuestFrame.DisplayText) &&
         GuestFrame.PageCount > 0 &&
+        DocumentFrameState.PageCount == GuestFrame.PageCount &&
+        DocumentFrameState.CurrentPage >= 1 &&
         GuestFrame.RepresentationKind is PdfFrameRepresentationKind.MetadataPreview or
             PdfFrameRepresentationKind.RenderedFirstPage or
             PdfFrameRepresentationKind.RenderedPageImage;
+
+    public bool MultiPageNavigationPrepared =>
+        DocumentFrameState.PageCount == Document.PageCount &&
+        DocumentFrameState.Updates.Count >= 2 &&
+        DocumentFrameState.Updates.All(update => !update.FrameUpdate.ContainsOriginalFileBytes);
 
     public IReadOnlyList<VisibleFrameState> VisibleStates =>
         OwnerGuestFrameStateUx.CreateTimeline(Ownership, Lease, FrameSession, ReturnedLease, Recovery);

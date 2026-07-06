@@ -65,6 +65,8 @@ static void PrintOwnerArea(WindowsPdfFramePilotResult result)
     Console.WriteLine($"Ablage: {result.OwnerAblageName}");
     Console.WriteLine($"PDF-Name: {result.Frame.Document.FileName}");
     Console.WriteLine($"Zustand: {result.Frame.OwnerVisibleStatus}");
+    Console.WriteLine($"Seite: {result.Frame.DocumentFrameState.CurrentPage}/{result.Frame.DocumentFrameState.PageCount}");
+    Console.WriteLine($"Seitennavigation: {(result.Frame.MultiPageNavigationPrepared ? "bereit" : "nicht bereit")}");
     Console.WriteLine($"Bearbeitung: {(result.OwnerLocked ? "gesperrt waehrend ausgeliehen" : "verfuegbar")}");
     Console.WriteLine($"Nach Rueckgabe: {result.OwnerReturnedStatus}");
     Console.WriteLine($"Recovery: {result.OwnerRecoveryStatus}");
@@ -78,6 +80,8 @@ static void PrintGuestArea(WindowsPdfFramePilotResult result)
     Console.WriteLine($"Ablage: {result.GuestAblageName}");
     Console.WriteLine($"Frame: {result.Frame.GuestVisibleStatus}");
     Console.WriteLine($"FrameStatus: {result.GuestFrameStatus}");
+    Console.WriteLine($"Zoom: {(result.ZoomPrepared ? "bereit" : "nicht bereit")}");
+    Console.WriteLine($"Scroll: {(result.ScrollPrepared ? "bereit" : "nicht bereit")}");
     Console.WriteLine($"Rueckgabe: {OwnerGuestFrameStateUx.GetGuestText(GuestFrameUxState.Returning)}");
     Console.WriteLine($"Verbindung: {OwnerGuestFrameStateUx.GetGuestText(GuestFrameUxState.Expired)}");
     Console.WriteLine($"PDF-Datei: {result.GuestPdfFileText}");
@@ -135,6 +139,9 @@ static void PrintDebug(WindowsPdfFramePilotResult result)
     Console.WriteLine($"RendererStatus: {result.Frame.GuestFrame.RendererStatus}");
     Console.WriteLine($"RendererName: {result.Frame.GuestFrame.RendererName}");
     Console.WriteLine($"FrameFormat: {result.Frame.GuestFrame.FrameFormat}");
+    Console.WriteLine($"CurrentPage: {result.Frame.DocumentFrameState.CurrentPage}");
+    Console.WriteLine($"PageCount: {result.Frame.DocumentFrameState.PageCount}");
+    Console.WriteLine($"PageFrameUpdates: {result.Frame.DocumentFrameState.Updates.Count}");
     Console.WriteLine($"GuestHasPdfFile: {(result.GuestHasPdfFile ? "YES" : "NO")}");
     Console.WriteLine($"GuestHasOriginalPath: {(result.GuestHasOriginalPath ? "YES" : "NO")}");
     Console.WriteLine($"GuestHasCopiedPdfBytes: {(result.GuestHasCopiedPdfBytes ? "YES" : "NO")}");
@@ -161,6 +168,11 @@ static void PrintSmokeChecks(WindowsPdfFramePilotResult result)
     Console.WriteLine($"OwnerLocked: {(result.OwnerLocked ? "OK" : "FAILED")}");
     Console.WriteLine($"FrameSession: {result.Frame.FrameSession.State}");
     Console.WriteLine($"GuestFrame: {(result.GuestFrameReady ? "OK" : "FAILED")}");
+    Console.WriteLine($"CurrentPage: {result.Frame.DocumentFrameState.CurrentPage}");
+    Console.WriteLine($"PageCount: {result.Frame.DocumentFrameState.PageCount}");
+    Console.WriteLine($"PageNavigation: {(result.Frame.MultiPageNavigationPrepared ? "OK" : "FAILED")}");
+    Console.WriteLine($"ZoomPrepared: {(result.ZoomPrepared ? "OK" : "FAILED")}");
+    Console.WriteLine($"ScrollPrepared: {(result.ScrollPrepared ? "OK" : "FAILED")}");
     Console.WriteLine($"OwnerInitialStatus: {OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.OriginalOwned)}");
     Console.WriteLine($"OwnerLeasedStatus: {OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.LeasedToGuest)}");
     Console.WriteLine($"OwnerLockedStatus: {result.Frame.OwnerVisibleStatus}");
@@ -541,6 +553,10 @@ public sealed record WindowsPdfFramePilotResult(
         Frame.FrameSession.State == FrameSessionState.Active &&
         Frame.GuestShowsFrameRepresentation;
 
+    public bool ZoomPrepared => Frame.GuestFrame.SupportsZoom;
+
+    public bool ScrollPrepared => Frame.GuestFrame.SupportsScroll;
+
     public bool GuestHasPdfFile => Frame.GuestFrame.HasOriginalFilePath;
 
     public bool GuestHasOriginalPath => Frame.GuestFrame.HasOriginalFilePath;
@@ -616,6 +632,9 @@ public sealed record WindowsPdfFramePilotResult(
         Frame.Lease.State == CarryLeaseState.Active &&
         Frame.FrameSession.State == FrameSessionState.Active &&
         GuestFrameReady &&
+        Frame.MultiPageNavigationPrepared &&
+        ZoomPrepared &&
+        ScrollPrepared &&
         NoFileIngress &&
         ReturnSuccessful;
 

@@ -1,9 +1,9 @@
-using System.Text.Json;
 using RKWorkspace.Protocol.Ownership;
 
 namespace RKWorkspace.Frame.Pdf;
 
 public sealed record PdfAnnotationDraft(
+    PdfAnnotationOperationKind OperationKind,
     int PageNumber,
     double X,
     double Y,
@@ -86,25 +86,16 @@ public sealed class PdfFrameInteractionService
             return new PdfFrameAnnotationChangeSetResult(start, update, end, null);
         }
 
-        var operation = new ChangeSetOperation(
-            $"operation-annotation-{Guid.NewGuid():N}",
-            ChangeSetOperationKind.AnnotationAdded,
-            "PDF frame annotation added by guest.",
+        var annotation = new PdfAnnotationOperation(
+            draft.OperationKind,
             draft.PageNumber,
-            JsonSerializer.Serialize(new
-            {
-                draft.PageNumber,
-                draft.X,
-                draft.Y,
-                draft.Width,
-                draft.Height,
-                draft.Text,
-                draft.Color,
-                draft.CreatedByGuestAblage,
-                draft.LeaseId,
-                draft.FrameSessionId
-            }),
-            now.AddMilliseconds(30));
+            draft.X,
+            draft.Y,
+            draft.Width,
+            draft.Height,
+            draft.Text,
+            draft.Color);
+        var operation = annotation.ToChangeSetOperation(now.AddMilliseconds(30));
         var changeSet = ChangeSetService.Create(
             lease,
             frameSession,

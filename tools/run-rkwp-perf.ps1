@@ -42,6 +42,11 @@ if ($SmokeTest) {
         'Mode: SmokeTest',
         'Iterations: 10',
         'PerfSamples: OK',
+        'PdfRenderFirstPageAverageMs:',
+        'PdfRenderNextPageAverageMs:',
+        'PdfTileGenerationAverageMs:',
+        'PdfFrameSizeBytesAverage:',
+        'MemorySnapshotBytesAverage:',
         'NoFileIngress: SUCCESS',
         'RESULT: SUCCESS'
     )

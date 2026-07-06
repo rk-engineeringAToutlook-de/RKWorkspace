@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.61.0
+Version: 2.62.0
 Status: Accepted  
 Datum: 2026-07-06
 
@@ -107,6 +107,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA013.01 bis MA013.10 bereiten den ersten echten Windows-zu-macOS-Frame-Test vor: macOS Repository Bootstrap, RKWP Client Architecture, Contract-Test, Frame Guest UI, No File Ingress, Return/Recovery, Frame Rendering, Packaging, Gesture/Glass Edge und `WindowsToMac_FirstRealTestGate`.
 - MA013.11 bis MA013.20 bereiten den iOS/iPadOS-Xcode-Pfad vor: Bootstrap, RKWP Client Flow, Frame Presenter, Haptics/Gestures, No File Ingress Sandbox, USB-Test, Windows-zu-iPad-Gate, Return/Recovery, Share Extension Roadmap und iOS Readiness Gate.
 - MA013.21 bis MA013.30 vertiefen Security: Crypto-Entscheidung, Mutual Authentication, Zertifikatsprovisioning, Pairing Experience, Emergency Return, Product Transport, Secrets Storage, Audit Tamper Resistance, Security Regression Suite und Security Readiness Gate.
+- MA013.31 bis MA013.40 vertiefen den PDF/Frame-Produktpfad: Renderer-Produktentscheidung, Multi-Page, Tiles/Viewport, Annotation-ChangeSets, Text-Extraction-Policy, Renderer-Sandbox, Performance-Baseline, Malformed-PDF-Handling, Pilot-UI und PDF Renderer Readiness Gate.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.

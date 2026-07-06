@@ -37,6 +37,14 @@ if (-not $combinedText.Contains('FrameRepresentation: OK')) {
     throw 'PDF Frame Smoke failed because output did not contain FrameRepresentation: OK.'
 }
 
+if (-not $combinedText.Contains('MultiPageNavigation: OK')) {
+    throw 'PDF Frame Smoke failed because multipage navigation was not prepared.'
+}
+
+if (-not $combinedText.Contains('PageFrameUpdates:')) {
+    throw 'PDF Frame Smoke failed because page frame updates were not printed.'
+}
+
 $realRenderer = $combinedText.Contains('RendererName: PopplerPdfFrameRenderer')
 $blockedRenderer = $combinedText.Contains('RendererStatus: RendererBlocked') -and $combinedText.Contains('IsPlaceholder: True')
 if ($realRenderer) {

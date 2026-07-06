@@ -44,6 +44,11 @@ static void Print(RkwpPerfRunResult result)
     Console.WriteLine($"RecoveryAverageMs: {result.Summary.RecoveryAverageMs:F3}");
     Console.WriteLine($"NoFileIngressOverheadAverageMs: {result.Summary.NoFileIngressOverheadAverageMs:F3}");
     Console.WriteLine($"PdfRenderAverageMs: {result.Summary.PdfRenderAverageMs:F3}");
+    Console.WriteLine($"PdfRenderFirstPageAverageMs: {result.Summary.PdfRenderFirstPageAverageMs:F3}");
+    Console.WriteLine($"PdfRenderNextPageAverageMs: {result.Summary.PdfRenderNextPageAverageMs:F3}");
+    Console.WriteLine($"PdfTileGenerationAverageMs: {result.Summary.PdfTileGenerationAverageMs:F3}");
+    Console.WriteLine($"PdfFrameSizeBytesAverage: {result.Summary.PdfFrameSizeBytesAverage:F1}");
+    Console.WriteLine($"MemorySnapshotBytesAverage: {result.Summary.MemorySnapshotBytesAverage:F1}");
     Console.WriteLine($"RendererStatus: {result.Summary.RendererStatus}");
     Console.WriteLine($"PerfSamples: {(result.Samples.Count == result.Summary.Iterations ? "OK" : "FAILED")}");
     Console.WriteLine($"NoFileIngress: {(result.Summary.NoFileIngressPassed ? "SUCCESS" : "FAILED")}");
@@ -226,6 +231,38 @@ public static class RkwpPerfHarness
         stopwatch.Stop();
         var frameOpenMs = stopwatch.Elapsed.TotalMilliseconds;
 
+        var renderer = PdfFrameRendererFactory.CreateDefault();
+        stopwatch.Restart();
+        var firstPageFrame = renderer.Render(new PdfFrameRenderRequest(
+            document,
+            PageNumber: 1,
+            Options: new PdfFrameRenderOptions(RequestedWidth: 1024, RequestedHeight: 1448),
+            lease.OwnerAblageId,
+            document.ThingId));
+        stopwatch.Stop();
+        var renderFirstPageMs = stopwatch.Elapsed.TotalMilliseconds;
+
+        var nextPageNumber = Math.Min(document.PageCount, 2);
+        stopwatch.Restart();
+        var nextPageFrame = renderer.Render(new PdfFrameRenderRequest(
+            document,
+            nextPageNumber,
+            new PdfFrameRenderOptions(RequestedWidth: 1024, RequestedHeight: 1448),
+            lease.OwnerAblageId,
+            document.ThingId));
+        stopwatch.Stop();
+        var renderNextPageMs = stopwatch.Elapsed.TotalMilliseconds;
+
+        stopwatch.Restart();
+        var viewport = new PdfViewportState(1, Zoom: 1.25, ScrollX: 120, ScrollY: 240, ViewportWidth: 1024, ViewportHeight: 768);
+        var tile = PdfTilePipeline.CreateTile(
+            document,
+            frame,
+            new PdfTileRequest(frame.FrameSessionId, document.ThingId, viewport, TileColumn: 0, TileRow: 0),
+            DateTimeOffset.UtcNow);
+        stopwatch.Stop();
+        var tileGenerationMs = stopwatch.Elapsed.TotalMilliseconds;
+
         var update = new FrameUpdate(
             frame.FrameSessionId,
             document.ThingId,
@@ -249,9 +286,14 @@ public static class RkwpPerfHarness
                 ["containsOriginalFileBytes"] = update.ContainsOriginalFileBytes.ToString()
             });
         var frameUpdateBytes = Encoding.UTF8.GetByteCount(frameMessage.ToTransportMessage().ToJson());
+        var frameSizeBytes = frameUpdateBytes + Encoding.UTF8.GetByteCount(tile.Update.FrameUpdate.Representation);
+        var memorySnapshotBytes = GC.GetTotalMemory(forceFullCollection: false);
 
         stopwatch.Restart();
-        var noFileIngressPassed = !update.ContainsOriginalFileBytes && frameMessage.Payload["containsOriginalFileBytes"] == bool.FalseString;
+        var noFileIngressPassed =
+            !update.ContainsOriginalFileBytes &&
+            tile.NoFileIngress &&
+            frameMessage.Payload["containsOriginalFileBytes"] == bool.FalseString;
         stopwatch.Stop();
         var noFileIngressOverheadMs = stopwatch.Elapsed.TotalMilliseconds;
 
@@ -298,8 +340,13 @@ public static class RkwpPerfHarness
             recoveryMs,
             noFileIngressOverheadMs,
             pdfLoadMs,
-            PdfRenderMs: 0.0,
-            RendererStatus: "RendererBlocked",
+            PdfRenderMs: (renderFirstPageMs + renderNextPageMs) / 2.0,
+            renderFirstPageMs,
+            renderNextPageMs,
+            tileGenerationMs,
+            frameSizeBytes,
+            memorySnapshotBytes,
+            RendererStatus: firstPageFrame.IsPlaceholder || nextPageFrame.IsPlaceholder ? "RendererBlocked" : "Rendered",
             noFileIngressPassed);
     }
 }
@@ -315,6 +362,11 @@ public sealed record RkwpPerfSample(
     double NoFileIngressOverheadMs,
     double PdfLoadMs,
     double PdfRenderMs,
+    double PdfRenderFirstPageMs,
+    double PdfRenderNextPageMs,
+    double PdfTileGenerationMs,
+    int PdfFrameSizeBytes,
+    long MemorySnapshotBytes,
     string RendererStatus,
     bool NoFileIngressPassed);
 
@@ -333,6 +385,11 @@ public sealed record RkwpPerfSummary(
     double NoFileIngressOverheadAverageMs,
     double PdfLoadAverageMs,
     double PdfRenderAverageMs,
+    double PdfRenderFirstPageAverageMs,
+    double PdfRenderNextPageAverageMs,
+    double PdfTileGenerationAverageMs,
+    double PdfFrameSizeBytesAverage,
+    double MemorySnapshotBytesAverage,
     string RendererStatus,
     bool NoFileIngressPassed,
     IReadOnlyList<RkwpPerfSample> Samples)
@@ -361,7 +418,12 @@ public sealed record RkwpPerfSummary(
             samples.Average(sample => sample.NoFileIngressOverheadMs),
             samples.Average(sample => sample.PdfLoadMs),
             samples.Average(sample => sample.PdfRenderMs),
-            samples.Select(sample => sample.RendererStatus).Distinct().Single(),
+            samples.Average(sample => sample.PdfRenderFirstPageMs),
+            samples.Average(sample => sample.PdfRenderNextPageMs),
+            samples.Average(sample => sample.PdfTileGenerationMs),
+            samples.Average(sample => sample.PdfFrameSizeBytes),
+            samples.Average(sample => sample.MemorySnapshotBytes),
+            samples.Select(sample => sample.RendererStatus).Distinct().OrderBy(status => status).First(),
             samples.All(sample => sample.NoFileIngressPassed),
             samples);
     }
@@ -389,6 +451,11 @@ public sealed record RkwpPerfSummary(
         builder.AppendLine($"| No File Ingress overhead avg ms | {NoFileIngressOverheadAverageMs:F3} |");
         builder.AppendLine($"| PDF load avg ms | {PdfLoadAverageMs:F3} |");
         builder.AppendLine($"| PDF render avg ms | {PdfRenderAverageMs:F3} |");
+        builder.AppendLine($"| PDF render first page avg ms | {PdfRenderFirstPageAverageMs:F3} |");
+        builder.AppendLine($"| PDF render next page avg ms | {PdfRenderNextPageAverageMs:F3} |");
+        builder.AppendLine($"| PDF tile generation avg ms | {PdfTileGenerationAverageMs:F3} |");
+        builder.AppendLine($"| PDF frame size bytes avg | {PdfFrameSizeBytesAverage:F1} |");
+        builder.AppendLine($"| Memory snapshot bytes avg | {MemorySnapshotBytesAverage:F1} |");
         builder.AppendLine();
         builder.AppendLine($"RendererStatus: `{RendererStatus}`");
         builder.AppendLine($"NoFileIngress: `{(NoFileIngressPassed ? "SUCCESS" : "FAILED")}`");

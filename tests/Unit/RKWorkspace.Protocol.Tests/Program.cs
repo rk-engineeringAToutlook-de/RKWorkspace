@@ -44,6 +44,12 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PdfFrameRendererFirstPageFrame", PdfFrameRendererFirstPageFrame),
     ("PdfFrameRendererNoFileIngress", PdfFrameRendererNoFileIngress),
     ("PdfFrameRendererBlockerOrRealStatus", PdfFrameRendererBlockerOrRealStatus),
+    ("PdfDocumentFrameStateMultiPage", PdfDocumentFrameStateMultiPage),
+    ("PdfTilePipelineNoFileIngress", PdfTilePipelineNoFileIngress),
+    ("PdfAnnotationKindsSupported", PdfAnnotationKindsSupported),
+    ("PdfTextExtractionDefaultDenied", PdfTextExtractionDefaultDenied),
+    ("PdfTextExtractionAllowedWithPolicyAndAudit", PdfTextExtractionAllowedWithPolicyAndAudit),
+    ("MalformedPdfHandlingSafeFailure", MalformedPdfHandlingSafeFailure),
     ("OwnerGuestFrameStateUx", OwnerGuestFrameStateUxChecks),
     ("ChangeSetCanBeCreated", ChangeSetCanBeCreated),
     ("ChangeSetWithoutLeaseInvalid", ChangeSetWithoutLeaseInvalid),
@@ -384,7 +390,7 @@ static bool PdfFrameAnnotationCreatesChangeSet()
            result.ChangeSet is not null &&
            result.ChangeSet.Operations.Count == 1 &&
            result.ChangeSet.Operations[0].OperationKind == ChangeSetOperationKind.AnnotationAdded &&
-           result.ChangeSet.Operations[0].Payload?.Contains("\"CreatedByGuestAblage\"", StringComparison.Ordinal) == true &&
+           result.ChangeSet.Operations[0].Description.Contains("Highlight", StringComparison.Ordinal) &&
            result.ChangeSet.LeaseId == lease.LeaseId &&
            result.ChangeSet.FrameSessionId == frame.FrameSessionId;
 }
@@ -522,6 +528,107 @@ static bool PdfFrameRendererBlockerOrRealStatus()
 
     return blocker.Contains("Poppler", StringComparison.OrdinalIgnoreCase) &&
            blocker.Contains("not found", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool PdfDocumentFrameStateMultiPage()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    var state = smoke.DocumentFrameState;
+    return smoke.MultiPageNavigationPrepared &&
+           state.PageCount == smoke.Document.PageCount &&
+           state.CurrentReference.PageNumber == state.CurrentPage &&
+           state.Updates.All(update => !update.FrameUpdate.ContainsOriginalFileBytes);
+}
+
+static bool PdfTilePipelineNoFileIngress()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    var viewport = new PdfViewportState(1, Zoom: 1.0, ScrollX: 0, ScrollY: 0, ViewportWidth: 1024, ViewportHeight: 768)
+        .ChangeZoom(1.5)
+        .ScrollTo(64, 128);
+    var response = PdfTilePipeline.CreateTile(
+        smoke.Document,
+        smoke.FrameSession,
+        new PdfTileRequest(smoke.FrameSession.FrameSessionId, smoke.Document.ThingId, viewport, TileColumn: 1, TileRow: 0),
+        DateTimeOffset.UtcNow);
+
+    return response.NoFileIngress &&
+           response.Tile.TileId.Contains("page-1-tile-1-0", StringComparison.Ordinal) &&
+           response.Tile.DirtyRegion.IsValid &&
+           response.Update.IsTileUpdate &&
+           response.Update.FrameUpdate.Representation.Contains("zoom=1.5", StringComparison.Ordinal);
+}
+
+static bool PdfAnnotationKindsSupported()
+{
+    var now = DateTimeOffset.UtcNow;
+    var highlight = new PdfAnnotationOperation(PdfAnnotationOperationKind.Highlight, 1, 0.1, 0.1, 0.2, 0.1, "h", "#ffd");
+    var note = new PdfAnnotationOperation(PdfAnnotationOperationKind.Note, 1, 0.2, 0.2, 0.2, 0.1, "n", "#fff");
+    var rectangle = new PdfAnnotationOperation(PdfAnnotationOperationKind.Rectangle, 1, 0.3, 0.3, 0.2, 0.1, null, "#09f");
+    var freeText = new PdfAnnotationOperation(PdfAnnotationOperationKind.FreeTextPlanned, 1, 0.4, 0.4, 0.2, 0.1, "planned", "#fff");
+
+    return highlight.ToChangeSetOperation(now).OperationKind == ChangeSetOperationKind.AnnotationAdded &&
+           note.ToChangeSetOperation(now).Description.Contains("Note", StringComparison.Ordinal) &&
+           rectangle.ToChangeSetOperation(now).Description.Contains("Rectangle", StringComparison.Ordinal) &&
+           freeText.ToChangeSetOperation(now).OperationKind == ChangeSetOperationKind.TextInserted;
+}
+
+static bool PdfTextExtractionDefaultDenied()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    var audit = new InMemoryRkwpAuditSink();
+    var request = new PdfTextExtractionRequest(smoke.FrameSession.FrameSessionId, smoke.Lease.LeaseId, 1, smoke.Lease.GuestAblageId);
+    var result = new PdfTextExtractionService().Extract(
+        smoke.Document,
+        smoke.Lease,
+        smoke.FrameSession,
+        new ExtractionPolicy("extract-default-deny", 1, TextAllowed: false, ImageAllowed: false, FileIngressAllowed: false),
+        request,
+        DateTimeOffset.UtcNow,
+        audit);
+
+    return !result.Allowed &&
+           !result.OwnershipTransferred &&
+           result.AuditWritten &&
+           audit.Contains(RkwpAuditEventType.FrameInput);
+}
+
+static bool PdfTextExtractionAllowedWithPolicyAndAudit()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    var audit = new InMemoryRkwpAuditSink();
+    var request = new PdfTextExtractionRequest(smoke.FrameSession.FrameSessionId, smoke.Lease.LeaseId, 1, smoke.Lease.GuestAblageId);
+    var result = new PdfTextExtractionService().Extract(
+        smoke.Document,
+        smoke.Lease,
+        smoke.FrameSession,
+        new ExtractionPolicy("extract-allowed", 1, TextAllowed: true, ImageAllowed: false, FileIngressAllowed: false),
+        request,
+        DateTimeOffset.UtcNow,
+        audit);
+
+    return result.Allowed &&
+           result.Text?.Contains(smoke.Document.FileName, StringComparison.Ordinal) == true &&
+           !result.OwnershipTransferred &&
+           result.AuditWritten &&
+           audit.Contains(RkwpAuditEventType.FrameInput);
+}
+
+static bool MalformedPdfHandlingSafeFailure()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    var empty = PdfFrameValidation.ValidateMalformed(MalformedPdfKind.EmptyFile, [], audit);
+    var invalid = PdfFrameValidation.ValidateMalformed(MalformedPdfKind.InvalidPdf, "not-a-pdf"u8.ToArray(), audit);
+    var corrupt = PdfFrameValidation.ValidateMalformed(MalformedPdfKind.CorruptHeader, "%PDX-"u8.ToArray(), audit);
+    var huge = PdfFrameValidation.ValidateMalformed(MalformedPdfKind.HugeMetadata, System.Text.Encoding.ASCII.GetBytes("%PDF-" + new string('x', 300_000)), audit);
+    var encrypted = PdfFrameValidation.ValidateMalformed(MalformedPdfKind.EncryptedPdfPlanned, "%PDF-encrypted"u8.ToArray(), audit);
+
+    return empty.IsSafeFailure &&
+           invalid.IsSafeFailure &&
+           corrupt.IsSafeFailure &&
+           huge.IsSafeFailure &&
+           encrypted.IsSafeFailure &&
+           audit.Contains(RkwpAuditEventType.PolicyDenied);
 }
 
 static bool OwnerGuestFrameStateUxChecks()
@@ -1846,6 +1953,7 @@ static ChangeSetOperation AnnotationOperation(DateTimeOffset now)
 static PdfAnnotationDraft AnnotationDraft(CarryLease lease, FrameSession frame)
 {
     return new PdfAnnotationDraft(
+        OperationKind: PdfAnnotationOperationKind.Highlight,
         PageNumber: 1,
         X: 0.32,
         Y: 0.38,

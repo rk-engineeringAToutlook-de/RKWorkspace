@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.45.0
+Version: 2.46.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -124,6 +124,8 @@ Ab MA008.08 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-diagnostics
 Ab MA008.09 pruefen die RKWP-Tests zusaetzlich das Security Gate. Geprueft werden Production gegen `DevelopmentInsecure`, Development-Warnung, Production ohne Audit, Production ohne ReplayProtection, Production ohne PolicyBinding und dokumentiertes Test-/Staging-Verhalten.
 
 Ab MA013.29 buendelt `tools/run-security-regression.ps1` die sicherheitskritischen RKWP-Regressionschecks. Der Gate-Lauf verlangt Replay-/Nonce-Schutz, revoked Peer, expired Lease, unautorisierte Eingabe, verweigerte Ownership-Uebernahme, No File Ingress im Cache und vorhandene Audit Events.
+
+Ab MA013.31 bis MA013.40 pruefen PDF/Frame-Tests den Produktpfad. `run-pdf-frame-smoke.ps1` verlangt Multi-Page-Navigation und PageFrameUpdates, `run-rkwp-tests.ps1` prueft PdfDocumentFrameState, TilePipeline, AnnotationKinds, TextExtractionPolicy und MalformedPdfHandling, `run-rkwp-perf.ps1 -SmokeTest` misst First/Next Page Render, Tile-Generation, Framegroesse und Speicher, und `run-windows-pdf-frame-pilot.ps1 -SmokeTest` prueft Seitennavigation, Zoom, Scroll, Rueckgabe, Recovery und No File Ingress.
 
 ## MA003.05 Core Integration Tests
 

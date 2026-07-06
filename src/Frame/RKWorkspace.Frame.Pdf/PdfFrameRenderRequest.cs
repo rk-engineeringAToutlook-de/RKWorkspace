@@ -14,6 +14,11 @@ public sealed record PdfFrameRenderRequest(
             throw new PdfFrameRendererException("PageNumber must be greater than zero.");
         }
 
+        if (PageNumber > PdfReference.PageCount)
+        {
+            throw new PdfFrameRendererException("PageNumber must not exceed the PDF page count.");
+        }
+
         if (string.IsNullOrWhiteSpace(OwnerAblageId))
         {
             throw new PdfFrameRendererException("OwnerAblageId is required.");
