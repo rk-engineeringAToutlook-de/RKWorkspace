@@ -1,0 +1,45 @@
+{
+  "ablage": {
+    "ablageId": "ablage-windows-owner",
+    "displayName": "Ablage Windows Owner",
+    "platform": "Windows"
+  },
+  "rkwp": {
+    "transportProfile": "LocalNetworkDev",
+    "host": "127.0.0.1",
+    "port": 57100,
+    "devPairingAllowed": true,
+    "heartbeatIntervalSeconds": 2
+  },
+  "security": {
+    "securityMode": "DevelopmentInsecure",
+    "secureSessionRequired": false,
+    "auditRequired": true
+  },
+  "policy": {
+    "policyProfile": "DevelopmentLab",
+    "noFileIngress": true,
+    "ownershipTransferAllowed": false
+  },
+  "proximity": {
+    "source": "ManualMap",
+    "manualMapPath": "config/manual-ablage-map.json",
+    "minimumConfidence": 0.65,
+    "edgeSwitchDelayMs": 450
+  },
+  "frame": {
+    "frameCachePolicy": "MemoryOnly",
+    "rendererName": "MetadataPreviewDevRenderer",
+    "allowGuestFileIngress": false
+  },
+  "surface": {
+    "platform": "Windows",
+    "glassEdgeEnabled": true,
+    "hapticsEnabled": false
+  },
+  "gesture": {
+    "pickGesture": "PointerHold",
+    "edgeGesture": "CarryToGlassEdge",
+    "longPressMs": 450
+  }
+}

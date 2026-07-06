@@ -1,0 +1,5 @@
+{
+  "policyProfile": "CriticalInfrastructure",
+  "noFileIngress": true,
+  "ownershipTransferAllowed": false
+}

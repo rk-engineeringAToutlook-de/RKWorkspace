@@ -1,0 +1,7 @@
+{
+  "transportProfile": "LocalNetworkDev",
+  "host": "127.0.0.1",
+  "port": 57100,
+  "devPairingAllowed": true,
+  "heartbeatIntervalSeconds": 2
+}

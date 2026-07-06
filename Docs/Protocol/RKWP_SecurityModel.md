@@ -54,6 +54,8 @@ Development darf `DevelopmentInsecure` nur mit sichtbarer Warnung verwenden. Tes
 
 Details stehen in `Docs/Security/RKWP_SecurityGate.md`.
 
+MA010.09 fuehrt `RKWorkspace.Configuration` ein. Das Konfigurationssystem validiert `SecurityMode`, `SecureSessionRequired`, `AuditRequired` und die Policy-Kopplung. `DevelopmentInsecure` bleibt erlaubt fuer Lab-Smokes, wird aber als Warnung ausgegeben.
+
 ## Policy Profiles
 
 MA009.07 fuehrt `RkwpPolicyProfile` ein. Profile buendeln Ownership, Frame, Extraction, OwnershipTransfer und Security-Konfiguration.

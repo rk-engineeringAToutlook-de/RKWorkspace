@@ -69,6 +69,14 @@ Ein Profil buendelt:
 .\tools\run-policy-profile.ps1 -SmokeTest
 ```
 
+Ab MA010.09 validiert zusaetzlich das zentrale Configuration Tool Policy-Samples:
+
+```powershell
+.\tools\run-config-tool.ps1 -SmokeTest
+```
+
+Das Sample `config/samples/policy-critical.sample.json` prueft `CriticalInfrastructure` mit `NoFileIngress: true` und `OwnershipTransferAllowed: false`.
+
 ## Smoke-Test
 
 Der Smoke-Test prueft:

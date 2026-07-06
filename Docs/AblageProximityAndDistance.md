@@ -81,6 +81,8 @@ Der `ManualMapAblageProximityProvider` erzeugt daraus ein `AblageProximitySnapsh
 
 Der lokale Pfad `config/manual-ablage-map.json` ist nutzerspezifisch und wird nicht versioniert. Die versionierte Sample-Datei liegt unter `config/samples/manual-ablage-map.sample.json`.
 
+MA010.09 ergaenzt `RKWorkspace.Configuration`. Die zentrale Sample-Config verweist auf `config/manual-ablage-map.json`, waehrend echte lokale Configs unter `config/` nicht versioniert werden. `run-config-tool.ps1 -SmokeTest` prueft, dass die Manual-Map-Sample-Datei vorhanden ist und Eintraege enthaelt.
+
 ## Stabilitaet
 
 Der Selector beruecksichtigt Confidence, bevorzugte Richtung, letzte Aktivitaet und Hysterese. Kleine Distanzschwankungen sollen die Kante nicht nervoes wechseln lassen.
