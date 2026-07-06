@@ -97,6 +97,26 @@ Baue eine macOS RK Workspace Frame Guest Surface.
 ## Blocker
 
 - macOS-Codex/Xcode-Umgebung fehlt in diesem Windows-Thread.
-- netzwerkfaehiger DevTransport fuer echte Windows-to-macOS-Verbindung fehlt.
+- netzwerkfaehiger DevTransport ist ab MA010.02 als DevLan-Lab-Profil vorbereitet; echter macOS-Client und Firewall-/Local-Network-Test fehlen noch.
 - produktive TLS/mutual auth fehlt.
 - nativer PDF-Renderer ist noch nicht final entschieden.
+
+## MA010.02 DevLan Handoff
+
+Windows kann fuer den ersten Lab-Test einen DevLan Owner starten:
+
+```powershell
+.\tools\run-rkwp-lan-owner.ps1 -BindAddress 0.0.0.0 -Port 57100 -AllowDevPairing
+```
+
+macOS soll spaeter als Guest gegen diese URL verbinden:
+
+```text
+rkwp+tcp-dev://<windows-ip>:57100
+```
+
+Der Windows-Loopback-Smoke steht in:
+
+```powershell
+.\tools\run-rkwp-lan-smoke.ps1
+```

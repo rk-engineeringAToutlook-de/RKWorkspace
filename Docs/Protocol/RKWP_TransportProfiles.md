@@ -91,7 +91,29 @@ Ab MA009.01 kommt der Secure-Session-Spike hinzu:
 - Dev-Zertifikate duerfen nur in Development/Test verwendet werden.
 - SessionId, LeaseId, PolicyId und PolicyVersion duerfen nicht vom Transport veraendert werden.
 - Replay-Schutz bleibt transportunabhaengig im RKWP-Protokoll.
-- `LocalNetworkDev` muss spaeter dieselben Security-Felder tragen wie `NamedPipeDev`.
+- `LocalNetworkDev` muss dieselben Security-Felder tragen wie `NamedPipeDev`.
+
+## MA010.02 DevLan
+
+MA010.02 fuehrt `LocalNetworkDev` als erstes TCP-basiertes Lab-Profil ein.
+
+Projekt:
+
+```text
+src/Communication/RKWorkspace.RkwpTransport.DevLan/
+```
+
+Scripts:
+
+```powershell
+.\tools\run-rkwp-lan-owner.ps1 -Port 57100 -AllowDevPairing
+.\tools\run-rkwp-lan-guest.ps1 -Host 192.168.x.x -Port 57100
+.\tools\run-rkwp-lan-smoke.ps1
+```
+
+Der Smoke prueft Owner Server, Guest Client, AblageHello, Capabilities, DevPairing, SecureSession-Spike-Markierung, Heartbeat, FrameUpdate, Disconnect und No File Ingress.
+
+DevLan ist Development-only und ersetzt kein finales TLS.
 
 ## Windows zu macOS Development Profil
 

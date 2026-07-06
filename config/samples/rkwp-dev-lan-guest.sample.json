@@ -1,0 +1,14 @@
+{
+  "ablageId": "ablage-macos-guest",
+  "displayName": "Ablage macOS Guest",
+  "host": "192.168.x.x",
+  "port": 57100,
+  "securityMode": "DevelopmentInsecure",
+  "devPairingAllowed": true,
+  "secureSessionRequired": false,
+  "heartbeatInterval": "00:00:02",
+  "gracePeriod": "00:00:10",
+  "allowedPeerIds": [
+    "ablage-windows-owner"
+  ]
+}

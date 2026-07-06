@@ -31,6 +31,8 @@ Wichtig:
 - Der Development Protector markiert sich selbst als Development-only und meldet, dass keine echte Verschluesselung und keine echte produktive Authentisierung stattfindet.
 - Produktive Profile muessen spaeter Session-Schluessel, Authenticated Encryption und Replay-Schutz enthalten.
 
+MA010.02 fuehrt `LocalNetworkDev`/DevLan als LAN-faehiges Laborprofil ein. DevLan darf DevPairing, SessionId, Heartbeat, FrameUpdate und No-File-Ingress-Pruefungen tragen. Es bleibt `DevelopmentInsecure`: kein finales TLS, kein produktiver Trust Store, keine kritische Umgebung. Produktive Nutzung bleibt durch `RkwpSecurityGate` blockiert, bis Secure Session, Authentisierung, Integritaet, Verschluesselung und Audit produktionsnah implementiert sind.
+
 ## Security Gate
 
 MA008.09 fuehrt `RkwpSecurityConfiguration` und `RkwpSecurityGate` ein. Dieses Gate trennt Umgebung und Session-Modus:

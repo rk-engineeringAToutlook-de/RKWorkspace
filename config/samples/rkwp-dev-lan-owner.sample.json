@@ -1,0 +1,14 @@
+{
+  "ablageId": "ablage-windows-owner",
+  "displayName": "Ablage Windows Owner",
+  "host": "0.0.0.0",
+  "port": 57100,
+  "securityMode": "DevelopmentInsecure",
+  "devPairingAllowed": true,
+  "secureSessionRequired": false,
+  "heartbeatInterval": "00:00:02",
+  "gracePeriod": "00:00:10",
+  "allowedPeerIds": [
+    "ablage-macos-guest"
+  ]
+}

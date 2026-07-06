@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA010.01 liefert den ersten sichtbaren lokalen Windows PDF Frame Pilot. Windows kann eine echte PDF als Original-Owned Frame auf eine zweite lokale Ablage legen, ohne der Guest-Ablage eine freie PDF-Datei zu geben.
+MA010.02 liefert DevLan als erstes LAN-faehiges RKWP-Lab-Profil. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren.
 
 ## Naechster Fokus
 
-Nach MA010.01 liegt der Fokus auf netzwerkfaehigem RKWP DevLan, Windows Owner fuer macOS, macOS Guest Compatibility und danach iPad/iPhone ueber Xcode.
+Nach MA010.02 liegt der Fokus auf Windows Owner fuer macOS, macOS Guest Compatibility und danach iPad/iPhone ueber Xcode.
 
 ## Entfernung und Ablage-Anker
 
