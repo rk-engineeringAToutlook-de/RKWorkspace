@@ -135,6 +135,11 @@ static void PrintGlassEdgeArea(WindowsPdfFramePilotResult result)
     Console.WriteLine("----------");
     Console.WriteLine($"UseGlassEdge: YES");
     Console.WriteLine($"UseManualMap: {(result.Options.UseManualMap ? "YES" : "NO")}");
+    Console.WriteLine($"UseUwbSim: {(result.Options.UseUwbSim ? "YES" : "NO")}");
+    Console.WriteLine($"UseProximityFusion: {(result.Options.UseProximityFusion ? "YES" : "NO")}");
+    Console.WriteLine($"ProximityMode: {result.GlassEdge?.ProximityMode ?? "Unknown"}");
+    Console.WriteLine($"UwbProviderStatus: {result.GlassEdge?.UwbStatus ?? "NotUsed"}");
+    Console.WriteLine($"UwbProfile: {result.GlassEdge?.UwbProfile ?? "NotUsed"}");
     Console.WriteLine($"NearestAblage: {result.GlassEdge?.Nearest.TargetDisplayName ?? "nicht verfuegbar"}");
     Console.WriteLine($"EdgeDirection: {result.GlassEdge?.Edge.Direction.ToString() ?? "Unknown"}");
     Console.WriteLine($"EventFlow: {string.Join(" -> ", result.GlassEdgeEventFlow)}");
@@ -296,6 +301,11 @@ public sealed record WindowsPdfFramePilotOptions(
     bool UseGlassEdge,
     bool UseManualMap,
     bool PlaySequence,
+    bool UseUwbSim,
+    bool UseProximityFusion,
+    UwbSimulationProfile UwbProfile,
+    double ConfidenceThreshold,
+    double DistanceHysteresis,
     bool ClosedPdf,
     bool OpenPdf,
     string? OpenPdfPath,
@@ -315,6 +325,11 @@ public sealed record WindowsPdfFramePilotOptions(
         var useGlassEdge = false;
         var useManualMap = false;
         var playSequence = false;
+        var useUwbSim = false;
+        var useProximityFusion = false;
+        var uwbProfile = UwbSimulationProfile.Static;
+        var confidenceThreshold = 0.70;
+        var distanceHysteresis = 0.24;
         var closedPdf = true;
         var openPdf = false;
         string? openPdfPath = null;
@@ -366,6 +381,39 @@ public sealed record WindowsPdfFramePilotOptions(
             if (Is(arg, "--play-sequence", "-PlaySequence"))
             {
                 playSequence = true;
+                continue;
+            }
+
+            if (Is(arg, "--use-uwb-sim", "-UseUwbSim"))
+            {
+                useUwbSim = true;
+                continue;
+            }
+
+            if (Is(arg, "--use-proximity-fusion", "-UseProximityFusion"))
+            {
+                useProximityFusion = true;
+                continue;
+            }
+
+            if (Is(arg, "--uwb-profile", "-UwbProfile") && index + 1 < args.Length)
+            {
+                uwbProfile = Enum.Parse<UwbSimulationProfile>(args[++index], ignoreCase: true);
+                continue;
+            }
+
+            if (Is(arg, "--confidence-threshold", "-ConfidenceThreshold") && index + 1 < args.Length)
+            {
+                confidenceThreshold = Math.Clamp(
+                    double.Parse(args[++index], System.Globalization.CultureInfo.InvariantCulture),
+                    0.0,
+                    1.0);
+                continue;
+            }
+
+            if (Is(arg, "--distance-hysteresis", "-DistanceHysteresis") && index + 1 < args.Length)
+            {
+                distanceHysteresis = Math.Max(0.0, double.Parse(args[++index], System.Globalization.CultureInfo.InvariantCulture));
                 continue;
             }
 
@@ -441,6 +489,11 @@ public sealed record WindowsPdfFramePilotOptions(
             useGlassEdge,
             useManualMap,
             playSequence,
+            useUwbSim,
+            useProximityFusion,
+            uwbProfile,
+            confidenceThreshold,
+            distanceHysteresis,
             closedPdf,
             openPdf,
             openPdfPath is null ? null : Path.GetFullPath(openPdfPath),
@@ -499,7 +552,8 @@ public static class WindowsPdfFrameGlassEdgePilot
         WindowsPdfFramePilotOptions options,
         PdfFrameSmokeResult frame)
     {
-        var nearest = ResolveNearest(options, new ShellAblageIdentity(frame.Lease.OwnerAblageId));
+        var proximity = ResolveNearest(options, new ShellAblageIdentity(frame.Lease.OwnerAblageId));
+        var nearest = proximity.Nearest;
         if (!nearest.HasTarget || nearest.TargetAblageId is null)
         {
             throw new InvalidOperationException("No nearest ablage available for Glass Edge pilot.");
@@ -514,28 +568,72 @@ public static class WindowsPdfFrameGlassEdgePilot
         var session = RkwpSession.CreateDevelopment(frame.Lease.OwnerAblageId, frame.Lease.GuestAblageId);
         var events = CreateEventFlow(session, frame, edge, options.PlaySequence);
 
-        return new WindowsPdfFrameGlassEdgeResult(nearest, edge, events, options.PlaySequence);
+        return new WindowsPdfFrameGlassEdgeResult(
+            nearest,
+            edge,
+            events,
+            options.PlaySequence,
+            proximity.Mode,
+            proximity.UwbStatus,
+            proximity.UwbProfile);
     }
 
-    private static NearestAblageResult ResolveNearest(
+    private static (NearestAblageResult Nearest, string Mode, string UwbStatus, string UwbProfile) ResolveNearest(
         WindowsPdfFramePilotOptions options,
         ShellAblageIdentity currentAblageId)
     {
+        var manualProvider = CreateManualMapProvider(options);
+        var simulatedProvider = new SimulatedAblageProximityProvider(CreatePilotSurfaces(currentAblageId));
+        IUwbProximityProvider uwbProvider = new SimulatedUwbProximityProvider(new UwbSimulationOptions(options.UwbProfile));
         IAblageProximityProvider provider;
-        if (options.UseManualMap)
+        var mode = "Simulated";
+
+        if (options.UseProximityFusion)
         {
-            var map = new ManualAblageMapStore(ManualAblageMapStore.DefaultPath(options.Root)).Load();
-            provider = new ManualMapAblageProximityProvider(
-                map.Entries.Count == 0 || options.SmokeTest
-                    ? CreatePilotManualMap()
-                    : map);
+            provider = new ProximityFusionProvider(
+            [
+                manualProvider,
+                uwbProvider,
+                simulatedProvider
+            ],
+            new ProximityFusionSettings
+            {
+                ConfidenceThreshold = options.ConfidenceThreshold,
+                DistanceHysteresis = options.DistanceHysteresis
+            });
+            mode = "Fusion";
+        }
+        else if (options.UseUwbSim)
+        {
+            provider = uwbProvider;
+            mode = "UwbSim";
+        }
+        else if (options.UseManualMap)
+        {
+            provider = manualProvider;
+            mode = "ManualMap";
         }
         else
         {
-            provider = new SimulatedAblageProximityProvider(CreatePilotSurfaces(currentAblageId));
+            provider = simulatedProvider;
         }
 
-        return new NearestAblageSelector().Select(provider.GetSnapshot(currentAblageId));
+        var selector = new NearestAblageSelector(new NearestAblageSelectionSettings
+        {
+            MinimumConfidence = options.ConfidenceThreshold,
+            DistanceHysteresis = options.DistanceHysteresis
+        });
+        var nearest = selector.Select(provider.GetSnapshot(currentAblageId));
+        return (nearest, mode, uwbProvider.Status.ToString(), uwbProvider.Profile.ToString());
+    }
+
+    private static ManualMapAblageProximityProvider CreateManualMapProvider(WindowsPdfFramePilotOptions options)
+    {
+        var map = new ManualAblageMapStore(ManualAblageMapStore.DefaultPath(options.Root)).Load();
+        return new ManualMapAblageProximityProvider(
+            map.Entries.Count == 0 || options.SmokeTest
+                ? CreatePilotManualMap()
+                : map);
     }
 
     private static IReadOnlyList<AblageSurface> CreatePilotSurfaces(ShellAblageIdentity currentAblageId)
@@ -648,7 +746,10 @@ public sealed record WindowsPdfFrameGlassEdgeResult(
     NearestAblageResult Nearest,
     GlassEdge Edge,
     IReadOnlyList<RkwpMessage> Events,
-    bool PlaySequenceRequested)
+    bool PlaySequenceRequested,
+    string ProximityMode,
+    string UwbStatus,
+    string UwbProfile)
 {
     public IReadOnlyList<string> EventFlow => Events.Select(message => message.MessageType.ToString()).ToArray();
 

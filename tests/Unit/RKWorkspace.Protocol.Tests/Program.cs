@@ -94,6 +94,9 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PdfLifecyclePolicyRules", PdfLifecyclePolicyRules),
     ("PdfLifecycleAuditAndRecovery", PdfLifecycleAuditAndRecovery),
     ("SurfaceContracts", SurfaceContracts),
+    ("UwbProviderProfiles", UwbProviderProfiles),
+    ("ProximityFusionSelectsPriority", ProximityFusionSelectsPriority),
+    ("GlassEdgeUsesUwbDirection", GlassEdgeUsesUwbDirection),
     ("GestureTypes", GestureTypes),
     ("SurfacePlatforms", SurfacePlatforms),
     ("HapticAbstractionPatterns", HapticAbstractionPatterns),
@@ -1185,6 +1188,66 @@ static bool SurfaceContracts()
     return placement.IsNearest &&
            identity.Platform == SurfacePlatform.IPadOS &&
            capabilities.HasFlag(SurfaceCapabilities.FramePresentation);
+}
+
+static bool UwbProviderProfiles()
+{
+    var current = new RKWorkspace.Shell.AblageIdentity("ablage-windows");
+    var movingCloser = new RKWorkspace.Shell.SimulatedUwbProximityProvider(
+        new RKWorkspace.Shell.UwbSimulationOptions(RKWorkspace.Shell.UwbSimulationProfile.MovingCloser));
+    var passingBy = new RKWorkspace.Shell.SimulatedUwbProximityProvider(
+        new RKWorkspace.Shell.UwbSimulationOptions(RKWorkspace.Shell.UwbSimulationProfile.PassingBy));
+    var closerSnapshot = movingCloser.GetSnapshot(current);
+    var passingSnapshot = passingBy.GetSnapshot(current);
+    var closerNearest = new RKWorkspace.Shell.NearestAblageSelector().Select(closerSnapshot);
+    var passingNearest = new RKWorkspace.Shell.NearestAblageSelector().Select(passingSnapshot);
+    return movingCloser.Status == RKWorkspace.Shell.UwbProviderStatus.Simulated &&
+           closerNearest.TargetDisplayName == "Ablage iPad" &&
+           closerNearest.EdgeHint == RKWorkspace.Shell.AblageDirection.Right &&
+           passingNearest.TargetDisplayName == "Ablage iPhone" &&
+           passingNearest.EdgeHint == RKWorkspace.Shell.AblageDirection.Up;
+}
+
+static bool ProximityFusionSelectsPriority()
+{
+    var current = new RKWorkspace.Shell.AblageIdentity("ablage-windows");
+    var manual = new RKWorkspace.Shell.ManualMapAblageProximityProvider(new RKWorkspace.Shell.ManualAblageMap(
+    [
+        new RKWorkspace.Shell.ManualAblageMapEntry(
+            "ablage-macos",
+            "Ablage macOS",
+            RKWorkspace.Shell.AblageDirection.Right,
+            RKWorkspace.Shell.AblageDistanceKind.Near,
+            1.10,
+            0.92,
+            true,
+            DateTimeOffset.UtcNow,
+            RKWorkspace.Shell.AblageProximitySource.ManualMap,
+            RKWorkspace.Shell.AblageSurfacePlatform.MacOS)
+    ]));
+    var uwb = new RKWorkspace.Shell.SimulatedUwbProximityProvider(
+        new RKWorkspace.Shell.UwbSimulationOptions(RKWorkspace.Shell.UwbSimulationProfile.MovingCloser));
+    var fusion = new RKWorkspace.Shell.ProximityFusionProvider(
+        [manual, uwb],
+        new RKWorkspace.Shell.ProximityFusionSettings { ConfidenceThreshold = 0.70 });
+    var nearest = new RKWorkspace.Shell.NearestAblageSelector().Select(fusion.GetSnapshot(current));
+    return nearest.HasTarget &&
+           nearest.Source == RKWorkspace.Shell.AblageProximitySource.SensorFusion &&
+           nearest.TargetDisplayName == "Ablage iPad" &&
+           nearest.DistanceMeters <= 0.60;
+}
+
+static bool GlassEdgeUsesUwbDirection()
+{
+    var current = new RKWorkspace.Shell.AblageIdentity("ablage-windows");
+    var nearest = new RKWorkspace.Shell.NearestAblageSelector().Select(
+        new RKWorkspace.Shell.SimulatedUwbProximityProvider(
+            new RKWorkspace.Shell.UwbSimulationOptions(RKWorkspace.Shell.UwbSimulationProfile.PassingBy)).GetSnapshot(current));
+    var edge = RKWorkspace.Shell.GlassEdge.FromNearest(nearest, RKWorkspace.Shell.GlassEdgeState.Opening, 1.0, 0.25);
+    return nearest.Source == RKWorkspace.Shell.AblageProximitySource.UWB &&
+           edge.Direction == RKWorkspace.Shell.AblageDirection.Up &&
+           edge.CounterDirection == RKWorkspace.Shell.AblageDirection.Down &&
+           edge.IsActive;
 }
 
 static bool GestureTypes()

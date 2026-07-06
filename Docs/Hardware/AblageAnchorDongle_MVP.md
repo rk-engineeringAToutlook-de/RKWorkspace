@@ -31,6 +31,22 @@ Optional spaeter:
 - LED/Haptik nur fuer Pairing-Status
 - signiertes Firmware-Update
 
+## MA016 UWB/BLE/USB Detail
+
+Der Dongle-MVP bleibt ein Ablage-Anker und darf keine Nutzdaten speichern.
+
+Mindestplanung fuer MA016:
+
+- BLE Presence fuer grobe Sichtbarkeit.
+- UWB Ranging als optionale Praezisionsquelle.
+- USB nur fuer Strom und spaeteren sicheren Control-Kanal.
+- AblageIdentity-Bindung ueber Dev-/Lab-Profil.
+- FirmwareVersion und HardwareId im Diagnosepfad.
+- ProviderStatus: Ready, Simulated, HardwareUnavailable, Degraded oder ConsentRequired.
+- ProximitySource: `Dongle` oder `UWB`.
+
+Der Dongle liefert nur Distanz, Richtung, Confidence und Zeitstempel an die Shell. Die Shell entscheidet daraus die eine naechste Ablage.
+
 ## Nicht-Ziele
 
 - keine Dateiablage
@@ -58,6 +74,8 @@ Ein Dongle darf spaeter in die Shell liefern:
 - optionale Distanz in Metern
 - Confidence
 - ProximitySource `Dongle`
+- UWB Provider Status
+- Firmware Version
 - letzter Sichtzeitpunkt
 
 ## Erste Laborentscheidung

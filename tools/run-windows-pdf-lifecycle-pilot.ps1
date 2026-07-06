@@ -12,6 +12,11 @@ param(
     [string] $Policy = 'DevelopmentLab',
     [switch] $UseGlassEdge,
     [switch] $UseManualMap,
+    [switch] $UseUwbSim,
+    [switch] $UseProximityFusion,
+    [string] $UwbProfile = 'Static',
+    [double] $ConfidenceThreshold = 0.70,
+    [double] $DistanceHysteresis = 0.24,
     [switch] $PlaySequence,
     [switch] $Debug
 )
@@ -37,6 +42,11 @@ if ($KeepCapsule) { $parameters.KeepCapsule = $true }
 elseif ($CloseReturns) { $parameters.CloseReturns = $true }
 if ($UseGlassEdge) { $parameters.UseGlassEdge = $true }
 if ($UseManualMap) { $parameters.UseManualMap = $true }
+if ($UseUwbSim) { $parameters.UseUwbSim = $true }
+if ($UseProximityFusion) { $parameters.UseProximityFusion = $true }
+$parameters.UwbProfile = $UwbProfile
+$parameters.ConfidenceThreshold = $ConfidenceThreshold
+$parameters.DistanceHysteresis = $DistanceHysteresis
 if ($PlaySequence) { $parameters.PlaySequence = $true }
 if ($Debug) { $parameters.Debug = $true }
 

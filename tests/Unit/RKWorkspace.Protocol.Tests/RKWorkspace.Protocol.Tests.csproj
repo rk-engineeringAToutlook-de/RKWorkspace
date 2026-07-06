@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Protocol\RKWorkspace.Protocol\RKWorkspace.Protocol.csproj" />
     <ProjectReference Include="..\..\..\src\Frame\RKWorkspace.Frame.Pdf\RKWorkspace.Frame.Pdf.csproj" />
+    <ProjectReference Include="..\..\..\src\Shell\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
     <ProjectReference Include="..\..\..\src\Surfaces\RKWorkspace.Surface.Abstractions\RKWorkspace.Surface.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\src\Adapters\RKWorkspace.ObjectAdapter.Windows\RKWorkspace.ObjectAdapter.Windows.csproj" />
     <ProjectReference Include="..\..\..\src\Communication\RKWorkspace.RkwpTransport.SecureDev\RKWorkspace.RkwpTransport.SecureDev.csproj" />

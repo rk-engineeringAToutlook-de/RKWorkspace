@@ -123,6 +123,18 @@ Pruefen:
 - File/document permissions.
 - Logging fuer No File Ingress.
 
+## MA016 UWB/Nearby Interaction Plan
+
+iPhone und iPad koennen spaeter UWB/Nearby Interaction als Ablage-Naehequelle liefern.
+
+MA016 implementiert noch keine echte UWB-Hardwarebindung im Windows-Repo. Der Pfad ist:
+
+- iOS fragt sichtbare Zustimmung ab.
+- UWB/Nearby Interaction liefert nur Richtung, Distanzklasse, Meterwert und Confidence.
+- Keine Originaldaten und keine Bewegungsverlaufsdaten werden gespeichert.
+- Wenn UWB nicht verfuegbar ist, bleibt Manual Map aktiv.
+- Die Shell nutzt dieselben Modelle wie `SimulatedUwbProximityProvider`.
+
 ## Kompatibilitaets-Harness
 
 Bis eine native App existiert, prueft Windows den mobilen Guest-Vertrag:

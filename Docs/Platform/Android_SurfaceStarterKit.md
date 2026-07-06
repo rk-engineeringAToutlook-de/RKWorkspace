@@ -60,6 +60,19 @@ Zu pruefen:
 - Files/Media nur nach User-Wahl
 - Accessibility spaeter und nur nach Policy
 
+## MA016 UWB Capability Plan
+
+Android bleibt in MA016 vorbereitet. Ein spaeterer Android-Provider muss dieselben Ablage-Proximity-Modelle liefern:
+
+- AblageId
+- Richtung
+- Distanzklasse
+- optional Meterwert
+- Confidence
+- ProviderStatus
+
+Android UWB darf keine Nutzdaten, keine Originaldatei und keinen Bewegungsverlauf speichern. Wenn Hardware oder Permission fehlt, meldet der Provider `HardwareUnavailable` oder `ConsentRequired` und Manual Map bleibt Fallback.
+
 ## Offene Blocker
 
 - keine Android Studio/Gradle-Struktur

@@ -37,6 +37,7 @@ $files = @(
     'Docs\Proximity\BleDiscoverySpike.md',
     'Docs\Proximity\WiFiPresenceProvider.md',
     'Docs\Proximity\UwbRequirements.md',
+    'Docs\Proximity\UWB_PrivacyConsent.md',
     'Docs\Proximity\SensorFusionRoadmap.md',
     'Docs\Proximity\EdgeSelectionUserControl.md',
     'Docs\AblageAnchorDongle.md',
@@ -141,6 +142,7 @@ $files = @(
     'Docs\Readiness\MA016_NoFileIngressSecurityCheckpoint.md',
     'Docs\Readiness\MA016_macOSReadinessCheckpoint.md',
     'Docs\Readiness\MA016_iOS_iPadReadinessCheckpoint.md',
+    'Docs\Readiness\MA016_UWBProximityCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
@@ -273,9 +275,13 @@ $files = @(
     'config\samples\rkwp-dev-lan-guest.sample.json',
     'config\samples\policy-critical.sample.json',
     'config\samples\policy-critical-infrastructure.sample.json',
+    'src\Shell\RKWorkspace.Shell\Ablage\AblageProximityModel.cs',
+    'src\Shell\RKWorkspace.Shell\Ablage\AblageProximityProviders.cs',
+    'src\Shell\RKWorkspace.Shell\Ablage\GlassEdgeModel.cs',
     'src\Shell\RKWorkspace.Shell\Ablage\ManualAblageMap.cs',
     'src\Shell\RKWorkspace.Shell\Ablage\EdgeSelectionOverride.cs',
     'src\Shell\RKWorkspace.Shell\Ablage\WiFiPresenceProvider.cs',
+    'src\Shell\RKWorkspace.Shell\Ablage\UwbProximityProvider.cs',
     'src\Surfaces\RKWorkspace.Surface.Abstractions\HapticModels.cs',
     'src\Surfaces\RKWorkspace.Surface.Abstractions\ISurfaceHapticsProvider.cs',
     'src\Frame\RKWorkspace.Frame.Pdf\OwnerGuestFrameStateUx.cs',
@@ -341,6 +347,8 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-rkwp-chaos.ps1 -SmokeTest
 .\tools\run-ma016-smoke.ps1 -SkipHeavy
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
+.\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest -UseGlassEdge -UseUwbSim -UwbProfile MovingCloser -PlaySequence
+.\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest -UseGlassEdge -UseProximityFusion -UwbProfile PassingBy -PlaySequence
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf
 .\tools\run-no-file-ingress-report.ps1

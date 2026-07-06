@@ -7,6 +7,11 @@ param(
     [switch] $UseGlassEdge,
     [switch] $UseManualMap,
     [switch] $PlaySequence,
+    [switch] $UseUwbSim,
+    [switch] $UseProximityFusion,
+    [string] $UwbProfile = 'Static',
+    [double] $ConfidenceThreshold = 0.70,
+    [double] $DistanceHysteresis = 0.24,
     [switch] $ClosedPdf,
     [switch] $OpenPdf,
     [string] $OpenPdfPath,
@@ -68,6 +73,21 @@ if ($UseManualMap) {
 if ($PlaySequence) {
     $arguments += '--play-sequence'
 }
+
+if ($UseUwbSim) {
+    $arguments += '--use-uwb-sim'
+}
+
+if ($UseProximityFusion) {
+    $arguments += '--use-proximity-fusion'
+}
+
+$arguments += '--uwb-profile'
+$arguments += $UwbProfile
+$arguments += '--confidence-threshold'
+$arguments += ([string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0}', $ConfidenceThreshold))
+$arguments += '--distance-hysteresis'
+$arguments += ([string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0}', $DistanceHysteresis))
 
 $arguments += '--page'
 $arguments += ([string] $Page)
@@ -148,7 +168,7 @@ if ($SmokeTest) {
     if ($UseGlassEdge) {
         $glassEdgeRequired = @(
             'UseGlassEdge: YES',
-            'NearestAblage: Ablage Windows Guest',
+            'UwbProviderStatus: Simulated',
             'GlassEdgeAppearing: OK',
             'GlassEdgeActive: OK',
             'ObjectEnteringEdge: OK',
@@ -162,6 +182,22 @@ if ($SmokeTest) {
             'GlassEdgeIntegration: SUCCESS',
             'GlassEdgePlaySequence: SUCCESS'
         )
+
+        if ($UseUwbSim) {
+            $glassEdgeRequired += @(
+                'ProximityMode: UwbSim',
+                "UwbProfile: $UwbProfile"
+            )
+        }
+        elseif ($UseProximityFusion) {
+            $glassEdgeRequired += @(
+                'ProximityMode: Fusion',
+                "UwbProfile: $UwbProfile"
+            )
+        }
+        else {
+            $glassEdgeRequired += 'NearestAblage: Ablage Windows Guest'
+        }
 
         foreach ($line in $glassEdgeRequired) {
             if (-not $text.Contains($line)) {
