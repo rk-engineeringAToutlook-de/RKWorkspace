@@ -1,98 +1,119 @@
 # iOS and iPadOS Platform Tasks
 
+Status: Prepared  
+Datum: 2026-07-06
+
 ## Plattformziel
 
-iPhone und iPad werden als mobile Ablagen vorbereitet. Sie haben keinen eigenen Codex; Entwicklung laeuft ueber macOS-Codex und Xcode.
+iPhone und iPad werden als mobile Ablagen im Arbeitsraum vorbereitet. Sie haben keinen eigenen Codex; Entwicklung und Test laufen ueber macOS-Codex, Xcode und echte USB-angeschlossene Geraete.
 
-Die erste native App soll RKWP Frames anzeigen, Haptik vorbereiten und eine Glass Edge am Rand simulieren, ohne eine freie Datei zu speichern.
+Die erste native Surface App soll:
 
-## Aktueller Stand
+- RKWP Frames anzeigen.
+- No File Ingress respektieren.
+- Haptik subtil vorbereiten.
+- Touch-Gesten erkennen.
+- eine Glass Edge am Rand simulieren.
+- Logs fuer FrameOnly, Return und No File Ingress erzeugen.
 
-- Stubs: `src/Surfaces/RKWorkspace.Surface.iOS` und `src/Surfaces/RKWorkspace.Surface.iOS_iPadOS`
-- Starter Kit: `Docs/Platform/iOS_iPadOS_SurfaceStarterKit.md`
-- gemeinsame Contracts: `src/Surfaces/RKWorkspace.Surface.Abstractions`
-- noch keine native App
+Sie ist kein Dateiempfaenger und kein Sync-Ziel.
+
+## Aktueller Handoff
+
+Direkt nutzbare Handoff-Datei:
+
+```text
+release/handoff/iOS_iPadOS_Codex_MA009_SurfaceApp.md
+```
+
+Vorheriger MA008-Handoff bleibt Referenz:
+
+```text
+release/handoff/iOS_iPadOS_MA008_Handoff.md
+```
+
+## Vor dem Bauen Lesen
+
+- `Docs/Codex/CURRENT_CONTEXT.md`
+- `Docs/Platform/iOS_iPadOS_SurfaceStarterKit.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/README.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_SurfaceApp_Design.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_Haptics_Gesture_Plan.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_Xcode_USB_TestPlan.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_Sandbox_ObjectSources.md`
+- `Docs/Protocol/RKWP_ProtocolFoundation.md`
+- `Docs/Protocol/RKWP_SecureSession.md`
+- `Docs/Protocol/RKWP_AblageIdentityAndTrust.md`
+- `Docs/Protocol/RKWP_OwnershipAndLease.md`
+- `Docs/Protocol/RKWP_FrameSession.md`
+- `Docs/Protocol/RKWP_InputChannel.md`
+- `Docs/Protocol/RKWP_ChangeSetAndReturn.md`
+- `src/Surfaces/RKWorkspace.Surface.Abstractions`
 
 ## Relevante Surface Contracts
 
 - `ISurfaceHost`
+- `ISurfaceOverlay`
 - `ISurfaceGestureProvider`
 - `ISurfaceFramePresenter`
-- `ISurfaceHapticsProvider`
-- `ISurfaceObjectAdapter`
-- `ISurfaceSecurityContext`
 - `ISurfaceInputChannel`
+- `ISurfaceHapticsProvider`
+- `ISurfaceSecurityContext`
 - `SurfacePlatform.IOS`
 - `SurfacePlatform.IPadOS`
 
-## Build-Hinweise
+## iOS/iPadOS Regeln
 
-Die iOS/iPadOS-Verzeichnisse sind Handoff-Stubs und brechen den Windows-Build nicht. Test spaeter ueber Mac, Xcode und USB-angeschlossene iPhones/iPads.
+iOS/iPadOS kann nicht beliebige App-Inhalte global greifen. RK Workspace respektiert Sandbox und Plattformgrenzen.
 
-## Berechtigungen und Grenzen
+Erste erlaubte Quellen:
 
-- iOS/iPadOS kann nicht beliebige App-Inhalte global greifen.
-- erste sichere Quellen: RK Workspace App, Share Extension, Pasteboard, Document Picker
-- Sandbox-Grenzen respektieren
-- Haptik nur als menschliche Rueckmeldung
-- Drei-Finger-Langdruck muss gegen OS-Gesten validiert werden
-- Browser/PWA ist nur Uebergang, nicht finaler Gefuehlspfad
+- RK Workspace App
+- Share Extension
+- Document Picker
+- Pasteboard bewusst und begrenzt
+- eigene Surface
 
-## Native Zielrichtung
+Nicht als erste Annahme:
 
-Finales Ziel ist eine native iOS/iPadOS Surface App.
+- globale Erfassung beliebiger App-Inhalte.
+- Umgehen der Sandbox.
+- stille Dateiuebernahme.
+- PWA als finaler Gefuehlspfad.
 
-PWA darf fuer fruehes Prototyping genutzt werden, aber Browser-Chrome stoert die Human Experience. Der Produktpfad ist Xcode/native App.
+Native App ist Ziel. Browser-Chrome ist nur ein Uebergang fuer sehr fruehe Prototypen.
 
-## MA008 iPad/iPhone Handoff
+## Haptik
 
-Der konkrete erste mobile Test ist in diesen Dateien vorbereitet:
+Haptik dient nur der menschlichen Rueckmeldung:
 
-- `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md`
-- `release/handoff/iOS_iPadOS_MA008_Handoff.md`
+- Geste erkannt.
+- Ding genommen.
+- Frame angekommen.
+- Glass Edge aktiv.
+- Rueckgabe.
+- Fehler oder Denied.
 
-Der Test laeuft ueber macOS-Codex und Xcode. iPad/iPhone werden per USB als echte Geraete gestartet. Windows bleibt Owner einer PDF; iPad/iPhone zeigen nur einen RKWP Frame und speichern keine freie Datei.
+Keine starke Haptik. Subtil, kurz und kontrollierbar.
 
-## Kopierbarer naechster macOS-/Xcode-Codex-Auftrag
+## Kopierbarer Auftrag
+
+Der vollstaendige kopierbare Auftrag steht in:
 
 ```text
-RK Workspace iOS/iPadOS Codex Auftrag:
-
-Baue eine iOS/iPadOS RK Workspace Surface App in Xcode, die RKWP Frames anzeigen kann, Haptik vorbereitet und eine Glass Edge am Rand simuliert.
-
-Vorgehen:
-
-1. macOS-Codex liest Context Pack und GitHub-Branch.
-2. Xcode-Projekt anlegen oder vorbereiten.
-3. iPhone/iPad per USB testen.
-4. `Docs/Readiness/iPad_iPhone_Surface_TestPlan.md` und `release/handoff/iOS_iPadOS_MA008_Handoff.md` lesen.
-5. Einfache mobile Ablage anzeigen.
-6. RKWP Frame anzeigen, aber keine Originaldatei speichern.
-7. No File Ingress pruefen.
-8. Haptik bei Frame-Ankunft und Pick/Place vorbereiten.
-9. Drei-Finger-Geste pruefen; TouchHold als Fallback.
-10. Glass Edge am Rand simulieren.
-11. Erste Quellen nur sicher vorbereiten:
-    - RK Workspace App
-    - Document Picker
-    - Share Extension
-    - Pasteboard bewusst und begrenzt
-
-Nicht bauen:
-
-- keine globale Erfassung beliebiger App-Inhalte als erste Annahme
-- kein Ownership Transfer als Default
-- keine Dateiuebertragung als Erfolgspfad
-- PWA nur als Uebergang dokumentieren
+release/handoff/iOS_iPadOS_Codex_MA009_SurfaceApp.md
 ```
 
-## Aktuelle Blocker
+Kernauftrag:
 
-- keine Xcode-Umgebung im Windows-Thread
-- keine finale Geste
-- noch kein nativer FramePresenter
-- netzwerkfaehiger DevTransport zu mobilen Geraeten fehlt noch
+```text
+Baue eine iOS/iPadOS RK Workspace Surface App.
+```
 
-## GitHub und Context Pack
+## Blocker
 
-iOS/iPadOS nutzt GitHub und Context-Pack aus dem Windows-Repo. Plattformarbeit erfolgt auf eigenem Feature-Branch und wird per Owner-Freigabe integriert.
+- Xcode/macOS-Codex fehlt in diesem Windows-Thread.
+- echtes iPhone/iPad muss per USB getestet werden.
+- netzwerkfaehiger DevTransport zu mobilen Geraeten fehlt noch.
+- finale native PDF-/Frame-Darstellung ist offen.
+- Drei-Finger-Geste muss gegen iOS/iPadOS-Systemgesten validiert werden.

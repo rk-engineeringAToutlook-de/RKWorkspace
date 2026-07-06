@@ -297,6 +297,17 @@ MA009.03 liefert das macOS-Codex-Auftragspaket:
 
 Windows-Codex baut keine native macOS-App. macOS-Codex/Xcode muss die Frame Guest Surface bauen.
 
+MA009.04 liefert das iOS/iPadOS-Codex-Auftragspaket:
+
+- `release/handoff/iOS_iPadOS_Codex_MA009_SurfaceApp.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/README.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_SurfaceApp_Design.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_Haptics_Gesture_Plan.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_Xcode_USB_TestPlan.md`
+- `src/Surfaces/RKWorkspace.Surface.iOS/iOS_Sandbox_ObjectSources.md`
+
+iPhone und iPad haben keinen eigenen Codex. macOS-Codex/Xcode muss die native Surface App bauen und per USB auf echten Geraeten testen. No File Ingress bleibt Pflicht.
+
 ## Context Pack
 
 Stabiler Pfad:
