@@ -6,6 +6,7 @@ public enum RkwpTransportMode
     LocalLoopback,
     LocalNetworkDev,
     NamedPipeDev,
+    SecureDev,
     WebSocketDev,
     FutureTcpTls,
     FutureUsbDongle

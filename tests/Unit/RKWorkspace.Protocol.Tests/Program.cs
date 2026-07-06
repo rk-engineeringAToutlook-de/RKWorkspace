@@ -6,7 +6,9 @@ using RKWorkspace.Protocol.Identity;
 using RKWorkspace.Protocol.IdentityStore;
 using RKWorkspace.Protocol.Ownership;
 using RKWorkspace.Protocol.Security;
+using RKWorkspace.RkwpTransport.SecureDev;
 using RKWorkspace.Surface.Abstractions;
+using RKWorkspace.Transport.Rkwp;
 
 var root = FindRoot();
 var samplePdf = Path.Combine(root, "samples", "Objects", "Rechnung.pdf");
@@ -96,6 +98,13 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("AblageIdentityStoreCreateLoad", AblageIdentityStoreCreateLoad),
     ("AblageIdentityStoreForceAndInvalidPlatform", AblageIdentityStoreForceAndInvalidPlatform),
     ("AblageIdentityStoreIgnoredAndExcludedFromContext", AblageIdentityStoreIgnoredAndExcludedFromContext),
+    ("SecureDevTransportStarts", SecureDevTransportStarts),
+    ("SecureDevIdentityExchange", SecureDevIdentityExchange),
+    ("SecureDevHandshakeStateActive", SecureDevHandshakeStateActive),
+    ("SecureDevRejectsUntrustedPeer", SecureDevRejectsUntrustedPeer),
+    ("SecureDevRejectsRevokedPeer", SecureDevRejectsRevokedPeer),
+    ("SecureDevFallbackClearlyMarked", SecureDevFallbackClearlyMarked),
+    ("SecureDevSmokeSuccess", SecureDevSmokeSuccess),
     ("MutualDevAuthenticationSuccess", MutualDevAuthenticationSuccess),
     ("SecureSessionRejectsUntrustedAblage", SecureSessionRejectsUntrustedAblage),
     ("SecureSessionRejectsRevokedAblage", SecureSessionRejectsRevokedAblage),
@@ -1531,6 +1540,81 @@ static bool AblageIdentityStoreIgnoredAndExcludedFromContext()
            !exportScript.Contains(".rkworkspace-dev/identities", StringComparison.OrdinalIgnoreCase);
 }
 
+static bool SecureDevTransportStarts()
+{
+    var transport = new RkwpSecureDevTransport(SecureDevOptions());
+    return transport.Mode == RkwpTransportMode.SecureDev &&
+           transport.TransportProfile == "SecureDev/NamedPipeDevFallback" &&
+           transport.EffectiveSecurityMode == RkwpSecurityMode.DevelopmentAuthenticated &&
+           transport.FallbackClearlyMarked;
+}
+
+static bool SecureDevIdentityExchange()
+{
+    var result = RkwpSecureDevSmokeScenario.RunAsync(SecureDevOptions("securedev-owner-identity", "securedev-guest-identity"))
+        .GetAwaiter()
+        .GetResult();
+    return result.Success &&
+           result.AblageId == "securedev-owner-identity" &&
+           result.PeerAblageId == "securedev-guest-identity" &&
+           result.Events.Contains("IdentityExchange", StringComparer.Ordinal);
+}
+
+static bool SecureDevHandshakeStateActive()
+{
+    var transport = new RkwpSecureDevTransport(SecureDevOptions("securedev-owner-handshake", "securedev-guest-handshake"));
+    var session = transport.EstablishSession();
+    return session.State == RkwpSecureSessionState.Active &&
+           session.Handshake.State == RkwpHandshakeState.SessionKeyPrepared &&
+           session.Session.SecureSessionRequired;
+}
+
+static bool SecureDevRejectsUntrustedPeer()
+{
+    var options = SecureDevOptions("securedev-owner-untrusted", "securedev-guest-untrusted") with
+    {
+        GuestIdentity = DevAblageIdentity("securedev-guest-untrusted") with
+        {
+            TrustLevel = AblageTrustLevel.Untrusted
+        }
+    };
+    return Throws<RkwpSecureDevTransportException>(() => new RkwpSecureDevTransport(options));
+}
+
+static bool SecureDevRejectsRevokedPeer()
+{
+    var options = SecureDevOptions("securedev-owner-revoked", "securedev-guest-revoked") with
+    {
+        GuestIdentity = DevAblageIdentity("securedev-guest-revoked") with
+        {
+            TrustLevel = AblageTrustLevel.Revoked,
+            PairingState = AblagePairingState.Revoked
+        }
+    };
+    return Throws<RkwpSecureDevTransportException>(() => new RkwpSecureDevTransport(options));
+}
+
+static bool SecureDevFallbackClearlyMarked()
+{
+    var transport = new RkwpSecureDevTransport(SecureDevOptions("securedev-owner-fallback", "securedev-guest-fallback"));
+    return !transport.TlsEnabled &&
+           transport.FallbackClearlyMarked &&
+           transport.TlsStatus.Contains("TLS unavailable:", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool SecureDevSmokeSuccess()
+{
+    var result = RkwpSecureDevSmokeScenario.RunAsync(SecureDevOptions("securedev-owner-smoke", "securedev-guest-smoke"))
+        .GetAwaiter()
+        .GetResult();
+    return result.Success &&
+           result.HandshakeState == RkwpSecureSessionState.Active &&
+           result.Events.Contains("TransportStarted", StringComparer.Ordinal) &&
+           result.Events.Contains("Heartbeat", StringComparer.Ordinal) &&
+           result.Events.Contains("FrameUpdate", StringComparer.Ordinal) &&
+           result.Events.Contains("Shutdown", StringComparer.Ordinal);
+}
+
 static bool MutualDevAuthenticationSuccess()
 {
     var audit = new InMemoryRkwpAuditSink();
@@ -1628,6 +1712,20 @@ static bool SecureSessionHandshakeAudit()
 static AblageIdentity DevAblageIdentity(string ablageId)
 {
     return AblageIdentity.CreateDev(ablageId, $"Ablage {ablageId}", "Windows");
+}
+
+static RkwpSecureDevTransportOptions SecureDevOptions(
+    string ownerId = "securedev-owner",
+    string guestId = "securedev-guest")
+{
+    return new RkwpSecureDevTransportOptions
+    {
+        OwnerIdentity = DevAblageIdentity(ownerId),
+        GuestIdentity = DevAblageIdentity(guestId),
+        EndpointName = $"rkws-securedev-test-{Guid.NewGuid():N}",
+        TlsAvailable = false,
+        PreferTls = true
+    };
 }
 
 static AblageIdentity TrustIdentity(AblageTrustLevel trustLevel, AblagePairingState pairingState)

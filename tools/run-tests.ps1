@@ -1039,6 +1039,41 @@ if (-not $rkwpTransportText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'RKWP SecureDev Transport Smoke Test'
+Write-Host '-----------------------------------'
+$rkwpSecureDevOutput = & (Join-Path $root 'tools\run-rkwp-securedev-smoke.ps1') 2>&1
+$rkwpSecureDevExitCode = $LASTEXITCODE
+$rkwpSecureDevText = $rkwpSecureDevOutput -join [Environment]::NewLine
+$rkwpSecureDevOutput | ForEach-Object { Write-Host $_ }
+if ($rkwpSecureDevExitCode -ne 0) {
+    throw "RKWP SecureDev Transport Smoke Test failed with exit code $rkwpSecureDevExitCode."
+}
+
+if (-not $rkwpSecureDevText.Contains('TransportProfile: SecureDev/NamedPipeDevFallback')) {
+    throw "RKWP SecureDev Transport Smoke Test failed because output did not contain the SecureDev fallback profile."
+}
+
+if (-not $rkwpSecureDevText.Contains('IdentityExchange: OK')) {
+    throw "RKWP SecureDev Transport Smoke Test failed because output did not contain IdentityExchange: OK."
+}
+
+if (-not $rkwpSecureDevText.Contains('SecureDevHandshake: OK')) {
+    throw "RKWP SecureDev Transport Smoke Test failed because output did not contain SecureDevHandshake: OK."
+}
+
+if (-not $rkwpSecureDevText.Contains('SessionActive: OK')) {
+    throw "RKWP SecureDev Transport Smoke Test failed because output did not contain SessionActive: OK."
+}
+
+if (-not $rkwpSecureDevText.Contains('FallbackClearlyMarked: OK')) {
+    throw "RKWP SecureDev Transport Smoke Test failed because output did not contain FallbackClearlyMarked: OK."
+}
+
+if (-not $rkwpSecureDevText.Contains('RESULT: SUCCESS')) {
+    throw "RKWP SecureDev Transport Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'RKWP Diagnostics Smoke Test'
 Write-Host '---------------------------'
 $rkwpDiagnosticsOutput = & (Join-Path $root 'tools\run-rkwp-diagnostics.ps1') -SmokeTest 2>&1

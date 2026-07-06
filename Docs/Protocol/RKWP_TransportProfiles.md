@@ -157,3 +157,31 @@ Transportprofile duerfen Sicherheitsentscheidungen nicht ersetzen. Ab MA011.01 m
 - ProductionRequired darf nicht ueber DevLan oder andere unsichere Profile erfuellt werden.
 
 Der naechste Transport-Schritt ist der SecureDevTransport-Spike, der DevLan, Identity Store und Secure Session Path zusammenfuehrt.
+
+## MA011.03 SecureDevTransport
+
+MA011.03 fuehrt `SecureDev` als strukturell authentisierten Development-Transport ein.
+
+Projekt:
+
+```text
+src/Communication/RKWorkspace.RkwpTransport.SecureDev/
+```
+
+Scripts:
+
+```powershell
+.\tools\run-rkwp-securedev-owner.ps1
+.\tools\run-rkwp-securedev-guest.ps1
+.\tools\run-rkwp-securedev-smoke.ps1
+```
+
+Aktueller Status:
+
+- TransportProfile: `SecureDev/NamedPipeDevFallback`
+- SecurityMode: `DevelopmentAuthenticated`
+- SecureSessionRequired: `true`
+- TLS: noch nicht aktiv
+- Fallback: klar sichtbar markiert
+
+Der Smoke prueft Owner/Guest Identity, `AblageHello`, Identity Exchange, SecureDev Handshake, aktive Session, Heartbeat, FrameUpdate, Shutdown und No File Ingress. `SecureDev` ist weiterhin kein Production-Transport.

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RKWorkspace.Transport\RKWorkspace.Transport.csproj" />
+    <ProjectReference Include="..\RKWorkspace.Transport.Dev\RKWorkspace.Transport.Dev.csproj" />
+    <ProjectReference Include="..\..\Protocol\RKWorkspace.Protocol\RKWorkspace.Protocol.csproj" />
+  </ItemGroup>
+</Project>

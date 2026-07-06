@@ -64,3 +64,28 @@ Pflichtbefehle:
 ```
 
 Die Tests decken Development/Production-Gate, SecureSessionRequired, Nonce/Sequence-Replay, Lease/Policy-Bindung sowie unauthentisierte Heartbeat-/Revocation-Ablehnung ab.
+
+## MA011.03 SecureDevTransport
+
+Der erste Transport, der den Secure Session Path sichtbar zusammenfuehrt, ist `SecureDev`.
+
+Aktuell real:
+
+- Owner- und Guest-Ablage-Identitaeten aus dem lokalen Identity Store
+- gegenseitiger Identity Exchange
+- `RkwpSecureSession.EstablishDevelopment`
+- `SecurityMode: DevelopmentAuthenticated`
+- `SecureSessionRequired: true`
+- Heartbeat und FrameUpdate innerhalb der ausgehandelten Session
+
+Noch nicht produktiv:
+
+- TLS ist noch nicht aktiv.
+- Der Transport nutzt `NamedPipeDev` als klar markierten Fallback.
+- Der produktive Zertifikats-/Trust-Pfad ist vorbereitet, aber nicht abgeschlossen.
+
+Pflichtscript:
+
+```powershell
+.\tools\run-rkwp-securedev-smoke.ps1
+```

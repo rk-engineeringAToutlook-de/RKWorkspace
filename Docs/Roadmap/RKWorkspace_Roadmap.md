@@ -50,4 +50,10 @@ GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird a
 
 ## MA011 Secure Real Frame Cross-Device Foundation
 
-MA011.01 startet den produktiveren Secure-Session-Pfad. `RkwpSecureSessionPath` trennt DevelopmentInsecure, DevelopmentAuthenticated, TestSecure, ProductionSecure und ProductionRequired. Production und SecureSessionRequired blockieren unsichere Sessions; Heartbeat und Revocation sind authentisierungspflichtig. Die naechsten Schritte sind Identity Store, SecureDevTransport und erster echter Windows-zu-macOS-Test.
+MA011.01 startet den produktiveren Secure-Session-Pfad. `RkwpSecureSessionPath` trennt DevelopmentInsecure, DevelopmentAuthenticated, TestSecure, ProductionSecure und ProductionRequired. Production und SecureSessionRequired blockieren unsichere Sessions; Heartbeat und Revocation sind authentisierungspflichtig.
+
+MA011.02 fuehrt den lokalen Ablage Identity Store ein. Private Dev-Keys bleiben unter `.rkworkspace-dev/` und werden nicht in Git oder Context Packs aufgenommen.
+
+MA011.03 fuehrt den SecureDevTransport-Spike ein. Er verbindet lokale Ablage-Identitaeten, Identity Exchange, SecureDev Handshake, aktive Secure Session, Heartbeat und FrameUpdate in einem reproduzierbaren Smoke-Test. TLS bleibt ein markierter Blocker; der aktuelle Pfad ist `SecureDev/NamedPipeDevFallback` mit `DevelopmentAuthenticated`.
+
+Die naechsten Schritte sind der PDF Frame Renderer MVP und danach der stabilisierte Windows-Pilot fuer Owner/Guest-Tests.
