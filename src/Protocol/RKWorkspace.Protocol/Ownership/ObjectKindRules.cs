@@ -38,6 +38,7 @@ public static class ObjectKindRules
             ObjectKind.SettingsWindow => new ObjectKindRule(kind, OwnershipMode.InteractiveFrame, Optional(OwnershipMode.SnapshotExport), false, false, "Settings windows are not transferable."),
             ObjectKind.RemoteSession => new ObjectKindRule(kind, OwnershipMode.FrameOnly, Optional(OwnershipMode.SessionHandoff), false, true, "Remote sessions stay framed unless session handoff is explicitly supported."),
             ObjectKind.ScreenshotRegion => new ObjectKindRule(kind, OwnershipMode.SnapshotExport, Optional(OwnershipMode.FrameOnly, OwnershipMode.CopyOut), false, true, "Screenshot regions can be framed or snapshotted by policy."),
+            ObjectKind.Image => new ObjectKindRule(kind, OwnershipMode.FrameOnly, Optional(OwnershipMode.SnapshotExport, OwnershipMode.CopyOut), false, true, "Images remain framed by default and are exported only when policy permits."),
             ObjectKind.Text => new ObjectKindRule(kind, OwnershipMode.FrameOnly, Optional(OwnershipMode.ExtractOnly, OwnershipMode.CopyOut), false, true, "Text is framed or extracted only when policy permits."),
             _ => new ObjectKindRule(kind, OwnershipMode.FrameOnly, Optional(OwnershipMode.NotTransferable), false, false, "Unknown objects default to frame-only.")
         };

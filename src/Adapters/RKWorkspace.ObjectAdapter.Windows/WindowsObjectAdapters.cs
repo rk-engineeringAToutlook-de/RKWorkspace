@@ -158,6 +158,48 @@ public sealed class WindowsFileReferenceAdapter : IObjectSourceAdapter, IObjectP
     }
 }
 
+public sealed class WindowsExplorerSelectionAdapter : IObjectSourceAdapter, IObjectPreviewProvider, IObjectFrameProvider
+{
+    private readonly WindowsFileReferenceAdapter fileReferenceAdapter;
+
+    public WindowsExplorerSelectionAdapter()
+        : this(new WindowsFileReferenceAdapter())
+    {
+    }
+
+    public WindowsExplorerSelectionAdapter(WindowsFileReferenceAdapter fileReferenceAdapter)
+    {
+        this.fileReferenceAdapter = fileReferenceAdapter;
+    }
+
+    public ObjectCaptureMode CaptureMode => ObjectCaptureMode.FileReference;
+
+    public string PreviewProviderRef => "windows-explorer-selection-preview";
+
+    public string FrameProviderRef => "windows-explorer-selection-frame-provider";
+
+    public ObjectCaptureResult CaptureSelectedPath(string selectedPath, string ownerAblageId, DateTimeOffset capturedAt)
+    {
+        var result = fileReferenceAdapter.CaptureFileReference(selectedPath, ownerAblageId, capturedAt);
+        return result with
+        {
+            OriginReference = result.OriginReference with { SourceKind = "WindowsExplorerSelection" },
+            PreviewProviderRef = PreviewProviderRef,
+            FrameProviderRef = FrameProviderRef,
+            Metadata = result.Metadata
+                .Concat(new Dictionary<string, string>
+                {
+                    ["selection-source"] = "simulated-path-fallback",
+                    ["uia-shell-option"] = "planned"
+                })
+                .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase),
+            Message = result.Succeeded
+                ? "Explorer selection captured through path fallback; UIA/Shell live selection remains planned."
+                : result.Message
+        };
+    }
+}
+
 public sealed class WindowsClipboardTextAdapter : IObjectSourceAdapter, IObjectPreviewProvider, IObjectFrameProvider
 {
     public ObjectCaptureMode CaptureMode => ObjectCaptureMode.ClipboardText;
@@ -208,6 +250,47 @@ public sealed class WindowsClipboardTextAdapter : IObjectSourceAdapter, IObjectP
     }
 }
 
+public sealed class WindowsClipboardImageAdapter : IObjectSourceAdapter, IObjectPreviewProvider, IObjectFrameProvider
+{
+    public ObjectCaptureMode CaptureMode => ObjectCaptureMode.ClipboardImage;
+
+    public string PreviewProviderRef => "windows-clipboard-image-preview";
+
+    public string FrameProviderRef => "windows-clipboard-image-frame-provider";
+
+    public ObjectCaptureResult CaptureImageStub(string ownerAblageId, DateTimeOffset capturedAt, int width = 1, int height = 1)
+    {
+        var thingId = $"clipboard-image-{capturedAt.UtcTicks:x}";
+        var rule = ObjectKindRules.For(ObjectKind.Image);
+        return new ObjectCaptureResult(
+            ObjectCaptureStatus.Prepared,
+            thingId,
+            ownerAblageId,
+            ObjectKind.Image,
+            CaptureMode,
+            new OriginReference(thingId, ownerAblageId, "WindowsClipboardImage", "Clipboard", null),
+            new Dictionary<string, string>
+            {
+                ["width"] = width.ToString(),
+                ["height"] = height.ToString(),
+                ["captured-at"] = capturedAt.ToString("O"),
+                ["stub"] = "true",
+                ["policy"] = "FrameOnly by default"
+            },
+            rule.DefaultMode,
+            PreviewProviderRef,
+            FrameProviderRef,
+            OriginalOwned: true,
+            GuestFileCreated: false,
+            "Clipboard image adapter prepared; no automatic ownership transfer.");
+    }
+}
+
+public sealed record WindowsCaptureRegion(int X, int Y, int Width, int Height)
+{
+    public bool IsValid => Width > 0 && Height > 0;
+}
+
 public sealed class WindowsScreenshotRegionAdapter : IObjectSourceAdapter
 {
     public ObjectCaptureMode CaptureMode => ObjectCaptureMode.ScreenshotRegion;
@@ -215,6 +298,39 @@ public sealed class WindowsScreenshotRegionAdapter : IObjectSourceAdapter
     public ObjectCaptureResult Prepare(string ownerAblageId, DateTimeOffset capturedAt)
     {
         return Prepared(ObjectKind.ScreenshotRegion, ownerAblageId, "WindowsScreenshotRegion", capturedAt, "Screenshot region adapter prepared; real capture is not implemented in this slice.");
+    }
+
+    public ObjectCaptureResult CaptureRegion(
+        WindowsCaptureRegion region,
+        string ownerAblageId,
+        OwnershipPolicy policy,
+        DateTimeOffset capturedAt)
+    {
+        var result = Prepared(
+            ObjectKind.ScreenshotRegion,
+            ownerAblageId,
+            "WindowsScreenshotRegion",
+            capturedAt,
+            region.IsValid
+                ? "Screenshot region captured as frame/snapshot metadata; bitmap capture remains platform-gated."
+                : "Screenshot region rejected because bounds are invalid.");
+
+        var snapshotAllowed = policy.Allows(RkwpAllowedAction.SnapshotExport);
+        return result with
+        {
+            Status = region.IsValid ? ObjectCaptureStatus.Prepared : ObjectCaptureStatus.Failed,
+            DefaultMode = snapshotAllowed ? OwnershipMode.SnapshotExport : OwnershipMode.FrameOnly,
+            Metadata = result.Metadata
+                .Concat(new Dictionary<string, string>
+                {
+                    ["x"] = region.X.ToString(),
+                    ["y"] = region.Y.ToString(),
+                    ["width"] = region.Width.ToString(),
+                    ["height"] = region.Height.ToString(),
+                    ["snapshot-export-allowed"] = snapshotAllowed.ToString()
+                })
+                .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase)
+        };
     }
 
     private static ObjectCaptureResult Prepared(ObjectKind objectKind, string ownerAblageId, string sourceKind, DateTimeOffset capturedAt, string message)
@@ -243,20 +359,77 @@ public sealed class WindowsWindowSnapshotAdapter : IObjectSourceAdapter
 
     public ObjectCaptureResult Prepare(string ownerAblageId, DateTimeOffset capturedAt)
     {
+        return PrepareWindow(ownerAblageId, "Settings", new WindowsCaptureRegion(0, 0, 1024, 768), isSettingsWindow: true, capturedAt);
+    }
+
+    public ObjectCaptureResult PrepareWindow(
+        string ownerAblageId,
+        string title,
+        WindowsCaptureRegion bounds,
+        bool isSettingsWindow,
+        DateTimeOffset capturedAt)
+    {
         var thingId = "window-snapshot-prepared";
+        var objectKind = isSettingsWindow ? ObjectKind.SettingsWindow : ObjectKind.RemoteSession;
+        var rule = ObjectKindRules.For(objectKind);
         return new ObjectCaptureResult(
             ObjectCaptureStatus.Prepared,
             thingId,
             ownerAblageId,
-            ObjectKind.SettingsWindow,
+            objectKind,
             CaptureMode,
-            new OriginReference(thingId, ownerAblageId, "WindowsWindowSnapshot", null, null),
-            new Dictionary<string, string> { ["captured-at"] = capturedAt.ToString("O"), ["stub"] = "true" },
-            OwnershipMode.InteractiveFrame,
+            new OriginReference(thingId, ownerAblageId, "WindowsWindowSnapshot", title, null),
+            new Dictionary<string, string>
+            {
+                ["captured-at"] = capturedAt.ToString("O"),
+                ["stub"] = "true",
+                ["title"] = title,
+                ["x"] = bounds.X.ToString(),
+                ["y"] = bounds.Y.ToString(),
+                ["width"] = bounds.Width.ToString(),
+                ["height"] = bounds.Height.ToString(),
+                ["window-handle"] = "planned"
+            },
+            rule.DefaultMode,
             "windows-window-snapshot-preview",
             "windows-window-snapshot-frame-provider",
             OriginalOwned: true,
             GuestFileCreated: false,
-            "Window snapshot adapter prepared; SettingsWindow remains not transferable.");
+            isSettingsWindow
+                ? "Window snapshot adapter prepared; SettingsWindow remains not transferable."
+                : "Window snapshot adapter prepared as remote/session frame metadata.");
+    }
+}
+
+public sealed class WindowsRemoteSessionAdapter : IObjectSourceAdapter, IObjectPreviewProvider, IObjectFrameProvider
+{
+    public ObjectCaptureMode CaptureMode => ObjectCaptureMode.AppSpecific;
+
+    public string PreviewProviderRef => "windows-remote-session-preview";
+
+    public string FrameProviderRef => "windows-remote-session-frame-provider";
+
+    public ObjectCaptureResult PrepareSession(string sessionName, string ownerAblageId, DateTimeOffset capturedAt)
+    {
+        var thingId = $"remote-session-{Math.Abs(sessionName.GetHashCode()):x}";
+        return new ObjectCaptureResult(
+            ObjectCaptureStatus.Prepared,
+            thingId,
+            ownerAblageId,
+            ObjectKind.RemoteSession,
+            CaptureMode,
+            new OriginReference(thingId, ownerAblageId, "WindowsRemoteSession", sessionName, null),
+            new Dictionary<string, string>
+            {
+                ["session-name"] = sessionName,
+                ["captured-at"] = capturedAt.ToString("O"),
+                ["handoff-capability"] = "SessionHandoff"
+            },
+            OwnershipMode.FrameOnly,
+            PreviewProviderRef,
+            FrameProviderRef,
+            OriginalOwned: true,
+            GuestFileCreated: false,
+            "Remote session prepared as frame; session handoff requires policy and target capability.");
     }
 }

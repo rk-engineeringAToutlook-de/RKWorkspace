@@ -77,9 +77,14 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("WindowsFileReferenceRecognizesPdf", WindowsFileReferenceRecognizesPdf),
     ("WindowsFileReferenceKeepsOriginalOwned", WindowsFileReferenceKeepsOriginalOwned),
     ("WindowsFileReferenceCreatesNoGuestFile", WindowsFileReferenceCreatesNoGuestFile),
+    ("WindowsExplorerSelectionAdapterPathFallback", WindowsExplorerSelectionAdapterPathFallback),
     ("WindowsClipboardTextRecognizedOrPrepared", WindowsClipboardTextRecognizedOrPrepared),
+    ("WindowsClipboardImageAdapterPrepared", WindowsClipboardImageAdapterPrepared),
     ("WindowsScreenshotRegionStubPrepared", WindowsScreenshotRegionStubPrepared),
+    ("WindowsScreenshotRegionPolicy", WindowsScreenshotRegionPolicy),
     ("WindowsWindowSnapshotStubPrepared", WindowsWindowSnapshotStubPrepared),
+    ("SettingsWindowInputPolicySimulation", SettingsWindowInputPolicySimulation),
+    ("RemoteSessionAdapterSimulation", RemoteSessionAdapterSimulation),
     ("WindowsUnknownFileTypeCapturedAsFileReference", WindowsUnknownFileTypeCapturedAsFileReference),
     ("ObjectKindRules", ObjectKindRuleChecks),
     ("NoFileIngress", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).GuestHasNoFileIngress),
@@ -953,6 +958,17 @@ static bool WindowsFileReferenceCreatesNoGuestFile()
            result.OriginReference.SourceLocation is not null;
 }
 
+static bool WindowsExplorerSelectionAdapterPathFallback()
+{
+    var adapter = new WindowsExplorerSelectionAdapter();
+    var result = adapter.CaptureSelectedPath(SamplePdfPath(), "ablage-windows-owner", DateTimeOffset.UtcNow);
+    return result.Succeeded &&
+           result.ObjectKind == ObjectKind.PdfDocument &&
+           result.OriginReference.SourceKind == "WindowsExplorerSelection" &&
+           result.Metadata["selection-source"] == "simulated-path-fallback" &&
+           result.GuestHasNoFileIngress;
+}
+
 static bool WindowsClipboardTextRecognizedOrPrepared()
 {
     var adapter = new WindowsClipboardTextAdapter();
@@ -962,6 +978,18 @@ static bool WindowsClipboardTextRecognizedOrPrepared()
            captured.ObjectKind == ObjectKind.Text &&
            captured.DefaultMode == OwnershipMode.FrameOnly &&
            prepared.Status == ObjectCaptureStatus.Prepared;
+}
+
+static bool WindowsClipboardImageAdapterPrepared()
+{
+    var adapter = new WindowsClipboardImageAdapter();
+    var result = adapter.CaptureImageStub("ablage-windows-owner", DateTimeOffset.UtcNow, width: 640, height: 360);
+    return result.Succeeded &&
+           result.ObjectKind == ObjectKind.Image &&
+           result.DefaultMode == OwnershipMode.FrameOnly &&
+           result.Metadata["width"] == "640" &&
+           !result.GuestFileCreated &&
+           result.OriginalOwned;
 }
 
 static bool WindowsScreenshotRegionStubPrepared()
@@ -974,6 +1002,29 @@ static bool WindowsScreenshotRegionStubPrepared()
            !result.GuestFileCreated;
 }
 
+static bool WindowsScreenshotRegionPolicy()
+{
+    var adapter = new WindowsScreenshotRegionAdapter();
+    var allowed = adapter.CaptureRegion(
+        new WindowsCaptureRegion(10, 10, 320, 180),
+        "ablage-windows-owner",
+        OwnershipTransferPolicy(RkwpAllowedAction.SnapshotExport),
+        DateTimeOffset.UtcNow);
+    var denied = adapter.CaptureRegion(
+        new WindowsCaptureRegion(10, 10, 320, 180),
+        "ablage-windows-owner",
+        OwnershipPolicy.CriticalDefault,
+        DateTimeOffset.UtcNow);
+
+    return allowed.Succeeded &&
+           allowed.DefaultMode == OwnershipMode.SnapshotExport &&
+           allowed.Metadata["snapshot-export-allowed"] == bool.TrueString &&
+           denied.DefaultMode == OwnershipMode.FrameOnly &&
+           denied.Metadata["snapshot-export-allowed"] == bool.FalseString &&
+           allowed.GuestHasNoFileIngress &&
+           denied.GuestHasNoFileIngress;
+}
+
 static bool WindowsWindowSnapshotStubPrepared()
 {
     var adapter = new WindowsWindowSnapshotAdapter();
@@ -981,6 +1032,48 @@ static bool WindowsWindowSnapshotStubPrepared()
     return result.Status == ObjectCaptureStatus.Prepared &&
            result.ObjectKind == ObjectKind.SettingsWindow &&
            result.DefaultMode == OwnershipMode.InteractiveFrame &&
+           !result.GuestFileCreated;
+}
+
+static bool SettingsWindowInputPolicySimulation()
+{
+    var now = DateTimeOffset.UtcNow;
+    var adapter = new WindowsWindowSnapshotAdapter();
+    var result = adapter.PrepareWindow(
+        "ablage-windows-owner",
+        "Einstellungen",
+        new WindowsCaptureRegion(0, 0, 1024, 768),
+        isSettingsWindow: true,
+        now);
+    var lease = CarryLease.Grant(result.ThingId, "owner", "guest", CarryLeasePolicy.FrameOnlyDefault, now);
+    var interactiveFrame = FrameSession.Open(lease, FrameMode.Interactive, now).Ready(now).Activate(now);
+    var allowed = FrameInputValidator.Validate(Input(interactiveFrame, lease, FrameInputType.PointerMove, now), lease, interactiveFrame, FramePolicy.InteractiveView);
+    var denied = FrameInputValidator.Validate(Input(interactiveFrame, lease, FrameInputType.PointerMove, now), lease, interactiveFrame, FramePolicy.CriticalViewOnly);
+    var transfer = OwnershipTransferService.Decide(ObjectKind.SettingsWindow, new OwnershipTransferRequest("settings-transfer", result.ThingId, "owner", "guest", OwnershipMode.MoveOwnership, now), OwnershipTransferPolicy(RkwpAllowedAction.MoveOwnership));
+    var snapshot = ObjectKindRules.For(ObjectKind.SettingsWindow).AllowsOptionalMode(OwnershipMode.SnapshotExport);
+
+    return result.ObjectKind == ObjectKind.SettingsWindow &&
+           allowed.Accepted &&
+           !denied.Accepted &&
+           transfer.Denied &&
+           snapshot &&
+           result.GuestHasNoFileIngress;
+}
+
+static bool RemoteSessionAdapterSimulation()
+{
+    var now = DateTimeOffset.UtcNow;
+    var adapter = new WindowsRemoteSessionAdapter();
+    var result = adapter.PrepareSession("Remote Lab Session", "ablage-windows-owner", now);
+    var missing = new OwnershipTransferRequest("remote-missing-capability", result.ThingId, "owner", "guest", OwnershipMode.SessionHandoff, now);
+    var denied = OwnershipTransferService.Decide(ObjectKind.RemoteSession, missing, OwnershipTransferPolicy(RkwpAllowedAction.SessionHandoff));
+    var supported = missing with { RequestId = "remote-supported", TargetCapabilities = new HashSet<string> { "SessionHandoff" } };
+    var approved = OwnershipTransferService.Decide(ObjectKind.RemoteSession, supported, OwnershipTransferPolicy(RkwpAllowedAction.SessionHandoff));
+
+    return result.ObjectKind == ObjectKind.RemoteSession &&
+           result.DefaultMode == OwnershipMode.FrameOnly &&
+           denied.RequiresAdapter &&
+           approved.Approved &&
            !result.GuestFileCreated;
 }
 
@@ -1006,10 +1099,13 @@ static bool WindowsUnknownFileTypeCapturedAsFileReference()
 static bool ObjectKindRuleChecks()
 {
     var pdf = ObjectKindRules.For(ObjectKind.PdfDocument);
+    var image = ObjectKindRules.For(ObjectKind.Image);
     var settings = ObjectKindRules.For(ObjectKind.SettingsWindow);
     var remote = ObjectKindRules.For(ObjectKind.RemoteSession);
     return pdf.DefaultMode == OwnershipMode.FrameOnly &&
            pdf.AllowsOptionalMode(OwnershipMode.CopyOut) &&
+           image.DefaultMode == OwnershipMode.FrameOnly &&
+           image.AllowsOptionalMode(OwnershipMode.SnapshotExport) &&
            settings.DefaultMode == OwnershipMode.InteractiveFrame &&
            !settings.OwnershipTransferSupported &&
            settings.AllowsOptionalMode(OwnershipMode.SnapshotExport) &&

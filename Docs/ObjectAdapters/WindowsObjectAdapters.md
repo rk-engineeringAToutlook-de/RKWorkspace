@@ -25,9 +25,12 @@ Enthalten:
 - `ObjectCaptureResult`
 - `ObjectCaptureMode`
 - `WindowsFileReferenceAdapter`
+- `WindowsExplorerSelectionAdapter`
 - `WindowsClipboardTextAdapter`
+- `WindowsClipboardImageAdapter`
 - `WindowsScreenshotRegionAdapter`
 - `WindowsWindowSnapshotAdapter`
+- `WindowsRemoteSessionAdapter`
 
 ## Capture Modes
 
@@ -70,6 +73,17 @@ Ergebnis:
 - `OwnershipMode.FrameOnly`
 - kein Guest File
 
+## Clipboard Image
+
+`WindowsClipboardImageAdapter` ist als sicherer Stub vorbereitet. Er erzeugt `ObjectKind.Image`, bleibt `FrameOnly` und fuehrt keinen automatischen Ownership Transfer aus.
+
+Ergebnis:
+
+- `ObjectKind.Image`
+- `OriginReference = WindowsClipboardImage`
+- `OwnershipMode.FrameOnly`
+- kein Guest File
+
 ## Screenshot Region
 
 `WindowsScreenshotRegionAdapter` ist ein Stub.
@@ -80,6 +94,8 @@ Er meldet:
 - `ObjectKind.ScreenshotRegion`
 - keine echte Region Capture Pflicht in diesem Slice
 - kein Guest File
+
+Ab MA013.43 kann eine Region als Metadaten-Spike mit Bounds und SnapshotExport-Policy simuliert werden. Ohne Policy faellt der Default auf FrameOnly zurueck.
 
 ## Window Snapshot
 
@@ -92,6 +108,16 @@ Er meldet:
 - `OwnershipMode.InteractiveFrame`
 - keine OwnershipTransfer-Unterstuetzung
 - kein Guest File
+
+Ab MA013.44 enthalten Window-Snapshots Titel, Bounds und geplantes Window-Handle als Metadaten. SettingsWindow bleibt nicht transferierbar.
+
+## Explorer Selection
+
+`WindowsExplorerSelectionAdapter` nutzt im Pilot einen stabilen Pfad-Fallback. UIA/Shell-Auswahl ist dokumentiert, aber noch nicht Produktpfad.
+
+## Remote Session
+
+`WindowsRemoteSessionAdapter` erzeugt `ObjectKind.RemoteSession` als FrameOnly. `SessionHandoff` ist nur erlaubt, wenn Policy und Ziel-Capability `SessionHandoff` vorhanden sind.
 
 ## Security
 
@@ -107,7 +133,9 @@ No File Ingress bleibt Pflicht:
 
 - echte Explorer-Integration
 - echtes Clipboard-Lesen mit klarer Zustimmung
+- echtes Clipboard-Image-Capture
 - echte Screenshot-Region
 - echte Window Snapshot/SettingsWindow-Integration
+- RemoteSession-Handoff mit echter Gegenstelle
 - Preview-/FrameProvider an echte Renderer koppeln
 - Adapter-Policy pro Firmenumgebung

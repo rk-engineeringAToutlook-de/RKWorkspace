@@ -1116,6 +1116,29 @@ if (-not $rkwpText.Contains('RESULT: SUCCESS')) {
 }
 
 Write-Host ''
+Write-Host 'Windows Object Adapter Smoke Test'
+Write-Host '---------------------------------'
+$objectAdapterOutput = & (Join-Path $root 'tools\run-windows-object-adapter.ps1') -SmokeTest 2>&1
+$objectAdapterExitCode = $LASTEXITCODE
+$objectAdapterText = $objectAdapterOutput -join [Environment]::NewLine
+$objectAdapterOutput | ForEach-Object { Write-Host $_ }
+if ($objectAdapterExitCode -ne 0) {
+    throw "Windows Object Adapter Smoke Test failed with exit code $objectAdapterExitCode."
+}
+
+if (-not $objectAdapterText.Contains('NoFileIngress: SUCCESS')) {
+    throw "Windows Object Adapter Smoke Test failed because output did not contain NoFileIngress: SUCCESS."
+}
+
+if (-not $objectAdapterText.Contains('NoAutoOwnershipTransfer: SUCCESS')) {
+    throw "Windows Object Adapter Smoke Test failed because output did not contain NoAutoOwnershipTransfer: SUCCESS."
+}
+
+if (-not $objectAdapterText.Contains('RESULT: SUCCESS')) {
+    throw "Windows Object Adapter Smoke Test failed because output did not contain RESULT: SUCCESS."
+}
+
+Write-Host ''
 Write-Host 'PDF Frame Smoke Test'
 Write-Host '--------------------'
 $pdfFrameOutput = & (Join-Path $root 'tools\run-pdf-frame-smoke.ps1') 2>&1
