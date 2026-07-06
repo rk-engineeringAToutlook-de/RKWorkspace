@@ -34,8 +34,8 @@ if ($SmokeTest) {
     $text = $output -join [Environment]::NewLine
     $required = @(
         'OwnerVisibleStatus: wartet auf Rueckgabe',
-        'OwnerReturnedStatus: zurueckgegeben',
-        'OwnerRecoveryStatus: wieder verfuegbar',
+        'OwnerReturnedStatus: wieder verfuegbar',
+        'OwnerRecoveryStatus: wiederhergestellt',
         'GuestVisibleStatus: liegt hier im Frame',
         'GuestRevokedStatus: nicht verfuegbar',
         'GuestExpiredStatus: Verbindung verloren',

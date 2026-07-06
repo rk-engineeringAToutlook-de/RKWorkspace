@@ -537,7 +537,8 @@ static bool OwnerGuestFrameStateUxChecks()
 
     return smoke.OwnerVisibleStatus == "wartet auf Rueckgabe" &&
            smoke.GuestVisibleStatus == "liegt hier im Frame" &&
-           OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.Returned) == "zurueckgegeben" &&
+           OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.Returned) == "wieder verfuegbar" &&
+           OwnerGuestFrameStateUx.GetOwnerText(OwnerFrameUxState.RecoveredByOwner) == "wiederhergestellt" &&
            OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(revoked)) == "nicht verfuegbar" &&
            OwnerGuestFrameStateUx.GetGuestText(OwnerGuestFrameStateUx.GetGuestState(expired)) == "Verbindung verloren" &&
            language.IsValid;

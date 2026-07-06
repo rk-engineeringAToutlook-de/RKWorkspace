@@ -59,7 +59,7 @@ static void Print(WindowsLocalFrameE2EResult result)
     Console.WriteLine($"OriginalFileBytes: {(result.GuestHasCopiedPdfBytes ? "YES" : "NO")}");
     Console.WriteLine($"NoFileIngress: {(result.NoFileIngress ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"Return: {(result.ReturnSuccessful ? "SUCCESS" : "FAILED")}");
-    Console.WriteLine("Zurueckgegeben.");
+    Console.WriteLine("Wieder verfuegbar.");
     Console.WriteLine($"Recovery: {(result.RecoverySuccessful ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"GuestEvents: {string.Join(" -> ", result.GuestEvents)}");
     Console.WriteLine($"Blocker: {(result.RendererBlocked ? "PDF renderer still blocked; metadata frame used." : "None")}");
@@ -512,8 +512,8 @@ public sealed record WindowsLocalFrameE2EResult(
         OwnerLocked &&
         GuestFrameReady &&
         OwnerVisibleStatus == "wartet auf Rueckgabe" &&
-        OwnerReturnedStatus == "zurueckgegeben" &&
-        OwnerRecoveryStatus == "wieder verfuegbar" &&
+        OwnerReturnedStatus == "wieder verfuegbar" &&
+        OwnerRecoveryStatus == "wiederhergestellt" &&
         GuestVisibleStatus == "liegt hier im Frame" &&
         GuestRevokedStatus == "nicht verfuegbar" &&
         GuestExpiredStatus == "Verbindung verloren" &&

@@ -2,7 +2,8 @@ param(
     [switch] $SmokeTest,
     [string] $PdfPath,
     [switch] $OwnerVisible,
-    [switch] $GuestVisible
+    [switch] $GuestVisible,
+    [switch] $Debug
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,6 +27,10 @@ if ($OwnerVisible) {
 
 if ($GuestVisible) {
     $arguments += '--guest-visible'
+}
+
+if ($Debug) {
+    $arguments += '--debug'
 }
 
 dotnet build $project -warnaserror
@@ -55,9 +60,15 @@ if ($SmokeTest) {
         'GuestHasOriginalPath: NO',
         'GuestHasCopiedPdfBytes: NO',
         'Rueckgabe: SUCCESS',
-        'OwnerReturnedStatus: zurueckgegeben',
+        'OwnerLeasedStatus: ausgeliehen',
+        'OwnerReturnedStatus: wieder verfuegbar',
+        'OwnerRecoveryStatus: wiederhergestellt',
         'Recovery: SUCCESS',
+        'ReturnVisibleState: SUCCESS',
+        'RecoveryVisibleState: SUCCESS',
         'NoFileIngress: SUCCESS',
+        'No File Ingress Status: sichtbar im Log',
+        'VisibleForbiddenTerms: SUCCESS',
         'RESULT: SUCCESS'
     )
 

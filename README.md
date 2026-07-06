@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.59.0
+Version: 2.60.0
 Status: Accepted  
 Datum: 2026-07-06
 
@@ -102,6 +102,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA008.09 fuehrt das RKWP Security Gate ein: Production blockiert `DevelopmentInsecure` sowie fehlenden Audit-, Replay- und Policy-Binding-Schutz.
 - MA008.10 schliesst das MA008 Integrations-Gate ab: Readiness Review, Next Actions, Test Matrix und Release Summary beschreiben Struktur, Protokoll, Testbarkeit, Blocker und den ersten echten Cross-Device-Test.
 - MA010.01 fuehrt den Windows PDF Frame Pilot ein: zwei lokale Ablagen zeigen echte PDF als Original-Owned Frame, Owner-Lock, Rueckgabe, Recovery und No File Ingress ohne freie Guest-Datei.
+- MA011.05 stabilisiert den Windows PDF Frame Pilot fuer Owner-Tests: Originalablage, Gastablage, FrameStatus, Rueckgabe, Recovery und No File Ingress sind klar sichtbar; Debugwerte bleiben optional.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -366,6 +367,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.60.0 | 2026-07-06 | MA011.05 Windows PDF Frame Pilot mit klarer Owner-/Gast-Testanzeige, optionalem Debug und stabilisierten Rueckgabe-/Recovery-Texten dokumentiert. |
 | 2.59.0 | 2026-07-06 | MA010.01 Windows PDF Frame Pilot mit Owner-/Guest-Ablage, FrameOnly, Rueckgabe, Recovery und No File Ingress dokumentiert. |
 | 2.58.0 | 2026-07-05 | MA007.05 Real PDF Frame Viewer mit sicherer Preview-Repräsentation und Renderer-Blocker dokumentiert. |
 | 2.57.0 | 2026-07-05 | MA007.04 Glass Edge PDF Frame Demo mit Original-Owned PDF, Nearest Ablage, FrameSession und No File Ingress dokumentiert. |

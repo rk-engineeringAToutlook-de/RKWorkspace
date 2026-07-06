@@ -1,6 +1,6 @@
 # Windows PDF Frame Pilot
 
-Status: MA010.01
+Status: MA011.05
 
 Der Windows PDF Frame Pilot macht den bestehenden Original-Owned PDF-Frame-Pfad lokal sichtbar. Er startet noch keine finale Produktoberflaeche, zeigt aber zwei lokale Ablagen als Pilotflaechen:
 
@@ -19,15 +19,31 @@ Die PDF bleibt beim Owner. Die Guest-Ablage bekommt nur eine Frame-Repraesentati
 .\tools\run-windows-pdf-frame-pilot.ps1 -GuestVisible
 ```
 
+## Sichtbarer Owner-Test-Modus
+
+Der Standardstart zeigt keine finale UX, sondern eine bewusst einfache Testanzeige:
+
+- `Originalablage`
+- `Gastablage`
+- `Sicherheitsstatus`
+
+Technische Werte wie OwnerAblageId, GuestAblageId, LeaseId, FrameSessionId, Renderername und Pfade erscheinen nur mit:
+
+```powershell
+.\tools\run-windows-pdf-frame-pilot.ps1 -Debug
+```
+
+Der Smoke-Test gibt zusaetzlich maschinenlesbare Pruefzeilen aus.
+
 ## Sichtbarer Ablauf
 
 Owner:
 
 - PDF liegt auf der Owner-Ablage.
-- Zustand beginnt mit `wieder verfuegbar`.
+- Zustand beginnt mit `verfuegbar`.
 - Nach FrameOnly-Lease wird der Owner `ausgeliehen` und `wartet auf Rueckgabe`.
-- Nach Rueckgabe steht `zurueckgegeben`.
-- Recovery fuehrt wieder zu `wieder verfuegbar`.
+- Nach Rueckgabe steht `wieder verfuegbar`.
+- Recovery fuehrt zu `wiederhergestellt`.
 
 Guest:
 
@@ -36,6 +52,8 @@ Guest:
 - Rueckgabe ist vorbereitet.
 - Revocation fuehrt zu `nicht verfuegbar`.
 - Heartbeat-Loss fuehrt zu `Verbindung verloren`.
+
+Sichtbare Texte vermeiden weiterhin technische Begriffe wie Transfer, Download, Upload, empfangen oder gesendet. Diese Begriffe duerfen nur in technischer Dokumentation oder Diagnose vorkommen, nicht in der Owner-Test-Anzeige.
 
 ## Rendering-Status
 
@@ -51,3 +69,12 @@ Der Smoke-Test prueft:
 - `NoFileIngress: SUCCESS`
 
 Damit bleibt AP031 ein sichtbarer Pilot, aber kein Datei-Ingress auf die Guest-Ablage.
+
+## MA011.05 Stabilisierung
+
+MA011.05 stabilisiert den Pilot fuer Owner-Tests:
+
+- Originalablage zeigt PDF-Name, Status `ausgeliehen`, Bearbeitungssperre, Rueckgabe und Recovery.
+- Gastablage zeigt Frame, FrameStatus, Rueckgabe, Verbindung verloren und `keine PDF-Datei vorhanden`.
+- No File Ingress ist im Sicherheitsstatus und im Smoke-Log sichtbar.
+- Debug-Texte sind optional und stoeren den normalen Owner-Test-Modus nicht.

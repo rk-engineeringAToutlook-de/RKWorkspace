@@ -1,6 +1,6 @@
 # Owner Guest Frame State UX
 
-Status: Draft  
+Status: MA011.05  
 Datum: 2026-07-06
 
 ## Ziel
@@ -19,11 +19,11 @@ Es geht nicht um finales Produktdesign. Es geht darum, dass Owner- und Gastablag
 
 | Zustand | Sichtbarer Text |
 | --- | --- |
-| OriginalOwned | wieder verfuegbar |
+| OriginalOwned | verfuegbar |
 | LeasedToGuest | ausgeliehen |
 | LockedOnOwner | wartet auf Rueckgabe |
-| Returned | zurueckgegeben |
-| RecoveredByOwner | wieder verfuegbar |
+| Returned | wieder verfuegbar |
+| RecoveredByOwner | wiederhergestellt |
 
 ## Sichtbare Guest-Texte
 
@@ -87,12 +87,14 @@ src/Tools/RKWorkspace.WindowsLocalFrameE2E
 Die Smokes pruefen:
 
 - Owner zeigt `wartet auf Rueckgabe`
-- Owner zeigt nach Rueckgabe `zurueckgegeben`
-- Owner zeigt nach Recovery `wieder verfuegbar`
+- Owner zeigt nach Rueckgabe `wieder verfuegbar`
+- Owner zeigt nach Recovery `wiederhergestellt`
 - Guest zeigt `liegt hier im Frame`
 - Guest zeigt nach Revocation `nicht verfuegbar`
 - Guest zeigt nach Ablauf `Verbindung verloren`
 - sichtbare Zustands-Texte enthalten keine verbotenen Woerter
+
+MA011.05 ergaenzt den Windows PDF Frame Pilot um eine klare Owner-Test-Anzeige mit `Originalablage`, `Gastablage` und `Sicherheitsstatus`. LeaseId, Pfade und Renderer-Details sind nur im optionalen Debugblock sichtbar.
 
 ## Grenzen
 

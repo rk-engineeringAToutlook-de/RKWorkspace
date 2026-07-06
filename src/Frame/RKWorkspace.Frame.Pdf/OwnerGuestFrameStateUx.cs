@@ -57,11 +57,11 @@ public static class OwnerGuestFrameStateUx
     {
         return state switch
         {
-            OwnerFrameUxState.OriginalOwned => "wieder verfuegbar",
+            OwnerFrameUxState.OriginalOwned => "verfuegbar",
             OwnerFrameUxState.LeasedToGuest => "ausgeliehen",
             OwnerFrameUxState.LockedOnOwner => "wartet auf Rueckgabe",
-            OwnerFrameUxState.Returned => "zurueckgegeben",
-            OwnerFrameUxState.RecoveredByOwner => "wieder verfuegbar",
+            OwnerFrameUxState.Returned => "wieder verfuegbar",
+            OwnerFrameUxState.RecoveredByOwner => "wiederhergestellt",
             _ => "nicht verfuegbar"
         };
     }
