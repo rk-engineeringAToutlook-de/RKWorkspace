@@ -9,7 +9,7 @@ public sealed class PdfFrameOwnerService
 
     public PdfFrameOwnerService(IPdfFrameRenderer? renderer = null, FrameCachePolicy? cachePolicy = null)
     {
-        _renderer = renderer ?? new PlaceholderPdfFrameRenderer();
+        _renderer = renderer ?? PdfFrameRendererFactory.CreateDefault();
         _cachePolicy = cachePolicy ?? FrameCachePolicy.DevelopmentMemoryOnly;
     }
 

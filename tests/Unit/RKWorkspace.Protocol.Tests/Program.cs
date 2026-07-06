@@ -40,6 +40,10 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PdfFrameInteractionAcceptApplied", PdfFrameInteractionAcceptApplied),
     ("PdfFrameInteractionRejectKeepsOriginal", PdfFrameInteractionRejectKeepsOriginal),
     ("PdfFrameInteractionNoFileIngress", PdfFrameInteractionNoFileIngress),
+    ("PdfFrameRendererReadsRealPdf", PdfFrameRendererReadsRealPdf),
+    ("PdfFrameRendererFirstPageFrame", PdfFrameRendererFirstPageFrame),
+    ("PdfFrameRendererNoFileIngress", PdfFrameRendererNoFileIngress),
+    ("PdfFrameRendererBlockerOrRealStatus", PdfFrameRendererBlockerOrRealStatus),
     ("OwnerGuestFrameStateUx", OwnerGuestFrameStateUxChecks),
     ("ChangeSetCanBeCreated", ChangeSetCanBeCreated),
     ("ChangeSetWithoutLeaseInvalid", ChangeSetWithoutLeaseInvalid),
@@ -459,6 +463,64 @@ static bool PdfFrameInteractionNoFileIngress()
     var now = DateTimeOffset.UtcNow;
     var result = new PdfFrameInteractionService().Scroll(smoke.Lease, smoke.FrameSession, FramePolicy.InteractiveView, 120.0, 1, now);
     return result.Accepted && smoke.GuestHasNoFileIngress;
+}
+
+static bool PdfFrameRendererReadsRealPdf()
+{
+    if (!PopplerPdfFrameRenderer.TryCreate(out var renderer, out _))
+    {
+        return false;
+    }
+
+    var document = PdfFrameDocument.Load(SamplePdfPath());
+    var result = renderer.Render(PdfRenderRequest(document));
+    return document.PageCount > 0 &&
+           result.Metadata.TryGetValue("pageCount", out var pageCount) &&
+           pageCount != "0" &&
+           result.Metadata.TryGetValue("pdfVersion", out var pdfVersion) &&
+           !string.IsNullOrWhiteSpace(pdfVersion);
+}
+
+static bool PdfFrameRendererFirstPageFrame()
+{
+    if (!PopplerPdfFrameRenderer.TryCreate(out var renderer, out _))
+    {
+        return false;
+    }
+
+    var result = renderer.Render(PdfRenderRequest(PdfFrameDocument.Load(SamplePdfPath())));
+    return !result.IsPlaceholder &&
+           result.FrameFormat == FrameFormat.PngFrame &&
+           result.ContainsPixelPayload &&
+           result.Width > 0 &&
+           result.Height > 0 &&
+           result.PixelData is { Length: > 8 } &&
+           result.PixelData[0] == 0x89 &&
+           result.PixelData[1] == 0x50 &&
+           result.PixelData[2] == 0x4E &&
+           result.PixelData[3] == 0x47;
+}
+
+static bool PdfFrameRendererNoFileIngress()
+{
+    var smoke = new PdfFrameOwnerService().OpenFrameOnlySession(SamplePdfPath());
+    return smoke.GuestHasNoFileIngress &&
+           smoke.GuestFrame.FrameFormat == FrameFormat.PngFrame &&
+           !smoke.GuestFrame.IsPlaceholder &&
+           smoke.GuestFrame.RendererName == PopplerPdfFrameRenderer.Name;
+}
+
+static bool PdfFrameRendererBlockerOrRealStatus()
+{
+    if (PopplerPdfFrameRenderer.TryCreate(out var renderer, out var blocker))
+    {
+        var diagnostics = renderer.GetDiagnostics();
+        return diagnostics.SupportsRealRendering &&
+               diagnostics.Status.Contains(PdfFrameRendererStatus.Ready.ToString(), StringComparison.Ordinal);
+    }
+
+    return blocker.Contains("Poppler", StringComparison.OrdinalIgnoreCase) &&
+           blocker.Contains("not found", StringComparison.OrdinalIgnoreCase);
 }
 
 static bool OwnerGuestFrameStateUxChecks()
@@ -1712,6 +1774,16 @@ static bool SecureSessionHandshakeAudit()
 static AblageIdentity DevAblageIdentity(string ablageId)
 {
     return AblageIdentity.CreateDev(ablageId, $"Ablage {ablageId}", "Windows");
+}
+
+static PdfFrameRenderRequest PdfRenderRequest(PdfFrameDocument document)
+{
+    return new PdfFrameRenderRequest(
+        document,
+        PageNumber: 1,
+        Options: new PdfFrameRenderOptions(RequestedWidth: 1024, RequestedHeight: 768),
+        OwnerAblageId: "ablage-windows-owner",
+        ThingId: document.ThingId);
 }
 
 static RkwpSecureDevTransportOptions SecureDevOptions(

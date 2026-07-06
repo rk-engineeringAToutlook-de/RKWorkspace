@@ -28,7 +28,7 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA010.09 liefert DevLan, Windows/macOS/iOS-Kompatibilitaet, PDF-Renderer-Abstraktion, FrameCachePolicy, Windows-Agent-Dev-Vorbereitung und ein zentrales Configuration-System. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren. Der PDF-Pfad nutzt noch den `MetadataPreviewDevRenderer` mit `IsPlaceholder: true`.
+MA010.09 liefert DevLan, Windows/macOS/iOS-Kompatibilitaet, PDF-Renderer-Abstraktion, FrameCachePolicy, Windows-Agent-Dev-Vorbereitung und ein zentrales Configuration-System. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren. Ab MA011.04 kann der PDF-Pfad im Development-Modus ueber `PopplerPdfFrameRenderer` die erste Seite als PNG-Frame rendern.
 
 ## Naechster Fokus
 

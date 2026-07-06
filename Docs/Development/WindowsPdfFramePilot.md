@@ -39,7 +39,7 @@ Guest:
 
 ## Rendering-Status
 
-Der Pilot nutzt aktuell dieselbe sichere `MetadataPreview` wie die bisherigen PDF-Frame-Smokes. Ein echter Seitenrenderer ist noch nicht aktiv. `RendererStatus: RendererBlocked` bleibt deshalb sichtbar und wird in MA010.06 gezielt bearbeitet.
+Der Pilot nutzt weiterhin denselben sicheren FrameOnly-Pfad wie die PDF-Frame-Smokes. Ab MA011.04 kann der Development-Pfad mit `PopplerPdfFrameRenderer` die erste Seite als PNG-Frame rendern. Falls Poppler fehlt, bleibt `RendererStatus: RendererBlocked` als expliziter Blocker sichtbar.
 
 ## No File Ingress
 

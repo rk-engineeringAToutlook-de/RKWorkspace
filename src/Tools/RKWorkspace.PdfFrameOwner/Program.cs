@@ -19,6 +19,7 @@ Console.WriteLine($"RendererStatus: {result.GuestFrame.RendererStatus}");
 Console.WriteLine($"RendererName: {result.GuestFrame.RendererName}");
 Console.WriteLine($"FrameFormat: {result.GuestFrame.FrameFormat}");
 Console.WriteLine($"IsPlaceholder: {result.GuestFrame.IsPlaceholder}");
+Console.WriteLine($"FrameIsPdfFile: {(result.GuestFrame.FrameFormat == FrameFormat.PngFrame ? "NO" : "UNKNOWN")}");
 Console.WriteLine($"FrameCacheScope: {result.CachePolicy.Scope}");
 Console.WriteLine($"FrameCachePolicy: {result.CachePolicy.PolicyProfile}");
 Console.WriteLine($"FrameCacheEntriesBeforeClose: {result.CacheBeforeClose.Entries}");

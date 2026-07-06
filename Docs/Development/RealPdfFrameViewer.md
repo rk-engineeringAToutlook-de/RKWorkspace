@@ -23,35 +23,38 @@ MA007.05 verbessert den bisherigen Smoke-Pfad:
 
 ## Renderer-Status
 
-Der PDF-Inhalt wird noch nicht als echte Seite gerendert. Ab MA010.06 existiert aber eine klare Renderer-Abstraktion:
+Ab MA011.04 wird der PDF-Inhalt im Development-Pfad erstmals als echte Seite gerendert, sofern Poppler verfuegbar ist. Die Renderer-Abstraktion umfasst:
 
 - `IPdfFrameRenderer`
 - `PdfFrameRenderRequest`
 - `PdfFrameRenderResult`
 - `PdfFrameRenderOptions`
 - `PdfFrameRendererDiagnostics`
+- `PdfFrameRendererCapabilities`
+- `PdfFrameRendererStatus`
 - `FrameFormat`
 
-Der aktuelle Dev Renderer heisst `MetadataPreviewDevRenderer` und meldet ausdruecklich:
+Der aktuelle echte Development Renderer heisst `PopplerPdfFrameRenderer` und meldet:
 
 ```text
-FrameFormat: Placeholder
-IsPlaceholder: true
-RendererStatus: RendererBlocked
+FrameFormat: PngFrame
+IsPlaceholder: false
+RendererStatus: Rendered
 ```
 
-Damit ist die Frame- und Ownership-Mechanik testbar, aber der visuelle PDF-Viewer ist noch nicht final.
+Damit ist die Frame- und Ownership-Mechanik erstmals mit einer echten ersten Seitenvorschau testbar. Der visuelle Produkt-Viewer ist trotzdem noch nicht final, weil Packaging, Sandbox, Update-Pfad und Plattformintegration noch entschieden werden muessen.
 
 Renderer-Blocker:
 
-- Es ist noch keine PDF-Rendering-Abhaengigkeit entschieden.
+- Wenn Poppler fehlt, wird der Blocker explizit gemeldet.
 - Der Renderer muss Owner-seitig arbeiten oder strikt FrameOnly bleiben.
 - Der Guest darf keine Originaldatei und keine freie PDF-Kopie erhalten.
 - Lizenz, Packaging und Plattformpfad muessen dokumentiert sein.
 
 ## Renderer-Kandidaten
 
-- PDFium: bevorzugter Kandidat fuer den ersten echten Renderer-Spike, Lizenz und Packaging pruefen.
+- Poppler CLI: aktueller Development Renderer fuer echte PNG-Frames.
+- PDFium: bevorzugter Kandidat fuer den Produkt-Renderer-Spike, Lizenz und Packaging pruefen.
 - MuPDF: leistungsfaehig, Lizenz besonders sorgfaeltig pruefen.
 - Windows PDF Preview Handler: Windows-nah, aber nicht plattformneutral.
 - WebView2/Edge: nur Owner-seitig als Renderer denkbar, nicht als Dateiuebergabe an Guest.
@@ -81,7 +84,7 @@ Auch bei echtem Rendering bleibt:
 .\tools\run-pdf-frame-smoke.ps1
 ```
 
-Der Smoke prueft Sample-PDF, CarryLease, FrameSession, FrameRepresentation, GuestHasPdfFile `NO`, OriginalFileBytes `NO`, Rueckgabe, Recovery und `NoFileIngress: SUCCESS`.
+Der Smoke prueft Sample-PDF, CarryLease, FrameSession, FrameRepresentation, `FrameFormat: PngFrame` oder klaren Renderer-Blocker, GuestHasPdfFile `NO`, OriginalFileBytes `NO`, Rueckgabe, Recovery und `NoFileIngress: SUCCESS`.
 
 Ab MA009.08 prueft der Smoke zusaetzlich die testbare Owner/Guest-State-UX:
 
@@ -95,4 +98,4 @@ Ab MA009.08 prueft der Smoke zusaetzlich die testbare Owner/Guest-State-UX:
 
 ## Naechster Schritt
 
-Der naechste echte Viewer-Schritt ist ein Owner-seitiger Renderer-Prototyp, der die erste Seite als Bild-/FrameUpdate erzeugt. Erst danach soll eine Gastoberflaeche das Bild anzeigen.
+Der naechste echte Viewer-Schritt ist die Anzeige des PNG-Frames in der nativen Gastoberflaeche und danach die Produktentscheidung fuer PDFium/MuPDF/Poppler-Packaging.

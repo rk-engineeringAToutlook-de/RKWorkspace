@@ -23,6 +23,8 @@ Modelle:
 - `PdfFrameRenderResult`
 - `PdfFrameRenderOptions`
 - `PdfFrameRendererDiagnostics`
+- `PdfFrameRendererCapabilities`
+- `PdfFrameRendererStatus`
 - `PdfFrameRendererException`
 - `FrameFormat`
 
@@ -53,25 +55,26 @@ Enthaelt:
 - `RendererName`
 - `IsPlaceholder`
 
-## Aktueller Dev Renderer
+## Aktueller Development Renderer
 
-Der aktuelle Renderer heisst:
+Der aktuelle echte Development Renderer heisst:
 
 ```text
-MetadataPreviewDevRenderer
+PopplerPdfFrameRenderer
 ```
 
 Er liefert:
 
-- echte PDF-Metadaten.
-- `FrameFormat: Placeholder`.
-- `IsPlaceholder: true`.
-- keine Pixel.
+- echte PDF-Metadaten ueber `pdfinfo`.
+- echte erste Seite als PNG ueber `pdftoppm`.
+- `FrameFormat: PngFrame`.
+- `IsPlaceholder: false`.
+- PNG-Bytes als Frame-Payload.
 - keinen Guest-Pfad.
 - keine Originalbytes.
 - `NoFileIngress: true`.
 
-Damit ist die Architektur testbar, ohne so zu tun, als waere echtes Seitenrendering bereits erledigt.
+Wenn Poppler fehlt, faellt der Default-Pfad auf `MetadataPreviewDevRenderer` zurueck und der Blocker bleibt explizit sichtbar. Das ist ein Development-Fallback, kein Produktziel.
 
 ## No File Ingress
 
@@ -88,3 +91,13 @@ Er darf:
 - Metadaten liefern.
 - Scroll/Zoom/Annotation als erlaubte Frame-Interaktion abbilden.
 - temporaeren Cache nur nach FrameCachePolicy nutzen.
+
+## Poppler Development Renderer
+
+`PopplerPdfFrameRenderer` ist owner-seitig, headless und aktuell Development-only. Er sucht Poppler ueber:
+
+- `RKWS_POPPLER_BIN`
+- den Codex Runtime Poppler-Pfad
+- `PATH`
+
+Er schreibt temporaer nur in ein lokales Temp-Verzeichnis, liest den PNG-Frame sofort in den Speicher und entfernt den temporaeren Ordner danach wieder.

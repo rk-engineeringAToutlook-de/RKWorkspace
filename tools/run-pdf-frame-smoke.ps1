@@ -37,12 +37,26 @@ if (-not $combinedText.Contains('FrameRepresentation: OK')) {
     throw 'PDF Frame Smoke failed because output did not contain FrameRepresentation: OK.'
 }
 
-if (-not $combinedText.Contains('RendererName: MetadataPreviewDevRenderer')) {
-    throw 'PDF Frame Smoke failed because output did not contain the dev renderer name.'
-}
+$realRenderer = $combinedText.Contains('RendererName: PopplerPdfFrameRenderer')
+$blockedRenderer = $combinedText.Contains('RendererStatus: RendererBlocked') -and $combinedText.Contains('IsPlaceholder: True')
+if ($realRenderer) {
+    if (-not $combinedText.Contains('FrameFormat: PngFrame')) {
+        throw 'PDF Frame Smoke failed because real renderer did not produce PngFrame.'
+    }
 
-if (-not $combinedText.Contains('IsPlaceholder: True')) {
-    throw 'PDF Frame Smoke failed because placeholder renderer status was not explicit.'
+    if (-not $combinedText.Contains('IsPlaceholder: False')) {
+        throw 'PDF Frame Smoke failed because real renderer did not report IsPlaceholder: False.'
+    }
+
+    if (-not $combinedText.Contains('FrameIsPdfFile: NO')) {
+        throw 'PDF Frame Smoke failed because rendered frame was not clearly marked as non-PDF.'
+    }
+}
+elseif ($blockedRenderer) {
+    Write-Output 'RendererBlocker: EXPLICIT'
+}
+else {
+    throw 'PDF Frame Smoke failed because renderer was neither real nor explicitly blocked.'
 }
 
 if (-not $combinedText.Contains('FrameCacheScope: MemoryOnly')) {

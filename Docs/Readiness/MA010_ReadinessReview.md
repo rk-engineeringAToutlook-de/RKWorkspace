@@ -26,11 +26,11 @@ Der Standard bleibt:
 | macOS Handoff | Partial | macOS-Codex-Auftrag, Compatibility Harness, Starter Kit, Permissions und Handoff-Doku existieren. Native macOS Frame Guest Surface muss auf macOS/Xcode gebaut werden. |
 | iOS Handoff | Partial | iOS/iPadOS Harness, Xcode-Handoff, USB-Testplan, Haptik-/Gestenhinweise und No-File-Ingress-Regeln existieren. Native iPad/iPhone App muss ueber macOS-Codex und Xcode entstehen. |
 | Manual Map | Done | ManualMap-Tool und Glass Edge E2E koennen Ablagen, Richtung, Entfernung, Hysterese und naechste Ablage fuer den Laborraum simulieren. Lokale echte Config bleibt unversioniert. |
-| PDF Renderer | Partial | `IPdfFrameRenderer`, RenderRequest/Result, Renderer-Diagnostik und Placeholder-Dev-Renderer existieren. Echter Seitenrenderer ist entschieden vorbereitet, aber weiterhin nicht produktiv umgesetzt. |
+| PDF Renderer | Partial | `IPdfFrameRenderer`, RenderRequest/Result, Renderer-Diagnostik, Capabilities und Poppler Development Renderer existieren. Die erste Seite wird als PNG-Frame gerendert, wenn Poppler verfuegbar ist. Produktives PDFium/MuPDF-Packaging bleibt offen. |
 | Frame Cache | Done | MemoryOnly/DevInspectable/TemporaryEncrypted/Disabled sind modelliert. FrameClose, Revocation und Recovery loeschen Cache; Original-PDF, Originalbytes und Originalpfad werden nicht gespeichert. |
 | Windows Agent Plan | Partial | Windows Agent Dev Host, Install-/Uninstall-Smokes und Plattformdokumente existieren. Produktive Service-Installation, Tray und Autostart sind bewusst spaeter. |
 | Configuration System | Done | Einheitliche Config-Modelle, Sample-JSONs, Validator, ConfigTool und Gitignore-Regeln existieren. Lokale Secrets werden nicht erwartet und nicht versioniert. |
-| PDF Frame Pilot | Done | Windows PDF Frame Pilot nutzt echte Sample-PDF, Owner/Guest-Zustaende, CarryLease, FrameSession, Return, Recovery und No File Ingress. Rendering bleibt Placeholder/MetadataPreview, solange echter Renderer fehlt. |
+| PDF Frame Pilot | Done | Windows PDF Frame Pilot nutzt echte Sample-PDF, Owner/Guest-Zustaende, CarryLease, FrameSession, Return, Recovery und No File Ingress. Ab MA011.04 kann der Development-Pfad die erste Seite als PNG-Frame rendern. |
 | No File Ingress | Done | RKWP-Tests, PDF Frame Smoke, Windows Local E2E, Glass Edge E2E, Pilot und Cache-Regeln pruefen: keine Guest-Datei, kein Originalpfad, keine Originalbytes. |
 | Policy Profiles | Done | CriticalInfrastructure, OfficeDefault, DevelopmentLab, PresentationOnly und TrustedPersonalDevices sind implementiert, getestet und in Config validierbar. |
 | Audit | Done | RKWP Diagnostics schreibt lokale JSONL-Auditlogs und zaehlt Sessions, Leases, FrameSessions, Heartbeats, PolicyDenied, Recovery und SecurityViolations. |
@@ -87,7 +87,7 @@ Noch Dev/Lab sind:
 
 - DevLan ohne finales TLS
 - Dev-Zertifikate
-- Placeholder PDF Renderer
+- produktives PDF-Renderer-Packaging und Security-Update-Pfad
 - lokale ManualMap statt echter Distanzmessung
 - Windows Agent ohne produktive Installation
 - simulierte macOS/iOS Guest Harnesses
@@ -102,4 +102,4 @@ MA010 ist bereit fuer den ersten echten Cross-Device-Versuch im Labor:
 4. Windows Owner zu macOS Guest testen.
 5. Danach iPad/iPhone ueber Xcode anbinden.
 
-Noch nicht bereit ist MA010 fuer produktive Nutzung, kritische Umgebungen, echte Besitzuebernahme ohne Owner-UX, finale Security, echte Hardware-Proximity oder vollstaendiges PDF-Rendering auf jeder Plattform.
+Noch nicht bereit ist MA010/MA011 fuer produktive Nutzung, kritische Umgebungen, echte Besitzuebernahme ohne Owner-UX, finale Security, echte Hardware-Proximity oder vollstaendiges PDF-Rendering auf jeder Plattform. Der Poppler Development Renderer ist ein echter Preview-Slice, aber noch keine Produktentscheidung.
