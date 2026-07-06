@@ -123,6 +123,8 @@ Ab MA008.08 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-diagnostics
 
 Ab MA008.09 pruefen die RKWP-Tests zusaetzlich das Security Gate. Geprueft werden Production gegen `DevelopmentInsecure`, Development-Warnung, Production ohne Audit, Production ohne ReplayProtection, Production ohne PolicyBinding und dokumentiertes Test-/Staging-Verhalten.
 
+Ab MA013.29 buendelt `tools/run-security-regression.ps1` die sicherheitskritischen RKWP-Regressionschecks. Der Gate-Lauf verlangt Replay-/Nonce-Schutz, revoked Peer, expired Lease, unautorisierte Eingabe, verweigerte Ownership-Uebernahme, No File Ingress im Cache und vorhandene Audit Events.
+
 ## MA003.05 Core Integration Tests
 
 MA003.05 fuehrt das erste separate Integration-Test-Projekt ein: `tests/Integration/RKWorkspace.Core.IntegrationTests/`.

@@ -84,6 +84,7 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SurfaceDocs", SurfaceDocs),
     ("SecurityModeRequiresProductionProtector", SecurityModeRequiresProductionProtector),
     ("DevelopmentModeMarkedUnsafe", DevelopmentModeMarkedUnsafe),
+    ("SecurityRegressionSuiteCoverage", SecurityRegressionSuiteCoverage),
     ("NonceReplay", NonceReplay),
     ("SequenceReplay", SequenceReplay),
     ("MissingNonceAndSequence", MissingNonceAndSequence),
@@ -972,6 +973,20 @@ static bool DevelopmentModeMarkedUnsafe()
     return session.SecurityMode == RkwpSecurityMode.DevelopmentInsecure &&
            protector.IsDevelopmentOnly &&
            protector.SecurityNotice.Contains("no real encryption", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool SecurityRegressionSuiteCoverage()
+{
+    return NonceReplay() &&
+           SequenceReplay() &&
+           SecureDevRejectsRevokedPeer() &&
+           ChangeSetExpiredLeaseRejected() &&
+           FrameInputKeyboardDeniedWithoutPermission() &&
+           FrameInputPointerWithoutValidSessionDenied() &&
+           OwnershipTransferDefaultDenies() &&
+           OwnershipTransferDeniedDoesNotChangeOwnership() &&
+           PdfFrameRendererNoFileIngress() &&
+           AuditEvents();
 }
 
 static bool NonceReplay()

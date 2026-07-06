@@ -106,6 +106,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA011.07 macht die Manual Map fuer Owner-Lab-Aufbauten nutzbar: List, Show, Set, Remove, Clear, Import, Export, Validate und SmokeTest konfigurieren macOS, iPad, iPhone, Linux und weitere Ablagen fuer den NearestAblageSelector.
 - MA013.01 bis MA013.10 bereiten den ersten echten Windows-zu-macOS-Frame-Test vor: macOS Repository Bootstrap, RKWP Client Architecture, Contract-Test, Frame Guest UI, No File Ingress, Return/Recovery, Frame Rendering, Packaging, Gesture/Glass Edge und `WindowsToMac_FirstRealTestGate`.
 - MA013.11 bis MA013.20 bereiten den iOS/iPadOS-Xcode-Pfad vor: Bootstrap, RKWP Client Flow, Frame Presenter, Haptics/Gestures, No File Ingress Sandbox, USB-Test, Windows-zu-iPad-Gate, Return/Recovery, Share Extension Roadmap und iOS Readiness Gate.
+- MA013.21 bis MA013.30 vertiefen Security: Crypto-Entscheidung, Mutual Authentication, Zertifikatsprovisioning, Pairing Experience, Emergency Return, Product Transport, Secrets Storage, Audit Tamper Resistance, Security Regression Suite und Security Readiness Gate.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
