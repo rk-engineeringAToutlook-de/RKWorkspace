@@ -38,3 +38,13 @@ GitHub bleibt die zentrale Synchronisationsstelle fuer Branches, Commits und spa
 .\tools\run-rkwp-tests.ps1
 .\tools\run-pdf-frame-smoke.ps1
 ```
+
+## Lokale Ablage-Identitaeten
+
+MA011.02 ergaenzt einen lokalen Development Identity Store:
+
+```powershell
+.\tools\init-ablage-identity.ps1 -AblageName "Windows Owner" -Platform Windows
+```
+
+Der Store liegt unter `.rkworkspace-dev/identities/`, ist gitignored und darf nicht in Context Packs kopiert werden. Er ist nur fuer lokale Development- und SecureDev-Tests gedacht, nicht als produktives Trust-Material.

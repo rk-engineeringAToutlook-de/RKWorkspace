@@ -23,6 +23,7 @@ RK Workspace uebertraegt standardmaessig keine Dateien. Ein digitales Ding bleib
 - Windows Agent Dev Host: `src/Agents/RKWorkspace.Agent.Windows/`
 - Configuration System: `src/Configuration/RKWorkspace.Configuration/`
 - Config Tool: `src/Tools/RKWorkspace.ConfigTool/`
+- Ablage Identity Store: `.rkworkspace-dev/identities/` via `tools/init-ablage-identity.ps1`
 
 ## Wichtige MA010-Skripte
 
@@ -34,6 +35,7 @@ RK Workspace uebertraegt standardmaessig keine Dateien. Ein digitales Ding bleib
 .\tools\run-ios-guest-compat.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest
+.\tools\init-ablage-identity.ps1 -AblageName "Windows Owner" -Platform Windows
 ```
 
 ## Readiness

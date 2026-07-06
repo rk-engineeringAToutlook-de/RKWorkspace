@@ -3,6 +3,7 @@ using RKWorkspace.ObjectAdapter.Windows;
 using RKWorkspace.Protocol;
 using RKWorkspace.Protocol.Diagnostics;
 using RKWorkspace.Protocol.Identity;
+using RKWorkspace.Protocol.IdentityStore;
 using RKWorkspace.Protocol.Ownership;
 using RKWorkspace.Protocol.Security;
 using RKWorkspace.Surface.Abstractions;
@@ -92,6 +93,9 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SecureSessionPathRejectsUnauthenticatedControlMessages", SecureSessionPathRejectsUnauthenticatedControlMessages),
     ("DevIdentityCanBeGenerated", DevIdentityCanBeGenerated),
     ("DevIdentityIgnoredByGit", DevIdentityIgnoredByGit),
+    ("AblageIdentityStoreCreateLoad", AblageIdentityStoreCreateLoad),
+    ("AblageIdentityStoreForceAndInvalidPlatform", AblageIdentityStoreForceAndInvalidPlatform),
+    ("AblageIdentityStoreIgnoredAndExcludedFromContext", AblageIdentityStoreIgnoredAndExcludedFromContext),
     ("MutualDevAuthenticationSuccess", MutualDevAuthenticationSuccess),
     ("SecureSessionRejectsUntrustedAblage", SecureSessionRejectsUntrustedAblage),
     ("SecureSessionRejectsRevokedAblage", SecureSessionRejectsRevokedAblage),
@@ -1469,6 +1473,62 @@ static bool DevIdentityIgnoredByGit()
 {
     var gitignore = File.ReadAllText(Path.Combine(FindRoot(), ".gitignore"));
     return gitignore.Contains(".rkworkspace-dev/", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool AblageIdentityStoreCreateLoad()
+{
+    var storeRoot = Path.Combine(Path.GetTempPath(), $"rkws-identity-store-{Guid.NewGuid():N}");
+    try
+    {
+        var store = new AblageIdentityStore(new AblageIdentityStoreOptions(storeRoot, "Windows Owner", "Windows"));
+        var created = store.CreateOrLoad();
+        var loaded = store.CreateOrLoad();
+        return created.Created &&
+               !loaded.Created &&
+               File.Exists(created.IdentityPath) &&
+               File.Exists(created.PrivateKeyPath) &&
+               created.Record.AblageId == loaded.Record.AblageId &&
+               created.Record.ToIdentity().PublicKey is not null;
+    }
+    finally
+    {
+        if (Directory.Exists(storeRoot))
+        {
+            Directory.Delete(storeRoot, recursive: true);
+        }
+    }
+}
+
+static bool AblageIdentityStoreForceAndInvalidPlatform()
+{
+    var storeRoot = Path.Combine(Path.GetTempPath(), $"rkws-identity-store-{Guid.NewGuid():N}");
+    try
+    {
+        var store = new AblageIdentityStore(new AblageIdentityStoreOptions(storeRoot, "Windows Owner", "Windows"));
+        var first = store.CreateOrLoad();
+        var forced = store.CreateOrLoad(force: true);
+        return forced.Created &&
+               forced.Overwritten &&
+               first.Record.Certificate.Thumbprint != forced.Record.Certificate.Thumbprint &&
+               Throws<AblageIdentityStoreException>(() => new AblageIdentityStore(new AblageIdentityStoreOptions(storeRoot, "Bad", "BeOS")));
+    }
+    finally
+    {
+        if (Directory.Exists(storeRoot))
+        {
+            Directory.Delete(storeRoot, recursive: true);
+        }
+    }
+}
+
+static bool AblageIdentityStoreIgnoredAndExcludedFromContext()
+{
+    var root = FindRoot();
+    var gitignore = File.ReadAllText(Path.Combine(root, ".gitignore"));
+    var exportScript = File.ReadAllText(Path.Combine(root, "tools", "export-codex-context.ps1"));
+    return gitignore.Contains(".rkworkspace-dev/", StringComparison.OrdinalIgnoreCase) &&
+           !exportScript.Contains(".rkworkspace-dev\\identities", StringComparison.OrdinalIgnoreCase) &&
+           !exportScript.Contains(".rkworkspace-dev/identities", StringComparison.OrdinalIgnoreCase);
 }
 
 static bool MutualDevAuthenticationSuccess()

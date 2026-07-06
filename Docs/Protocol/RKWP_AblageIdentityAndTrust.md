@@ -145,3 +145,9 @@ AblageIdentity bleibt die Grundlage fuer gegenseitige Authentisierung. MA011.01 
 - Heartbeat und Revocation duerfen nur aus aktiven authentisierten Sessions kommen.
 
 Die technische Detailregel steht in `Docs/Security/RKWP_SecureSessionPath.md`.
+
+## MA011 Ablage Identity Store
+
+MA011.02 fuehrt einen lokalen Store unter `.rkworkspace-dev/identities/` ein. Er erzeugt Dev-Identitaeten mit AblageId, DisplayName, Platform, SurfaceType, PublicKey, lokaler PrivateKey-Datei, TrustLevel und PairingState.
+
+Private Dev-Keys bleiben lokal, sind durch `.gitignore` geschuetzt und werden nicht in den Context Pack exportiert. Details stehen in `Docs/Security/AblageIdentityStore.md`.

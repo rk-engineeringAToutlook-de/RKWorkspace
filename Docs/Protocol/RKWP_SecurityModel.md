@@ -202,3 +202,9 @@ Die bisherigen Namen `Authenticated`, `Encrypted` und `EncryptedAndAuthenticated
 Der Guard blockiert `DevelopmentInsecure`, sobald eine Policy `SecureSessionRequired` setzt oder die Umgebung Production ist. Heartbeat und Revocation gelten als authentisierungspflichtige Control Messages. Nonce, SequenceNumber, LeaseId und PolicyId werden an die aktive Secure Session gebunden.
 
 Details: `Docs/Security/RKWP_SecureSessionPath.md`.
+
+## MA011 Ablage Identity Store
+
+MA011.02 trennt Ablage-Identitaet und lokalen Private Key. Der Dev-Store unter `.rkworkspace-dev/identities/` ist nur fuer Development und SecureDev-Spikes gedacht. Private Keys duerfen nicht in Git und nicht in Context Packs erscheinen.
+
+Details: `Docs/Security/AblageIdentityStore.md`.
