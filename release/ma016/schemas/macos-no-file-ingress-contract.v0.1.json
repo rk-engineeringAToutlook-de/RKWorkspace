@@ -1,0 +1,30 @@
+{
+  "$schema": "https://rkworkspace.local/schema/macos-no-file-ingress-contract-v0.1.json",
+  "contractId": "macos-no-file-ingress-contract-v0.1",
+  "platform": "macOS",
+  "requiredChecks": [
+    "sandboxContainsNoPdf",
+    "downloadsContainsNoNewPdf",
+    "tmpContainsNoNewPdf",
+    "frameCacheIsMemoryOnly",
+    "payloadContainsNoOriginalPath",
+    "payloadContainsNoOriginalBytes",
+    "returnClearsFrameCache",
+    "revocationClearsFrameCache",
+    "recoveryInvalidatesGuestFrame"
+  ],
+  "expectedOutput": [
+    "GuestHasPdfFile: NO",
+    "GuestHasOriginalPath: NO",
+    "GuestHasCopiedPdfBytes: NO",
+    "FrameCache: MemoryOnly",
+    "NoFileIngress: SUCCESS"
+  ],
+  "auditEvents": [
+    "NoFileIngressChecked",
+    "CapsuleOpened",
+    "OpenFrameReady",
+    "CarryLeaseReturned",
+    "OwnerRecoveredThing"
+  ]
+}

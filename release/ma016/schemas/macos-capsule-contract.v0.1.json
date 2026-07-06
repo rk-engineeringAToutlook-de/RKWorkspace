@@ -1,0 +1,41 @@
+{
+  "$schema": "https://rkworkspace.local/schema/macos-capsule-contract-v0.1.json",
+  "contractId": "macos-capsule-contract-v0.1",
+  "platform": "macOS",
+  "scope": "FrameCapsule",
+  "noFileIngressRequired": true,
+  "messages": [
+    {
+      "type": "CapsuleCreated",
+      "direction": "owner-to-guest",
+      "requiredPayload": ["capsuleId", "thingId", "displayName", "frameSessionId", "noFileIngress"]
+    },
+    {
+      "type": "CapsuleOpened",
+      "direction": "guest-to-owner",
+      "requiredPayload": ["capsuleId", "frameSessionId", "leaseId"]
+    },
+    {
+      "type": "CapsuleReturned",
+      "direction": "guest-to-owner",
+      "requiredPayload": ["capsuleId", "leaseId", "guestKeptOriginalFile"]
+    },
+    {
+      "type": "CapsuleRevoked",
+      "direction": "owner-to-guest",
+      "requiredPayload": ["capsuleId", "leaseId", "cacheMustClear"]
+    },
+    {
+      "type": "CapsuleRecovered",
+      "direction": "owner-to-guest",
+      "requiredPayload": ["capsuleId", "leaseId", "guestFrameInvalidated"]
+    }
+  ],
+  "forbiddenPayloadKeys": ["pdfBytes", "originalBytes", "originalFileBytes", "originalPath", "localPdfPath", "downloadPath", "filePath"],
+  "requiredAssertions": {
+    "guestHasPdfFile": false,
+    "guestHasOriginalPath": false,
+    "guestHasCopiedPdfBytes": false,
+    "frameCache": "MemoryOnly"
+  }
+}

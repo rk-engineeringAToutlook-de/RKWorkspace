@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rkworkspace.local/schema/rkwp-frame-capsule-v0.1.schema.json",
+  "title": "RKWP Frame Capsule",
+  "type": "object",
+  "required": ["capsuleId", "thingId", "displayName", "frameSessionId", "noFileIngress"],
+  "properties": {
+    "capsuleId": { "type": "string" },
+    "thingId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "frameSessionId": { "type": "string" },
+    "noFileIngress": { "const": true },
+    "containsOriginalFileBytes": { "const": false },
+    "hasOriginalPath": { "const": false },
+    "frameCache": { "const": "MemoryOnly" }
+  },
+  "additionalProperties": true
+}

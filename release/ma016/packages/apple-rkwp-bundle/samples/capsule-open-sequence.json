@@ -1,0 +1,33 @@
+{
+  "sequence": [
+    {
+      "messageType": "CapsuleCreated",
+      "payload": {
+        "capsuleId": "capsule-pdf-sample",
+        "thingId": "pdf-sample",
+        "displayName": "Rechnung.pdf",
+        "frameSessionId": "frame-sample",
+        "noFileIngress": true,
+        "containsOriginalFileBytes": false,
+        "hasOriginalPath": false,
+        "frameCache": "MemoryOnly"
+      }
+    },
+    {
+      "messageType": "CapsuleOpened",
+      "payload": {
+        "capsuleId": "capsule-pdf-sample",
+        "frameSessionId": "frame-sample",
+        "leaseId": "lease-sample"
+      }
+    },
+    {
+      "messageType": "OpenFrameReady",
+      "payload": {
+        "frameSessionId": "frame-sample",
+        "leaseId": "lease-sample",
+        "noFileIngress": true
+      }
+    }
+  ]
+}
