@@ -351,6 +351,14 @@ MA009.09 liefert RKWP Performance Baseline:
 - Reports entstehen lokal unter `logs/perf/`
 - Smoke: 10 Iterationen, JSON/Markdown, DevTransport Roundtrip, Heartbeat, FrameOpen, Rueckgabe, Recovery, NoFileIngress.
 
+MA009.10 schliesst MA009 mit Readiness Review und Real-Lab-Testplan ab:
+
+- `Docs/Readiness/MA009_ReadinessReview.md`
+- `Docs/Readiness/MA009_RealLabTestPlan.md`
+- `Docs/Readiness/MA009_NextCodexActions.md`
+- `release/MA009_READINESS_SUMMARY.md`
+- naechster echter Testpfad: Windows Owner lokal referenzieren, dann macOS Guest, danach iPad/iPhone.
+
 ## Context Pack
 
 Stabiler Pfad:

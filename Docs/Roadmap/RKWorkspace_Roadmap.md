@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.09 liefert die erste RKWP Transport/Frame Performance Baseline. `run-rkwp-perf.ps1 -SmokeTest` misst FrameUpdate-Groesse, DevTransport Roundtrip, Heartbeat-Latenz, FrameOpen, Rueckgabe, Recovery, NoFileIngress-Overhead und PDF-Renderstatus.
+MA009.10 liefert Readiness Review, Real-Lab-Testplan, Next Codex Actions und Release-Summary. Damit ist klar getrennt: lokal real, simuliert, vorbereitet und blockiert.
 
 ## Naechster Fokus
 
-Nach MA009.09 liegt der Fokus auf MA009 Readiness Review und Real-Lab-Testplan. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009 liegt der Fokus auf dem ersten echten Real-Lab-Vorbereitungspfad: Windows Local Frame UX stabilisieren, netzwerkfaehigen Development-Transport bauen, macOS FrameGuestSurface erstellen und danach iPad/iPhone ueber Xcode vorbereiten.
 
 ## Entfernung und Ablage-Anker
 
