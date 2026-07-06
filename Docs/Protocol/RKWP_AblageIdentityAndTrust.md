@@ -98,11 +98,28 @@ Das Trust-Gate ist konservativ. Wenn eine Eigenschaft nicht ausdruecklich erlaub
 
 Produktive Pairing-Pfade muessen spaeter:
 
-- echte Public Keys verwenden
-- eine gegenseitige Authentisierung erzwingen
-- Owner-Bestaetigung speichern
-- Revocation und Audit einschliessen
-- sichere Session Keys ableiten
+- eine echte Ablage-Authentisierung nutzen.
+- Trust-Entscheidungen persistent speichern.
+- Revocation unterstuetzen.
+- Secure Session erzwingen.
+- echte Public Keys verwenden.
+- eine gegenseitige Authentisierung erzwingen.
+- Owner-Bestaetigung speichern.
+- Revocation und Audit einschliessen.
+- sichere Session Keys ableiten.
+
+## Secure Session Bezug
+
+MA009.01 bindet AblageIdentity an den Secure-Session-Handshake. Eine Dev-Ablage kann fuer lokale Tests ein Dev-Zertifikat erhalten. Dieses Zertifikat gehoert zur AblageId und darf nur in Development/Test verwendet werden.
+
+Der Handshake wird abgelehnt, wenn:
+
+- TrustLevel `Unknown`, `Untrusted` oder `Revoked` ist.
+- Pairing `PairingRequested`, `PairingPending`, `Denied` oder `Revoked` ist.
+- Zertifikat nicht zur AblageId passt.
+- Dev-Zertifikate von der aktiven SecurityPolicy nicht erlaubt sind.
+
+Details stehen in `Docs/Protocol/RKWP_SecureSession.md` und `Docs/Security/RKWP_DevCertificates.md`.
 
 ## Tests
 

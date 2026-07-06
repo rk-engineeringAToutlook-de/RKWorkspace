@@ -42,6 +42,7 @@ $files = @(
     'Docs\Development\RKWP_Diagnostics.md',
     'Docs\Protocol\RKWP_ProtocolFoundation.md',
     'Docs\Protocol\RKWP_SecurityModel.md',
+    'Docs\Protocol\RKWP_SecureSession.md',
     'Docs\Protocol\RKWP_AblageIdentityAndTrust.md',
     'Docs\Protocol\RKWP_Pairing.md',
     'Docs\Protocol\RKWP_TransportProfiles.md',
@@ -54,6 +55,7 @@ $files = @(
     'Docs\Protocol\RKWP_OwnershipTransfer.md',
     'Docs\Protocol\RKWP_PlatformStrategy.md',
     'Docs\Security\RKWP_SecurityGate.md',
+    'Docs\Security\RKWP_DevCertificates.md',
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
     'Docs\Readiness\MA007_ReadinessReview.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
@@ -78,6 +80,7 @@ $files = @(
     'release\handoff\WindowsToMac_MA008_Handoff.md',
     'release\handoff\iOS_iPadOS_MA008_Handoff.md',
     'tools\run-windows-owner-for-mac.ps1',
+    'tools\init-dev-rkwp-identity.ps1',
     'tools\run-rkwp-diagnostics.ps1'
 )
 

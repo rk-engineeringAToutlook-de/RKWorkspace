@@ -52,6 +52,22 @@ Development darf `DevelopmentInsecure` nur mit sichtbarer Warnung verwenden. Tes
 
 Details stehen in `Docs/Security/RKWP_SecurityGate.md`.
 
+## Secure Session Spike
+
+MA009.01 fuehrt `RkwpSecureSession` ein. Der Spike bildet die produktiv notwendige Struktur ab:
+
+- gegenseitige Ablage-Authentisierung
+- Handshake-State
+- Dev-Zertifikate fuer lokale Tests
+- Session-Key-Vorbereitung
+- Policy-Bindung
+- Replay-Schutz ueber Nonce und SequenceNumber
+- Audit fuer Handshake und Authentisierung
+
+Details stehen in `Docs/Protocol/RKWP_SecureSession.md`.
+
+Wichtig: MA009.01 ist noch keine finale Produktkryptografie. Dev-Zertifikate und Dev-Signaturen sind strukturelle Entwicklungsnachweise. Production bleibt ueber `RkwpSecurityGate` gegen `DevelopmentInsecure` gesperrt.
+
 ## Dev Transport Security
 
 MA008.01 fuehrt `NamedPipeDev` als lokalen RKWP Dev-Transport ein. Dieser Transport ist ausschliesslich fuer Entwicklung und Smoke Tests gedacht.
@@ -66,6 +82,8 @@ Er darf nicht als produktiv gelten, weil ihm noch fehlen:
 - produktive Transport-Auditierung
 
 Der Dev-Transport darf RKWP-Security-Felder durchreichen und testen, aber er ersetzt nicht den `RkwpSessionProtector`.
+
+Ab MA009.01 darf ein Transportprofil auch Development-Secure-Session-Felder tragen. Das bedeutet nicht, dass der Transport produktiv ist. Es bedeutet nur, dass Handshake, Identitaet, Policy-Bindung und Replay-Schutz schon gegen die RKWP-Modelle getestet werden koennen.
 
 ## Ablage Identity und Trust
 

@@ -69,6 +69,8 @@ Lease-bezogene Nachrichten sind nur gueltig, wenn `SessionId` und `LeaseId` zur 
 
 Policy-Binding bindet `PolicyId`, `PolicyVersion` und optional `PolicyHash` an CarryLease und FrameSession. Aendert sich die Policy waehrend einer aktiven Session, darf V1 nicht stillschweigend weiterlaufen: Audit `PolicyDenied` und kontrollierte Revocation oder neue Zustimmung sind erforderlich.
 
+Ab MA009.01 prueft `RkwpSecureSession` diese Bindung ebenfalls. Eine Message aus einer fremden Session, eine Lease mit falscher SessionId oder eine PolicyId-/PolicyVersion-Abweichung wird als ungueltig bewertet. Damit haengt FrameOnly nicht nur an der UI, sondern an Session, Lease und Policy.
+
 ## Glass Edge Integration
 
 MA007.04 nutzt die Glass Edge als Ausloeser fuer den FrameOnly-Pfad. Die Kante zeigt die naechste Ablage, die CarryLease bleibt an den Owner gebunden, und die Zielablage bekommt nur eine Frame-Darstellung. Rueckgabe setzt die Lease auf `Returned`; Recovery nach Heartbeat-Verlust fuehrt zu `RecoveredByOwner`.

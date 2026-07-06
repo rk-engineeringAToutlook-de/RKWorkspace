@@ -86,6 +86,16 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SecurityGateProductionWithoutReplayProtectionFails", SecurityGateProductionWithoutReplayProtectionFails),
     ("SecurityGateProductionWithoutPolicyBindingFails", SecurityGateProductionWithoutPolicyBindingFails),
     ("SecurityGateTestAndStagingDocumentBehavior", SecurityGateTestAndStagingDocumentBehavior),
+    ("DevIdentityCanBeGenerated", DevIdentityCanBeGenerated),
+    ("DevIdentityIgnoredByGit", DevIdentityIgnoredByGit),
+    ("MutualDevAuthenticationSuccess", MutualDevAuthenticationSuccess),
+    ("SecureSessionRejectsUntrustedAblage", SecureSessionRejectsUntrustedAblage),
+    ("SecureSessionRejectsRevokedAblage", SecureSessionRejectsRevokedAblage),
+    ("SecureSessionRejectsReplay", SecureSessionRejectsReplay),
+    ("SecureSessionRejectsForeignSessionMessage", SecureSessionRejectsForeignSessionMessage),
+    ("SecureSessionRejectsLeaseSessionMismatch", SecureSessionRejectsLeaseSessionMismatch),
+    ("SecureSessionRejectsPolicyMismatch", SecureSessionRejectsPolicyMismatch),
+    ("SecureSessionHandshakeAudit", SecureSessionHandshakeAudit),
     ("LeaseBinding", LeaseBinding),
     ("PolicyBinding", PolicyBinding),
     ("AuditEvents", AuditEvents),
@@ -1268,6 +1278,117 @@ static bool SecurityGateTestAndStagingDocumentBehavior()
            staging.Allowed &&
            staging.SecureSessionRequired &&
            staging.Warnings.Any(warning => warning.Contains("Staging", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool DevIdentityCanBeGenerated()
+{
+    var identity = DevAblageIdentity("owner-dev");
+    var certificate = RkwpDevCertificate.Create(identity);
+    return certificate.Certificate.DevelopmentOnly &&
+           certificate.KeyMaterial.DevelopmentOnly &&
+           certificate.Certificate.AblageId == identity.AblageId.Value &&
+           certificate.Certificate.IsValidAt(DateTimeOffset.UtcNow) &&
+           certificate.Warning.Contains("Development", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool DevIdentityIgnoredByGit()
+{
+    var gitignore = File.ReadAllText(Path.Combine(FindRoot(), ".gitignore"));
+    return gitignore.Contains(".rkworkspace-dev/", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool MutualDevAuthenticationSuccess()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    var owner = DevAblageIdentity("owner-secure");
+    var guest = DevAblageIdentity("guest-secure");
+    var secure = RkwpSecureSession.EstablishDevelopment(owner, guest, RkwpSecurityPolicy.DevelopmentSecure, audit);
+    return secure.State == RkwpSecureSessionState.Active &&
+           secure.Session.SecureSessionRequired &&
+           secure.Session.SecurityMode == RkwpSecurityMode.Authenticated &&
+           secure.SessionKey.DevelopmentOnly &&
+           secure.Handshake.State == RkwpHandshakeState.SessionKeyEstablished &&
+           audit.Contains(RkwpAuditEventType.HandshakeStarted) &&
+           audit.Contains(RkwpAuditEventType.IdentityExchanged) &&
+           audit.Contains(RkwpAuditEventType.SecureSessionAuthenticated);
+}
+
+static bool SecureSessionRejectsUntrustedAblage()
+{
+    var owner = DevAblageIdentity("owner-secure");
+    var guest = DevAblageIdentity("guest-secure") with { TrustLevel = AblageTrustLevel.Untrusted };
+    return Throws<RkwpSecurityException>(() => RkwpSecureSession.EstablishDevelopment(owner, guest));
+}
+
+static bool SecureSessionRejectsRevokedAblage()
+{
+    var owner = DevAblageIdentity("owner-secure");
+    var guest = DevAblageIdentity("guest-secure") with { TrustLevel = AblageTrustLevel.Revoked, PairingState = AblagePairingState.Revoked };
+    return Throws<RkwpSecurityException>(() => RkwpSecureSession.EstablishDevelopment(owner, guest));
+}
+
+static bool SecureSessionRejectsReplay()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    var sequence = new RkwpSequenceValidator(audit);
+    var secure = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"));
+    var first = RkwpMessage.Create(RkwpMessageType.AblageHello, secure.Session, 1);
+    var replay = first with { MessageId = $"rkwp-msg-{Guid.NewGuid():N}" };
+    sequence.ValidateAndRecord(first);
+    return Throws<RkwpSecurityException>(() => sequence.ValidateAndRecord(replay)) &&
+           audit.Contains(RkwpAuditEventType.ReplayDetected);
+}
+
+static bool SecureSessionRejectsForeignSessionMessage()
+{
+    var secure = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"));
+    var foreignSession = RkwpSession.CreateSecure(
+        "owner-secure",
+        "guest-secure",
+        RkwpSecurityMode.Authenticated,
+        secure.Policy.PolicyId,
+        secure.Policy.PolicyVersion);
+    var message = RkwpMessage.Create(RkwpMessageType.FrameUpdate, foreignSession, 1);
+    return !secure.ValidateMessage(message).IsValid;
+}
+
+static bool SecureSessionRejectsLeaseSessionMismatch()
+{
+    var secure = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"));
+    var policy = CarryLeasePolicy.FrameOnlyDefault with
+    {
+        PolicyId = secure.Policy.PolicyId,
+        PolicyVersion = secure.Policy.PolicyVersion
+    };
+    var lease = CarryLease.Grant("thing-1", secure.Session.OwnerAblageId, secure.Session.GuestAblageId, policy, DateTimeOffset.UtcNow, "wrong-session");
+    var message = RkwpMessage.Create(RkwpMessageType.FrameUpdate, secure.Session, 1, leaseId: lease.LeaseId);
+    var result = secure.ValidateMessage(message, lease);
+    return !result.IsValid && result.Errors.Any(error => error.Contains("LeaseSessionMismatch", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecureSessionRejectsPolicyMismatch()
+{
+    var secure = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"));
+    var matchingPolicy = CarryLeasePolicy.FrameOnlyDefault with
+    {
+        PolicyId = secure.Policy.PolicyId,
+        PolicyVersion = secure.Policy.PolicyVersion
+    };
+    var validLease = CarryLease.Grant("thing-1", secure.Session.OwnerAblageId, secure.Session.GuestAblageId, matchingPolicy, DateTimeOffset.UtcNow, secure.Session.SessionId);
+    var invalidLease = CarryLease.Grant("thing-1", secure.Session.OwnerAblageId, secure.Session.GuestAblageId, CarryLeasePolicy.FrameOnlyDefault, DateTimeOffset.UtcNow, secure.Session.SessionId);
+    var message = RkwpMessage.Create(RkwpMessageType.FrameUpdate, secure.Session, 1, leaseId: validLease.LeaseId);
+    return secure.ValidateMessage(message, validLease).IsValid &&
+           !secure.ValidateMessage(message, invalidLease).IsValid;
+}
+
+static bool SecureSessionHandshakeAudit()
+{
+    var audit = new InMemoryRkwpAuditSink();
+    _ = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"), auditSink: audit);
+    return audit.Events.Count(eventItem =>
+               eventItem.EventType is RkwpAuditEventType.HandshakeStarted or
+               RkwpAuditEventType.IdentityExchanged or
+               RkwpAuditEventType.SecureSessionAuthenticated) == 3;
 }
 
 static AblageIdentity DevAblageIdentity(string ablageId)
