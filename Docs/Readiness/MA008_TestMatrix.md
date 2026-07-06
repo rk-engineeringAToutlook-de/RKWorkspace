@@ -24,6 +24,7 @@ Diese Matrix beschreibt, welche Tests MA008 abdecken, welches Script sie ausfueh
 | Proximity Tests | Windows/.NET | Done | `.\tools\run-glass-edge.ps1 -SmokeTest` | ManualMap, NearestAblage, Hysterese, SingleGlassEdge und DistanceConfidence SUCCESS. | echte BLE/UWB/Dongle-Sensorik fehlt | Manual Map UI und Dongle Requirements |
 | Mobile Glass Edge Smoke | Windows/Web-Prototyp | Done | `.\tools\run-mobile-glass-edge.ps1 -SmokeTest` | mobile Surface, SingleGlassEdge, Haptics und NoTechnicalWords SUCCESS. | keine native iOS/Android App | Xcode/Android Native Surface bauen |
 | Diagnostics | Windows/.NET | Done | `.\tools\run-rkwp-diagnostics.ps1 -SmokeTest` | AuditLog, Events, ActiveSessions, Recovery, PolicyDenied und NoFileIngress SUCCESS. | Viewer noch CLI-basiert | Viewer fuer Cross-Device Logs erweitern |
+| RKWP Performance Baseline | Windows/.NET | Done | `.\tools\run-rkwp-perf.ps1 -SmokeTest` | 10 Iterationen, JSON/Markdown-Report, FrameUpdate-Groesse, DevTransport-Latenz, Heartbeat, FrameOpen, Rueckgabe, Recovery und NoFileIngress SUCCESS. | echter Renderer und echter Cross-Device-Transport fehlen | nach macOS/iPad Surface und PDF-Renderer erneut messen |
 | Security Gate | Windows/.NET | Done | `.\tools\run-rkwp-tests.ps1` | Production blockiert DevelopmentInsecure, fehlenden Audit, ReplayProtection und PolicyBinding. | echte Kryptografie/Mutual Auth fehlt | produktive Session Protection designen |
 | Context Export | Windows/PowerShell | Done | `.\tools\export-codex-context.ps1` | `release/codex-context/RKWorkspace_Context_latest.zip` wird erzeugt. | keine lokal bekannten | vor Plattform-Handoff erneut exportieren |
 | macOS Handoff Prepared | macOS geplant | Partial | kein lokales Windows-Script fuer echte macOS App | Docs, Starter Kit und Handoff-Dateien existieren. | native macOS Surface und Netzwerk-DevTransport fehlen | macOS-Codex mit Context Pack starten |
@@ -54,6 +55,7 @@ AP020 fordert die volle verfuegbare lokale Kette:
 .\tools\run-windows-local-frame-e2e.ps1 -SmokeTest
 .\tools\run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest
 .\tools\run-rkwp-diagnostics.ps1 -SmokeTest
+.\tools\run-rkwp-perf.ps1 -SmokeTest
 .\tools\export-codex-context.ps1
 ```
 

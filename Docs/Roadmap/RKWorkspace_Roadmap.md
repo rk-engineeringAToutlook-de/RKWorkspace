@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.08 liefert Owner/Guest Frame State UX fuer Tests. Owner und Guest zeigen jetzt nachvollziehbare menschliche Zustandstexte wie `wartet auf Rueckgabe`, `liegt hier im Frame`, `zurueckgegeben`, `nicht verfuegbar` und `Verbindung verloren`. Die Smokes pruefen diese sichtbaren Zustandstexte gegen verbotene Produktwoerter.
+MA009.09 liefert die erste RKWP Transport/Frame Performance Baseline. `run-rkwp-perf.ps1 -SmokeTest` misst FrameUpdate-Groesse, DevTransport Roundtrip, Heartbeat-Latenz, FrameOpen, Rueckgabe, Recovery, NoFileIngress-Overhead und PDF-Renderstatus.
 
 ## Naechster Fokus
 
-Nach MA009.08 liegt der Fokus auf der RKWP Transport/Frame Performance Baseline. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009.09 liegt der Fokus auf MA009 Readiness Review und Real-Lab-Testplan. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

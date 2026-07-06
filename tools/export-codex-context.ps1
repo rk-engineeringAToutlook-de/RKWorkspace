@@ -57,6 +57,7 @@ $files = @(
     'Docs\Protocol\RKWP_OwnershipTransfer.md',
     'Docs\Protocol\RKWP_PlatformStrategy.md',
     'Docs\Policy\RKWP_PolicyProfiles.md',
+    'Docs\Performance\RKWP_PerformanceBaseline.md',
     'Docs\Security\RKWP_SecurityGate.md',
     'Docs\Security\RKWP_DevCertificates.md',
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
@@ -98,11 +99,14 @@ $files = @(
     'src\Shell\RKWorkspace.Shell\Ablage\ManualAblageMap.cs',
     'src\Frame\RKWorkspace.Frame.Pdf\OwnerGuestFrameStateUx.cs',
     'src\Protocol\RKWorkspace.Protocol\Ownership\RkwpPolicyProfiles.cs',
+    'src\Tools\RKWorkspace.RkwpPerfHarness\RKWorkspace.RkwpPerfHarness.csproj',
+    'src\Tools\RKWorkspace.RkwpPerfHarness\Program.cs',
     'tools\run-windows-owner-for-mac.ps1',
     'tools\init-dev-rkwp-identity.ps1',
     'tools\run-rkwp-diagnostics.ps1',
     'tools\run-manual-map.ps1',
-    'tools\run-policy-profile.ps1'
+    'tools\run-policy-profile.ps1',
+    'tools\run-rkwp-perf.ps1'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }
@@ -118,6 +122,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-pdf-frame-smoke.ps1
 .\tools\run-windows-owner-for-mac.ps1 -InfoOnly
 .\tools\run-rkwp-diagnostics.ps1 -SmokeTest
+.\tools\run-rkwp-perf.ps1 -SmokeTest
 .\tools\export-codex-context.ps1
 '@ | Set-Content -Path (Join-Path $staging 'test-commands.txt') -Encoding UTF8
 

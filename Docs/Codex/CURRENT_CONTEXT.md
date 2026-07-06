@@ -343,6 +343,14 @@ MA009.08 liefert Owner/Guest Frame State UX fuer Tests:
 - Guest sichtbar: `liegt hier im Frame`, `nicht verfuegbar`, `Verbindung verloren`
 - `run-pdf-frame-smoke.ps1` und `run-windows-local-frame-e2e.ps1 -SmokeTest` pruefen die sichtbaren Zustandstexte.
 
+MA009.09 liefert RKWP Performance Baseline:
+
+- `src/Tools/RKWorkspace.RkwpPerfHarness`
+- `tools/run-rkwp-perf.ps1`
+- `Docs/Performance/RKWP_PerformanceBaseline.md`
+- Reports entstehen lokal unter `logs/perf/`
+- Smoke: 10 Iterationen, JSON/Markdown, DevTransport Roundtrip, Heartbeat, FrameOpen, Rueckgabe, Recovery, NoFileIngress.
+
 ## Context Pack
 
 Stabiler Pfad:
