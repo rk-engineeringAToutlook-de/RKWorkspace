@@ -112,6 +112,18 @@ MA007.00 nutzt fuer kritische Defaults `RetainOriginal`.
 
 MA007.08 prueft zusaetzlich `MarkAsMoved` und `CreateVersionLink`. `CreateVersionLink` erzeugt eine `VersionReference`, damit Original und neue Version nachvollziehbar verbunden bleiben.
 
+## Policy Profiles
+
+MA009.07 macht OwnershipTransfer profilabhaengig:
+
+- `CriticalInfrastructure`: blockiert CopyOut, ForkVersion und MoveOwnership.
+- `PresentationOnly`: blockiert OwnershipTransfer.
+- `OfficeDefault`: CopyOut ist nur mit ausdruecklicher Bestaetigung vorbereitet.
+- `TrustedPersonalDevices`: CopyOut ist optional, aber ebenfalls bestaetigungsgebunden.
+- `DevelopmentLab`: kein produktiver Transferpfad; DevMode dient nur Tests.
+
+Das Tool `tools/run-policy-profile.ps1 -SmokeTest` prueft diese Regeln.
+
 ## UX-Regel
 
 Wenn spaeter wirklich Besitz uebernommen wird, darf der Frame visuell nicht hart verschwinden. Der Schutzrahmen loest sich auf und das Ding bleibt an derselben Stelle sichtbar. In MA007.08 ist das nur Modell und Dokumentation, keine finale Visualisierung.

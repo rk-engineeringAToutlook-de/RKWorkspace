@@ -327,6 +327,14 @@ MA009.06 verbindet ManualMap mit Glass Edge PDF Frame E2E:
 - Guest erhaelt keine PDF-Datei
 - Return und Recovery erfolgreich
 
+MA009.07 liefert Policy Profiles:
+
+- `src/Protocol/RKWorkspace.Protocol/Ownership/RkwpPolicyProfiles.cs`
+- `Docs/Policy/RKWP_PolicyProfiles.md`
+- `tools/run-policy-profile.ps1`
+
+Profile: CriticalInfrastructure, OfficeDefault, DevelopmentLab, PresentationOnly, TrustedPersonalDevices. CriticalInfrastructure verlangt SecureSession/Audit und blockiert OwnershipTransfer. OfficeDefault erlaubt CopyOut nur mit Bestaetigung. DevelopmentLab erlaubt DevMode nur fuer Tests.
+
 ## Context Pack
 
 Stabiler Pfad:

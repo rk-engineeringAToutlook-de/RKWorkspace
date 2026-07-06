@@ -111,7 +111,13 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PairingRequestedBecomesPending", PairingRequestedBecomesPending),
     ("PairingDeniedBlocksLease", PairingDeniedBlocksLease),
     ("PairedAllowsByPolicy", PairedAllowsByPolicy),
-    ("RequireSecureSessionBlocksDevelopmentInsecure", RequireSecureSessionBlocksDevelopmentInsecure)
+    ("RequireSecureSessionBlocksDevelopmentInsecure", RequireSecureSessionBlocksDevelopmentInsecure),
+    ("PolicyProfileCriticalBlocksOwnershipTransfer", PolicyProfileCriticalBlocksOwnershipTransfer),
+    ("PolicyProfileCriticalRequiresSecureSession", PolicyProfileCriticalRequiresSecureSession),
+    ("PolicyProfilePresentationOnlyBlocksInput", PolicyProfilePresentationOnlyBlocksInput),
+    ("PolicyProfileDevelopmentLabAllowsDevMode", PolicyProfileDevelopmentLabAllowsDevMode),
+    ("PolicyProfileOfficeDefaultCopyOutRequiresConfirmation", PolicyProfileOfficeDefaultCopyOutRequiresConfirmation),
+    ("PolicyProfileValidate", PolicyProfileValidate)
 };
 
 Console.WriteLine("RK Workspace RKWP Protocol Tests");
@@ -1151,6 +1157,79 @@ static bool RequireSecureSessionBlocksDevelopmentInsecure()
         RkwpSecurityMode.DevelopmentInsecure,
         secureSessionRequired: true);
     return !decision.Allowed && decision.Reason.Contains("Secure session", StringComparison.OrdinalIgnoreCase);
+}
+
+static bool PolicyProfileCriticalBlocksOwnershipTransfer()
+{
+    var profile = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.CriticalInfrastructure);
+    var request = new OwnershipTransferRequest(
+        "request-critical-profile",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.MoveOwnership,
+        DateTimeOffset.UtcNow,
+        PolicyId: profile.Ownership.PolicyId);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, profile.Ownership);
+    return decision.Decision == OwnershipTransferDecisionKind.Denied &&
+           !profile.OwnershipTransferAllowed;
+}
+
+static bool PolicyProfileCriticalRequiresSecureSession()
+{
+    var profile = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.CriticalInfrastructure);
+    var gate = profile.EvaluateSecurityGate();
+    return profile.SecureSessionRequired &&
+           gate.Allowed &&
+           gate.SecureSessionRequired &&
+           profile.MinimumSessionSecurityMode == RkwpSecurityMode.ProductionRequired;
+}
+
+static bool PolicyProfilePresentationOnlyBlocksInput()
+{
+    var profile = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.PresentationOnly);
+    return !profile.InputAllowed &&
+           !profile.Frame.AllowPointer &&
+           !profile.Frame.AllowKeyboard &&
+           !profile.Frame.AllowAnnotation &&
+           !profile.Extraction.TextAllowed &&
+           !profile.Extraction.ImageAllowed;
+}
+
+static bool PolicyProfileDevelopmentLabAllowsDevMode()
+{
+    var profile = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.DevelopmentLab);
+    var gate = profile.EvaluateSecurityGate();
+    return profile.DevelopmentModeAllowed &&
+           profile.SimulatedProximityAllowed &&
+           profile.MinimumSessionSecurityMode == RkwpSecurityMode.DevelopmentInsecure &&
+           gate.Allowed &&
+           gate.Warnings.Any(warning => warning.Contains("Development", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool PolicyProfileOfficeDefaultCopyOutRequiresConfirmation()
+{
+    var profile = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.OfficeDefault);
+    var request = new OwnershipTransferRequest(
+        "request-office-copyout-profile",
+        "thing-1",
+        "owner",
+        "guest",
+        OwnershipMode.CopyOut,
+        DateTimeOffset.UtcNow,
+        PolicyId: profile.Ownership.PolicyId);
+    var decision = OwnershipTransferService.Decide(ObjectKind.PdfDocument, request, profile.Ownership);
+    return decision.Decision == OwnershipTransferDecisionKind.RequiresUserConfirmation &&
+           decision.RequiresUserConfirmation &&
+           profile.OwnershipTransfer.CopyOutAllowed &&
+           profile.Ownership.RequiresUserConfirmation;
+}
+
+static bool PolicyProfileValidate()
+{
+    var validation = RkwpPolicyProfileValidator.ValidateAll(RkwpPolicyProfileStore.All);
+    return validation.IsValid &&
+           RkwpPolicyProfileStore.All.Count == 5;
 }
 
 static bool PersistentAuditLogRoundTrip()

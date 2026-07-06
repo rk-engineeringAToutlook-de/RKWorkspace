@@ -55,6 +55,7 @@ $files = @(
     'Docs\Protocol\RKWP_ObjectKindRules.md',
     'Docs\Protocol\RKWP_OwnershipTransfer.md',
     'Docs\Protocol\RKWP_PlatformStrategy.md',
+    'Docs\Policy\RKWP_PolicyProfiles.md',
     'Docs\Security\RKWP_SecurityGate.md',
     'Docs\Security\RKWP_DevCertificates.md',
     'Docs\ObjectAdapters\WindowsObjectAdapters.md',
@@ -94,10 +95,12 @@ $files = @(
     'release\handoff\iOS_iPadOS_MA008_Handoff.md',
     'config\samples\manual-ablage-map.sample.json',
     'src\Shell\RKWorkspace.Shell\Ablage\ManualAblageMap.cs',
+    'src\Protocol\RKWorkspace.Protocol\Ownership\RkwpPolicyProfiles.cs',
     'tools\run-windows-owner-for-mac.ps1',
     'tools\init-dev-rkwp-identity.ps1',
     'tools\run-rkwp-diagnostics.ps1',
-    'tools\run-manual-map.ps1'
+    'tools\run-manual-map.ps1',
+    'tools\run-policy-profile.ps1'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }

@@ -52,6 +52,20 @@ Development darf `DevelopmentInsecure` nur mit sichtbarer Warnung verwenden. Tes
 
 Details stehen in `Docs/Security/RKWP_SecurityGate.md`.
 
+## Policy Profiles
+
+MA009.07 fuehrt `RkwpPolicyProfile` ein. Profile buendeln Ownership, Frame, Extraction, OwnershipTransfer und Security-Konfiguration.
+
+Profile:
+
+- `CriticalInfrastructure`
+- `OfficeDefault`
+- `DevelopmentLab`
+- `PresentationOnly`
+- `TrustedPersonalDevices`
+
+CriticalInfrastructure erzwingt SecureSession, Audit, FrameOnly, NoFileIngress und blockiert OwnershipTransfer. DevelopmentLab erlaubt DevelopmentInsecure nur mit Warnung und bleibt nicht-produktiv. Details stehen in `Docs/Policy/RKWP_PolicyProfiles.md`.
+
 ## Secure Session Spike
 
 MA009.01 fuehrt `RkwpSecureSession` ein. Der Spike bildet die produktiv notwendige Struktur ab:

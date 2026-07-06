@@ -71,6 +71,26 @@ Policy-Binding bindet `PolicyId`, `PolicyVersion` und optional `PolicyHash` an C
 
 Ab MA009.01 prueft `RkwpSecureSession` diese Bindung ebenfalls. Eine Message aus einer fremden Session, eine Lease mit falscher SessionId oder eine PolicyId-/PolicyVersion-Abweichung wird als ungueltig bewertet. Damit haengt FrameOnly nicht nur an der UI, sondern an Session, Lease und Policy.
 
+## Policy Profiles
+
+MA009.07 fuehrt vordefinierte Policy-Profile ein:
+
+- `CriticalInfrastructure`
+- `OfficeDefault`
+- `DevelopmentLab`
+- `PresentationOnly`
+- `TrustedPersonalDevices`
+
+Diese Profile buendeln `OwnershipPolicy`, `FramePolicy`, `ExtractionPolicy`, `OwnershipTransferPolicy` und `RkwpSecurityConfiguration`.
+
+Wichtige Regeln:
+
+- CriticalInfrastructure blockiert OwnershipTransfer, verlangt SecureSession und Audit.
+- OfficeDefault erlaubt CopyOut nur mit Bestaetigung.
+- DevelopmentLab erlaubt DevMode und simulierte Naehe nur fuer lokale Tests.
+- PresentationOnly blockiert Input und Extract.
+- TrustedPersonalDevices erlaubt interaktive Frames, aber CopyOut bleibt bestaetigungsgebunden.
+
 ## Glass Edge Integration
 
 MA007.04 nutzt die Glass Edge als Ausloeser fuer den FrameOnly-Pfad. Die Kante zeigt die naechste Ablage, die CarryLease bleibt an den Owner gebunden, und die Zielablage bekommt nur eine Frame-Darstellung. Rueckgabe setzt die Lease auf `Returned`; Recovery nach Heartbeat-Verlust fuehrt zu `RecoveredByOwner`.

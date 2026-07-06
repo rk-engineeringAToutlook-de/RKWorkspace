@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.06 verbindet den ersten echten Raumaufbau ohne Sensorik mit dem PDF-Frame-Pfad. `run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap` waehlt macOS rechts/nah, aktiviert die rechte Glass Edge und oeffnet einen FrameOnly-Pfad ohne Datei-Ingress.
+MA009.07 liefert Policy-Profile fuer kritische Umgebungen, Buero, Entwicklung, PresentationOnly und vertrauenswuerdige private Ablagen. `run-policy-profile.ps1 -SmokeTest` prueft die wichtigsten Gate-Regeln.
 
 ## Naechster Fokus
 
-Nach MA009.06 liegt der Fokus auf Policy-Profilen fuer kritische Umgebungen, Office und Development Lab. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009.07 liegt der Fokus auf Owner/Guest Frame State UX fuer Tests. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 
