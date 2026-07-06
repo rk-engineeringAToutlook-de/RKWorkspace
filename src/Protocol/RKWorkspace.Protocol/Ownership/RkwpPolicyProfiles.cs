@@ -26,6 +26,9 @@ public sealed record RkwpPolicyProfile(
     bool DevelopmentModeAllowed,
     bool SimulatedProximityAllowed,
     bool HapticsAllowed,
+    bool AllowFrameCapsule,
+    bool AllowOpenFrame,
+    bool AllowKeepCapsule,
     TimeSpan LeaseTimeout)
 {
     public bool FrameOnlyDefault => Ownership.DefaultMode == OwnershipMode.FrameOnly;
@@ -99,6 +102,9 @@ public static class RkwpPolicyProfileStore
             DevelopmentModeAllowed: false,
             SimulatedProximityAllowed: false,
             HapticsAllowed: false,
+            AllowFrameCapsule: true,
+            AllowOpenFrame: true,
+            AllowKeepCapsule: false,
             LeaseTimeout: TimeSpan.FromMinutes(2));
     }
 
@@ -129,6 +135,9 @@ public static class RkwpPolicyProfileStore
             DevelopmentModeAllowed: false,
             SimulatedProximityAllowed: false,
             HapticsAllowed: true,
+            AllowFrameCapsule: true,
+            AllowOpenFrame: true,
+            AllowKeepCapsule: false,
             LeaseTimeout: TimeSpan.FromMinutes(15));
     }
 
@@ -158,6 +167,9 @@ public static class RkwpPolicyProfileStore
             DevelopmentModeAllowed: true,
             SimulatedProximityAllowed: true,
             HapticsAllowed: true,
+            AllowFrameCapsule: true,
+            AllowOpenFrame: true,
+            AllowKeepCapsule: true,
             LeaseTimeout: TimeSpan.FromMinutes(30));
     }
 
@@ -187,6 +199,9 @@ public static class RkwpPolicyProfileStore
             DevelopmentModeAllowed: false,
             SimulatedProximityAllowed: false,
             HapticsAllowed: false,
+            AllowFrameCapsule: true,
+            AllowOpenFrame: false,
+            AllowKeepCapsule: false,
             LeaseTimeout: TimeSpan.FromMinutes(8));
     }
 
@@ -217,6 +232,9 @@ public static class RkwpPolicyProfileStore
             DevelopmentModeAllowed: false,
             SimulatedProximityAllowed: false,
             HapticsAllowed: true,
+            AllowFrameCapsule: true,
+            AllowOpenFrame: true,
+            AllowKeepCapsule: true,
             LeaseTimeout: TimeSpan.FromMinutes(20));
     }
 }
@@ -272,6 +290,11 @@ public static class RkwpPolicyProfileValidator
             errors.Add($"{profile.Name}: NoFileIngress must remain true.");
         }
 
+        if (!profile.AllowFrameCapsule)
+        {
+            errors.Add($"{profile.Name}: FrameCapsule must be explicitly evaluated.");
+        }
+
         if (profile.LeaseTimeout <= TimeSpan.Zero)
         {
             errors.Add($"{profile.Name}: LeaseTimeout must be positive.");
@@ -283,7 +306,8 @@ public static class RkwpPolicyProfileValidator
                 profile.OwnershipTransferAllowed ||
                 !profile.AuditRequired ||
                 !profile.SecureSessionRequired ||
-                profile.DevelopmentModeAllowed)
+                profile.DevelopmentModeAllowed ||
+                profile.AllowKeepCapsule)
             {
                 errors.Add("CriticalInfrastructure profile violates required restrictions.");
             }

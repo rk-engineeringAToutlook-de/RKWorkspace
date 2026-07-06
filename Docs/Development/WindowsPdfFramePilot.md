@@ -100,3 +100,32 @@ Der Smoke-Test prueft:
 ```
 
 Die PDF bleibt weiterhin auf der Originalablage. Die Gastablage sieht nur den Frame und `No File Ingress: SUCCESS`.
+
+## MA016 PDF Lifecycle
+
+MA016 erweitert den Windows-Pilot um zwei lifecyclefaehige Modi:
+
+- `ClosedPdfCapsule`: eine geschlossene PDF wird als Frame-Kapsel sichtbar.
+- `OpenPdfFrame`: eine bereits geoeffnete PDF wird mit `OpenPdfContext` als OpenFrame getestet.
+
+Beide Modi bleiben FrameOnly. Die Gastablage erhaelt keine freie PDF-Datei, keinen Originalpfad und keine kopierten PDF-Bytes.
+
+```powershell
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf -Page 1 -Zoom 1.25 -ViewerName 'Windows PDF Viewer'
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf -KeepCapsule -Policy TrustedPersonalDevices
+.\tools\run-no-file-ingress-report.ps1
+```
+
+Der Smoke-Test prueft zusaetzlich:
+
+- `FrameCapsule: OK`
+- `CapsuleOpen: OK`
+- `CapsuleNoFileIngress: SUCCESS`
+- `OpenFrameNoFileIngress: SUCCESS`
+- `CapsuleCache: MemoryOnly`
+- `OpenFrameCache: MemoryOnly`
+- `UnauthorizedCapsuleOpen: DENIED`
+- `ExpiredCapsule: RECOVERED_BY_OWNER`
+
+Die sichtbare Pilot-Sprache bleibt: Ablage, Kapsel, Frame, zurueckgeben, Verbindung verloren, wiederhergestellt.

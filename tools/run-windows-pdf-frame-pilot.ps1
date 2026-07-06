@@ -6,7 +6,16 @@ param(
     [switch] $Debug,
     [switch] $UseGlassEdge,
     [switch] $UseManualMap,
-    [switch] $PlaySequence
+    [switch] $PlaySequence,
+    [switch] $ClosedPdf,
+    [switch] $OpenPdf,
+    [string] $OpenPdfPath,
+    [int] $Page = 1,
+    [double] $Zoom = 1.0,
+    [string] $ViewerName = 'Windows PDF Viewer',
+    [switch] $CloseReturns,
+    [switch] $KeepCapsule,
+    [string] $Policy = 'DevelopmentLab'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -19,9 +28,21 @@ if ($SmokeTest) {
     $arguments += '--smoke-test'
 }
 
+if ($OpenPdf) {
+    $arguments += '--open-pdf'
+}
+elseif ($ClosedPdf) {
+    $arguments += '--closed-pdf'
+}
+
 if (-not [string]::IsNullOrWhiteSpace($PdfPath)) {
     $arguments += '--pdf-path'
     $arguments += $PdfPath
+}
+
+if (-not [string]::IsNullOrWhiteSpace($OpenPdfPath)) {
+    $arguments += '--open-pdf-path'
+    $arguments += $OpenPdfPath
 }
 
 if ($OwnerVisible) {
@@ -46,6 +67,25 @@ if ($UseManualMap) {
 
 if ($PlaySequence) {
     $arguments += '--play-sequence'
+}
+
+$arguments += '--page'
+$arguments += ([string] $Page)
+$arguments += '--zoom'
+$arguments += ([string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0}', $Zoom))
+$arguments += '--viewer-name'
+$arguments += $ViewerName
+
+if ($KeepCapsule) {
+    $arguments += '--keep-capsule'
+}
+elseif ($CloseReturns) {
+    $arguments += '--close-returns'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($Policy)) {
+    $arguments += '--policy'
+    $arguments += $Policy
 }
 
 dotnet build $project -warnaserror
@@ -87,6 +127,15 @@ if ($SmokeTest) {
         'NoFileIngress: SUCCESS',
         'No File Ingress Status: sichtbar im Log',
         'VisibleForbiddenTerms: SUCCESS',
+        'FrameCapsule: OK',
+        'CapsuleOpen: OK',
+        'CapsuleNoFileIngress: SUCCESS',
+        'OpenFrameNoFileIngress: SUCCESS',
+        'CapsuleCache: MemoryOnly',
+        'OpenFrameCache: MemoryOnly',
+        'AuditEventsPresent: SUCCESS',
+        'UnauthorizedCapsuleOpen: DENIED',
+        'ExpiredCapsule: RECOVERED_BY_OWNER',
         'RESULT: SUCCESS'
     )
 

@@ -89,6 +89,10 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("ObjectKindRules", ObjectKindRuleChecks),
     ("NoFileIngress", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).GuestHasNoFileIngress),
     ("PdfFrameOnly", () => new PdfFrameOwnerService().OpenFrameOnlySession(samplePdf).IsSuccessful),
+    ("PdfLifecycleClosedCapsuleNoFileIngress", PdfLifecycleClosedCapsuleNoFileIngress),
+    ("PdfLifecycleOpenFrameNoFileIngress", PdfLifecycleOpenFrameNoFileIngress),
+    ("PdfLifecyclePolicyRules", PdfLifecyclePolicyRules),
+    ("PdfLifecycleAuditAndRecovery", PdfLifecycleAuditAndRecovery),
     ("SurfaceContracts", SurfaceContracts),
     ("GestureTypes", GestureTypes),
     ("SurfacePlatforms", SurfacePlatforms),
@@ -1111,6 +1115,66 @@ static bool ObjectKindRuleChecks()
            !settings.OwnershipTransferSupported &&
            settings.AllowsOptionalMode(OwnershipMode.SnapshotExport) &&
            remote.AllowsOptionalMode(OwnershipMode.SessionHandoff);
+}
+
+static bool PdfLifecycleClosedCapsuleNoFileIngress()
+{
+    var result = new PdfLifecycleOwnerService()
+        .RunClosedPdfCapsule(SamplePdfPath(), RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.CriticalInfrastructure));
+    return result.IsClosedPdfCapsule &&
+           result.IsSuccessful &&
+           result.CapsuleNoFileIngress &&
+           result.CacheIsMemoryOnly &&
+           result.ReturnSuccessful &&
+           result.RecoverySuccessful;
+}
+
+static bool PdfLifecycleOpenFrameNoFileIngress()
+{
+    var context = OpenPdfContext.FromPath(SamplePdfPath(), page: 1, zoom: 1.25, viewerName: "Windows PDF Viewer");
+    var result = new PdfLifecycleOwnerService()
+        .RunOpenPdfFrame(context, RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.OfficeDefault));
+    return result.IsOpenPdfFrame &&
+           result.IsSuccessful &&
+           result.OpenContext == context &&
+           result.OpenFrameNoFileIngress &&
+           result.CapsuleNoFileIngress &&
+           result.Frame.GuestHasNoFileIngress;
+}
+
+static bool PdfLifecyclePolicyRules()
+{
+    var critical = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.CriticalInfrastructure);
+    var personal = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.TrustedPersonalDevices);
+    var presentation = RkwpPolicyProfileStore.Get(RkwpPolicyProfileName.PresentationOnly);
+    var criticalDecision = PdfLifecyclePolicyDecision.FromProfile(critical, CloseFrameBehavior.KeepCapsule);
+    var personalDecision = PdfLifecyclePolicyDecision.FromProfile(personal, CloseFrameBehavior.KeepCapsule);
+    var presentationDecision = PdfLifecyclePolicyDecision.FromProfile(presentation, CloseFrameBehavior.CloseReturns);
+    return criticalDecision.CapsuleAllowed &&
+           criticalDecision.OpenFrameAllowed &&
+           !criticalDecision.KeepCapsuleAllowed &&
+           criticalDecision.UnauthorizedCapsuleOpenDenied &&
+           personalDecision.CapsuleAllowed &&
+           personalDecision.OpenFrameAllowed &&
+           personalDecision.KeepCapsuleAllowed &&
+           presentationDecision.CapsuleAllowed &&
+           !presentationDecision.OpenFrameAllowed;
+}
+
+static bool PdfLifecycleAuditAndRecovery()
+{
+    var result = new PdfLifecycleOwnerService()
+        .RunOpenPdfFrame(OpenPdfContext.FromPath(SamplePdfPath()));
+    return result.RequiredAuditEventsPresent &&
+           result.AuditEvents.Contains("ClosedPdfPicked") &&
+           result.AuditEvents.Contains("OpenPdfPicked") &&
+           result.AuditEvents.Contains("CapsuleCreated") &&
+           result.AuditEvents.Contains("CapsuleOpened") &&
+           result.AuditEvents.Contains("OpenFramePlaced") &&
+           result.AuditEvents.Contains("PdfReturned") &&
+           result.AuditEvents.Contains("PdfRecovered") &&
+           result.ExpiredCapsuleRecovered &&
+           result.UnauthorizedOpenDenied;
 }
 
 static bool SurfaceContracts()

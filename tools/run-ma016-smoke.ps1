@@ -27,6 +27,9 @@ Write-Host '------------------------'
 Invoke-RkwsSmoke 'RKWP Protocol' { & (Join-Path $root 'tools\run-rkwp-tests.ps1') }
 Invoke-RkwsSmoke 'PDF Frame' { & (Join-Path $root 'tools\run-pdf-frame-smoke.ps1') }
 Invoke-RkwsSmoke 'Windows PDF Pilot' { & (Join-Path $root 'tools\run-windows-pdf-frame-pilot.ps1') -SmokeTest }
+Invoke-RkwsSmoke 'Windows PDF Lifecycle Closed' { & (Join-Path $root 'tools\run-windows-pdf-lifecycle-pilot.ps1') -SmokeTest -ClosedPdf }
+Invoke-RkwsSmoke 'Windows PDF Lifecycle Open' { & (Join-Path $root 'tools\run-windows-pdf-lifecycle-pilot.ps1') -SmokeTest -OpenPdf }
+Invoke-RkwsSmoke 'No File Ingress Report' { & (Join-Path $root 'tools\run-no-file-ingress-report.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'Manual Map' { & (Join-Path $root 'tools\run-manual-map.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'RKWP Chaos' { & (Join-Path $root 'tools\run-rkwp-chaos.ps1') -SmokeTest }
 

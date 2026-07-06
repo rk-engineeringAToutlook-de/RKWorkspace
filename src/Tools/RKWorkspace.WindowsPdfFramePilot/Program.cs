@@ -30,6 +30,7 @@ static void Print(WindowsPdfFramePilotResult result)
 
     PrintOwnerArea(result);
     PrintGuestArea(result);
+    PrintLifecycleArea(result);
     PrintGlassEdgeArea(result);
     PrintSafetyArea(result);
 
@@ -80,11 +81,46 @@ static void PrintGuestArea(WindowsPdfFramePilotResult result)
     Console.WriteLine($"Ablage: {result.GuestAblageName}");
     Console.WriteLine($"Frame: {result.Frame.GuestVisibleStatus}");
     Console.WriteLine($"FrameStatus: {result.GuestFrameStatus}");
+    Console.WriteLine($"Kapsel: {result.CapsuleVisibleStatus}");
+    Console.WriteLine($"OpenFrame: {result.OpenFrameVisibleStatus}");
     Console.WriteLine($"Zoom: {(result.ZoomPrepared ? "bereit" : "nicht bereit")}");
     Console.WriteLine($"Scroll: {(result.ScrollPrepared ? "bereit" : "nicht bereit")}");
     Console.WriteLine($"Rueckgabe: {OwnerGuestFrameStateUx.GetGuestText(GuestFrameUxState.Returning)}");
     Console.WriteLine($"Verbindung: {OwnerGuestFrameStateUx.GetGuestText(GuestFrameUxState.Expired)}");
     Console.WriteLine($"PDF-Datei: {result.GuestPdfFileText}");
+    Console.WriteLine();
+}
+
+static void PrintLifecycleArea(WindowsPdfFramePilotResult result)
+{
+    Console.WriteLine("PDF Lifecycle");
+    Console.WriteLine("-------------");
+    Console.WriteLine($"LifecycleMode: {result.Lifecycle.Mode}");
+    Console.WriteLine($"PolicyProfile: {result.Lifecycle.PolicyDecision.Profile}");
+    Console.WriteLine($"FrameCapsule: {(result.Lifecycle.CapsuleNoFileIngress ? "OK" : "FAILED")}");
+    Console.WriteLine($"CapsuleState: {result.Lifecycle.Capsule.State}");
+    Console.WriteLine($"CapsuleOpen: {(result.Lifecycle.OpenedCapsule.State == FrameCapsuleState.Opened ? "OK" : "FAILED")}");
+    Console.WriteLine($"FinalCapsuleState: {result.Lifecycle.FinalCapsule.State}");
+    Console.WriteLine($"CloseFrameBehavior: {result.Lifecycle.CloseBehavior}");
+    Console.WriteLine($"KeepCapsulePolicy: {(result.Lifecycle.PolicyDecision.KeepCapsuleAllowed ? "ALLOWED" : "DENIED")}");
+    Console.WriteLine($"CapsuleNoFileIngress: {(result.Lifecycle.CapsuleNoFileIngress ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"OpenFrameNoFileIngress: {(result.Lifecycle.OpenFrameNoFileIngress ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"CapsuleCache: {result.Frame.CachePolicy.Scope}");
+    Console.WriteLine($"OpenFrameCache: {result.Frame.CachePolicy.Scope}");
+    Console.WriteLine($"UnauthorizedCapsuleOpen: {(result.Lifecycle.UnauthorizedOpenDenied ? "DENIED" : "ALLOWED")}");
+    Console.WriteLine($"ExpiredCapsule: {(result.Lifecycle.ExpiredCapsuleRecovered ? "RECOVERED_BY_OWNER" : "FAILED")}");
+    Console.WriteLine($"AuditEvents: {string.Join(" -> ", result.Lifecycle.AuditEvents)}");
+
+    if (result.Lifecycle.OpenContext is not null)
+    {
+        Console.WriteLine($"OpenPdfContext: OK");
+        Console.WriteLine($"OpenPdfPath: {result.Lifecycle.OpenContext.PdfPath}");
+        Console.WriteLine($"OpenPdfPage: {result.Lifecycle.OpenContext.Page}");
+        Console.WriteLine($"OpenPdfZoom: {result.Lifecycle.OpenContext.Zoom:0.##}");
+        Console.WriteLine($"OpenPdfViewer: {result.Lifecycle.OpenContext.ViewerName}");
+        Console.WriteLine($"OpenFrame: OK");
+    }
+
     Console.WriteLine();
 }
 
@@ -142,6 +178,11 @@ static void PrintDebug(WindowsPdfFramePilotResult result)
     Console.WriteLine($"CurrentPage: {result.Frame.DocumentFrameState.CurrentPage}");
     Console.WriteLine($"PageCount: {result.Frame.DocumentFrameState.PageCount}");
     Console.WriteLine($"PageFrameUpdates: {result.Frame.DocumentFrameState.Updates.Count}");
+    Console.WriteLine($"LifecycleMode: {result.Lifecycle.Mode}");
+    Console.WriteLine($"CapsuleId: {result.Lifecycle.Capsule.CapsuleId}");
+    Console.WriteLine($"CapsuleState: {result.Lifecycle.Capsule.State}");
+    Console.WriteLine($"FinalCapsuleState: {result.Lifecycle.FinalCapsule.State}");
+    Console.WriteLine($"PolicyProfile: {result.Lifecycle.PolicyDecision.Profile}");
     Console.WriteLine($"GuestHasPdfFile: {(result.GuestHasPdfFile ? "YES" : "NO")}");
     Console.WriteLine($"GuestHasOriginalPath: {(result.GuestHasOriginalPath ? "YES" : "NO")}");
     Console.WriteLine($"GuestHasCopiedPdfBytes: {(result.GuestHasCopiedPdfBytes ? "YES" : "NO")}");
@@ -195,6 +236,20 @@ static void PrintSmokeChecks(WindowsPdfFramePilotResult result)
     Console.WriteLine($"RecoveryVisibleState: {(result.RecoveryVisibleStateIsCorrect ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"VisibleForbiddenTerms: {(result.VisibleTextLanguageIsValid ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"VisibleStateLanguage: {(result.Frame.VisibleStateLanguageIsValid ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"LifecycleMode: {result.Lifecycle.Mode}");
+    Console.WriteLine($"FrameCapsule: {(result.Lifecycle.CapsuleNoFileIngress ? "OK" : "FAILED")}");
+    Console.WriteLine($"CapsuleOpen: {(result.Lifecycle.OpenedCapsule.State == FrameCapsuleState.Opened ? "OK" : "FAILED")}");
+    Console.WriteLine($"OpenPdfContext: {(result.Lifecycle.OpenContext is not null ? "OK" : "NOT USED")}");
+    Console.WriteLine($"OpenFrame: {(result.Lifecycle.IsOpenPdfFrame ? "OK" : "NOT USED")}");
+    Console.WriteLine($"CloseFrameBehavior: {result.Lifecycle.CloseBehavior}");
+    Console.WriteLine($"KeepCapsulePolicy: {(result.Lifecycle.PolicyDecision.KeepCapsuleAllowed ? "ALLOWED" : "DENIED")}");
+    Console.WriteLine($"CapsuleNoFileIngress: {(result.Lifecycle.CapsuleNoFileIngress ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"OpenFrameNoFileIngress: {(result.Lifecycle.OpenFrameNoFileIngress ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"CapsuleCache: {result.Frame.CachePolicy.Scope}");
+    Console.WriteLine($"OpenFrameCache: {result.Frame.CachePolicy.Scope}");
+    Console.WriteLine($"AuditEventsPresent: {(result.Lifecycle.RequiredAuditEventsPresent ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"UnauthorizedCapsuleOpen: {(result.Lifecycle.UnauthorizedOpenDenied ? "DENIED" : "ALLOWED")}");
+    Console.WriteLine($"ExpiredCapsule: {(result.Lifecycle.ExpiredCapsuleRecovered ? "RECOVERED_BY_OWNER" : "FAILED")}");
 
     if (result.Options.UseGlassEdge)
     {
@@ -240,7 +295,15 @@ public sealed record WindowsPdfFramePilotOptions(
     bool Debug,
     bool UseGlassEdge,
     bool UseManualMap,
-    bool PlaySequence)
+    bool PlaySequence,
+    bool ClosedPdf,
+    bool OpenPdf,
+    string? OpenPdfPath,
+    int Page,
+    double Zoom,
+    string ViewerName,
+    CloseFrameBehavior CloseBehavior,
+    RkwpPolicyProfileName PolicyProfile)
 {
     public static WindowsPdfFramePilotOptions Parse(string[] args, string root)
     {
@@ -252,6 +315,14 @@ public sealed record WindowsPdfFramePilotOptions(
         var useGlassEdge = false;
         var useManualMap = false;
         var playSequence = false;
+        var closedPdf = true;
+        var openPdf = false;
+        string? openPdfPath = null;
+        var page = 1;
+        var zoom = 1.0;
+        var viewerName = "Windows PDF Viewer";
+        var closeBehavior = CloseFrameBehavior.CloseReturns;
+        var policyProfile = RkwpPolicyProfileName.DevelopmentLab;
 
         for (var index = 0; index < args.Length; index++)
         {
@@ -298,9 +369,65 @@ public sealed record WindowsPdfFramePilotOptions(
                 continue;
             }
 
+            if (Is(arg, "--closed-pdf", "-ClosedPdf"))
+            {
+                closedPdf = true;
+                openPdf = false;
+                continue;
+            }
+
+            if (Is(arg, "--open-pdf", "-OpenPdf"))
+            {
+                openPdf = true;
+                closedPdf = false;
+                continue;
+            }
+
             if (Is(arg, "--pdf-path", "-PdfPath") && index + 1 < args.Length)
             {
                 pdfPath = args[++index];
+                continue;
+            }
+
+            if (Is(arg, "--open-pdf-path", "-OpenPdfPath") && index + 1 < args.Length)
+            {
+                openPdfPath = args[++index];
+                continue;
+            }
+
+            if (Is(arg, "--page", "-Page") && index + 1 < args.Length)
+            {
+                page = Math.Max(1, int.Parse(args[++index]));
+                continue;
+            }
+
+            if (Is(arg, "--zoom", "-Zoom") && index + 1 < args.Length)
+            {
+                zoom = Math.Max(0.1, double.Parse(args[++index], System.Globalization.CultureInfo.InvariantCulture));
+                continue;
+            }
+
+            if (Is(arg, "--viewer-name", "-ViewerName") && index + 1 < args.Length)
+            {
+                viewerName = args[++index];
+                continue;
+            }
+
+            if (Is(arg, "--close-returns", "-CloseReturns"))
+            {
+                closeBehavior = CloseFrameBehavior.CloseReturns;
+                continue;
+            }
+
+            if (Is(arg, "--keep-capsule", "-KeepCapsule"))
+            {
+                closeBehavior = CloseFrameBehavior.KeepCapsule;
+                continue;
+            }
+
+            if (Is(arg, "--policy", "-Policy") && index + 1 < args.Length)
+            {
+                policyProfile = Enum.Parse<RkwpPolicyProfileName>(args[++index], ignoreCase: true);
             }
         }
 
@@ -313,7 +440,15 @@ public sealed record WindowsPdfFramePilotOptions(
             debug,
             useGlassEdge,
             useManualMap,
-            playSequence);
+            playSequence,
+            closedPdf,
+            openPdf,
+            openPdfPath is null ? null : Path.GetFullPath(openPdfPath),
+            page,
+            zoom,
+            viewerName,
+            closeBehavior,
+            policyProfile);
     }
 
     private static bool Is(string value, params string[] names) =>
@@ -324,20 +459,34 @@ public static class WindowsPdfFramePilot
 {
     public static WindowsPdfFramePilotResult Run(WindowsPdfFramePilotOptions options)
     {
-        var service = new PdfFrameOwnerService();
-        var frame = service.OpenFrameOnlySession(
-            options.PdfPath,
-            ownerAblageId: "ablage-windows-owner",
-            guestAblageId: "ablage-windows-guest");
+        var lifecycleService = new PdfLifecycleOwnerService();
+        var policy = RkwpPolicyProfileStore.Get(options.PolicyProfile);
+        var lifecycle = options.OpenPdf
+            ? lifecycleService.RunOpenPdfFrame(
+                OpenPdfContext.FromPath(
+                    options.OpenPdfPath ?? options.PdfPath,
+                    options.Page,
+                    options.Zoom,
+                    options.ViewerName),
+                policy,
+                options.CloseBehavior,
+                "ablage-windows-owner",
+                "ablage-windows-guest")
+            : lifecycleService.RunClosedPdfCapsule(
+                options.PdfPath,
+                policy,
+                options.CloseBehavior,
+                "ablage-windows-owner",
+                "ablage-windows-guest");
         var glassEdge = options.UseGlassEdge
-            ? WindowsPdfFrameGlassEdgePilot.Run(options, frame)
+            ? WindowsPdfFrameGlassEdgePilot.Run(options, lifecycle.Frame)
             : null;
 
         return new WindowsPdfFramePilotResult(
             options,
             "Ablage Windows Owner",
             "Ablage Windows Guest",
-            frame,
+            lifecycle,
             glassEdge,
             OwnerSurfaceStarted: true,
             GuestSurfaceStarted: true);
@@ -529,11 +678,13 @@ public sealed record WindowsPdfFramePilotResult(
     WindowsPdfFramePilotOptions Options,
     string OwnerAblageName,
     string GuestAblageName,
-    PdfFrameSmokeResult Frame,
+    PdfLifecyclePilotResult Lifecycle,
     WindowsPdfFrameGlassEdgeResult? GlassEdge,
     bool OwnerSurfaceStarted,
     bool GuestSurfaceStarted)
 {
+    public PdfFrameSmokeResult Frame => Lifecycle.Frame;
+
     public string OwnerAblageId => Frame.Lease.OwnerAblageId;
 
     public string GuestAblageId => Frame.Lease.GuestAblageId;
@@ -586,6 +737,19 @@ public sealed record WindowsPdfFramePilotResult(
 
     public string GuestPdfFileText => NoFileIngress ? "keine PDF-Datei vorhanden" : "nicht bestaetigt";
 
+    public string CapsuleVisibleStatus => Lifecycle.Capsule.State switch
+    {
+        FrameCapsuleState.Created => "Kapsel bereit",
+        FrameCapsuleState.Opened => "liegt hier in der Kapsel",
+        FrameCapsuleState.Returned => "zurueckgegeben",
+        FrameCapsuleState.Expired => "nicht verfuegbar",
+        FrameCapsuleState.Recovered => "zurueckgeholt",
+        _ => "nicht verfuegbar"
+    };
+
+    public string OpenFrameVisibleStatus =>
+        Lifecycle.IsOpenPdfFrame ? "liegt hier im Frame" : "nicht geoeffnet";
+
     public bool ReturnVisibleStateIsCorrect =>
         ReturnSuccessful &&
         OwnerReturnedStatus == "wieder verfuegbar";
@@ -603,6 +767,8 @@ public sealed record WindowsPdfFramePilotResult(
         $"Recovery: {OwnerRecoveryStatus}",
         $"Frame: {Frame.GuestVisibleStatus}",
         $"FrameStatus: {GuestFrameStatus}",
+        $"Kapsel: {CapsuleVisibleStatus}",
+        $"OpenFrame: {OpenFrameVisibleStatus}",
         $"Rueckgabe: {OwnerGuestFrameStateUx.GetGuestText(GuestFrameUxState.Returning)}",
         $"Verbindung: {OwnerGuestFrameStateUx.GetGuestText(GuestFrameUxState.Expired)}",
         $"PDF-Datei: {GuestPdfFileText}"
@@ -668,6 +834,7 @@ public sealed record WindowsPdfFramePilotResult(
         Frame.FrameSession.State == FrameSessionState.Active &&
         GuestFrameReady &&
         NoFileIngress &&
+        Lifecycle.IsSuccessful &&
         ReturnSuccessful &&
         RecoverySuccessful &&
         ReturnVisibleStateIsCorrect &&

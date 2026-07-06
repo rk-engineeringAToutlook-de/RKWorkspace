@@ -137,6 +137,8 @@ $files = @(
     'Docs\Readiness\MA016_GoNoGoCriteria.md',
     'Docs\Readiness\MA016_PilotRoles.md',
     'Docs\Readiness\MA016_StartCheckpoint.md',
+    'Docs\Readiness\MA016_WindowsPdfLifecycleCheckpoint.md',
+    'Docs\Readiness\MA016_NoFileIngressSecurityCheckpoint.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -212,6 +214,7 @@ $files = @(
     'Docs\Frame\PdfFrameRendererAbstraction.md',
     'Docs\Frame\PdfAnnotationChangeSet.md',
     'Docs\Frame\FrameCachePolicy.md',
+    'src\Frame\RKWorkspace.Frame.Pdf\PdfLifecycleModels.cs',
     'Docs\Platform\WindowsAgentInstallationPlan.md',
     'Docs\Platform\WindowsServicePlan.md',
     'Docs\Platform\WindowsPermissions.md',
@@ -284,6 +287,8 @@ $files = @(
     'tools\run-ma016-smoke.ps1',
     'tools\run-security-regression.ps1',
     'tools\run-windows-pdf-frame-pilot.ps1',
+    'tools\run-windows-pdf-lifecycle-pilot.ps1',
+    'tools\run-no-file-ingress-report.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -312,6 +317,9 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-rkwp-chaos.ps1 -SmokeTest
 .\tools\run-ma016-smoke.ps1 -SkipHeavy
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
+.\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf
+.\tools\run-no-file-ingress-report.ps1
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest
 .\tools\run-mac-guest-compat.ps1 -SmokeTest
