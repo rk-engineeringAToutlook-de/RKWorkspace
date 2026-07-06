@@ -26,6 +26,15 @@ Start:
 .\tools\run-windows-local-frame-e2e.ps1 -SmokeTest
 ```
 
+Sichtbarer MA010.01-Pilot:
+
+```powershell
+.\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
+.\tools\run-windows-pdf-frame-pilot.ps1 -OwnerVisible -GuestVisible
+```
+
+Der Pilot zeigt zwei lokale Ablagen und dieselbe FrameOnly-Regel wie der E2E-Smoke: Owner bleibt Eigentuemer, Guest sieht nur den Frame, Rueckgabe und Recovery bleiben sichtbar.
+
 Benoetigt:
 
 - Windows PC/Laptop

@@ -116,3 +116,14 @@ Guest:
 - `Expired` wird sichtbar zu `Verbindung verloren`.
 
 Die Validierung prueft die sichtbaren Zustandstexte gegen verbotene Produktwoerter wie `uebertragen`, `empfangen`, `download`, `geraet`, `agent` und `workspace`.
+
+## Windows PDF Frame Pilot
+
+MA010.01 macht den FrameOnly-Pfad erstmals als lokalen Windows-Pilot sichtbar. `tools/run-windows-pdf-frame-pilot.ps1` startet zwei lokale Pilotflaechen:
+
+- Ablage Windows Owner
+- Ablage Windows Guest
+
+Die FrameSession bleibt Original-Owned. Der Owner zeigt `ausgeliehen`, `wartet auf Rueckgabe`, `zurueckgegeben` und `wieder verfuegbar`. Die Guest-Ablage zeigt `liegt gleich hier`, `PDF liegt hier im Frame`, `zurueckgeben`, `nicht verfuegbar` und `Verbindung verloren`.
+
+Der Pilot verwendet weiterhin `MetadataPreview`, solange der echte PDF-Seitenrenderer blockiert ist. No File Ingress bleibt hart: kein Guest-PDF, kein Originalpfad und keine kopierten PDF-Bytes.

@@ -1,9 +1,9 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.58.0
+Version: 2.59.0
 Status: Accepted  
-Datum: 2026-07-05
+Datum: 2026-07-06
 
 RK Workspace (RKWS) ist ein eigenstaendiges Software- und Hardwareprodukt fuer raeumlich gedachte digitale Arbeitsflaechen. Das Projekt ist kein Bestandteil von RKOS und wird mit eigener Roadmap, eigener Dokumentation, eigenen Releases und eigener Architektur gefuehrt.
 
@@ -101,6 +101,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA008.08 fuehrt RKWP Diagnostics ein: JSONL-Audit, Session-Diagnostics und CLI-Smoke fuer Lease, Frame, Heartbeat, PolicyDenied, Return, Recovery und No File Ingress.
 - MA008.09 fuehrt das RKWP Security Gate ein: Production blockiert `DevelopmentInsecure` sowie fehlenden Audit-, Replay- und Policy-Binding-Schutz.
 - MA008.10 schliesst das MA008 Integrations-Gate ab: Readiness Review, Next Actions, Test Matrix und Release Summary beschreiben Struktur, Protokoll, Testbarkeit, Blocker und den ersten echten Cross-Device-Test.
+- MA010.01 fuehrt den Windows PDF Frame Pilot ein: zwei lokale Ablagen zeigen echte PDF als Original-Owned Frame, Owner-Lock, Rueckgabe, Recovery und No File Ingress ohne freie Guest-Datei.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -199,6 +200,7 @@ src/Demo/RKWorkspace.Core.Demo/ Plattformneutraler Core Demo Runner ohne GUI und
 src/Tools/RKWorkspace.DeveloperStudio/ Developer-Diagnoseoberflaeche mit interaktivem Workspace-Prototyp
 src/Tools/RKWorkspace.GlassEdgePdfFrameDemo/ Lokale Integration von Glass Edge, echter PDF, CarryLease, FrameSession und No File Ingress
 src/Tools/RKWorkspace.WindowsLocalFrameE2E/ Lokaler Windows Owner/Guest E2E-Smoke fuer RKWP DevTransport, PDF FrameOnly, Return und Recovery
+src/Tools/RKWorkspace.WindowsPdfFramePilot/ Sichtbarer lokaler Windows PDF Frame Pilot mit Owner-/Guest-Ablage
 src/Tools/RKWorkspace.GlassEdgePdfFrameE2E/ Glass-Edge-ausgeloester RKWP PDF Frame E2E-Smoke mit Eventflow
 src/Agents/RKWorkspace.Agent/ LocalOnly Workspace Agent Runtime als Konsolenprozess
 tools/DualAgentHarness/ Dual Local Agent Simulation ohne Netzwerk und IPC
@@ -364,6 +366,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.59.0 | 2026-07-06 | MA010.01 Windows PDF Frame Pilot mit Owner-/Guest-Ablage, FrameOnly, Rueckgabe, Recovery und No File Ingress dokumentiert. |
 | 2.58.0 | 2026-07-05 | MA007.05 Real PDF Frame Viewer mit sicherer Preview-Repräsentation und Renderer-Blocker dokumentiert. |
 | 2.57.0 | 2026-07-05 | MA007.04 Glass Edge PDF Frame Demo mit Original-Owned PDF, Nearest Ablage, FrameSession und No File Ingress dokumentiert. |
 | 2.54.0 | 2026-07-04 | MA006.12 Extreme Tunnel/Bubble FX mit fuenf Presets, EffectIntensity, Timing, Visual Targets und Mobile Spatial Surface dokumentiert. |

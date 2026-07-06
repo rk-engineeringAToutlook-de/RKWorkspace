@@ -87,6 +87,8 @@ Ab MA007.00 prueft `tools/run-tests.ps1` zusaetzlich `tools/run-rkwp-tests.ps1` 
 
 Ab MA007.01 muss der PDF Frame Smoke zusaetzlich in erlaubter Sprache melden, dass die PDF als Frame ausgeliehen ist, der Frame geoeffnet wurde, die PDF nur im Frame liegt und zurueckgegeben wurde. Der Testpfad darf keine Begriffe wie Senden, Empfangen, Upload, Download oder freie Dateiuebertragung als Erfolgssprache verwenden.
 
+Ab MA010.01 prueft `tools/run-windows-pdf-frame-pilot.ps1 -SmokeTest` den sichtbaren lokalen Windows PDF Frame Pilot. Der Test muss Sample-PDF, Owner-/Guest-Ablage, CarryLease, Owner-Lock, aktive FrameSession, Guest-Frame, Rueckgabe, Recovery und No File Ingress bestaetigen.
+
 Ab MA007.02 pruefen die RKWP-Tests zusaetzlich die Surface Foundation: `SurfacePlatform` muss Windows, macOS, iOS, iPadOS, Android und Linux enthalten; `GestureType` muss Ziel- und Fallback-Gesten enthalten; PlatformTasks-Dokumente muessen fuer macOS Accessibility/Screen Recording/Sandbox und fuer iOS/iPadOS Xcode/USB-Handoff dokumentieren.
 
 Ab MA007.03 pruefen die RKWP-Tests zusaetzlich die Secure Session Foundation: `RkwpSecurityMode`, Development-only Protector, Nonce Replay, Sequence Replay, fehlende Nonce, fehlende SequenceNumber, gueltige Sequenzen, Lease Binding, Policy Binding, Audit Events, Revocation und Recovery-Haertung. Der Development Protector darf keine sichere produktive Session erfuellen.
@@ -938,6 +940,7 @@ Smoke-Test:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.46.0 | 2026-07-06 | MA010.01 Windows PDF Frame Pilot Smoke-Test fuer Owner-/Guest-Ablage, Rueckgabe, Recovery und No File Ingress dokumentiert. |
 | 2.45.0 | 2026-07-05 | MA007.09 Windows Object Adapter, PDF FileReference, ClipboardText und Screenshot/WindowSnapshot-Stubs dokumentiert. |
 | 2.44.0 | 2026-07-05 | MA007.08 Ownership Transfer Gate, MaterializationResult, OriginalDisposition und Objektartregeln dokumentiert. |
 | 2.43.0 | 2026-07-05 | MA007.07 ChangeSet, Return, VersionReference, Owner-Entscheidung und Konfliktregeln dokumentiert. |

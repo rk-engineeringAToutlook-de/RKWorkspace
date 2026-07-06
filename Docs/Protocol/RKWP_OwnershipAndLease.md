@@ -135,3 +135,18 @@ Der Smoke prueft:
 - Rueckgabe setzt `Returned`.
 - Heartbeat-Verlust fuehrt zu Recovery.
 - Es gibt keinen unendlichen Lock.
+
+## MA010.01 Windows PDF Frame Pilot
+
+Der Windows PDF Frame Pilot nutzt dieselbe Ownership-Regel sichtbar fuer zwei lokale Ablagen. Die Owner-Ablage bleibt Eigentuemerin des Originals, die Guest-Ablage bekommt nur eine kontrollierte Frame-Darstellung.
+
+Der Pilot prueft:
+
+- Sample-PDF existiert.
+- Owner- und Guest-Ablage starten als lokale Pilotflaechen.
+- CarryLease wird aktiv.
+- Owner wird logisch gesperrt.
+- FrameSession wird aktiv.
+- Guest sieht den Frame.
+- Guest erhaelt keine PDF-Datei, keinen Originalpfad und keine Originalbytes.
+- Rueckgabe und Recovery fuehren zurueck zu `wieder verfuegbar`.

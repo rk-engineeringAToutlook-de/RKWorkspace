@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.10 liefert Readiness Review, Real-Lab-Testplan, Next Codex Actions und Release-Summary. Damit ist klar getrennt: lokal real, simuliert, vorbereitet und blockiert.
+MA010.01 liefert den ersten sichtbaren lokalen Windows PDF Frame Pilot. Windows kann eine echte PDF als Original-Owned Frame auf eine zweite lokale Ablage legen, ohne der Guest-Ablage eine freie PDF-Datei zu geben.
 
 ## Naechster Fokus
 
-Nach MA009 liegt der Fokus auf dem ersten echten Real-Lab-Vorbereitungspfad: Windows Local Frame UX stabilisieren, netzwerkfaehigen Development-Transport bauen, macOS FrameGuestSurface erstellen und danach iPad/iPhone ueber Xcode vorbereiten.
+Nach MA010.01 liegt der Fokus auf netzwerkfaehigem RKWP DevLan, Windows Owner fuer macOS, macOS Guest Compatibility und danach iPad/iPhone ueber Xcode.
 
 ## Entfernung und Ablage-Anker
 
