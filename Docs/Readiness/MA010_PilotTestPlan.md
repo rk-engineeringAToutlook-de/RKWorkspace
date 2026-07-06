@@ -14,6 +14,32 @@ Alle Piloten muessen die RK Workspace Semantik erhalten:
 - Rueckgabe und Recovery muessen testbar bleiben.
 - Sichtbare Sprache vermeidet Transfer, Upload, Download, Senden, Empfangen, Sync, Server, Client, Endpoint, Device, Geraet und Agent.
 
+## Owner-Lab-Raumkarte
+
+MA011.07 ergaenzt fuer echte Lab-Aufbauten eine lokale Manual Map:
+
+```powershell
+.\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near -Confidence 0.9
+.\tools\run-manual-map.ps1 -Set -Ablage iPad -Direction Up -Distance Medium -Confidence 0.7
+.\tools\run-manual-map.ps1 -Set -Ablage iPhone -Direction Down -Distance Near -Confidence 0.86
+.\tools\run-manual-map.ps1 -Set -Ablage Linux -Direction Left -Distance Far -Confidence 0.72
+.\tools\run-manual-map.ps1 -Validate
+```
+
+Lokale Config:
+
+```text
+config/manual-ablage-map.json
+```
+
+Dieser Pfad wird nicht versioniert. Das versionierte Beispiel liegt unter:
+
+```text
+config/samples/manual-ablage-map.sample.json
+```
+
+Der `NearestAblageSelector` nutzt die Karte, waehlt aber immer nur eine naechste Ablage fuer die Glass Edge.
+
 ## Pilot 1: Windows Lokal Owner/Guest Mit Echter PDF
 
 Ziel: Windows zeigt lokal, dass eine echte PDF als Original-Owned Frame auf einer zweiten Ablage sichtbar wird, ohne Datei-Ingress.
@@ -64,7 +90,7 @@ No File Ingress Pruefung:
 - GuestHasCopiedPdfBytes: NO
 - OriginalFileBytes: NO
 
-Rueckgabe: Guest gibt Frame zurueck; Owner zeigt `zurueckgegeben` und danach `wieder verfuegbar`.
+Rueckgabe: Guest gibt Frame zurueck; Owner zeigt `wieder verfuegbar`.
 
 Recovery: Heartbeat-/Lease-Verlust fuehrt zur Owner-Recovery und sperrt den Guest Frame.
 

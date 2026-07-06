@@ -56,6 +56,18 @@ MA009.05 macht ManualMap nutzbar:
 - Serializer und Validator,
 - Provider-Kette mit Prioritaet ManualMap vor Simulation.
 
+MA011.07 erweitert die Manual Map zur vollstaendigen Lab-CLI. Der Owner kann Ablagen setzen, anzeigen, entfernen, importieren, exportieren, validieren und loeschen:
+
+```powershell
+.\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near -Confidence 0.9
+.\tools\run-manual-map.ps1 -Set -Ablage iPad -Direction Up -Distance Medium -Confidence 0.7
+.\tools\run-manual-map.ps1 -Set -Ablage iPhone -Direction Down -Distance Near -Confidence 0.86
+.\tools\run-manual-map.ps1 -Set -Ablage Linux -Direction Left -Distance Far -Confidence 0.72
+.\tools\run-manual-map.ps1 -Validate
+```
+
+Der `NearestAblageSelector` nutzt diese Map direkt. Trotz mehrerer Ablagen bleibt die Glass Edge bei genau einer naechsten Ablage.
+
 ## Manual Map
 
 `ManualAblageMap` beschreibt eine Ablage relativ zur aktuellen Arbeitsflaeche:

@@ -11,7 +11,8 @@ public enum AblageSurfacePlatform
     Windows,
     MacOS,
     IOS,
-    Android
+    Android,
+    Linux
 }
 
 public enum AblageDirection

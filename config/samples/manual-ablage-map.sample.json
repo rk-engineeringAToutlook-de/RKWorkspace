@@ -28,13 +28,25 @@
       "ablageId": "ablage-iphone",
       "displayName": "Ablage iPhone",
       "relativeDirection": "Down",
-      "distanceClass": "Far",
-      "distanceMeters": 3.45,
-      "confidence": 0.78,
+      "distanceClass": "Near",
+      "distanceMeters": 1.85,
+      "confidence": 0.86,
       "isAvailable": true,
       "lastUpdated": "2026-07-06T00:00:00+00:00",
       "source": "ManualMap",
       "platform": "IOS"
+    },
+    {
+      "ablageId": "ablage-linux",
+      "displayName": "Ablage Linux",
+      "relativeDirection": "Left",
+      "distanceClass": "Far",
+      "distanceMeters": 4.8,
+      "confidence": 0.72,
+      "isAvailable": true,
+      "lastUpdated": "2026-07-06T00:00:00+00:00",
+      "source": "ManualMap",
+      "platform": "Linux"
     }
   ]
 }

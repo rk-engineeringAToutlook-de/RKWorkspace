@@ -11,7 +11,8 @@ Beispiel:
 
 - macOS steht rechts und nah.
 - iPad liegt oben und mittelweit.
-- iPhone liegt unten und weiter weg.
+- iPhone liegt unten und nah.
+- Linux steht links und weit.
 
 Die Karte ist kein Pairing, keine Dateiuebertragung und keine Ownership-Entscheidung. Sie liefert nur Richtung und Entfernung fuer die eine Glass Edge.
 
@@ -35,11 +36,28 @@ config/samples/manual-ablage-map.sample.json
 
 ```powershell
 .\tools\run-manual-map.ps1 -List
+.\tools\run-manual-map.ps1 -Show
 .\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near
 .\tools\run-manual-map.ps1 -Set -Ablage iPad -Direction Up -Distance Medium
+.\tools\run-manual-map.ps1 -Remove -Ablage iPad
 .\tools\run-manual-map.ps1 -Clear
+.\tools\run-manual-map.ps1 -Import config/samples/manual-ablage-map.sample.json
+.\tools\run-manual-map.ps1 -Export config/manual-map-lab.json
+.\tools\run-manual-map.ps1 -Validate
 .\tools\run-manual-map.ps1 -SmokeTest
 ```
+
+AP047 macht diese Modi fuer den Owner-Lab-Aufbau verbindlich:
+
+- `-List`: kompakte Ausgabe der lokalen Karte.
+- `-Show`: Karte plus Selector-/Validierungsstatus.
+- `-Set`: Ablage setzen oder aktualisieren.
+- `-Remove`: Ablage aus der lokalen Karte entfernen.
+- `-Clear`: lokale Karte loeschen.
+- `-Import`: JSON-Karte importieren und validieren.
+- `-Export`: lokale Karte als JSON exportieren.
+- `-Validate`: Karte gegen Modell und Selector pruefen.
+- `-SmokeTest`: alle Modi in einem isolierten Log-Pfad testen.
 
 ## Modell
 
@@ -107,14 +125,17 @@ Der `NearestAblageSelector` bleibt fuer Hysterese und NoFlicker zustaendig. Auch
 
 Der Smoke-Test prueft:
 
-- Speichern.
-- Laden.
-- Auswahl aus ManualMap.
-- Richtung.
-- Entfernung.
-- genau eine Zielablage.
+- Set.
+- List.
+- Export.
+- Import.
+- Remove.
 - Clear.
-- ungueltige Richtung wird abgelehnt.
+- Validate.
+- Auswahl aus ManualMap.
+- naechste Ablage.
+- Edge-Richtung.
+- ungueltige Werte werden abgelehnt.
 
 ## Verbindung Zum PDF Frame E2E
 

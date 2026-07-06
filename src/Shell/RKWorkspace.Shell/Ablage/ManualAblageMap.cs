@@ -26,6 +26,15 @@ public sealed record ManualAblageMap
         return new ManualAblageMap(entries);
     }
 
+    public ManualAblageMap Remove(string ablageId)
+    {
+        var entries = Entries
+            .Where(existing => !string.Equals(existing.AblageId, ablageId, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(existing => existing.AblageId, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        return new ManualAblageMap(entries);
+    }
+
     public static ManualAblageMap Empty { get; } = new([]);
 }
 
@@ -242,6 +251,12 @@ public sealed class ManualAblageMapStore
     {
         ManualAblageMapValidator.ValidateEntry(entry).ThrowIfInvalid();
         var map = Load().Upsert(entry);
+        return Save(map);
+    }
+
+    public ManualAblageMap Remove(string ablageId)
+    {
+        var map = Load().Remove(ablageId);
         return Save(map);
     }
 
