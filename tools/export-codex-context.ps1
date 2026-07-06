@@ -143,10 +143,12 @@ $files = @(
     'Docs\Readiness\MA016_macOSReadinessCheckpoint.md',
     'Docs\Readiness\MA016_iOS_iPadReadinessCheckpoint.md',
     'Docs\Readiness\MA016_UWBProximityCheckpoint.md',
+    'Docs\Readiness\MA016_SecurityPolicyCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
     'Docs\Testing\MA016_CrossDeviceFailurePlaybook.md',
+    'Docs\Testing\MA016_SecurityOwnerChecklist.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -182,6 +184,7 @@ $files = @(
     'release\ma016\schemas\macos-capsule-contract.v0.1.json',
     'release\ma016\schemas\macos-openframe-contract.v0.1.json',
     'release\ma016\schemas\macos-no-file-ingress-contract.v0.1.json',
+    'release\ma016\reports\templates\no-file-ingress-macos-template.md',
     'release\ma016\packages\apple-rkwp-bundle\README.md',
     'release\ma016\packages\apple-rkwp-bundle\swift-model-plan.md',
     'release\ma016\packages\apple-rkwp-bundle\schemas\rkwp-frame-capsule-v0.1.schema.json',
@@ -207,6 +210,7 @@ $files = @(
     'release\ma016\schemas\ios-capsule-contract.v0.1.json',
     'release\ma016\schemas\ios-openframe-contract.v0.1.json',
     'release\ma016\schemas\ios-no-file-ingress-sandbox-contract.v0.1.json',
+    'release\ma016\reports\templates\no-file-ingress-ios-template.md',
     'Docs\Platform\iOS_iPadOS_SurfaceStarterKit.md',
     'Docs\Platform\iOS_XcodeProjectBootstrap.md',
     'Docs\Platform\iOS_RKWPClientFlow.md',
@@ -328,6 +332,9 @@ $files = @(
     'tools\run-pilot-windows-all-pdf-lifecycle.ps1',
     'tools\run-cross-device-session-monitor.ps1',
     'tools\export-cross-device-diagnostics.ps1',
+    'tools\export-cross-device-audit.ps1',
+    'tools\run-cross-device-security-regression.ps1',
+    'tools\run-cross-device-policy-regression.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -363,6 +370,9 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest
+.\tools\export-cross-device-audit.ps1 -SmokeTest
+.\tools\run-cross-device-security-regression.ps1 -SmokeTest
+.\tools\run-cross-device-policy-regression.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest
 .\tools\run-mac-guest-compat.ps1 -SmokeTest

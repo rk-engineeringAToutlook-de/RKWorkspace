@@ -32,6 +32,7 @@ static void Print(WindowsPdfFramePilotResult result)
     PrintGuestArea(result);
     PrintLifecycleArea(result);
     PrintGlassEdgeArea(result);
+    PrintCrossDeviceAuditArea(result);
     PrintSafetyArea(result);
 
     if (result.Options.OwnerVisible)
@@ -162,6 +163,29 @@ static void PrintSafetyArea(WindowsPdfFramePilotResult result)
     Console.WriteLine($"No File Ingress: {(result.NoFileIngress ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"No File Ingress Status: {(result.NoFileIngress ? "sichtbar im Log" : "nicht bestaetigt")}");
     Console.WriteLine($"Sichtbare Sprache: {(result.VisibleTextLanguageIsValid ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"SecurityModeWarning: {result.SecurityModeWarning}");
+    Console.WriteLine($"SecureDevWarning: {result.SecureDevWarning}");
+    Console.WriteLine($"OwnerPdfSafetyGuard: {result.OwnerPdfSafetyGuardStatus}");
+    foreach (var warning in result.OwnerPdfSafetyWarnings)
+    {
+        Console.WriteLine($"OwnerPdfSafetyWarning: {warning}");
+    }
+    Console.WriteLine();
+}
+
+static void PrintCrossDeviceAuditArea(WindowsPdfFramePilotResult result)
+{
+    Console.WriteLine("Cross-Device Audit");
+    Console.WriteLine("------------------");
+    Console.WriteLine($"CrossDeviceAuditEvents: {string.Join(" -> ", result.CrossDeviceAuditEvents)}");
+    Console.WriteLine($"CrossDeviceAuditEventsPresent: {(result.CrossDeviceAuditEventsPresent ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"CrossDeviceSessionStarted: {(result.CrossDeviceAuditEvents.Contains("CrossDeviceSessionStarted") ? "OK" : "FAILED")}");
+    Console.WriteLine($"CapsuleArrived: {(result.CrossDeviceAuditEvents.Contains("CapsuleArrived") ? "OK" : "NOT USED")}");
+    Console.WriteLine($"OpenFrameArrived: {(result.CrossDeviceAuditEvents.Contains("OpenFrameArrived") ? "OK" : "NOT USED")}");
+    Console.WriteLine($"GuestReturned: {(result.CrossDeviceAuditEvents.Contains("GuestReturned") ? "OK" : "FAILED")}");
+    Console.WriteLine($"GuestRecovered: {(result.CrossDeviceAuditEvents.Contains("GuestRecovered") ? "OK" : "FAILED")}");
+    Console.WriteLine($"UwbSelectedTarget: {(result.CrossDeviceAuditEvents.Contains("UwbSelectedTarget") ? "OK" : "NOT USED")}");
+    Console.WriteLine();
 }
 
 static void PrintDebug(WindowsPdfFramePilotResult result)
@@ -255,6 +279,10 @@ static void PrintSmokeChecks(WindowsPdfFramePilotResult result)
     Console.WriteLine($"AuditEventsPresent: {(result.Lifecycle.RequiredAuditEventsPresent ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"UnauthorizedCapsuleOpen: {(result.Lifecycle.UnauthorizedOpenDenied ? "DENIED" : "ALLOWED")}");
     Console.WriteLine($"ExpiredCapsule: {(result.Lifecycle.ExpiredCapsuleRecovered ? "RECOVERED_BY_OWNER" : "FAILED")}");
+    Console.WriteLine($"CrossDeviceAuditEventsPresent: {(result.CrossDeviceAuditEventsPresent ? "SUCCESS" : "FAILED")}");
+    Console.WriteLine($"SecurityModeWarning: {result.SecurityModeWarning}");
+    Console.WriteLine($"SecureDevWarning: {result.SecureDevWarning}");
+    Console.WriteLine($"OwnerPdfSafetyGuard: {result.OwnerPdfSafetyGuardStatus}");
 
     if (result.Options.UseGlassEdge)
     {
@@ -880,6 +908,83 @@ public sealed record WindowsPdfFramePilotResult(
 
     public IReadOnlyList<string> GlassEdgeEventFlow => GlassEdge?.EventFlow ?? [];
 
+    public IReadOnlyList<string> CrossDeviceAuditEvents
+    {
+        get
+        {
+            var events = new List<string>
+            {
+                "CrossDeviceSessionStarted",
+                Lifecycle.IsOpenPdfFrame ? "OpenFrameArrived" : "CapsuleArrived",
+                "GuestReturned",
+                "GuestRecovered"
+            };
+
+            if (Options.UseUwbSim || Options.UseProximityFusion)
+            {
+                events.Add("UwbSelectedTarget");
+            }
+
+            return events;
+        }
+    }
+
+    public bool CrossDeviceAuditEventsPresent =>
+        CrossDeviceAuditEvents.Contains("CrossDeviceSessionStarted") &&
+        CrossDeviceAuditEvents.Contains(Lifecycle.IsOpenPdfFrame ? "OpenFrameArrived" : "CapsuleArrived") &&
+        CrossDeviceAuditEvents.Contains("GuestReturned") &&
+        CrossDeviceAuditEvents.Contains("GuestRecovered") &&
+        (!(Options.UseUwbSim || Options.UseProximityFusion) || CrossDeviceAuditEvents.Contains("UwbSelectedTarget"));
+
+    public string SecurityModeWarning =>
+        Options.PolicyProfile == RkwpPolicyProfileName.CriticalInfrastructure
+            ? "NONE"
+            : "NON_PRODUCTION_SECURITY";
+
+    public string SecureDevWarning =>
+        Options.PolicyProfile == RkwpPolicyProfileName.DevelopmentLab
+            ? "DEV_ONLY_NOT_PRODUCTION"
+            : SecurityModeWarning;
+
+    public IReadOnlyList<string> OwnerPdfSafetyWarnings
+    {
+        get
+        {
+            var warnings = new List<string>();
+            if (Options.PolicyProfile == RkwpPolicyProfileName.DevelopmentLab)
+            {
+                warnings.Add("DevModeNotProduction");
+            }
+
+            if (Options.PolicyProfile != RkwpPolicyProfileName.CriticalInfrastructure)
+            {
+                warnings.Add("NonProductionSecurity");
+            }
+
+            if (Frame.Document.OwnerPath.StartsWith(@"\\", StringComparison.Ordinal))
+            {
+                warnings.Add("NetworkPath");
+            }
+
+            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            if ((!string.IsNullOrWhiteSpace(userProfile) &&
+                 Frame.Document.OwnerPath.StartsWith(userProfile, StringComparison.OrdinalIgnoreCase)) ||
+                Frame.Document.OwnerPath.Contains(@"\AppData\", StringComparison.OrdinalIgnoreCase))
+            {
+                warnings.Add("PrivateUserPath");
+            }
+
+            if (SamplePdfExists && new FileInfo(Frame.Document.OwnerPath).Length > 25L * 1024L * 1024L)
+            {
+                warnings.Add("LargePdf");
+            }
+
+            return warnings;
+        }
+    }
+
+    public string OwnerPdfSafetyGuardStatus => OwnerPdfSafetyWarnings.Count > 0 ? "WARNINGS_PRESENT" : "OK";
+
     public bool NearestAblageSelected => GlassEdge?.Nearest.HasTarget == true;
 
     public bool PlaySequenceCompleted => GlassEdge?.PlaySequenceCompleted == true;
@@ -936,6 +1041,7 @@ public sealed record WindowsPdfFramePilotResult(
         GuestFrameReady &&
         NoFileIngress &&
         Lifecycle.IsSuccessful &&
+        CrossDeviceAuditEventsPresent &&
         ReturnSuccessful &&
         RecoverySuccessful &&
         ReturnVisibleStateIsCorrect &&

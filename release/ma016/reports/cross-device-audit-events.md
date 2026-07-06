@@ -1,20 +1,19 @@
-# MA016 Cross-Device Diagnostics
+# MA016 Cross-Device Audit Events
 
-Generated: 2026-07-06T23:19:40Z
+Generated: 2026-07-06T23:19:48Z
 
-## Monitor
+## Required events
+
+- CrossDeviceSessionStarted
+- CapsuleArrived
+- OpenFrameArrived
+- GuestReturned
+- GuestRecovered
+- UwbSelectedTarget
+
+## Current Windows pilot proof
 
 ~~~text
-RK Workspace Cross-Device Session Monitor
------------------------------------------
-WindowsOwner: READY
-macOSGuest: HANDOFF_READY
-iPadGuest: HANDOFF_READY
-ClosedPdfCapsule: READY
-OpenPdfFrame: READY
-NoFileIngress: REQUIRED
-UwbSimulation: READY
-NativeDeviceExecution: PENDING_EXTERNAL_MACOS_XCODE
   Wiederherzustellende Projekte werden ermittelt...
   Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
   RKWorkspace.Protocol -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Protocol\RKWorkspace.Protocol\bin\Debug\net8.0\RKWorkspace.Protocol.dll
@@ -26,7 +25,7 @@ Der Buildvorgang wurde erfolgreich ausgeführt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.92
+Verstrichene Zeit 00:00:00.90
 RK Workspace Windows PDF Frame Pilot
 ------------------------------------
 Modus: Smoke-Test
@@ -59,7 +58,7 @@ PDF-Datei: keine PDF-Datei vorhanden
 PDF Lifecycle
 -------------
 LifecycleMode: ClosedPdfCapsule
-PolicyProfile: DevelopmentLab
+PolicyProfile: TrustedPersonalDevices
 FrameCapsule: OK
 CapsuleState: Created
 CapsuleOpen: OK
@@ -74,16 +73,38 @@ UnauthorizedCapsuleOpen: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 AuditEvents: ClosedPdfPicked -> CapsuleCreated -> CapsuleOpened -> CloseReturnsEvaluated -> PdfReturned -> PdfRecovered
 
+Glass Edge
+----------
+UseGlassEdge: YES
+UseManualMap: NO
+UseUwbSim: YES
+UseProximityFusion: NO
+ProximityMode: UwbSim
+UwbProviderStatus: Simulated
+UwbProfile: MovingCloser
+NearestAblage: Ablage iPad
+EdgeDirection: Right
+EventFlow: GlassEdgeAppearing -> GlassEdgeActive -> ObjectEnteringEdge -> CarryLeaseRequested -> CarryLeaseGranted -> FrameSessionOpen -> FrameSessionReady -> ObjectInTransit -> ObjectEmerging -> ObjectPlaced
+GlassEdgeAppearing: OK
+GlassEdgeActive: OK
+ObjectEnteringEdge: OK
+ObjectInTransit: OK
+ObjectEmerging: OK
+ObjectPlaced: OK
+FrameSessionOpen: OK
+FrameSessionReady: OK
+PlaySequence: SUCCESS
+
 Cross-Device Audit
 ------------------
-CrossDeviceAuditEvents: CrossDeviceSessionStarted -> CapsuleArrived -> GuestReturned -> GuestRecovered
+CrossDeviceAuditEvents: CrossDeviceSessionStarted -> CapsuleArrived -> GuestReturned -> GuestRecovered -> UwbSelectedTarget
 CrossDeviceAuditEventsPresent: SUCCESS
 CrossDeviceSessionStarted: OK
 CapsuleArrived: OK
 OpenFrameArrived: NOT USED
 GuestReturned: OK
 GuestRecovered: OK
-UwbSelectedTarget: NOT USED
+UwbSelectedTarget: OK
 
 Sicherheitsstatus
 -----------------
@@ -91,9 +112,8 @@ No File Ingress: SUCCESS
 No File Ingress Status: sichtbar im Log
 Sichtbare Sprache: SUCCESS
 SecurityModeWarning: NON_PRODUCTION_SECURITY
-SecureDevWarning: DEV_ONLY_NOT_PRODUCTION
+SecureDevWarning: NON_PRODUCTION_SECURITY
 OwnerPdfSafetyGuard: WARNINGS_PRESENT
-OwnerPdfSafetyWarning: DevModeNotProduction
 OwnerPdfSafetyWarning: NonProductionSecurity
 
 
@@ -151,16 +171,17 @@ UnauthorizedCapsuleOpen: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 CrossDeviceAuditEventsPresent: SUCCESS
 SecurityModeWarning: NON_PRODUCTION_SECURITY
-SecureDevWarning: DEV_ONLY_NOT_PRODUCTION
+SecureDevWarning: NON_PRODUCTION_SECURITY
 OwnerPdfSafetyGuard: WARNINGS_PRESENT
+NearestAblageSelected: OK
+GlassEdgeIntegration: SUCCESS
+GlassEdgePlaySequence: SUCCESS
 
 WindowsPdfFramePilot: SUCCESS
-RESULT: SUCCESS
-CrossDeviceSessionMonitor: SUCCESS
 RESULT: SUCCESS
 ~~~
 
 ## Result
 
-CrossDeviceDiagnostics: SUCCESS
+CrossDeviceAudit: SUCCESS
 RESULT: SUCCESS

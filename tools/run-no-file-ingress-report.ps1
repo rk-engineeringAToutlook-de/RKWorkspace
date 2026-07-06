@@ -72,10 +72,10 @@ This report covers the Windows PDF lifecycle pilot for Closed PDF Capsule and Op
 
 ## Commands
 
-```powershell
+~~~powershell
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf -Page 1 -Zoom 1.25 -ViewerName 'Windows PDF Viewer'
-```
+~~~
 
 ## Result
 

@@ -23,9 +23,9 @@ Generated: $timestamp
 
 ## Monitor
 
-```text
+~~~text
 $($monitor -join [Environment]::NewLine)
-```
+~~~
 
 ## Result
 
