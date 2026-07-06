@@ -30,6 +30,16 @@ Baue eine macOS RK Workspace Frame Guest Surface:
 - `macOS_FrameGuestSurface_Design.md`
 - `macOS_Permissions_Checklist.md`
 - `macOS_Build_Notes.md`
+- `macos-project-layout.md`
+- `macos-rkwp-client-flow.md`
+- `macos-frame-guest-ui.md`
+- `macos-permissions-checklist.md`
+- `macos-build-commands.md`
+- `macos-test-plan.md`
+
+## MA011.08 Build-Layout
+
+Fuer den ersten echten Test ist eine native Swift/Xcode-App bevorzugt. Die konkrete Zielstruktur liegt in `macos-project-layout.md`. `.NET MAUI` oder Avalonia bleiben Option B, falls macOS-Codex damit schneller einen stabilen Host liefern kann.
 
 ## Pflichtregeln
 

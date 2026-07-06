@@ -1,6 +1,6 @@
 # macOS Codex Auftrag: MA009 Frame Guest Surface
 
-Status: Prepared  
+Status: Prepared, updated by MA011.08  
 Datum: 2026-07-06
 
 ## Kopierbarer Auftrag
@@ -120,3 +120,48 @@ Offene Blocker ehrlich melden:
 - macOS App fehlt noch.
 - produktive Security fehlt noch.
 - PDF Renderer ist noch nicht final.
+
+## MA011.08 Konkretes Build-Layout
+
+Dieser Handoff wurde durch MA011.08 konkretisiert. macOS-Codex soll zusaetzlich zu den oben genannten Grundlagen diese Dateien lesen:
+
+1. `src/Surfaces/RKWorkspace.Surface.macOS/macos-project-layout.md`
+2. `src/Surfaces/RKWorkspace.Surface.macOS/macos-rkwp-client-flow.md`
+3. `src/Surfaces/RKWorkspace.Surface.macOS/macos-frame-guest-ui.md`
+4. `src/Surfaces/RKWorkspace.Surface.macOS/macos-permissions-checklist.md`
+5. `src/Surfaces/RKWorkspace.Surface.macOS/macos-build-commands.md`
+6. `src/Surfaces/RKWorkspace.Surface.macOS/macos-test-plan.md`
+
+Bevorzugter erster Build ist eine native Swift/Xcode-App unter:
+
+```text
+apps/macos/RKWorkspaceMacGuest/
+```
+
+Die App soll minimal bleiben:
+
+- `AblageIdentity` lokal laden oder erzeugen.
+- RKWP DevLan/SecureDev Client verbinden.
+- `AblageHello` senden.
+- `FrameSession` empfangen.
+- PDF-Frame anzeigen.
+- keine PDF-Datei, keinen Originalpfad und keine Originalbytes als Datei speichern.
+- `Return` senden.
+- Heartbeat senden.
+- Logs lokal schreiben.
+
+Option B ist .NET MAUI oder Avalonia, falls macOS-Codex damit schneller einen stabilen Minimal-Host bauen kann. Die bevorzugte fachliche Referenz bleibt aber die native Swift/Xcode-Struktur, weil sie Berechtigungen, Sandbox und spaetere macOS-Integration am direktesten abbildet.
+
+Windows-Verifikation fuer diesen Handoff:
+
+```powershell
+.\tools\export-codex-context.ps1
+.\tools\run-tests.ps1
+```
+
+Blocker bleiben ehrlich zu melden:
+
+- falls echter Netzwerk-DevTransport auf macOS noch fehlt.
+- falls PDF-Anzeige nur Mock ist.
+- falls macOS-Permissions oder Signing lokal fehlen.
+- falls Windows Owner und macOS Guest noch nicht produktiv gekoppelt sind.
