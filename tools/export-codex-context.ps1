@@ -144,6 +144,7 @@ $files = @(
     'Docs\Readiness\MA016_iOS_iPadReadinessCheckpoint.md',
     'Docs\Readiness\MA016_UWBProximityCheckpoint.md',
     'Docs\Readiness\MA016_SecurityPolicyCheckpoint.md',
+    'Docs\Readiness\MA016_PilotLabCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
@@ -184,6 +185,13 @@ $files = @(
     'release\ma016\schemas\macos-capsule-contract.v0.1.json',
     'release\ma016\schemas\macos-openframe-contract.v0.1.json',
     'release\ma016\schemas\macos-no-file-ingress-contract.v0.1.json',
+    'release\ma016\reports\no-file-ingress-report.md',
+    'release\ma016\reports\cross-device-diagnostics.md',
+    'release\ma016\reports\cross-device-audit-events.md',
+    'release\ma016\reports\ma016-pilot-report.md',
+    'release\ma016\reports\ma016-feedback-report.md',
+    'release\ma016\reports\ma016-repeatability-report.md',
+    'release\ma016\reports\ma016-performance-baseline.md',
     'release\ma016\reports\templates\no-file-ingress-macos-template.md',
     'release\ma016\packages\apple-rkwp-bundle\README.md',
     'release\ma016\packages\apple-rkwp-bundle\swift-model-plan.md',
@@ -207,6 +215,11 @@ $files = @(
     'release\ma016\handoff\iPad_FrameCapsuleLayoutSpec.md',
     'release\ma016\handoff\iPhone_CompactCapsuleLayoutSpec.md',
     'release\ma016\config\ios-guest.sample.json',
+    'release\ma016\config\windows-local.sample.json',
+    'release\ma016\config\windows-to-mac.sample.json',
+    'release\ma016\config\windows-to-ipad.sample.json',
+    'release\ma016\config\uwb-simulation.sample.json',
+    'release\ma016\config\dongle-prep.sample.json',
     'release\ma016\schemas\ios-capsule-contract.v0.1.json',
     'release\ma016\schemas\ios-openframe-contract.v0.1.json',
     'release\ma016\schemas\ios-no-file-ingress-sandbox-contract.v0.1.json',
@@ -335,6 +348,14 @@ $files = @(
     'tools\export-cross-device-audit.ps1',
     'tools\run-cross-device-security-regression.ps1',
     'tools\run-cross-device-policy-regression.ps1',
+    'tools\run-ma016-pilot-lab.ps1',
+    'tools\configure-ma016-pilot.ps1',
+    'tools\export-ma016-pilot-report.ps1',
+    'tools\record-ma016-feedback.ps1',
+    'tools\export-ma016-feedback-report.ps1',
+    'tools\cleanup-ma016-pilot.ps1',
+    'tools\run-ma016-repeatability.ps1',
+    'tools\export-ma016-performance-baseline.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -373,6 +394,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\export-cross-device-audit.ps1 -SmokeTest
 .\tools\run-cross-device-security-regression.ps1 -SmokeTest
 .\tools\run-cross-device-policy-regression.ps1 -SmokeTest
+.\tools\run-ma016-pilot-lab.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest
 .\tools\run-mac-guest-compat.ps1 -SmokeTest

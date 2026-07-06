@@ -1,0 +1,20 @@
+{
+  "schema": "rkworkspace.ma016.pilot.config.v0.1",
+  "scenario": "WindowsToMac",
+  "owner": "WindowsOwner",
+  "target": "macOSGuest",
+  "policy": "CriticalInfrastructure",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "ProximityFusion",
+    "uwbProfile": "Static"
+  },
+  "commands": [
+    ".\\tools\\run-pilot-windows-to-mac-closed-pdf.ps1 -SmokeTest -Policy CriticalInfrastructure"
+  ],
+  "expected": [
+    "TargetAblage: Ablage macOS",
+    "NoFileIngress: SUCCESS",
+    "WindowsToMacClosedPdf: SUCCESS"
+  ]
+}

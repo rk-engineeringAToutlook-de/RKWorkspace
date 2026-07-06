@@ -1,0 +1,22 @@
+{
+  "schema": "rkworkspace.ma016.pilot.config.v0.1",
+  "scenario": "UwbSimulation",
+  "owner": "WindowsOwner",
+  "target": "NearestAblage",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "UwbSimulation",
+    "uwbProfile": "MovingCloser",
+    "confidenceThreshold": 0.7,
+    "distanceHysteresis": 0.24
+  },
+  "commands": [
+    ".\\tools\\run-windows-pdf-frame-pilot.ps1 -SmokeTest -UseGlassEdge -UseUwbSim -UwbProfile MovingCloser -PlaySequence -Policy TrustedPersonalDevices"
+  ],
+  "expected": [
+    "ProximityMode: UwbSim",
+    "UwbSelectedTarget: OK",
+    "RESULT: SUCCESS"
+  ]
+}

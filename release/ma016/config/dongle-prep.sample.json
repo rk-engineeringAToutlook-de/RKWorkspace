@@ -1,0 +1,25 @@
+{
+  "schema": "rkworkspace.ma016.pilot.config.v0.1",
+  "scenario": "DonglePrep",
+  "owner": "WindowsOwner",
+  "target": "AblageAnchorDongle",
+  "policy": "CriticalInfrastructure",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "HardwareReadyStub",
+    "uwbProfile": "Static"
+  },
+  "hardware": {
+    "ble": "planned",
+    "uwb": "planned",
+    "usb": "planned"
+  },
+  "commands": [
+    ".\\tools\\run-cross-device-session-monitor.ps1 -SmokeTest"
+  ],
+  "expected": [
+    "UwbSimulation: READY",
+    "NativeDeviceExecution: PENDING_EXTERNAL_MACOS_XCODE",
+    "RESULT: SUCCESS"
+  ]
+}

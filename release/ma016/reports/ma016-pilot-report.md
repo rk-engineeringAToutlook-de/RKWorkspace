@@ -1,31 +1,41 @@
-# MA016 Cross-Device Audit Events
+# MA016 Pilot Lab Report
 
-Generated: 2026-07-06T23:26:37Z
+Generated: 2026-07-06T23:27:33Z
 
-## Required events
+## Config
 
-- CrossDeviceSessionStarted
-- CapsuleArrived
-- OpenFrameArrived
-- GuestReturned
-- GuestRecovered
-- UwbSelectedTarget
+- Preset: WindowsLocal
+- Owner: WindowsOwner
+- Target: WindowsGuest
+- Policy: CriticalInfrastructure
+- PDF mode: ClosedPdfCapsule
+- Proximity: Simulated
 
-## Current Windows pilot proof
+## Monitor
 
 ~~~text
+RK Workspace Cross-Device Session Monitor
+-----------------------------------------
+WindowsOwner: READY
+macOSGuest: HANDOFF_READY
+iPadGuest: HANDOFF_READY
+ClosedPdfCapsule: READY
+OpenPdfFrame: READY
+NoFileIngress: REQUIRED
+UwbSimulation: READY
+NativeDeviceExecution: PENDING_EXTERNAL_MACOS_XCODE
   Wiederherzustellende Projekte werden ermittelt...
   Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
   RKWorkspace.Protocol -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Protocol\RKWorkspace.Protocol\bin\Debug\net8.0\RKWorkspace.Protocol.dll
-  RKWorkspace.Frame.Pdf -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Frame\RKWorkspace.Frame.Pdf\bin\Debug\net8.0\RKWorkspace.Frame.Pdf.dll
   RKWorkspace.Shell -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Shell\RKWorkspace.Shell\bin\Debug\net8.0\RKWorkspace.Shell.dll
+  RKWorkspace.Frame.Pdf -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Frame\RKWorkspace.Frame.Pdf\bin\Debug\net8.0\RKWorkspace.Frame.Pdf.dll
   RKWorkspace.WindowsPdfFramePilot -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Tools\RKWorkspace.WindowsPdfFramePilot\bin\Debug\net8.0\RKWorkspace.WindowsPdfFramePilot.dll
 
 Der Buildvorgang wurde erfolgreich ausgeführt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.97
+Verstrichene Zeit 00:00:01.01
 RK Workspace Windows PDF Frame Pilot
 ------------------------------------
 Modus: Smoke-Test
@@ -58,7 +68,7 @@ PDF-Datei: keine PDF-Datei vorhanden
 PDF Lifecycle
 -------------
 LifecycleMode: ClosedPdfCapsule
-PolicyProfile: TrustedPersonalDevices
+PolicyProfile: DevelopmentLab
 FrameCapsule: OK
 CapsuleState: Created
 CapsuleOpen: OK
@@ -73,38 +83,16 @@ UnauthorizedCapsuleOpen: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 AuditEvents: ClosedPdfPicked -> CapsuleCreated -> CapsuleOpened -> CloseReturnsEvaluated -> PdfReturned -> PdfRecovered
 
-Glass Edge
-----------
-UseGlassEdge: YES
-UseManualMap: NO
-UseUwbSim: YES
-UseProximityFusion: NO
-ProximityMode: UwbSim
-UwbProviderStatus: Simulated
-UwbProfile: MovingCloser
-NearestAblage: Ablage iPad
-EdgeDirection: Right
-EventFlow: GlassEdgeAppearing -> GlassEdgeActive -> ObjectEnteringEdge -> CarryLeaseRequested -> CarryLeaseGranted -> FrameSessionOpen -> FrameSessionReady -> ObjectInTransit -> ObjectEmerging -> ObjectPlaced
-GlassEdgeAppearing: OK
-GlassEdgeActive: OK
-ObjectEnteringEdge: OK
-ObjectInTransit: OK
-ObjectEmerging: OK
-ObjectPlaced: OK
-FrameSessionOpen: OK
-FrameSessionReady: OK
-PlaySequence: SUCCESS
-
 Cross-Device Audit
 ------------------
-CrossDeviceAuditEvents: CrossDeviceSessionStarted -> CapsuleArrived -> GuestReturned -> GuestRecovered -> UwbSelectedTarget
+CrossDeviceAuditEvents: CrossDeviceSessionStarted -> CapsuleArrived -> GuestReturned -> GuestRecovered
 CrossDeviceAuditEventsPresent: SUCCESS
 CrossDeviceSessionStarted: OK
 CapsuleArrived: OK
 OpenFrameArrived: NOT USED
 GuestReturned: OK
 GuestRecovered: OK
-UwbSelectedTarget: OK
+UwbSelectedTarget: NOT USED
 
 Sicherheitsstatus
 -----------------
@@ -112,8 +100,9 @@ No File Ingress: SUCCESS
 No File Ingress Status: sichtbar im Log
 Sichtbare Sprache: SUCCESS
 SecurityModeWarning: NON_PRODUCTION_SECURITY
-SecureDevWarning: NON_PRODUCTION_SECURITY
+SecureDevWarning: DEV_ONLY_NOT_PRODUCTION
 OwnerPdfSafetyGuard: WARNINGS_PRESENT
+OwnerPdfSafetyWarning: DevModeNotProduction
 OwnerPdfSafetyWarning: NonProductionSecurity
 
 
@@ -171,17 +160,23 @@ UnauthorizedCapsuleOpen: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 CrossDeviceAuditEventsPresent: SUCCESS
 SecurityModeWarning: NON_PRODUCTION_SECURITY
-SecureDevWarning: NON_PRODUCTION_SECURITY
+SecureDevWarning: DEV_ONLY_NOT_PRODUCTION
 OwnerPdfSafetyGuard: WARNINGS_PRESENT
-NearestAblageSelected: OK
-GlassEdgeIntegration: SUCCESS
-GlassEdgePlaySequence: SUCCESS
 
 WindowsPdfFramePilot: SUCCESS
 RESULT: SUCCESS
+CrossDeviceSessionMonitor: SUCCESS
+RESULT: SUCCESS
 ~~~
+
+## Required proof
+
+- No File Ingress remains mandatory.
+- Return and recovery remain mandatory.
+- Dev/Lab security warnings must stay visible when non-production security is used.
+- Native macOS/iPad execution remains a handoff until Xcode runs are attached.
 
 ## Result
 
-CrossDeviceAudit: SUCCESS
+MA016PilotReport: SUCCESS
 RESULT: SUCCESS

@@ -1,0 +1,20 @@
+{
+  "schema": "rkworkspace.ma016.pilot.config.v0.1",
+  "scenario": "WindowsLocal",
+  "owner": "WindowsOwner",
+  "target": "WindowsGuest",
+  "policy": "CriticalInfrastructure",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "Simulated",
+    "uwbProfile": "Static"
+  },
+  "commands": [
+    ".\\tools\\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf -Policy CriticalInfrastructure"
+  ],
+  "expected": [
+    "NoFileIngress: SUCCESS",
+    "OwnerPdfSafetyGuard: OK",
+    "RESULT: SUCCESS"
+  ]
+}

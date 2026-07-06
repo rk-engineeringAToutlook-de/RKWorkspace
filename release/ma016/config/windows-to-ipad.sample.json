@@ -1,0 +1,20 @@
+{
+  "schema": "rkworkspace.ma016.pilot.config.v0.1",
+  "scenario": "WindowsToiPad",
+  "owner": "WindowsOwner",
+  "target": "iPadGuest",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "UwbSimulation",
+    "uwbProfile": "MovingCloser"
+  },
+  "commands": [
+    ".\\tools\\run-pilot-windows-to-ipad-closed-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices"
+  ],
+  "expected": [
+    "TargetAblage: Ablage iPad",
+    "NoFileIngress: SUCCESS",
+    "WindowsToiPadClosedPdf: SUCCESS"
+  ]
+}
