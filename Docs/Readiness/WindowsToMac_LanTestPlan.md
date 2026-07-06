@@ -20,9 +20,18 @@ Der erste echte Windows-zu-macOS-Test soll eine Windows Owner-Ablage und eine ma
 .\tools\run-rkwp-lan-owner.ps1 -BindAddress 0.0.0.0 -Port 57100 -AllowDevPairing
 ```
 
+Fuer den PDF-Owner-Pfad:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -PdfPath samples/Objects/Rechnung.pdf -Port 57100 -AllowDevPairing
+```
+
 Windows zeigt:
 
 - `rkwp+tcp-dev://<windows-ip>:57100`
+- PdfObjectId der Owner-PDF
+- LeaseMode FrameOnly
+- NoFileIngressRequired
 - Development-Warnung
 - wartenden Owner-Server
 

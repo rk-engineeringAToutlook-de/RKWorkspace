@@ -109,6 +109,12 @@ Windows kann fuer den ersten Lab-Test einen DevLan Owner starten:
 .\tools\run-rkwp-lan-owner.ps1 -BindAddress 0.0.0.0 -Port 57100 -AllowDevPairing
 ```
 
+Fuer den PDF-Frame-Owner-Pfad:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -PdfPath samples/Objects/Rechnung.pdf -Port 57100 -AllowDevPairing
+```
+
 macOS soll spaeter als Guest gegen diese URL verbinden:
 
 ```text
@@ -119,4 +125,5 @@ Der Windows-Loopback-Smoke steht in:
 
 ```powershell
 .\tools\run-rkwp-lan-smoke.ps1
+.\tools\run-windows-owner-for-mac.ps1 -SmokeTest
 ```

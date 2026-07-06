@@ -51,10 +51,10 @@ Smoke:
 .\tools\run-windows-owner-for-mac.ps1 -SmokeTest
 ```
 
-Owner im aktuellen lokalen DevTransport-Modus:
+Owner im aktuellen DevLan-Modus:
 
 ```powershell
-.\tools\run-windows-owner-for-mac.ps1
+.\tools\run-windows-owner-for-mac.ps1 -PdfPath samples/Objects/Rechnung.pdf -Port 57100 -AllowDevPairing
 ```
 
 ## Erwartete Windows-Owner-Ausgabe
@@ -64,12 +64,13 @@ RK Workspace Windows Owner for macOS
 Windows Owner AblageId: ablage-windows-owner
 ExpectedGuestAblageId: ablage-macos-guest
 ExpectedGuestPlatform: macOS
-TransportProfile: NamedPipeDev
-DevTransportUrl: dev+namedpipe://rkws-windows-owner-macos
-PlannedLocalNetworkDevUrl: rkwp+tcp-dev://<windows-host>:43707
-RKWPProtocolVersion: 0.1
-SecurityMode: DevelopmentSecureSpike
+TransportProfile: LocalNetworkDev
+DevLanUrl: rkwp+tcp-dev://<windows-host>:57100
+Port: 57100
+SecurityMode: DevelopmentInsecure
 PdfPath: samples/Objects/Rechnung.pdf
+PdfObjectId: pdf-...
+LeaseMode: FrameOnly
 NoFileIngress: REQUIRED
 ExpectedGuest: macOS
 ```
@@ -159,7 +160,7 @@ macOS-Codex soll lesen:
 
 ## Offene Blocker
 
-- echtes netzwerkfaehiges DevTransport-Profil fehlt noch.
+- echtes netzwerkfaehiges DevTransport-Profil ist als DevLan-Lab-Profil vorbereitet.
 - macOS native FrameGuestSurface fehlt.
 - produktive TLS/mutual auth fehlt.
 - PDF-Renderer ist noch nicht final.

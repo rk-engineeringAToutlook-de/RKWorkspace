@@ -184,6 +184,23 @@ SecurityStatus: DevMode
 NoFileIngress: REQUIRED
 ```
 
+Ab MA010.03 nutzt der Windows Owner fuer den Lab-Pfad DevLan:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -PdfPath samples/Objects/Rechnung.pdf -Port 57100 -AllowDevPairing
+```
+
+Erwartete Ausgabe:
+
+```text
+TransportProfile: LocalNetworkDev
+DevLanUrl: rkwp+tcp-dev://<windows-host>:57100
+SecurityMode: DevelopmentInsecure
+PdfObjectId: pdf-...
+LeaseMode: FrameOnly
+NoFileIngressRequired: YES
+```
+
 macOS:
 
 ```text
@@ -211,7 +228,7 @@ Return: SUCCESS
 ## Blocker
 
 - macOS native FrameGuestSurface fehlt.
-- Cross-Device DevTransport ist noch nicht implementiert.
+- Cross-Device DevTransport ist als DevLan-Lab-Profil vorbereitet, aber noch nicht mit echtem macOS Guest getestet.
 - PDF-Renderer ist aktuell noch als RendererBlocked markiert.
 - MA009.01 Secure Session Spike ist strukturell aktiv, aber produktive Security ist noch nicht vollstaendig.
 - Firewall/Local-Network Permissions muessen auf echter Hardware getestet werden.
