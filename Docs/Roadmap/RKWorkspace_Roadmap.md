@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.02 bereitet den Windows Owner fuer den spaeteren macOS Guest Test vor. `run-windows-owner-for-mac.ps1 -SmokeTest` prueft PDF, Dev-Ablage-Identitaet, SecurityMode-Ausgabe, DevTransport-Harness und No-Hang-Verhalten.
+MA009.05 bereitet den ersten echten Raumaufbau ohne Sensorik vor. `run-manual-map.ps1` kann Ablagen mit Richtung und Entfernung setzen, laden und fuer die genau eine Glass Edge auswerten.
 
 ## Naechster Fokus
 
-Nach MA009.02 liegt der Fokus auf dem macOS-Codex-Auftrag fuer die native Frame Guest Surface. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009.05 liegt der Fokus darauf, ManualMap + Glass Edge + PDF Frame im E2E-Pfad zu verbinden. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

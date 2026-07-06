@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "ablageId": "ablage-macos",
+      "displayName": "Ablage macOS",
+      "relativeDirection": "Right",
+      "distanceClass": "Near",
+      "distanceMeters": 1.1,
+      "confidence": 0.93,
+      "isAvailable": true,
+      "lastUpdated": "2026-07-06T00:00:00+00:00",
+      "source": "ManualMap",
+      "platform": "MacOS"
+    },
+    {
+      "ablageId": "ablage-ipad",
+      "displayName": "Ablage iPad",
+      "relativeDirection": "Up",
+      "distanceClass": "Medium",
+      "distanceMeters": 2.35,
+      "confidence": 0.82,
+      "isAvailable": true,
+      "lastUpdated": "2026-07-06T00:00:00+00:00",
+      "source": "ManualMap",
+      "platform": "IOS"
+    },
+    {
+      "ablageId": "ablage-iphone",
+      "displayName": "Ablage iPhone",
+      "relativeDirection": "Down",
+      "distanceClass": "Far",
+      "distanceMeters": 3.45,
+      "confidence": 0.78,
+      "isAvailable": true,
+      "lastUpdated": "2026-07-06T00:00:00+00:00",
+      "source": "ManualMap",
+      "platform": "IOS"
+    }
+  ]
+}

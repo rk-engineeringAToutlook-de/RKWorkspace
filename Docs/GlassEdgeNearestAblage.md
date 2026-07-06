@@ -33,6 +33,13 @@ Damit erscheint im Windows-Test eine rechte gläserne Kante.
 
 MA007.13 fuegt die manuelle Raumkarte als vorbereitete Quelle hinzu. Sie ist fuer den ersten echten Raumaufbau gedacht, bevor BLE, UWB oder Dongle-Messung existieren.
 
+MA009.05 macht diese Quelle per Tool nutzbar:
+
+```powershell
+.\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near
+.\tools\run-manual-map.ps1 -List
+```
+
 Beispiel:
 
 - macOS rechts, nah
@@ -41,6 +48,12 @@ Beispiel:
 - Monitor links, weit
 
 Auch bei mehreren Eintraegen gilt: Die Shell zeigt nur eine gläserne Kante. Die anderen Ablagen bleiben technisch bekannt, aber nicht visuell dominant.
+
+Die Provider-Prioritaet ist:
+
+1. ManualMap, wenn Eintraege vorhanden sind.
+2. Simulated.
+3. spaeter BLE/UWB/Dongle.
 
 ## Entfernung
 

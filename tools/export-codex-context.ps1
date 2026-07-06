@@ -33,6 +33,7 @@ $files = @(
     'Docs\WorkspaceShell.md',
     'Docs\GlassEdgeNearestAblage.md',
     'Docs\AblageProximityAndDistance.md',
+    'Docs\Proximity\ManualAblageMap.md',
     'Docs\AblageAnchorDongle.md',
     'Docs\GestureStrategy.md',
     'Docs\Roadmap\RKWorkspace_Roadmap.md',
@@ -91,9 +92,12 @@ $files = @(
     'release\handoff\macOS_Codex_MA009_FrameGuestSurface.md',
     'release\handoff\iOS_iPadOS_Codex_MA009_SurfaceApp.md',
     'release\handoff\iOS_iPadOS_MA008_Handoff.md',
+    'config\samples\manual-ablage-map.sample.json',
+    'src\Shell\RKWorkspace.Shell\Ablage\ManualAblageMap.cs',
     'tools\run-windows-owner-for-mac.ps1',
     'tools\init-dev-rkwp-identity.ps1',
-    'tools\run-rkwp-diagnostics.ps1'
+    'tools\run-rkwp-diagnostics.ps1',
+    'tools\run-manual-map.ps1'
 )
 
 $files | ForEach-Object { Copy-ContextFile $_ }

@@ -8,3 +8,4 @@ TestResults/
 coverage/
 logs/
 .rkworkspace-dev/
+config/manual-ablage-map.json

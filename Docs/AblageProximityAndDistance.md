@@ -48,6 +48,14 @@ MA006.13 nutzt ausschliesslich `Simulated`.
 
 MA007.13 bereitet `ManualMap` als zweite Quelle vor. BLE, UWB, Dongle, WiFi und SensorFusion bleiben dokumentierte Folgequellen und liefern spaeter dieselben Modelle.
 
+MA009.05 macht ManualMap nutzbar:
+
+- persistenter Store `config/manual-ablage-map.json`,
+- Sample `config/samples/manual-ablage-map.sample.json`,
+- Tool `tools/run-manual-map.ps1`,
+- Serializer und Validator,
+- Provider-Kette mit Prioritaet ManualMap vor Simulation.
+
 ## Manual Map
 
 `ManualAblageMap` beschreibt eine Ablage relativ zur aktuellen Arbeitsflaeche:
@@ -58,6 +66,7 @@ MA007.13 bereitet `ManualMap` als zweite Quelle vor. BLE, UWB, Dongle, WiFi und 
 - `DistanceClass`
 - `DistanceMeters`
 - `Confidence`
+- `IsAvailable`
 - `LastUpdated`
 - `Source`
 
@@ -69,6 +78,8 @@ Die Owner-Raumkarte kann damit ohne Sensorik vorbereitet werden, zum Beispiel:
 - Monitor links, weit
 
 Der `ManualMapAblageProximityProvider` erzeugt daraus ein `AblageProximitySnapshot`. Er ist noch keine echte Discovery und keine Kopplung. Er ist die Bruecke, um Entfernung und Richtung im Produktpfad zu testen.
+
+Der lokale Pfad `config/manual-ablage-map.json` ist nutzerspezifisch und wird nicht versioniert. Die versionierte Sample-Datei liegt unter `config/samples/manual-ablage-map.sample.json`.
 
 ## Stabilitaet
 

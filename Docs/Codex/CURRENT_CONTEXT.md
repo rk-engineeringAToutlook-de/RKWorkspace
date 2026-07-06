@@ -308,6 +308,16 @@ MA009.04 liefert das iOS/iPadOS-Codex-Auftragspaket:
 
 iPhone und iPad haben keinen eigenen Codex. macOS-Codex/Xcode muss die native Surface App bauen und per USB auf echten Geraeten testen. No File Ingress bleibt Pflicht.
 
+MA009.05 liefert die Manual Ablage Map:
+
+- `src/Shell/RKWorkspace.Shell/Ablage/ManualAblageMap.cs`
+- `src/Tools/RKWorkspace.ManualMapTool/`
+- `tools/run-manual-map.ps1`
+- `config/samples/manual-ablage-map.sample.json`
+- `Docs/Proximity/ManualAblageMap.md`
+
+Die lokale Karte liegt unter `config/manual-ablage-map.json` und ist ignoriert. Der erste echte Raumaufbau kann damit sagen: macOS rechts/nah, iPad oben/mittel, iPhone unten/weiter. Der Selector waehlt weiterhin genau eine Glass Edge.
+
 ## Context Pack
 
 Stabiler Pfad:
