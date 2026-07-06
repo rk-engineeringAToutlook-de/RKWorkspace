@@ -9,6 +9,7 @@ Windows bleibt der primaere aktive Testpfad fuer Workspace Shell, Native Overlay
 - Native Glass Edge und mehrere Renderer-Spikes existieren.
 - `src/Tools/RKWorkspace.PdfFrameOwner` und `src/Tools/RKWorkspace.FrameGuestSurface` beweisen Original-Owned PDF FrameOnly lokal.
 - `src/Surfaces/RKWorkspace.Surface.Abstractions` liefert die gemeinsamen Contracts.
+- `src/Agents/RKWorkspace.Agent.Windows` bereitet den Windows Agent Dev Host ohne produktive Installation vor.
 
 ## Relevante Surface Contracts
 
@@ -28,6 +29,7 @@ Windows-Projekte muessen den normalen `dotnet build` und `tools/run-tests.ps1` b
 - globale Hooks spaeter gesondert pruefen
 - Desktop-Capture mit Overlay-Exclusion
 - Touchpad/Touchscreen/Pen als neutrale Gesten
+- Windows Agent startet in MA010.08 ohne Admin-Rechte und ohne Service-Installation.
 
 ## Aktuelle Blocker
 
@@ -36,7 +38,24 @@ Windows-Projekte muessen den normalen `dotnet build` und `tools/run-tests.ps1` b
 
 ## Naechster Codex-Auftrag
 
-Windows PDF Frame Presenter mit Native Glass Edge verbinden und No File Ingress sichtbar nachweisen.
+Windows PDF Frame Presenter mit Native Glass Edge verbinden, Windows Agent Dev Host stabilisieren und No File Ingress sichtbar nachweisen.
+
+## MA010.08 Windows Agent Dev
+
+Smoke:
+
+```powershell
+.\tools\run-windows-agent-dev.ps1 -SmokeTest
+```
+
+Vorbereitete Stubs:
+
+```powershell
+.\tools\install-windows-agent-dev.ps1 -SmokeTest
+.\tools\uninstall-windows-agent-dev.ps1 -SmokeTest
+```
+
+Es erfolgt noch keine produktive Installation.
 
 ## GitHub und Context Pack
 
