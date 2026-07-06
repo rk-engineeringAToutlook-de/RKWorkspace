@@ -32,6 +32,8 @@ Invoke-RkwsSmoke 'Windows PDF Fusion Glass Edge' { & (Join-Path $root 'tools\run
 Invoke-RkwsSmoke 'Windows PDF Lifecycle Closed' { & (Join-Path $root 'tools\run-windows-pdf-lifecycle-pilot.ps1') -SmokeTest -ClosedPdf }
 Invoke-RkwsSmoke 'Windows PDF Lifecycle Open' { & (Join-Path $root 'tools\run-windows-pdf-lifecycle-pilot.ps1') -SmokeTest -OpenPdf }
 Invoke-RkwsSmoke 'No File Ingress Report' { & (Join-Path $root 'tools\run-no-file-ingress-report.ps1') -SmokeTest }
+Invoke-RkwsSmoke 'Cross Device Session Monitor' { & (Join-Path $root 'tools\run-cross-device-session-monitor.ps1') -SmokeTest }
+Invoke-RkwsSmoke 'Cross Device Diagnostics' { & (Join-Path $root 'tools\export-cross-device-diagnostics.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'Manual Map' { & (Join-Path $root 'tools\run-manual-map.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'RKWP Chaos' { & (Join-Path $root 'tools\run-rkwp-chaos.ps1') -SmokeTest }
 

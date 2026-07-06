@@ -145,6 +145,8 @@ $files = @(
     'Docs\Readiness\MA016_UWBProximityCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
+    'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
+    'Docs\Testing\MA016_CrossDeviceFailurePlaybook.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -319,6 +321,13 @@ $files = @(
     'tools\run-windows-pdf-frame-pilot.ps1',
     'tools\run-windows-pdf-lifecycle-pilot.ps1',
     'tools\run-no-file-ingress-report.ps1',
+    'tools\run-pilot-windows-to-mac-closed-pdf.ps1',
+    'tools\run-pilot-windows-to-mac-open-pdf.ps1',
+    'tools\run-pilot-windows-to-ipad-closed-pdf.ps1',
+    'tools\run-pilot-windows-to-ipad-open-pdf.ps1',
+    'tools\run-pilot-windows-all-pdf-lifecycle.ps1',
+    'tools\run-cross-device-session-monitor.ps1',
+    'tools\export-cross-device-diagnostics.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -352,6 +361,8 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf
 .\tools\run-no-file-ingress-report.ps1
+.\tools\run-cross-device-session-monitor.ps1 -SmokeTest
+.\tools\export-cross-device-diagnostics.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest
 .\tools\run-mac-guest-compat.ps1 -SmokeTest
