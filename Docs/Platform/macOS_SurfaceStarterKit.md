@@ -92,9 +92,34 @@ Erster echter Test:
 6. macOS sendet Return.
 7. Windows bestaetigt Rueckgabe oder Recovery.
 
+## Kompatibilitaets-Harness
+
+Bis eine echte macOS/Xcode-Implementierung existiert, prueft Windows den macOS-Guest-Vertrag lokal:
+
+```powershell
+.\tools\run-mac-guest-compat.ps1 -SmokeTest
+```
+
+Gegen einen laufenden Windows Owner:
+
+```powershell
+.\tools\run-mac-guest-compat.ps1 -ConnectToOwner rkwp+tcp-dev://<windows-ip>:57100
+```
+
+Der Harness simuliert:
+
+- macOS AblageIdentity.
+- macOS Capabilities.
+- FrameGuestSurface.
+- FrameSessionReady.
+- Heartbeat.
+- FrameClose / Return.
+- Recovery-Verhalten.
+- No File Ingress.
+
 ## Offene Blocker
 
 - macOS-Codex/Xcode-Umgebung fehlt in diesem Windows-Thread.
-- netzwerkfaehiger DevTransport fuer Cross-Device-Test fehlt.
+- RKWP DevLan ist fuer das Labor vorbereitet, aber der echte native macOS-Client fehlt.
 - echter PDF-Renderer ist noch offen.
 - finale Overlay-/Permission-Strategie ist offen.

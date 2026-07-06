@@ -127,3 +127,25 @@ Der Windows-Loopback-Smoke steht in:
 .\tools\run-rkwp-lan-smoke.ps1
 .\tools\run-windows-owner-for-mac.ps1 -SmokeTest
 ```
+
+## MA010.04 Compatibility Harness
+
+Windows stellt einen macOS-Guest-Kompatibilitaets-Harness bereit:
+
+```powershell
+.\tools\run-mac-guest-compat.ps1 -SmokeTest
+.\tools\run-mac-guest-compat.ps1 -ReplaySample
+.\tools\run-mac-guest-compat.ps1 -ConnectToOwner rkwp+tcp-dev://<windows-ip>:57100
+```
+
+Dieser Harness ist kein nativer Mac-Client. Er definiert und prueft aber den erwarteten macOS-Guest-Flow:
+
+- `Platform: MacOS`
+- FrameView aktiv.
+- FrameInput zuerst aus.
+- Haptics und Glass Edge geplant.
+- No File Ingress aktiv.
+- OwnershipTransfer standardmaessig aus.
+- Heartbeat und Return vorhanden.
+
+Der native macOS-Codex soll diese Ausgabe als Kompatibilitaetsvertrag verwenden.

@@ -106,6 +106,38 @@ Baue eine macOS FrameGuestSurface, die:
 - Return sendet.
 - Recovery sichtbar loggt.
 
+## MA010.04 macOS Compatibility Harness
+
+Windows kann das erwartete macOS-Guest-Verhalten lokal simulieren:
+
+```powershell
+.\tools\run-mac-guest-compat.ps1 -SmokeTest
+```
+
+Replay ohne Socket:
+
+```powershell
+.\tools\run-mac-guest-compat.ps1 -ReplaySample
+```
+
+Gegen den laufenden Windows Owner:
+
+```powershell
+.\tools\run-mac-guest-compat.ps1 -ConnectToOwner rkwp+tcp-dev://<windows-ip>:57100
+```
+
+Der native macOS-Client muss mindestens dieselben Kriterien erfuellen:
+
+- `MacGuestIdentity: OK`
+- `Platform: MacOS`
+- `FrameView: OK`
+- `FrameInput: OFF`
+- `NoFileIngressCapability: OK`
+- `FrameSessionReady: OK`
+- `Heartbeat: OK`
+- `Return: SUCCESS`
+- `NoFileIngress: SUCCESS`
+
 ## No File Ingress Kriterien
 
 PASS nur wenn macOS meldet:
