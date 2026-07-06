@@ -1,0 +1,219 @@
+{
+  "$schema": "https://rkworkspace.local/schema/rkwp-macos-guest-contract-v0.1.json",
+  "contractId": "rkwp-macos-guest-contract-v0.1",
+  "title": "RKWP macOS Guest Contract v0.1",
+  "platform": "macOS",
+  "role": "FrameGuestSurface",
+  "ownerPlatform": "Windows",
+  "noFileIngressRequired": true,
+  "visibleLanguage": {
+    "allowed": [
+      "Ablage",
+      "Ding",
+      "Frame",
+      "liegt hier im Frame",
+      "zurueckgeben",
+      "Verbindung verloren",
+      "wiederhergestellt",
+      "nicht verfuegbar"
+    ],
+    "forbidden": [
+      "Transfer",
+      "Upload",
+      "Download",
+      "Sync",
+      "Server",
+      "Client",
+      "Endpoint",
+      "Device",
+      "Agent"
+    ]
+  },
+  "sequence": [
+    "AblageHello",
+    "AblageCapabilities",
+    "DevPairing",
+    "SecureDevHandshake",
+    "FrameSessionOpen",
+    "FrameUpdate",
+    "FrameInput",
+    "Heartbeat",
+    "Return",
+    "Revocation",
+    "Error"
+  ],
+  "requiredFlows": [
+    {
+      "name": "AblageHello",
+      "messageType": "AblageHello",
+      "direction": "guest-to-owner",
+      "requiredFields": [
+        "messageId",
+        "messageType",
+        "sessionId",
+        "sourceAblageId",
+        "targetAblageId",
+        "timestamp"
+      ],
+      "requiredPayload": [
+        "ablageIdentityId",
+        "platform",
+        "frameOnly",
+        "noFileIngress"
+      ]
+    },
+    {
+      "name": "AblageCapabilities",
+      "messageType": "AblageCapabilities",
+      "direction": "owner-to-guest",
+      "requiredFields": [
+        "messageId",
+        "messageType",
+        "sessionId",
+        "sourceAblageId",
+        "targetAblageId",
+        "timestamp"
+      ],
+      "requiredPayload": [
+        "frameView",
+        "frameInput",
+        "noFileIngress",
+        "returnSupported"
+      ]
+    },
+    {
+      "name": "DevPairing",
+      "messageType": "AblageCapabilities",
+      "direction": "bidirectional",
+      "contractPhase": "DevPairing",
+      "requiredPayload": [
+        "pairingMode",
+        "ownerAblageId",
+        "guestAblageId",
+        "pairingState"
+      ]
+    },
+    {
+      "name": "SecureDevHandshake",
+      "messageType": "AblageCapabilities",
+      "direction": "bidirectional",
+      "contractPhase": "SecureDevHandshake",
+      "requiredPayload": [
+        "securityMode",
+        "sessionBinding",
+        "replayProtection",
+        "policyBinding"
+      ]
+    },
+    {
+      "name": "FrameSessionOpen",
+      "messageType": "FrameSessionOpen",
+      "direction": "owner-to-guest",
+      "requiredPayload": [
+        "frameSessionId",
+        "leaseId",
+        "thingId",
+        "frameOnly",
+        "containsOriginalFileBytes",
+        "hasOriginalPath"
+      ]
+    },
+    {
+      "name": "FrameUpdate",
+      "messageType": "FrameUpdate",
+      "direction": "owner-to-guest",
+      "requiredPayload": [
+        "frameSessionId",
+        "frameFormat",
+        "pageIndex",
+        "frameChunkId",
+        "containsOriginalFileBytes",
+        "hasOriginalPath"
+      ]
+    },
+    {
+      "name": "FrameInput",
+      "messageType": "FrameInput",
+      "direction": "guest-to-owner",
+      "optional": true,
+      "requiredPayload": [
+        "frameSessionId",
+        "inputKind",
+        "policyPermission"
+      ]
+    },
+    {
+      "name": "Heartbeat",
+      "messageType": "CarryLeaseHeartbeat",
+      "direction": "guest-to-owner",
+      "requiredPayload": [
+        "leaseId",
+        "frameSessionId",
+        "state"
+      ]
+    },
+    {
+      "name": "Return",
+      "messageType": "CarryLeaseReturn",
+      "direction": "guest-to-owner",
+      "requiredPayload": [
+        "leaseId",
+        "frameSessionId",
+        "frameClose",
+        "guestKeptOriginalFile"
+      ]
+    },
+    {
+      "name": "Revocation",
+      "messageType": "CarryLeaseRevoked",
+      "direction": "owner-to-guest",
+      "requiredPayload": [
+        "leaseId",
+        "frameSessionId",
+        "reason",
+        "cacheMustClear"
+      ]
+    },
+    {
+      "name": "Error",
+      "messageType": "Error",
+      "direction": "bidirectional",
+      "requiredPayload": [
+        "code",
+        "message",
+        "recoverable"
+      ]
+    }
+  ],
+  "noFileIngress": {
+    "requiredAssertions": {
+      "guestHasPdfFile": false,
+      "guestHasOriginalPath": false,
+      "guestHasCopiedPdfBytes": false,
+      "frameCacheIsFile": false
+    },
+    "forbiddenPayloadKeys": [
+      "pdfBytes",
+      "originalBytes",
+      "originalFileBytes",
+      "originalPath",
+      "localPdfPath",
+      "downloadPath",
+      "filePath"
+    ],
+    "requiredPayloadPairs": {
+      "containsOriginalFileBytes": "false",
+      "hasOriginalPath": "false",
+      "noFileIngress": "true"
+    }
+  },
+  "audit": {
+    "requiredEvents": [
+      "MacGuestContractValidated",
+      "NoFileIngressChecked",
+      "FrameSessionOpened",
+      "CarryLeaseReturned",
+      "RevocationHandled"
+    ]
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rkworkspace.local/schema/rkwp-envelope-v0.1.json",
+  "title": "RKWP Envelope v0.1",
+  "description": "Development schema export for RK Workspace protocol envelopes. No original file bytes are represented here.",
+  "type": "object",
+  "required": [
+    "message",
+    "isDevelopmentMode"
+  ],
+  "properties": {
+    "isDevelopmentMode": {
+      "type": "boolean"
+    },
+    "message": {
+      "type": "object",
+      "required": [
+        "messageId",
+        "messageType",
+        "protocolVersion",
+        "sessionId",
+        "sourceAblageId",
+        "targetAblageId",
+        "timestamp",
+        "sequenceNumber",
+        "nonce"
+      ],
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "pattern": "^rkwp-msg-[a-fA-F0-9]+$"
+        },
+        "messageType": {
+          "type": "string",
+          "enum": [
+            "AblageHello",
+            "AblageCapabilities",
+            "ProximityUpdate",
+            "NearestAblageSelected",
+            "CarryLeaseRequested",
+            "CarryLeaseGranted",
+            "CarryLeaseDenied",
+            "CarryLeaseHeartbeat",
+            "CarryLeaseReturn",
+            "CarryLeaseRevoked",
+            "CarryLeaseExpired",
+            "FrameSessionOpen",
+            "FrameSessionReady",
+            "FrameUpdate",
+            "FrameInput",
+            "FrameClose",
+            "ChangeSetProposed",
+            "ChangeSetAccepted",
+            "ChangeSetRejected",
+            "OwnershipTransferRequested",
+            "OwnershipTransferDecision",
+            "OwnershipTransferCompleted",
+            "OwnershipTransferDenied",
+            "GlassEdgeAppearing",
+            "GlassEdgeActive",
+            "ObjectEnteringEdge",
+            "ObjectInTransit",
+            "ObjectEmerging",
+            "ObjectPlaced",
+            "HapticHint",
+            "Error"
+          ]
+        },
+        "protocolVersion": {
+          "type": "string",
+          "description": "RKWP protocol version serialized from RkwpVersion."
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "leaseId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sourceAblageId": {
+          "type": "string"
+        },
+        "targetAblageId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequenceNumber": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nonce": {
+          "type": "string",
+          "minLength": 16
+        },
+        "correlationId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Frame and control metadata only. No original file bytes."
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "authTag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -18,6 +18,24 @@ Ziel ist nicht Dateiuebertragung. Ziel ist:
 
 ## Aktueller Handoff
 
+MA013 Bootstrap:
+
+```text
+release/handoff/macOS_Codex_MA013_Bootstrap.md
+```
+
+MA013 RKWP Client:
+
+```text
+release/handoff/macOS_Codex_MA013_RKWPClient.md
+```
+
+MA013 First Real Test Gate:
+
+```text
+release/handoff/WindowsToMac_FirstRealTestGate.md
+```
+
 Direkt nutzbare Handoff-Datei:
 
 ```text
@@ -33,6 +51,18 @@ release/handoff/WindowsToMac_MA009_Handoff.md
 ## Vor dem Bauen Lesen
 
 - `Docs/Codex/CURRENT_CONTEXT.md`
+- `Docs/Platform/macOS_RepositoryBootstrap.md`
+- `release/handoff/macOS_Codex_MA013_Bootstrap.md`
+- `release/handoff/macOS_Codex_MA013_RKWPClient.md`
+- `Docs/Platform/macOS_FrameGuestUI.md`
+- `Docs/Platform/macOS_NoFileIngressChecklist.md`
+- `Docs/Platform/macOS_ReturnAndRecovery.md`
+- `Docs/Platform/macOS_FrameRenderingStrategy.md`
+- `Docs/Platform/macOS_DevAgentPackaging.md`
+- `Docs/Platform/macOS_GestureAndGlassEdge.md`
+- `Docs/Readiness/WindowsToMac_FirstRealTestGate.md`
+- `contracts/macOS-guest/rkwp-macos-guest-contract-v0.1.json`
+- `release/schema/rkwp-envelope-schema-v0.1.json`
 - `Docs/Platform/macOS_SurfaceStarterKit.md`
 - `Docs/Protocol/RKWP_ProtocolFoundation.md`
 - `Docs/Protocol/RKWP_SecureSession.md`
@@ -149,3 +179,54 @@ Dieser Harness ist kein nativer Mac-Client. Er definiert und prueft aber den erw
 - Heartbeat und Return vorhanden.
 
 Der native macOS-Codex soll diese Ausgabe als Kompatibilitaetsvertrag verwenden.
+
+## MA013.01 Repository Bootstrap
+
+macOS-Codex startet ab MA013 mit:
+
+```text
+Docs/Platform/macOS_RepositoryBootstrap.md
+release/handoff/macOS_Codex_MA013_Bootstrap.md
+release/schema/rkwp-envelope-schema-v0.1.json
+```
+
+Pflichtpruefung:
+
+- Repository klonen oder aktualisieren.
+- Branch `feature/ma013-real-cross-platform-frame-pilot` pruefen.
+- Context Pack lesen.
+- RKWP Protocol und Schema lesen.
+- Surface Abstractions lesen.
+- Swift/Xcode als bevorzugten ersten Pfad pruefen.
+- .NET/MAUI/Avalonia nur als Fallback bewerten.
+- No File Ingress als hartes Gate fuer den ersten macOS Guest Test behandeln.
+
+## MA013.02 bis MA013.10 Real-Test-Vorbereitung
+
+macOS-Codex muss den RKWP Client, die Frame Guest UI, No File Ingress, Return/Recovery, Frame Rendering, Packaging und Glass Edge als einen zusammenhaengenden ersten Testpfad behandeln.
+
+Relevante Dateien:
+
+```text
+src/Surfaces/RKWorkspace.Surface.macOS/macos-rkwp-client-architecture.md
+src/Surfaces/RKWorkspace.Surface.macOS/macos-rkwp-message-flow.md
+src/Surfaces/RKWorkspace.Surface.macOS/macos-rkwp-devtransport-client.md
+src/Surfaces/RKWorkspace.Surface.macOS/macos-rkwp-securedev-client.md
+src/Surfaces/RKWorkspace.Surface.macOS/macos-frame-guest-ui-spec.md
+Docs/Platform/macOS_FrameGuestUI.md
+Docs/Platform/macOS_NoFileIngressChecklist.md
+Docs/Platform/macOS_ReturnAndRecovery.md
+Docs/Platform/macOS_FrameRenderingStrategy.md
+Docs/Platform/macOS_DevAgentPackaging.md
+Docs/Platform/macOS_GestureAndGlassEdge.md
+Docs/Readiness/WindowsToMac_FirstRealTestGate.md
+release/handoff/WindowsToMac_FirstRealTestGate.md
+```
+
+Windows-seitige Verifikation:
+
+```powershell
+.\tools\run-mac-guest-contract.ps1
+.\tools\export-rkwp-schema.ps1
+.\tools\run-windows-pdf-owner-securedev.ps1 -SmokeTest
+```
