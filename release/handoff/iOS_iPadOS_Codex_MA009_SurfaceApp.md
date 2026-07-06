@@ -44,7 +44,7 @@ Aufgaben:
 1. Xcode-Projekt anlegen.
 2. iPhone/iPad als Zielgeraet vorbereiten.
 3. App per USB installieren/testen.
-4. RKWP DevTransport Client einbauen oder vorbereiten.
+4. RKWP DevLan/DevTransport Client einbauen oder vorbereiten.
 5. AblageIdentity erzeugen.
 6. Frame anzeigen.
 7. Keine Datei speichern.
@@ -97,6 +97,33 @@ Offene Blocker ehrlich melden:
 - falls Drei-Finger-Geste mit iOS/iPadOS-Systemgesten kollidiert
 ```
 
+## MA010.05 Compatibility Harness
+
+Windows prueft den erwarteten mobilen Vertrag vorab:
+
+```powershell
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
+.\tools\run-ios-guest-compat.ps1 -ReplaySample
+```
+
+Der native Xcode-Client muss mindestens dieselben Ausgaben bzw. Logs liefern:
+
+```text
+iOSGuestIdentity: OK
+PrimaryPlatform: IPadOS
+PhonePlatform: IOS
+FrameView: OK
+TouchInput: PLANNED
+Haptics: PLANNED
+GlobalAppCapture: FALSE
+GuestHasPdfFile: NO
+GuestHasOriginalPath: NO
+OriginalFileBytes: NO
+NoFileIngress: SUCCESS
+```
+
+Die erste Quelle ist die RK Workspace App selbst. Danach folgen Document Picker, Share Extension und bewusst begrenztes Pasteboard. Globale App-Erfassung ist fuer diesen Pfad ausgeschlossen.
+
 ## Windows Owner Befehl
 
 ```powershell
@@ -118,7 +145,7 @@ Offene Blocker ehrlich melden:
 
 ## Blocker Aus Windows-Sicht
 
-- Netzwerkfaehiger DevTransport fehlt noch.
+- DevLan-Lab-Profil ist vorbereitet, aber der echte mobile Client fehlt.
 - native iOS/iPadOS App fehlt noch.
 - produktive Security fehlt noch.
 - PDF-/Frame-Renderer ist noch nicht final.

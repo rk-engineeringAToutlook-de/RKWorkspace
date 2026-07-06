@@ -114,6 +114,28 @@ Baue eine iOS/iPadOS RK Workspace Surface App.
 
 - Xcode/macOS-Codex fehlt in diesem Windows-Thread.
 - echtes iPhone/iPad muss per USB getestet werden.
-- netzwerkfaehiger DevTransport zu mobilen Geraeten fehlt noch.
+- DevLan-Lab-Profil ist auf Windows vorbereitet, aber der echte mobile Client fehlt.
 - finale native PDF-/Frame-Darstellung ist offen.
 - Drei-Finger-Geste muss gegen iOS/iPadOS-Systemgesten validiert werden.
+
+## MA010.05 Compatibility Harness
+
+Windows stellt einen iOS/iPadOS-Guest-Kompatibilitaets-Harness bereit:
+
+```powershell
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
+.\tools\run-ios-guest-compat.ps1 -ReplaySample
+```
+
+Der Harness ist keine iOS-App. Er ist der Vertrag fuer macOS-Codex und Xcode:
+
+- `PrimaryPlatform: IPadOS`
+- `PhonePlatform: IOS`
+- FrameView aktiv.
+- TouchInput, Haptics und Glass Edge geplant.
+- Share Extension, Document Picker und begrenztes Pasteboard geplant.
+- GlobalAppCapture false.
+- No File Ingress aktiv.
+- OwnershipTransfer standardmaessig aus.
+
+Der native Xcode-Build muss diese Kriterien auf echtem iPhone/iPad bestaetigen.

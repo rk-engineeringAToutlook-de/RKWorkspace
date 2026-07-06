@@ -123,9 +123,30 @@ Pruefen:
 - File/document permissions.
 - Logging fuer No File Ingress.
 
+## Kompatibilitaets-Harness
+
+Bis eine native App existiert, prueft Windows den mobilen Guest-Vertrag:
+
+```powershell
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
+```
+
+Der Harness modelliert:
+
+- iOS und iPadOS AblageIdentity.
+- FrameView.
+- TouchInput geplant.
+- Haptics geplant.
+- Glass Edge geplant.
+- Share Extension geplant.
+- Document Picker geplant.
+- Pasteboard bewusst und begrenzt.
+- GlobalAppCapture false.
+- No File Ingress.
+
 ## Offene Blocker
 
 - kein Xcode in diesem Windows-Thread.
-- netzwerkfaehiger DevTransport zu iOS/iPadOS fehlt noch.
+- DevLan-Lab-Profil ist vorbereitet, aber der echte mobile Client fehlt.
 - native Renderer-/FramePresenter-Entscheidung offen.
 - finale Geste offen.

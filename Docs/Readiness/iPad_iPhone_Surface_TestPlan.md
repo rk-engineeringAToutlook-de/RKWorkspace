@@ -69,6 +69,25 @@ macOS-Codex soll:
 9. Logs fuer No File Ingress erzeugen.
 10. Return und Recovery melden.
 
+## MA010.05 Compatibility Harness
+
+Windows kann den mobilen Vertrag bereits lokal pruefen:
+
+```powershell
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
+```
+
+Der Smoke ersetzt keinen echten USB-Test. Er prueft aber vorab:
+
+- iOS/iPadOS Guest Identity.
+- FrameView.
+- TouchInput geplant.
+- Haptics geplant.
+- Glass Edge geplant.
+- Share Extension / Document Picker / Pasteboard geplant.
+- GlobalAppCapture false.
+- No File Ingress.
+
 ## USB-Testpfad
 
 Erster Hardwarepfad:
@@ -159,7 +178,7 @@ Nicht als erste Annahme:
 
 - Kein Xcode in diesem Windows-Thread.
 - Native iOS/iPadOS App fehlt.
-- Netzwerkfaehiger DevTransport zu iOS/iPadOS fehlt.
+- DevLan-Lab-Profil ist vorbereitet, aber der echte mobile Client fehlt.
 - PDF-Renderer/FramePresenter muss nativ entschieden werden.
 - finale Touch-Geste muss auf echter Hardware geprueft werden.
 - Local Network Permission muss auf echter Hardware bestaetigt werden.
