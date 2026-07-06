@@ -10,7 +10,10 @@ public sealed record PdfFrameSmokeResult(
     FrameUpdate FirstFrameUpdate,
     PdfGuestFrame GuestFrame,
     CarryLease ReturnedLease,
-    CarryLeaseRecovery Recovery)
+    CarryLeaseRecovery Recovery,
+    FrameCachePolicy CachePolicy,
+    FrameCacheDiagnostics CacheBeforeClose,
+    FrameCacheDiagnostics CacheAfterClose)
 {
     public bool OwnerStillOwnsOriginal =>
         Ownership.OwnerAblageId == Lease.OwnerAblageId &&
@@ -41,6 +44,18 @@ public sealed record PdfFrameSmokeResult(
     public bool VisibleStateLanguageIsValid =>
         OwnerGuestFrameStateUx.ValidateVisibleText(VisibleStates.Select(state => state.Text)).IsValid;
 
+    public bool FrameCacheRespectsNoFileIngress =>
+        !CacheBeforeClose.ContainsOriginalFileBytes &&
+        !CacheBeforeClose.MaterializesOriginalFile &&
+        CacheBeforeClose.FileWrites == 0 &&
+        !CacheAfterClose.ContainsOriginalFileBytes &&
+        !CacheAfterClose.MaterializesOriginalFile &&
+        CacheAfterClose.FileWrites == 0;
+
+    public bool FrameCacheClearedAfterClose =>
+        CacheAfterClose.IsCleared &&
+        CacheAfterClose.LastEvictionReason == FrameCacheEvictionReason.FrameClose.ToString();
+
     public bool IsSuccessful =>
         OwnerStillOwnsOriginal &&
         GuestHasNoFileIngress &&
@@ -50,5 +65,7 @@ public sealed record PdfFrameSmokeResult(
         ReturnedLease.State == CarryLeaseState.Returned &&
         Recovery.OwnerRecoveredThing &&
         Recovery.GuestFrameInvalidated &&
+        FrameCacheRespectsNoFileIngress &&
+        FrameCacheClearedAfterClose &&
         VisibleStateLanguageIsValid;
 }

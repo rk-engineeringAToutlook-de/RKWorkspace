@@ -171,6 +171,14 @@ Deshalb gilt:
 - CopyOut, ForkVersion und MoveOwnership brauchen spaeter explizite Bestaetigung und Policy.
 - Lease-Verlust fuehrt zur Owner-Recovery.
 
+## Frame Cache Schutz
+
+MA010.07 fuehrt `FrameCachePolicy` ein. Cache ist kein OwnershipTransfer und keine freie Dateiablage.
+
+Default ist `MemoryOnly`. `TemporaryEncrypted` ist nur vorbereitet. `DevInspectable` ist nur in Development erlaubt und wird fuer `CriticalInfrastructure` blockiert.
+
+Der Cache darf gerenderte Frames temporaer halten, muss aber bei FrameClose, Revocation oder Recovery loeschen. Er darf keine Original-PDF, keine Originalbytes, keinen Originalpfad und keine rekonstruierbare Originaldatei speichern.
+
 ## Ownership Transfer Gate
 
 MA007.08 schaerft Ownership Transfer als separates Security Gate. Ohne ausdrueckliche Policy wird OwnershipTransfer abgelehnt. Nur `Approved` darf materialisieren. `RequiresUserConfirmation`, `RequiresAdapter`, `Denied` und `NotSupported` erzeugen keine neue Quelle der Wahrheit.

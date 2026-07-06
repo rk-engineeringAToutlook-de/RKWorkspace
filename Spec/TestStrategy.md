@@ -940,6 +940,7 @@ Smoke-Test:
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.47.0 | 2026-07-06 | MA010.07 FrameCachePolicy mit MemoryOnly, FrameClose-Clear, No File Ingress und CriticalInfrastructure-Blockade fuer DevInspectable dokumentiert. |
 | 2.46.0 | 2026-07-06 | MA010.01 Windows PDF Frame Pilot Smoke-Test fuer Owner-/Guest-Ablage, Rueckgabe, Recovery und No File Ingress dokumentiert. |
 | 2.45.0 | 2026-07-05 | MA007.09 Windows Object Adapter, PDF FileReference, ClipboardText und Screenshot/WindowSnapshot-Stubs dokumentiert. |
 | 2.44.0 | 2026-07-05 | MA007.08 Ownership Transfer Gate, MaterializationResult, OriginalDisposition und Objektartregeln dokumentiert. |

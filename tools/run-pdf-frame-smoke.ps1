@@ -45,6 +45,26 @@ if (-not $combinedText.Contains('IsPlaceholder: True')) {
     throw 'PDF Frame Smoke failed because placeholder renderer status was not explicit.'
 }
 
+if (-not $combinedText.Contains('FrameCacheScope: MemoryOnly')) {
+    throw 'PDF Frame Smoke failed because memory-only frame cache was not used.'
+}
+
+if (-not $combinedText.Contains('FrameCacheOriginalBytes: NO')) {
+    throw 'PDF Frame Smoke failed because frame cache no-file-ingress was not explicit.'
+}
+
+if (-not $combinedText.Contains('FrameCacheClose: CLEARED')) {
+    throw 'PDF Frame Smoke failed because frame cache was not cleared after frame close.'
+}
+
+if (-not $combinedText.Contains('DevInspectableDevelopment: OK')) {
+    throw 'PDF Frame Smoke failed because Development DevInspectable cache policy was not allowed.'
+}
+
+if (-not $combinedText.Contains('CriticalBlocksDevInspectable: OK')) {
+    throw 'PDF Frame Smoke failed because CriticalInfrastructure did not block DevInspectable cache.'
+}
+
 if (-not $combinedText.Contains('GuestHasPdfFile: NO')) {
     throw 'PDF Frame Smoke failed because output did not contain GuestHasPdfFile: NO.'
 }

@@ -127,3 +127,17 @@ MA010.01 macht den FrameOnly-Pfad erstmals als lokalen Windows-Pilot sichtbar. `
 Die FrameSession bleibt Original-Owned. Der Owner zeigt `ausgeliehen`, `wartet auf Rueckgabe`, `zurueckgegeben` und `wieder verfuegbar`. Die Guest-Ablage zeigt `liegt gleich hier`, `PDF liegt hier im Frame`, `zurueckgeben`, `nicht verfuegbar` und `Verbindung verloren`.
 
 Der Pilot verwendet weiterhin `MetadataPreview`, solange der echte PDF-Seitenrenderer blockiert ist. No File Ingress bleibt hart: kein Guest-PDF, kein Originalpfad und keine kopierten PDF-Bytes.
+
+## Frame Cache Policy
+
+MA010.07 ergaenzt den Frame-Pfad um `FrameCachePolicy`.
+
+Der Standard ist `MemoryOnly`. Cacheeintraege sind nur temporaere Frame-Daten und werden bei FrameClose, Revocation oder Recovery geloescht. Der Cache enthaelt keine Original-PDF, keine Originalbytes und keinen Originalpfad.
+
+Der PDF-Smoke meldet:
+
+```text
+FrameCacheScope: MemoryOnly
+FrameCacheOriginalBytes: NO
+FrameCacheClose: CLEARED
+```

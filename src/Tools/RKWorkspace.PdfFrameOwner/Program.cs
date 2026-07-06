@@ -19,6 +19,15 @@ Console.WriteLine($"RendererStatus: {result.GuestFrame.RendererStatus}");
 Console.WriteLine($"RendererName: {result.GuestFrame.RendererName}");
 Console.WriteLine($"FrameFormat: {result.GuestFrame.FrameFormat}");
 Console.WriteLine($"IsPlaceholder: {result.GuestFrame.IsPlaceholder}");
+Console.WriteLine($"FrameCacheScope: {result.CachePolicy.Scope}");
+Console.WriteLine($"FrameCachePolicy: {result.CachePolicy.PolicyProfile}");
+Console.WriteLine($"FrameCacheEntriesBeforeClose: {result.CacheBeforeClose.Entries}");
+Console.WriteLine($"FrameCacheEntriesAfterClose: {result.CacheAfterClose.Entries}");
+Console.WriteLine($"FrameCacheFileWrites: {result.CacheBeforeClose.FileWrites + result.CacheAfterClose.FileWrites}");
+Console.WriteLine($"FrameCacheOriginalBytes: {(result.FrameCacheRespectsNoFileIngress ? "NO" : "YES")}");
+Console.WriteLine($"FrameCacheClose: {(result.FrameCacheClearedAfterClose ? "CLEARED" : "FAILED")}");
+Console.WriteLine($"DevInspectableDevelopment: {(DevInspectableDevelopmentAllowed() ? "OK" : "FAILED")}");
+Console.WriteLine($"CriticalBlocksDevInspectable: {(CriticalBlocksDevInspectable() ? "OK" : "FAILED")}");
 Console.WriteLine($"OwnerLocked: {(result.OwnerStillOwnsOriginal ? "OK" : "FAILED")}");
 Console.WriteLine($"OwnerVisibleStatus: {result.OwnerVisibleStatus}");
 Console.WriteLine($"GuestVisibleStatus: {result.GuestVisibleStatus}");
@@ -31,6 +40,33 @@ Console.WriteLine("Rueckgabe: PDF auf Owner-Ablage logisch freigegeben.");
 Console.WriteLine($"Recovery: {(result.Recovery.OwnerRecoveredThing ? "OK" : "FAILED")}");
 Console.WriteLine(result.IsSuccessful ? "RESULT: SUCCESS" : "RESULT: FAILED");
 return result.IsSuccessful ? 0 : 1;
+
+static bool DevInspectableDevelopmentAllowed()
+{
+    _ = new FrameCache(new FrameCachePolicy(
+        FrameCacheScope.DevInspectable,
+        "DevelopmentLab",
+        AllowDevInspectable: true,
+        AllowTemporaryEncrypted: false));
+    return true;
+}
+
+static bool CriticalBlocksDevInspectable()
+{
+    try
+    {
+        _ = new FrameCache(new FrameCachePolicy(
+            FrameCacheScope.DevInspectable,
+            "CriticalInfrastructure",
+            AllowDevInspectable: false,
+            AllowTemporaryEncrypted: false));
+        return false;
+    }
+    catch (PdfFrameRendererException)
+    {
+        return true;
+    }
+}
 
 static string? GetArgument(IReadOnlyList<string> args, string name)
 {

@@ -36,6 +36,8 @@ Die Regeln werden spaeter pro Policy, Anwendung, Firmenumgebung und Sicherheitsz
 
 Ab MA010.06 ist der Renderer-Pfad abstrahiert. `PdfDocument` verwendet `IPdfFrameRenderer`. Der aktuelle `MetadataPreviewDevRenderer` ist explizit `IsPlaceholder: true` und bleibt FrameOnly. Ein spaeterer echter Renderer darf nur gerenderte Frames liefern, keine Original-PDF und keinen Originalpfad.
 
+Ab MA010.07 darf `PdfDocument` gerenderte Frames temporaer cachen, aber nur gemaess `FrameCachePolicy`. Der Cache bleibt `MemoryOnly` als Default und darf nie Original-PDF, Originalbytes oder Originalpfad materialisieren.
+
 ## MA007.07 ChangeSet-Regeln
 
 PDF-Annotationen werden als erste ChangeSet-Operation vorbereitet. Die Gastablage erzeugt dabei keine freie PDF-Datei und schreibt nicht direkt in das Original.

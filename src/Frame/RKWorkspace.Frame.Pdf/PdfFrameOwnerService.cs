@@ -5,10 +5,12 @@ namespace RKWorkspace.Frame.Pdf;
 public sealed class PdfFrameOwnerService
 {
     private readonly IPdfFrameRenderer _renderer;
+    private readonly FrameCachePolicy _cachePolicy;
 
-    public PdfFrameOwnerService(IPdfFrameRenderer? renderer = null)
+    public PdfFrameOwnerService(IPdfFrameRenderer? renderer = null, FrameCachePolicy? cachePolicy = null)
     {
         _renderer = renderer ?? new PlaceholderPdfFrameRenderer();
+        _cachePolicy = cachePolicy ?? FrameCachePolicy.DevelopmentMemoryOnly;
     }
 
     public PdfFrameSmokeResult OpenFrameOnlySession(
@@ -33,6 +35,7 @@ public sealed class PdfFrameOwnerService
             Options: new PdfFrameRenderOptions(),
             ownerAblageId,
             document.ThingId));
+        var frameCache = new FrameCache(_cachePolicy);
         var update = CreateFrameUpdate(document, frame, timestamp.AddMilliseconds(60));
         var guestFrame = new PdfGuestFrame(
             frame.FrameSessionId,
@@ -50,8 +53,12 @@ public sealed class PdfFrameOwnerService
             SupportsZoom: true,
             ContainsOriginalFileBytes: false,
             HasOriginalFilePath: false);
+        frameCache.Store(frame.FrameSessionId, document.ThingId, renderResult, timestamp.AddMilliseconds(70));
+        var cacheBeforeClose = frameCache.GetDiagnostics();
 
         var returnedLease = lease.Return(timestamp.AddSeconds(1));
+        frameCache.EvictFrameSession(frame.FrameSessionId, FrameCacheEvictionReason.FrameClose);
+        var cacheAfterClose = frameCache.GetDiagnostics();
         var recovered = lease with { LastHeartbeat = timestamp.AddSeconds(-30) };
         var recovery = recovered.Advance(timestamp).Recover();
 
@@ -63,7 +70,10 @@ public sealed class PdfFrameOwnerService
             update,
             guestFrame,
             returnedLease,
-            recovery);
+            recovery,
+            _cachePolicy,
+            cacheBeforeClose,
+            cacheAfterClose);
     }
 
     private static FrameUpdate CreateFrameUpdate(PdfFrameDocument document, FrameSession frame, DateTimeOffset timestamp)
