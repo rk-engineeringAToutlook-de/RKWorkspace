@@ -1,13 +1,13 @@
 # MA016 Pilot Lab Performance Baseline
 
-Generated: 2026-07-06T23:46:01Z
+Generated: 2026-07-06T23:53:30Z
 
 ## Measured smoke scenarios
 
 | Scenario | DurationMs |
 | --- | ---: |
-| ClosedPdfCapsule | 3260 |
-| UwbGlassEdge | 3137 |
+| ClosedPdfCapsule | 3282 |
+| UwbGlassEdge | 3190 |
 
 ## Planned full scenarios
 

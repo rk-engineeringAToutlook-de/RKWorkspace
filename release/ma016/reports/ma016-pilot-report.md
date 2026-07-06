@@ -1,6 +1,6 @@
 # MA016 Pilot Lab Report
 
-Generated: 2026-07-06T23:45:48Z
+Generated: 2026-07-06T23:53:17Z
 
 ## Config
 
@@ -27,15 +27,15 @@ NativeDeviceExecution: PENDING_EXTERNAL_MACOS_XCODE
   Wiederherzustellende Projekte werden ermittelt...
   Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
   RKWorkspace.Protocol -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Protocol\RKWorkspace.Protocol\bin\Debug\net8.0\RKWorkspace.Protocol.dll
-  RKWorkspace.Shell -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Shell\RKWorkspace.Shell\bin\Debug\net8.0\RKWorkspace.Shell.dll
   RKWorkspace.Frame.Pdf -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Frame\RKWorkspace.Frame.Pdf\bin\Debug\net8.0\RKWorkspace.Frame.Pdf.dll
+  RKWorkspace.Shell -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Shell\RKWorkspace.Shell\bin\Debug\net8.0\RKWorkspace.Shell.dll
   RKWorkspace.WindowsPdfFramePilot -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Tools\RKWorkspace.WindowsPdfFramePilot\bin\Debug\net8.0\RKWorkspace.WindowsPdfFramePilot.dll
 
 Der Buildvorgang wurde erfolgreich ausgeführt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:01.05
+Verstrichene Zeit 00:00:01.13
 RK Workspace Windows PDF Frame Pilot
 ------------------------------------
 Modus: Smoke-Test
