@@ -186,3 +186,11 @@ Windows-seitige Verifikation:
 .\tools\run-windows-pdf-owner-securedev.ps1 -SmokeTest
 .\tools\export-codex-context.ps1
 ```
+
+## MA016 Aufgaben
+
+- `release/ma016/handoff/iOS_START_HERE.md` als Xcode-Einstieg verwenden.
+- iPad/iPhone Surface App fuer Capsule, OpenFrame, Return, Recovery und Haptics vorbereiten.
+- Sandbox-No-File-Ingress fuer Documents, Caches, tmp, Files Export und FrameCache einhalten.
+- USB-Installierbarkeit und Local-Network-Permissions im Runbook pruefen.
+- iPad Layout und iPhone Compact Layout fuer Frame-Kapseln vorbereiten.

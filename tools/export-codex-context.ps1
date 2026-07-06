@@ -132,6 +132,11 @@ $files = @(
     'Docs\Readiness\MA013_ReadinessReview.md',
     'Docs\Readiness\MA013_RealPilotStartPlan.md',
     'Docs\Readiness\MA013_NextCodexActions.md',
+    'Docs\Readiness\MA016_TargetState.md',
+    'Docs\Readiness\MA016_TestMatrix.md',
+    'Docs\Readiness\MA016_GoNoGoCriteria.md',
+    'Docs\Readiness\MA016_PilotRoles.md',
+    'Docs\Readiness\MA016_StartCheckpoint.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -276,6 +281,7 @@ $files = @(
     'tools\run-rkwp-lan-smoke.ps1',
     'tools\run-windows-securedev-pdf-e2e.ps1',
     'tools\run-rkwp-chaos.ps1',
+    'tools\run-ma016-smoke.ps1',
     'tools\run-security-regression.ps1',
     'tools\run-windows-pdf-frame-pilot.ps1',
     'tools\run-windows-object-adapter.ps1',
@@ -304,6 +310,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-rkwp-lan-smoke.ps1
 .\tools\run-windows-securedev-pdf-e2e.ps1 -SmokeTest
 .\tools\run-rkwp-chaos.ps1 -SmokeTest
+.\tools\run-ma016-smoke.ps1 -SkipHeavy
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest

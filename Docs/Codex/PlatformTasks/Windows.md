@@ -60,3 +60,12 @@ Es erfolgt noch keine produktive Installation.
 ## GitHub und Context Pack
 
 Nur auf Feature-Branch arbeiten. Context-Pack aus `tools/export-codex-context.ps1` vor Plattform-Handoff erzeugen. Kein Push ohne Owner-Freigabe.
+
+## MA016 Aufgaben
+
+- Windows Closed PDF Capsule als Standard-Pilot stabilisieren.
+- Windows Open PDF Context als OpenFrame-Pilot vorbereiten.
+- Owner Lock, Return, Recovery und verbotene sichtbare Sprache pruefen.
+- No File Ingress fuer Capsule und OpenFrame beweisen.
+- Pilot-Skripte fuer Windows lokal, Windows-to-macOS und Windows-to-iPad bereitstellen.
+- DevMode-/Security-Warnungen sichtbar halten.

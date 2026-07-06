@@ -61,3 +61,10 @@ Android Surface Host mit TouchHold, Glass Edge, FrameGuestSurface, Haptik und No
 ## GitHub und Context Pack
 
 Android-Arbeit laeuft ueber Feature-Branch, GitHub und Context-Pack. Keine Plattformsemantik duplizieren.
+
+## MA016 Aufgaben
+
+- Android bleibt vorbereitet, aber nicht Hauptpfad.
+- Capsule/OpenFrame Contracts aus MA016 lesen.
+- No File Ingress fuer Android-App-Sandbox planen.
+- UWB Capability Mapping und spaeteren Dongle-/BLE-Anker beruecksichtigen.

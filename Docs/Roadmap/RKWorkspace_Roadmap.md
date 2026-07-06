@@ -59,3 +59,24 @@ MA011.03 fuehrt den SecureDevTransport-Spike ein. Er verbindet lokale Ablage-Ide
 MA011.04 rendert die erste PDF-Seite im Development-Pfad als PNG-Frame. MA011.05 stabilisiert den Windows-Pilot fuer Owner-/Gast-Testanzeigen. MA011.06 verbindet diesen Pilot mit einer lokalen Glass-Edge-PlaySequence.
 
 Die naechsten Schritte sind Manual Map UI/CLI fuer echte Lab-Aufbauten und danach die konkreten macOS- und iOS/iPadOS-Gastpfade.
+
+## MA016 Real Platform Execution
+
+MA016 verschiebt den Fokus vom vorbereiteten Readiness-Stand in den Real-Platform-Pilot. Windows bleibt die erste aktive Owner-Ablage. macOS wird als echte Gegenplattform angebunden, iPad/iPhone werden ueber macOS/Xcode installierbar und testbar vorbereitet.
+
+Der MA016-Produktpfad ist:
+
+1. geschlossene PDF auf Windows als Frame-Kapsel nehmen.
+2. Kapsel auf eine andere Ablage legen.
+3. Kapsel im kontrollierten Frame oeffnen.
+4. geoeffnete PDF als OpenFrame weiterfuehren.
+5. No File Ingress fuer Capsule und OpenFrame beweisen.
+6. Return und Recovery beweisen.
+7. Manual Map und UWB-Simulator als Naehequellen fuer Glass Edge nutzen.
+8. macOS- und iOS-Handoffs so exportieren, dass externe Plattform-Codex-Arbeit starten kann.
+
+MA016 ist kein Sync- oder Dateiuebertragungs-Sprint. Die Originalablage bleibt Eigentuemerin, bis eine explizite, erlaubte und auditierte Besitzuebernahme stattfindet.
+
+## Pilot-Lab Go/No-Go
+
+Nach MA016 muss ein Go/No-Go fuer groessere Tests vorliegen. Go ist nur moeglich, wenn Windows lokal Closed PDF und Open PDF testen kann, No File Ingress gruen ist, macOS/iOS-Handoffs vollstaendig sind, Proximity/UWB simulierbar ist und das Context Pack alle Runbooks, Schemas, Configs und Reports enthaelt.

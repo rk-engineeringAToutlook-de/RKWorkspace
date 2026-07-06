@@ -230,3 +230,11 @@ Windows-seitige Verifikation:
 .\tools\export-rkwp-schema.ps1
 .\tools\run-windows-pdf-owner-securedev.ps1 -SmokeTest
 ```
+
+## MA016 Aufgaben
+
+- `release/ma016/handoff/macOS_START_HERE.md` als Einstieg verwenden.
+- RKWP Client fuer AblageHello, Identity, Capsule, OpenFrame, Heartbeat, Return und Recovery bauen.
+- Frame anzeigen, aber keine PDF-Datei, keine Originalbytes und keinen Originalpfad speichern.
+- Return/Recovery sichtbar mit menschlicher Sprache darstellen.
+- Build-/Permissions- und First-Pilot-Runbook abarbeiten.

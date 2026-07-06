@@ -59,3 +59,10 @@ Minimalen Linux-Agent und FrameGuestSurface-Handoff fuer FrameOnly planen.
 ## GitHub und Context Pack
 
 Linux-Arbeit laeuft ueber Feature-Branch, GitHub und Context-Pack. Keine Linux-Sondersemantik fuer Ownership.
+
+## MA016 Aufgaben
+
+- Linux bleibt vorbereitet, aber nicht Hauptpfad.
+- Capsule/OpenFrame Contracts aus MA016 lesen.
+- Wayland/X11-Sicherheitsgrenzen fuer Frame-Darstellung und No File Ingress dokumentieren.
+- Proximity- und Dongle-Anbindung spaeter ueber neutrale Contracts planen.
