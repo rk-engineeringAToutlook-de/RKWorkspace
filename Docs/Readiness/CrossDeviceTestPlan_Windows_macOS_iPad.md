@@ -53,6 +53,15 @@ Erfolgskriterien:
 
 AP016 konkretisiert dieses Szenario als ersten Handoff-Test. Windows liefert dafuer einen Owner-Startpunkt, ein Context Pack und eine Handoff-Datei. Der aktuelle `NamedPipeDev`-Transport bleibt lokal; fuer den echten macOS-Test muss ein netzwerkfaehiges Development-Profil ergaenzt werden.
 
+MA009.06 ergaenzt den lokalen Vorbereitungspfad mit ManualMap:
+
+```powershell
+.\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap -TargetAblage macOS -PdfPath "samples\Objects\Rechnung.pdf"
+```
+
+Damit ist lokal pruefbar, dass macOS als naechste Ablage ausgewaehlt wird, die rechte Glass Edge erscheint und FrameOnly/No File Ingress erhalten bleiben.
+
 ## Szenario B: Windows besitzt PDF, iPad zeigt PDF-Frame
 
 | Feld | Inhalt |

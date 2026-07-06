@@ -12,6 +12,7 @@ MA008.04 verbindet die gläserne Kante mit dem Original-Owned PDF Frame Ablauf. 
 ```powershell
 .\tools\run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest
 .\tools\run-glass-edge-pdf-frame-e2e.ps1 -PdfPath "samples\Objects\Rechnung.pdf"
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap -TargetAblage macOS -PdfPath "samples\Objects\Rechnung.pdf"
 ```
 
 ## Ablauf
@@ -25,6 +26,27 @@ MA008.04 verbindet die gläserne Kante mit dem Original-Owned PDF Frame Ablauf. 
 7. Guest sieht den PDF-Frame.
 8. Guest erhaelt keine PDF-Datei, keinen Originalpfad und keine Originalbytes.
 9. Rueckgabe und Recovery bleiben erfolgreich.
+
+## MA009.06 Manual Map
+
+Der E2E-Pfad kann jetzt die manuelle Raumkarte nutzen:
+
+```powershell
+.\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap -TargetAblage macOS -PdfPath "samples\Objects\Rechnung.pdf"
+```
+
+Im Smoke-Test wird eine reproduzierbare ManualMap erzeugt. Erwartet:
+
+- `ProximitySource: ManualMap`
+- `NearestAblage: Ablage macOS`
+- `EdgeDirection: Right`
+- `CarryLease: Active`
+- `FrameSession: Active`
+- `GuestHasPdfFile: NO`
+- `NoFileIngress: SUCCESS`
+- `Return: SUCCESS`
+- `Recovery: SUCCESS`
 
 ## RKWP Event Flow
 

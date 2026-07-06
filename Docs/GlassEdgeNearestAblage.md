@@ -55,6 +55,16 @@ Die Provider-Prioritaet ist:
 2. Simulated.
 3. spaeter BLE/UWB/Dongle.
 
+## MA009.06 PDF Frame E2E
+
+`run-glass-edge-pdf-frame-e2e.ps1` kann die ManualMap direkt nutzen:
+
+```powershell
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap -TargetAblage macOS -PdfPath "samples\Objects\Rechnung.pdf"
+```
+
+Der Pfad prueft, dass ManualMap `macOS rechts/nah` liefert, die rechte Glass Edge aktiv wird und daraus eine Original-Owned FrameSession entsteht. Die Zielablage bekommt weiterhin keine freie PDF-Datei.
+
 ## Entfernung
 
 Entfernung steuert:

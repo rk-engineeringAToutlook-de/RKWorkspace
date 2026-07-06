@@ -7,6 +7,7 @@ using RKWorkspace.Transport;
 using RKWorkspace.Transport.Dev;
 using RKWorkspace.Transport.Rkwp;
 using ProtocolAblageIdentity = RKWorkspace.Protocol.Identity.AblageIdentity;
+using ShellAblageIdentity = RKWorkspace.Shell.AblageIdentity;
 
 var options = GlassEdgePdfFrameE2EOptions.Parse(args, FindRoot());
 
@@ -29,9 +30,14 @@ static void Print(GlassEdgePdfFrameE2EResult result)
     Console.WriteLine("RK Workspace Glass Edge PDF Frame E2E");
     Console.WriteLine("-------------------------------------");
     Console.WriteLine($"Mode: {(result.SmokeTest ? "SmokeTest" : "Demo")}");
+    Console.WriteLine($"ProximitySource: {result.Nearest.Source}");
+    Console.WriteLine($"UseManualMap: {result.UseManualMap}");
+    Console.WriteLine($"RequestedTargetAblage: {result.RequestedTargetAblage}");
     Console.WriteLine($"PDF: {result.Document.FileName}");
     Console.WriteLine($"NearestAblage: {result.Nearest.TargetDisplayName}");
     Console.WriteLine($"EdgeDirection: {result.GlassEdge.Direction}");
+    Console.WriteLine($"TargetGhost: {(result.TargetGhostPrepared ? "Prepared" : "Missing")}");
+    Console.WriteLine($"OwnerVisible: {result.OwnerVisible}");
     Console.WriteLine($"GlassEdge: {(result.GlassEdge.IsActive ? "Active" : "Inactive")}");
     Console.WriteLine($"EventFlow: {string.Join(" -> ", result.EventFlow)}");
     Console.WriteLine($"NearestAblageSelected: {(result.Nearest.HasTarget ? "OK" : "FAILED")}");
@@ -73,12 +79,21 @@ static string FindRoot()
     return directory.FullName;
 }
 
-public sealed record GlassEdgePdfFrameE2EOptions(string PdfPath, bool SmokeTest)
+public sealed record GlassEdgePdfFrameE2EOptions(
+    string Root,
+    string PdfPath,
+    bool SmokeTest,
+    bool UseManualMap,
+    string TargetAblage,
+    bool OwnerVisible)
 {
     public static GlassEdgePdfFrameE2EOptions Parse(string[] args, string root)
     {
         var pdfPath = Path.Combine(root, "samples", "Objects", "Rechnung.pdf");
         var smokeTest = false;
+        var useManualMap = false;
+        var targetAblage = "macOS";
+        var ownerVisible = false;
 
         for (var index = 0; index < args.Length; index++)
         {
@@ -90,15 +105,36 @@ public sealed record GlassEdgePdfFrameE2EOptions(string PdfPath, bool SmokeTest)
                 continue;
             }
 
+            if (string.Equals(arg, "--use-manual-map", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-UseManualMap", StringComparison.OrdinalIgnoreCase))
+            {
+                useManualMap = true;
+                continue;
+            }
+
+            if ((string.Equals(arg, "--target-ablage", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(arg, "-TargetAblage", StringComparison.OrdinalIgnoreCase)) &&
+                index + 1 < args.Length)
+            {
+                targetAblage = args[++index];
+                continue;
+            }
+
             if ((string.Equals(arg, "--pdf-path", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(arg, "-PdfPath", StringComparison.OrdinalIgnoreCase)) &&
                 index + 1 < args.Length)
             {
                 pdfPath = args[++index];
             }
+
+            if (string.Equals(arg, "--owner-visible", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(arg, "-OwnerVisible", StringComparison.OrdinalIgnoreCase))
+            {
+                ownerVisible = true;
+            }
         }
 
-        return new GlassEdgePdfFrameE2EOptions(Path.GetFullPath(pdfPath), smokeTest);
+        return new GlassEdgePdfFrameE2EOptions(root, Path.GetFullPath(pdfPath), smokeTest, useManualMap, targetAblage, ownerVisible);
     }
 }
 
@@ -110,7 +146,7 @@ public static class GlassEdgePdfFrameE2E
     {
         var now = DateTimeOffset.UtcNow;
         var currentAblage = SimulatedAblageProximityProvider.WindowsAblageId;
-        var nearest = new NearestAblageSelector().Select(new SimulatedAblageProximityProvider().GetSnapshot(currentAblage));
+        var nearest = ResolveNearest(options, currentAblage);
         if (!nearest.HasTarget || nearest.TargetAblageId is null)
         {
             throw new InvalidOperationException("No nearest ablage for Glass Edge PDF Frame E2E.");
@@ -198,6 +234,9 @@ public static class GlassEdgePdfFrameE2E
 
         return new GlassEdgePdfFrameE2EResult(
             options.SmokeTest,
+            options.UseManualMap,
+            options.TargetAblage,
+            options.OwnerVisible,
             nearest,
             glassEdge,
             document,
@@ -211,6 +250,88 @@ public static class GlassEdgePdfFrameE2E
             recovery,
             eventMessages,
             transportConnected);
+    }
+
+    private static NearestAblageResult ResolveNearest(GlassEdgePdfFrameE2EOptions options, ShellAblageIdentity currentAblage)
+    {
+        if (!options.UseManualMap)
+        {
+            return new NearestAblageSelector().Select(new SimulatedAblageProximityProvider().GetSnapshot(currentAblage));
+        }
+
+        var store = new ManualAblageMapStore(ManualAblageMapStore.DefaultPath(options.Root));
+        var manualMap = options.SmokeTest
+            ? CreateSmokeManualMap(options.TargetAblage)
+            : store.Load();
+        if (manualMap.Entries.Count == 0)
+        {
+            throw new InvalidOperationException("Manual Map is empty. Use run-manual-map.ps1 -Set before running with -UseManualMap.");
+        }
+
+        var provider = new AblageProximityProviderChain(
+        [
+            new ManualMapAblageProximityProvider(manualMap),
+            new SimulatedAblageProximityProvider()
+        ]);
+        return new NearestAblageSelector().Select(provider.GetSnapshot(currentAblage));
+    }
+
+    private static ManualAblageMap CreateSmokeManualMap(string targetAblage)
+    {
+        var target = NormalizeTarget(targetAblage);
+        var now = DateTimeOffset.UtcNow;
+        var targetEntry = new ManualAblageMapEntry(
+            target.Id,
+            target.DisplayName,
+            target.Direction,
+            AblageDistanceKind.Near,
+            1.10,
+            0.96,
+            true,
+            now,
+            AblageProximitySource.ManualMap,
+            target.Platform);
+        var secondary = new ManualAblageMapEntry(
+            "ablage-ipad",
+            "Ablage iPad",
+            AblageDirection.Up,
+            AblageDistanceKind.Medium,
+            2.40,
+            0.82,
+            true,
+            now.AddSeconds(-2),
+            AblageProximitySource.ManualMap,
+            AblageSurfacePlatform.IOS);
+        var tertiary = new ManualAblageMapEntry(
+            "ablage-iphone",
+            "Ablage iPhone",
+            AblageDirection.Down,
+            AblageDistanceKind.Far,
+            3.60,
+            0.74,
+            true,
+            now.AddSeconds(-3),
+            AblageProximitySource.ManualMap,
+            AblageSurfacePlatform.IOS);
+        return new ManualAblageMap([targetEntry, secondary, tertiary]);
+    }
+
+    private static (string Id, string DisplayName, AblageDirection Direction, AblageSurfacePlatform Platform) NormalizeTarget(string targetAblage)
+    {
+        var value = string.IsNullOrWhiteSpace(targetAblage) ? "macOS" : targetAblage.Trim();
+        var lower = value.ToLowerInvariant();
+        return lower switch
+        {
+            "macos" or "mac" or "ablage-macos" => ("ablage-macos", "Ablage macOS", AblageDirection.Right, AblageSurfacePlatform.MacOS),
+            "ipad" or "tablet" or "ablage-ipad" => ("ablage-ipad", "Ablage iPad", AblageDirection.Up, AblageSurfacePlatform.IOS),
+            "iphone" or "ablage-iphone" => ("ablage-iphone", "Ablage iPhone", AblageDirection.Down, AblageSurfacePlatform.IOS),
+            "android" or "ablage-android" => ("ablage-android", "Ablage Android", AblageDirection.Left, AblageSurfacePlatform.Android),
+            _ => (
+                lower.StartsWith("ablage-", StringComparison.Ordinal) ? lower : $"ablage-{lower.Replace(" ", "-", StringComparison.Ordinal)}",
+                value.StartsWith("Ablage ", StringComparison.OrdinalIgnoreCase) ? value : $"Ablage {value}",
+                AblageDirection.Right,
+                AblageSurfacePlatform.Unknown)
+        };
     }
 
     private static IReadOnlyList<RkwpMessage> CreateEventFlow(
@@ -354,6 +475,9 @@ public static class GlassEdgePdfFrameE2E
 
 public sealed record GlassEdgePdfFrameE2EResult(
     bool SmokeTest,
+    bool UseManualMap,
+    string RequestedTargetAblage,
+    bool OwnerVisible,
     NearestAblageResult Nearest,
     GlassEdge GlassEdge,
     PdfFrameDocument Document,
@@ -369,6 +493,10 @@ public sealed record GlassEdgePdfFrameE2EResult(
     bool TransportConnected)
 {
     public IReadOnlyList<string> EventFlow => Events.Select(message => message.MessageType.ToString()).ToArray();
+
+    public bool TargetGhostPrepared =>
+        GlassEdge.TargetAblageId == Nearest.TargetAblageId &&
+        GlassEdge.CounterDirection == AblageDirectionMapper.Opposite(GlassEdge.Direction);
 
     public bool HasEvent(RkwpMessageType messageType)
     {
@@ -399,7 +527,9 @@ public sealed record GlassEdgePdfFrameE2EResult(
 
     public bool IsSuccessful =>
         Nearest.HasTarget &&
+        (!UseManualMap || Nearest.Source == AblageProximitySource.ManualMap) &&
         GlassEdge.IsActive &&
+        TargetGhostPrepared &&
         HasEvent(RkwpMessageType.GlassEdgeAppearing) &&
         HasEvent(RkwpMessageType.GlassEdgeActive) &&
         HasEvent(RkwpMessageType.ObjectEnteringEdge) &&

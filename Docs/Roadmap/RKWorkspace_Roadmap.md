@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.05 bereitet den ersten echten Raumaufbau ohne Sensorik vor. `run-manual-map.ps1` kann Ablagen mit Richtung und Entfernung setzen, laden und fuer die genau eine Glass Edge auswerten.
+MA009.06 verbindet den ersten echten Raumaufbau ohne Sensorik mit dem PDF-Frame-Pfad. `run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap` waehlt macOS rechts/nah, aktiviert die rechte Glass Edge und oeffnet einen FrameOnly-Pfad ohne Datei-Ingress.
 
 ## Naechster Fokus
 
-Nach MA009.05 liegt der Fokus darauf, ManualMap + Glass Edge + PDF Frame im E2E-Pfad zu verbinden. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009.06 liegt der Fokus auf Policy-Profilen fuer kritische Umgebungen, Office und Development Lab. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

@@ -318,6 +318,15 @@ MA009.05 liefert die Manual Ablage Map:
 
 Die lokale Karte liegt unter `config/manual-ablage-map.json` und ist ignoriert. Der erste echte Raumaufbau kann damit sagen: macOS rechts/nah, iPad oben/mittel, iPhone unten/weiter. Der Selector waehlt weiterhin genau eine Glass Edge.
 
+MA009.06 verbindet ManualMap mit Glass Edge PDF Frame E2E:
+
+- `tools/run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap -TargetAblage macOS`
+- `ProximitySource: ManualMap`
+- `EdgeDirection: Right`
+- CarryLease und FrameSession aktiv
+- Guest erhaelt keine PDF-Datei
+- Return und Recovery erfolgreich
+
 ## Context Pack
 
 Stabiler Pfad:

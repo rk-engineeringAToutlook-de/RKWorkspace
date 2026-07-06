@@ -115,3 +115,22 @@ Der Smoke-Test prueft:
 - genau eine Zielablage.
 - Clear.
 - ungueltige Richtung wird abgelehnt.
+
+## Verbindung Zum PDF Frame E2E
+
+MA009.06 verbindet die Karte mit dem PDF-Frame-Pfad:
+
+```powershell
+.\tools\run-manual-map.ps1 -Set -Ablage macOS -Direction Right -Distance Near
+.\tools\run-glass-edge-pdf-frame-e2e.ps1 -UseManualMap -TargetAblage macOS -PdfPath "samples\Objects\Rechnung.pdf"
+```
+
+Dadurch entstehen:
+
+- ManualMap als Proximity-Quelle.
+- macOS als naechste Ablage.
+- rechte Glass Edge.
+- CarryLease.
+- FrameSession.
+- No File Ingress.
+- Return und Recovery.

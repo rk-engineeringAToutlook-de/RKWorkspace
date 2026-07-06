@@ -1,6 +1,9 @@
 param(
     [switch] $SmokeTest,
-    [string] $PdfPath
+    [switch] $UseManualMap,
+    [string] $TargetAblage,
+    [string] $PdfPath,
+    [switch] $OwnerVisible
 )
 
 $ErrorActionPreference = 'Stop'
@@ -13,9 +16,22 @@ if ($SmokeTest) {
     $arguments += '--smoke-test'
 }
 
+if ($UseManualMap) {
+    $arguments += '--use-manual-map'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($TargetAblage)) {
+    $arguments += '--target-ablage'
+    $arguments += $TargetAblage
+}
+
 if (-not [string]::IsNullOrWhiteSpace($PdfPath)) {
     $arguments += '--pdf-path'
     $arguments += $PdfPath
+}
+
+if ($OwnerVisible) {
+    $arguments += '--owner-visible'
 }
 
 dotnet build $project -warnaserror
