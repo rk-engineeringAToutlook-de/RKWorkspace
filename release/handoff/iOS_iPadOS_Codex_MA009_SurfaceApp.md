@@ -1,6 +1,6 @@
 # iOS/iPadOS Codex Auftrag: MA009 Surface App
 
-Status: Prepared  
+Status: Prepared, updated by MA011.09  
 Datum: 2026-07-06
 
 ## Kopierbarer Auftrag
@@ -149,3 +149,57 @@ Die erste Quelle ist die RK Workspace App selbst. Danach folgen Document Picker,
 - native iOS/iPadOS App fehlt noch.
 - produktive Security fehlt noch.
 - PDF-/Frame-Renderer ist noch nicht final.
+
+## MA011.09 Konkreter Xcode-Auftrag
+
+Dieser Handoff wurde durch MA011.09 konkretisiert. macOS-Codex soll zusaetzlich diese Dateien lesen:
+
+1. `src/Surfaces/RKWorkspace.Surface.iOS/ios-xcode-project-layout.md`
+2. `src/Surfaces/RKWorkspace.Surface.iOS/ios-rkwp-client-flow.md`
+3. `src/Surfaces/RKWorkspace.Surface.iOS/ios-frame-guest-ui.md`
+4. `src/Surfaces/RKWorkspace.Surface.iOS/ios-haptics-plan.md`
+5. `src/Surfaces/RKWorkspace.Surface.iOS/ios-gesture-plan.md`
+6. `src/Surfaces/RKWorkspace.Surface.iOS/ios-usb-test-plan.md`
+7. `src/Surfaces/RKWorkspace.Surface.iOS/ios-sandbox-sources.md`
+
+Bevorzugter erster Build ist eine native SwiftUI/Xcode-App unter:
+
+```text
+apps/ios/RKWorkspaceIOSSurface/
+```
+
+Die App soll minimal koennen:
+
+- SurfaceId erzeugen.
+- Dev Identity / `AblageIdentity` erzeugen oder laden.
+- RKWP DevLan/SecureDev Client verbinden.
+- `AblageHello` senden.
+- `FrameSession` empfangen.
+- PDF-Frame anzeigen.
+- Haptik bei `FrameReady` und `Return` vorbereiten.
+- einfache Touch-Geste fuer Return anbieten.
+- Drei-Finger-Geste spaeter pruefen, aber nicht blockierend machen.
+- keine PDF-Datei, keinen Originalpfad und keine Originalbytes als Datei speichern.
+
+Der erste echte Test erfolgt per USB-Geraet aus Xcode. Zielausgabe:
+
+```text
+SurfacePlatform: IOS oder IPadOS
+SurfaceRole: FrameGuestSurface
+AblageHello: OK
+FrameSession: Active
+HapticsPrepared: OK
+GuestHasPdfFile: NO
+GuestHasOriginalPath: NO
+OriginalFileBytes: NO
+NoFileIngress: SUCCESS
+Return: SUCCESS
+```
+
+Blocker bleiben ehrlich zu melden:
+
+- falls Signing oder Provisioning fehlt.
+- falls Local Network Permission RKWP DevLan blockiert.
+- falls echter RKWP Mobile Client noch fehlt.
+- falls PDF-/Frame-Renderer nur Mock oder MetadataPreview ist.
+- falls iOS/iPadOS-Systemgesten mit Drei-Finger-Gesten kollidieren.

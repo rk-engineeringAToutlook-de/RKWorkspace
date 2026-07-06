@@ -32,11 +32,22 @@ Der erste iOS/iPadOS-Pfad ist keine globale OS-Magie. Er startet mit:
 
 ## Handoff-Dateien
 
+- `ios-xcode-project-layout.md`
+- `ios-rkwp-client-flow.md`
+- `ios-frame-guest-ui.md`
+- `ios-haptics-plan.md`
+- `ios-gesture-plan.md`
+- `ios-usb-test-plan.md`
+- `ios-sandbox-sources.md`
 - `iOS_SurfaceApp_Design.md`
 - `iOS_Haptics_Gesture_Plan.md`
 - `iOS_Xcode_USB_TestPlan.md`
 - `iOS_Sandbox_ObjectSources.md`
 - `release/handoff/iOS_iPadOS_Codex_MA009_SurfaceApp.md`
+
+## MA011.09 Xcode-Testplan
+
+MA011.09 konkretisiert den ersten echten iPad/iPhone-Test. macOS-Codex soll daraus eine native SwiftUI/Xcode-App aufbauen, die eine `AblageIdentity` erzeugt, sich per RKWP DevLan/SecureDev mit Windows Owner verbindet, einen PDF-Frame anzeigt, Haptik vorbereitet, Return senden kann und keine PDF-Datei speichert.
 
 ## Offene Punkte
 
