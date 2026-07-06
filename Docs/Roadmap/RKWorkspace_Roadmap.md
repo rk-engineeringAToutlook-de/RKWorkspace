@@ -47,3 +47,7 @@ Der Produktpfad fuer Entfernung ist:
 Diese Stufen veraendern den Core nicht zu einem Sync-System. Sie helfen nur, die naechste Ablage im Arbeitsraum zu bestimmen.
 
 GitHub bleibt die zentrale technische Synchronisation. Kein Plattformpfad wird als abgeschlossen betrachtet, solange er nicht ueber einen klaren Branch, Tests und Owner-Freigabe integrierbar ist.
+
+## MA011 Secure Real Frame Cross-Device Foundation
+
+MA011.01 startet den produktiveren Secure-Session-Pfad. `RkwpSecureSessionPath` trennt DevelopmentInsecure, DevelopmentAuthenticated, TestSecure, ProductionSecure und ProductionRequired. Production und SecureSessionRequired blockieren unsichere Sessions; Heartbeat und Revocation sind authentisierungspflichtig. Die naechsten Schritte sind Identity Store, SecureDevTransport und erster echter Windows-zu-macOS-Test.

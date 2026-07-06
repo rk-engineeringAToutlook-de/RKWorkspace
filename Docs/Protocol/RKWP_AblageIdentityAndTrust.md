@@ -134,3 +134,14 @@ Die RKWP-Protokolltests pruefen:
 - PairingDenied verhindert Lease.
 - Paired erlaubt gemaess Policy.
 - SecureSessionRequired blockiert `DevelopmentInsecure`.
+
+## MA011 Secure Session Path
+
+AblageIdentity bleibt die Grundlage fuer gegenseitige Authentisierung. MA011.01 ergaenzt den Secure Session Path:
+
+- Untrusted, Revoked, Denied und Pending bleiben vor Lease und Frame blockiert.
+- DevelopmentAuthenticated darf nur strukturierte Dev-Identitaeten verwenden.
+- ProductionSecure benoetigt spaeter produktive Zertifikate und Trust Store.
+- Heartbeat und Revocation duerfen nur aus aktiven authentisierten Sessions kommen.
+
+Die technische Detailregel steht in `Docs/Security/RKWP_SecureSessionPath.md`.

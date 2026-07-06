@@ -87,6 +87,9 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("SecurityGateProductionWithoutReplayProtectionFails", SecurityGateProductionWithoutReplayProtectionFails),
     ("SecurityGateProductionWithoutPolicyBindingFails", SecurityGateProductionWithoutPolicyBindingFails),
     ("SecurityGateTestAndStagingDocumentBehavior", SecurityGateTestAndStagingDocumentBehavior),
+    ("SecureSessionPathModes", SecureSessionPathModes),
+    ("SecureSessionPathReplayAndBindings", SecureSessionPathReplayAndBindings),
+    ("SecureSessionPathRejectsUnauthenticatedControlMessages", SecureSessionPathRejectsUnauthenticatedControlMessages),
     ("DevIdentityCanBeGenerated", DevIdentityCanBeGenerated),
     ("DevIdentityIgnoredByGit", DevIdentityIgnoredByGit),
     ("MutualDevAuthenticationSuccess", MutualDevAuthenticationSuccess),
@@ -1378,6 +1381,77 @@ static bool SecurityGateTestAndStagingDocumentBehavior()
            staging.Allowed &&
            staging.SecureSessionRequired &&
            staging.Warnings.Any(warning => warning.Contains("Staging", StringComparison.OrdinalIgnoreCase));
+}
+
+static bool SecureSessionPathModes()
+{
+    var dev = RkwpSecureSessionPath.Evaluate(
+        RkwpSecurityConfiguration.Development(),
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequiredByPolicy: false);
+    var production = RkwpSecureSessionPath.Evaluate(
+        RkwpSecurityConfiguration.Production(),
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequiredByPolicy: false);
+    var policyRequired = RkwpSecureSessionPath.Evaluate(
+        RkwpSecurityConfiguration.Development(),
+        RkwpSecurityMode.DevelopmentInsecure,
+        secureSessionRequiredByPolicy: true);
+    var testSecure = RkwpEncryptionProfile.TestSecure;
+    var productionSecure = RkwpEncryptionProfile.ProductionSecure;
+    return dev.Allowed &&
+           !production.Allowed &&
+           !policyRequired.Allowed &&
+           policyRequired.SecureSessionRequired &&
+           testSecure.SecurityMode == RkwpSecurityMode.TestSecure &&
+           productionSecure.SecurityMode == RkwpSecurityMode.ProductionSecure;
+}
+
+static bool SecureSessionPathReplayAndBindings()
+{
+    var secure = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"));
+    var policy = CarryLeasePolicy.FrameOnlyDefault with
+    {
+        PolicyId = secure.Policy.PolicyId,
+        PolicyVersion = secure.Policy.PolicyVersion
+    };
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", secure.Session.OwnerAblageId, secure.Session.GuestAblageId, policy, now, secure.Session.SessionId);
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now);
+    var replay = new RkwpReplayProtectionState();
+    var heartbeat = RkwpMessage.Create(RkwpMessageType.CarryLeaseHeartbeat, secure.Session, 1, leaseId: lease.LeaseId);
+    var duplicateNonce = heartbeat with { MessageId = $"rkwp-msg-{Guid.NewGuid():N}", SequenceNumber = 2 };
+    var oldSequence = RkwpMessage.Create(RkwpMessageType.CarryLeaseHeartbeat, secure.Session, 1, leaseId: lease.LeaseId);
+    var missingNonce = RkwpMessage.Create(RkwpMessageType.CarryLeaseHeartbeat, secure.Session, 3, leaseId: lease.LeaseId) with { Nonce = string.Empty };
+    var wrongLease = RkwpMessage.Create(RkwpMessageType.CarryLeaseHeartbeat, secure.Session, 4, leaseId: "wrong-lease");
+    var wrongPolicyLease = lease with { PolicyId = "wrong-policy" };
+
+    RkwpSecureSessionPath.RequireAuthenticatedControlMessage(secure, heartbeat, RkwpMessageType.CarryLeaseHeartbeat, lease, frame, replay);
+    return Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(secure, duplicateNonce, RkwpMessageType.CarryLeaseHeartbeat, lease, frame, replay)) &&
+           Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(secure, oldSequence, RkwpMessageType.CarryLeaseHeartbeat, lease, frame, replay)) &&
+           Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(secure, missingNonce, RkwpMessageType.CarryLeaseHeartbeat, lease, frame, replay)) &&
+           Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(secure, wrongLease, RkwpMessageType.CarryLeaseHeartbeat, lease, frame)) &&
+           Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(secure, heartbeat with { SequenceNumber = 5 }, RkwpMessageType.CarryLeaseHeartbeat, wrongPolicyLease, frame));
+}
+
+static bool SecureSessionPathRejectsUnauthenticatedControlMessages()
+{
+    var secure = RkwpSecureSession.EstablishDevelopment(DevAblageIdentity("owner-secure"), DevAblageIdentity("guest-secure"));
+    var policy = CarryLeasePolicy.FrameOnlyDefault with
+    {
+        PolicyId = secure.Policy.PolicyId,
+        PolicyVersion = secure.Policy.PolicyVersion
+    };
+    var now = DateTimeOffset.UtcNow;
+    var lease = CarryLease.Grant("thing-1", secure.Session.OwnerAblageId, secure.Session.GuestAblageId, policy, now, secure.Session.SessionId);
+    var frame = FrameSession.Open(lease, FrameMode.ViewOnly, now);
+    var heartbeat = RkwpMessage.Create(RkwpMessageType.CarryLeaseHeartbeat, secure.Session, 1, leaseId: lease.LeaseId);
+    var revocation = RkwpMessage.Create(RkwpMessageType.CarryLeaseRevoked, secure.Session, 2, leaseId: lease.LeaseId);
+    var inactive = secure with { State = RkwpSecureSessionState.Revoked };
+
+    return Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(null, heartbeat, RkwpMessageType.CarryLeaseHeartbeat, lease, frame)) &&
+           Throws<RkwpSecurityException>(() => RkwpSecureSessionPath.RequireAuthenticatedControlMessage(inactive, revocation, RkwpMessageType.CarryLeaseRevoked, lease, frame)) &&
+           RkwpSecureSessionPath.Authenticate(secure).Authenticated;
 }
 
 static bool DevIdentityCanBeGenerated()

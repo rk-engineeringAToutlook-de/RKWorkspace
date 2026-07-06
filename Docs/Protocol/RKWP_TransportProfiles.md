@@ -146,3 +146,14 @@ Dieser Netzwerkpfad ist noch nicht implementiert. Er muss spaeter Secure Session
 - keine produktive Discovery
 
 Transport ist spaeter nur der Weg. Die Semantik bleibt: Original bleibt beim Owner.
+
+## MA011 Secure Session Path
+
+Transportprofile duerfen Sicherheitsentscheidungen nicht ersetzen. Ab MA011.01 muss ein Transport, der als sicherer Pfad genutzt werden soll, Nachrichten an `RkwpSecureSessionPath` uebergeben:
+
+- DevelopmentInsecure bleibt nur Labor.
+- TestSecure und ProductionSecure muessen Nonce, SequenceNumber, LeaseId und PolicyId transportieren.
+- Heartbeat und Revocation sind authentisierungspflichtig.
+- ProductionRequired darf nicht ueber DevLan oder andere unsichere Profile erfuellt werden.
+
+Der naechste Transport-Schritt ist der SecureDevTransport-Spike, der DevLan, Identity Store und Secure Session Path zusammenfuehrt.

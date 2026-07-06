@@ -186,3 +186,19 @@ Der Cache darf gerenderte Frames temporaer halten, muss aber bei FrameClose, Rev
 MA007.08 schaerft Ownership Transfer als separates Security Gate. Ohne ausdrueckliche Policy wird OwnershipTransfer abgelehnt. Nur `Approved` darf materialisieren. `RequiresUserConfirmation`, `RequiresAdapter`, `Denied` und `NotSupported` erzeugen keine neue Quelle der Wahrheit.
 
 Objektarten bleiben relevant: `SettingsWindow` ist nicht uebernehmbar, `RemoteSession` braucht passende Handoff-Capabilities, und `MoveOwnership` braucht immer starke Bestaetigung.
+
+## MA011 Secure Session Path
+
+MA011.01 fuehrt `RkwpSecureSessionPath` als Guard fuer den produktiveren Sicherheitsweg ein. Die Security Modes sind jetzt fachlich klarer benannt:
+
+- `DevelopmentInsecure`
+- `DevelopmentAuthenticated`
+- `TestSecure`
+- `ProductionSecure`
+- `ProductionRequired`
+
+Die bisherigen Namen `Authenticated`, `Encrypted` und `EncryptedAndAuthenticated` bleiben als Kompatibilitaetsalias erhalten.
+
+Der Guard blockiert `DevelopmentInsecure`, sobald eine Policy `SecureSessionRequired` setzt oder die Umgebung Production ist. Heartbeat und Revocation gelten als authentisierungspflichtige Control Messages. Nonce, SequenceNumber, LeaseId und PolicyId werden an die aktive Secure Session gebunden.
+
+Details: `Docs/Security/RKWP_SecureSessionPath.md`.
