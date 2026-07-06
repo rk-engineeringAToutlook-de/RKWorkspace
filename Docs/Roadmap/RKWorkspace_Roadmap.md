@@ -28,7 +28,7 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA010.09 liefert DevLan, Windows/macOS/iOS-Kompatibilitaet, PDF-Renderer-Abstraktion, FrameCachePolicy, Windows-Agent-Dev-Vorbereitung und ein zentrales Configuration-System. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren. Ab MA011.04 kann der PDF-Pfad im Development-Modus ueber `PopplerPdfFrameRenderer` die erste Seite als PNG-Frame rendern.
+MA010.09 liefert DevLan, Windows/macOS/iOS-Kompatibilitaet, PDF-Renderer-Abstraktion, FrameCachePolicy, Windows-Agent-Dev-Vorbereitung und ein zentrales Configuration-System. Windows kann lokal einen TCP-basierten Owner/Guest-Smoke mit AblageHello, DevPairing, Heartbeat, FrameUpdate und No File Ingress ausfuehren. Ab MA011.04 kann der PDF-Pfad im Development-Modus ueber `PopplerPdfFrameRenderer` die erste Seite als PNG-Frame rendern. Ab MA011.06 kann der Windows PDF Pilot den FrameOnly-Pfad ueber `-UseGlassEdge -PlaySequence` lokal ausloesen und erzeugt dafuer GlassEdge-/Object-/FrameSession-Events.
 
 ## Naechster Fokus
 
@@ -56,4 +56,6 @@ MA011.02 fuehrt den lokalen Ablage Identity Store ein. Private Dev-Keys bleiben 
 
 MA011.03 fuehrt den SecureDevTransport-Spike ein. Er verbindet lokale Ablage-Identitaeten, Identity Exchange, SecureDev Handshake, aktive Secure Session, Heartbeat und FrameUpdate in einem reproduzierbaren Smoke-Test. TLS bleibt ein markierter Blocker; der aktuelle Pfad ist `SecureDev/NamedPipeDevFallback` mit `DevelopmentAuthenticated`.
 
-Die naechsten Schritte sind der PDF Frame Renderer MVP und danach der stabilisierte Windows-Pilot fuer Owner/Guest-Tests.
+MA011.04 rendert die erste PDF-Seite im Development-Pfad als PNG-Frame. MA011.05 stabilisiert den Windows-Pilot fuer Owner-/Gast-Testanzeigen. MA011.06 verbindet diesen Pilot mit einer lokalen Glass-Edge-PlaySequence.
+
+Die naechsten Schritte sind Manual Map UI/CLI fuer echte Lab-Aufbauten und danach die konkreten macOS- und iOS/iPadOS-Gastpfade.

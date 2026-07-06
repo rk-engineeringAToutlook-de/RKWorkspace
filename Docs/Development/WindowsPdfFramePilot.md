@@ -17,6 +17,9 @@ Die PDF bleibt beim Owner. Die Guest-Ablage bekommt nur eine Frame-Repraesentati
 .\tools\run-windows-pdf-frame-pilot.ps1 -PdfPath "samples/Objects/Rechnung.pdf"
 .\tools\run-windows-pdf-frame-pilot.ps1 -OwnerVisible
 .\tools\run-windows-pdf-frame-pilot.ps1 -GuestVisible
+.\tools\run-windows-pdf-frame-pilot.ps1 -UseGlassEdge -PlaySequence
+.\tools\run-windows-pdf-frame-pilot.ps1 -UseGlassEdge -UseManualMap -PlaySequence
+.\tools\run-windows-pdf-frame-pilot.ps1 -Debug
 ```
 
 ## Sichtbarer Owner-Test-Modus
@@ -78,3 +81,22 @@ MA011.05 stabilisiert den Pilot fuer Owner-Tests:
 - Gastablage zeigt Frame, FrameStatus, Rueckgabe, Verbindung verloren und `keine PDF-Datei vorhanden`.
 - No File Ingress ist im Sicherheitsstatus und im Smoke-Log sichtbar.
 - Debug-Texte sind optional und stoeren den normalen Owner-Test-Modus nicht.
+
+## MA011.06 Glass Edge Trigger
+
+Mit `-UseGlassEdge` erzeugt der Pilot eine lokale Glass-Edge-Ausloesung. Mit `-PlaySequence` wird der gesamte Ablauf abgespielt:
+
+1. `NearestAblageSelector` waehlt `Ablage Windows Guest`.
+2. `GlassEdgeAppearing` und `GlassEdgeActive` werden erzeugt.
+3. `ObjectEnteringEdge` startet den Eintritt in die Kante.
+4. `CarryLeaseRequested` und `CarryLeaseGranted` markieren den FrameOnly-Lease.
+5. `FrameSessionOpen` und `FrameSessionReady` oeffnen den Gast-Frame.
+6. `ObjectInTransit`, `ObjectEmerging` und `ObjectPlaced` schliessen die Sequenz.
+
+Der Smoke-Test prueft:
+
+```powershell
+.\tools\run-windows-pdf-frame-pilot.ps1 -UseGlassEdge -PlaySequence -SmokeTest
+```
+
+Die PDF bleibt weiterhin auf der Originalablage. Die Gastablage sieht nur den Frame und `No File Ingress: SUCCESS`.

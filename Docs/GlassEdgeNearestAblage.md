@@ -137,3 +137,26 @@ Der Demo-Smoke prueft:
 - `FrameSessionReady`
 
 Die Kante bleibt ein raeumlicher Hinweis. Technisch entsteht daraus eine Original-Owned FrameSession auf der naechsten Ablage, keine Dateiuebertragung.
+
+## MA011.06 Windows PDF Pilot Trigger
+
+Der Windows PDF Frame Pilot kann den Glass-Edge-Pfad direkt ausloesen:
+
+```powershell
+.\tools\run-windows-pdf-frame-pilot.ps1 -UseGlassEdge -PlaySequence -SmokeTest
+```
+
+Fuer den lokalen Owner-Test wird die naechste Ablage als `Ablage Windows Guest` simuliert. `-UseManualMap` kann dieselbe Sequenz ueber eine Manual Map starten; im Smoke-Test wird bei leerer Karte eine reproduzierbare Pilotkarte verwendet.
+
+Der Pilot erzeugt:
+
+- `GlassEdgeAppearing`
+- `GlassEdgeActive`
+- `ObjectEnteringEdge`
+- `ObjectInTransit`
+- `ObjectEmerging`
+- `ObjectPlaced`
+- `FrameSessionOpen`
+- `FrameSessionReady`
+
+Auch hier gilt: Die Glass Edge ist nur der raeumliche Trigger. Die PDF wird nicht uebertragen; die Gastablage erhaelt nur eine FrameSession.

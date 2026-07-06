@@ -8,5 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Frame\RKWorkspace.Frame.Pdf\RKWorkspace.Frame.Pdf.csproj" />
+    <ProjectReference Include="..\..\Shell\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
   </ItemGroup>
 </Project>

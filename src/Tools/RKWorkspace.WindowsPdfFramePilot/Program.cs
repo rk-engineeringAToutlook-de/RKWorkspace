@@ -1,5 +1,8 @@
 using RKWorkspace.Frame.Pdf;
+using RKWorkspace.Protocol;
 using RKWorkspace.Protocol.Ownership;
+using RKWorkspace.Shell;
+using ShellAblageIdentity = RKWorkspace.Shell.AblageIdentity;
 
 var options = WindowsPdfFramePilotOptions.Parse(args, FindRoot());
 
@@ -27,6 +30,7 @@ static void Print(WindowsPdfFramePilotResult result)
 
     PrintOwnerArea(result);
     PrintGuestArea(result);
+    PrintGlassEdgeArea(result);
     PrintSafetyArea(result);
 
     if (result.Options.OwnerVisible)
@@ -80,6 +84,32 @@ static void PrintGuestArea(WindowsPdfFramePilotResult result)
     Console.WriteLine();
 }
 
+static void PrintGlassEdgeArea(WindowsPdfFramePilotResult result)
+{
+    if (!result.Options.UseGlassEdge)
+    {
+        return;
+    }
+
+    Console.WriteLine("Glass Edge");
+    Console.WriteLine("----------");
+    Console.WriteLine($"UseGlassEdge: YES");
+    Console.WriteLine($"UseManualMap: {(result.Options.UseManualMap ? "YES" : "NO")}");
+    Console.WriteLine($"NearestAblage: {result.GlassEdge?.Nearest.TargetDisplayName ?? "nicht verfuegbar"}");
+    Console.WriteLine($"EdgeDirection: {result.GlassEdge?.Edge.Direction.ToString() ?? "Unknown"}");
+    Console.WriteLine($"EventFlow: {string.Join(" -> ", result.GlassEdgeEventFlow)}");
+    Console.WriteLine($"GlassEdgeAppearing: {(result.HasGlassEdgeEvent(RkwpMessageType.GlassEdgeAppearing) ? "OK" : "FAILED")}");
+    Console.WriteLine($"GlassEdgeActive: {(result.HasGlassEdgeEvent(RkwpMessageType.GlassEdgeActive) ? "OK" : "FAILED")}");
+    Console.WriteLine($"ObjectEnteringEdge: {(result.HasGlassEdgeEvent(RkwpMessageType.ObjectEnteringEdge) ? "OK" : "FAILED")}");
+    Console.WriteLine($"ObjectInTransit: {(result.HasGlassEdgeEvent(RkwpMessageType.ObjectInTransit) ? "OK" : "FAILED")}");
+    Console.WriteLine($"ObjectEmerging: {(result.HasGlassEdgeEvent(RkwpMessageType.ObjectEmerging) ? "OK" : "FAILED")}");
+    Console.WriteLine($"ObjectPlaced: {(result.HasGlassEdgeEvent(RkwpMessageType.ObjectPlaced) ? "OK" : "FAILED")}");
+    Console.WriteLine($"FrameSessionOpen: {(result.HasGlassEdgeEvent(RkwpMessageType.FrameSessionOpen) ? "OK" : "FAILED")}");
+    Console.WriteLine($"FrameSessionReady: {(result.HasGlassEdgeEvent(RkwpMessageType.FrameSessionReady) ? "OK" : "FAILED")}");
+    Console.WriteLine($"PlaySequence: {(result.PlaySequenceCompleted ? "SUCCESS" : "NOT RUN")}");
+    Console.WriteLine();
+}
+
 static void PrintSafetyArea(WindowsPdfFramePilotResult result)
 {
     Console.WriteLine("Sicherheitsstatus");
@@ -108,6 +138,13 @@ static void PrintDebug(WindowsPdfFramePilotResult result)
     Console.WriteLine($"GuestHasPdfFile: {(result.GuestHasPdfFile ? "YES" : "NO")}");
     Console.WriteLine($"GuestHasOriginalPath: {(result.GuestHasOriginalPath ? "YES" : "NO")}");
     Console.WriteLine($"GuestHasCopiedPdfBytes: {(result.GuestHasCopiedPdfBytes ? "YES" : "NO")}");
+    if (result.GlassEdge is not null)
+    {
+        Console.WriteLine($"GlassEdgeId: {result.GlassEdge.Edge.EdgeId}");
+        Console.WriteLine($"GlassEdgeState: {result.GlassEdge.Edge.State}");
+        Console.WriteLine($"GlassEdgeTargetAblageId: {result.GlassEdge.Edge.TargetAblageId.Value}");
+        Console.WriteLine($"GlassEdgeSource: {result.GlassEdge.Nearest.Source}");
+    }
 }
 
 static void PrintSmokeChecks(WindowsPdfFramePilotResult result)
@@ -146,6 +183,13 @@ static void PrintSmokeChecks(WindowsPdfFramePilotResult result)
     Console.WriteLine($"RecoveryVisibleState: {(result.RecoveryVisibleStateIsCorrect ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"VisibleForbiddenTerms: {(result.VisibleTextLanguageIsValid ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"VisibleStateLanguage: {(result.Frame.VisibleStateLanguageIsValid ? "SUCCESS" : "FAILED")}");
+
+    if (result.Options.UseGlassEdge)
+    {
+        Console.WriteLine($"NearestAblageSelected: {(result.NearestAblageSelected ? "OK" : "FAILED")}");
+        Console.WriteLine($"GlassEdgeIntegration: {(result.GlassEdgeIntegrationSuccessful ? "SUCCESS" : "FAILED")}");
+        Console.WriteLine($"GlassEdgePlaySequence: {(result.PlaySequenceCompleted ? "SUCCESS" : "FAILED")}");
+    }
 }
 
 static void PrintTimeline(string title, IReadOnlyList<string> timeline)
@@ -176,11 +220,15 @@ static string FindRoot()
 }
 
 public sealed record WindowsPdfFramePilotOptions(
+    string Root,
     string PdfPath,
     bool SmokeTest,
     bool OwnerVisible,
     bool GuestVisible,
-    bool Debug)
+    bool Debug,
+    bool UseGlassEdge,
+    bool UseManualMap,
+    bool PlaySequence)
 {
     public static WindowsPdfFramePilotOptions Parse(string[] args, string root)
     {
@@ -189,6 +237,9 @@ public sealed record WindowsPdfFramePilotOptions(
         var ownerVisible = false;
         var guestVisible = false;
         var debug = false;
+        var useGlassEdge = false;
+        var useManualMap = false;
+        var playSequence = false;
 
         for (var index = 0; index < args.Length; index++)
         {
@@ -217,13 +268,40 @@ public sealed record WindowsPdfFramePilotOptions(
                 continue;
             }
 
+            if (Is(arg, "--use-glass-edge", "-UseGlassEdge"))
+            {
+                useGlassEdge = true;
+                continue;
+            }
+
+            if (Is(arg, "--use-manual-map", "-UseManualMap"))
+            {
+                useManualMap = true;
+                continue;
+            }
+
+            if (Is(arg, "--play-sequence", "-PlaySequence"))
+            {
+                playSequence = true;
+                continue;
+            }
+
             if (Is(arg, "--pdf-path", "-PdfPath") && index + 1 < args.Length)
             {
                 pdfPath = args[++index];
             }
         }
 
-        return new WindowsPdfFramePilotOptions(Path.GetFullPath(pdfPath), smokeTest, ownerVisible, guestVisible, debug);
+        return new WindowsPdfFramePilotOptions(
+            root,
+            Path.GetFullPath(pdfPath),
+            smokeTest,
+            ownerVisible,
+            guestVisible,
+            debug,
+            useGlassEdge,
+            useManualMap,
+            playSequence);
     }
 
     private static bool Is(string value, params string[] names) =>
@@ -239,15 +317,200 @@ public static class WindowsPdfFramePilot
             options.PdfPath,
             ownerAblageId: "ablage-windows-owner",
             guestAblageId: "ablage-windows-guest");
+        var glassEdge = options.UseGlassEdge
+            ? WindowsPdfFrameGlassEdgePilot.Run(options, frame)
+            : null;
 
         return new WindowsPdfFramePilotResult(
             options,
             "Ablage Windows Owner",
             "Ablage Windows Guest",
             frame,
+            glassEdge,
             OwnerSurfaceStarted: true,
             GuestSurfaceStarted: true);
     }
+}
+
+public static class WindowsPdfFrameGlassEdgePilot
+{
+    public static WindowsPdfFrameGlassEdgeResult Run(
+        WindowsPdfFramePilotOptions options,
+        PdfFrameSmokeResult frame)
+    {
+        var nearest = ResolveNearest(options, new ShellAblageIdentity(frame.Lease.OwnerAblageId));
+        if (!nearest.HasTarget || nearest.TargetAblageId is null)
+        {
+            throw new InvalidOperationException("No nearest ablage available for Glass Edge pilot.");
+        }
+
+        var edgeState = options.PlaySequence ? GlassEdgeState.Absorbing : GlassEdgeState.Opening;
+        var edge = GlassEdge.FromNearest(
+            nearest,
+            edgeState,
+            activation: 1.0,
+            absorption: options.PlaySequence ? 0.74 : 0.24);
+        var session = RkwpSession.CreateDevelopment(frame.Lease.OwnerAblageId, frame.Lease.GuestAblageId);
+        var events = CreateEventFlow(session, frame, edge, options.PlaySequence);
+
+        return new WindowsPdfFrameGlassEdgeResult(nearest, edge, events, options.PlaySequence);
+    }
+
+    private static NearestAblageResult ResolveNearest(
+        WindowsPdfFramePilotOptions options,
+        ShellAblageIdentity currentAblageId)
+    {
+        IAblageProximityProvider provider;
+        if (options.UseManualMap)
+        {
+            var map = new ManualAblageMapStore(ManualAblageMapStore.DefaultPath(options.Root)).Load();
+            provider = new ManualMapAblageProximityProvider(
+                map.Entries.Count == 0 || options.SmokeTest
+                    ? CreatePilotManualMap()
+                    : map);
+        }
+        else
+        {
+            provider = new SimulatedAblageProximityProvider(CreatePilotSurfaces(currentAblageId));
+        }
+
+        return new NearestAblageSelector().Select(provider.GetSnapshot(currentAblageId));
+    }
+
+    private static IReadOnlyList<AblageSurface> CreatePilotSurfaces(ShellAblageIdentity currentAblageId)
+    {
+        var now = DateTimeOffset.UtcNow;
+        return
+        [
+            new AblageSurface(
+                currentAblageId,
+                "Ablage Windows Owner",
+                AblageSurfacePlatform.Windows,
+                true,
+                AblagePose.FromDirection(AblageDirection.Unknown),
+                AblageDistance.FromSource(AblageDistanceKind.VeryNear, 0.0, 1.0, AblageProximitySource.Simulated),
+                now),
+            new AblageSurface(
+                new ShellAblageIdentity("ablage-windows-guest"),
+                "Ablage Windows Guest",
+                AblageSurfacePlatform.Windows,
+                true,
+                AblagePose.FromDirection(AblageDirection.Right),
+                AblageDistance.FromSource(AblageDistanceKind.Near, 0.90, 0.97, AblageProximitySource.Simulated),
+                now.AddSeconds(-1)),
+            new AblageSurface(
+                new ShellAblageIdentity("ablage-lab-tablet"),
+                "Ablage Lab Tablet",
+                AblageSurfacePlatform.IOS,
+                true,
+                AblagePose.FromDirection(AblageDirection.Up),
+                AblageDistance.FromSource(AblageDistanceKind.Medium, 2.30, 0.80, AblageProximitySource.Simulated),
+                now.AddSeconds(-3))
+        ];
+    }
+
+    private static ManualAblageMap CreatePilotManualMap()
+    {
+        var now = DateTimeOffset.UtcNow;
+        return new ManualAblageMap(
+        [
+            new ManualAblageMapEntry(
+                "ablage-windows-guest",
+                "Ablage Windows Guest",
+                AblageDirection.Right,
+                AblageDistanceKind.Near,
+                0.90,
+                0.97,
+                true,
+                now.AddSeconds(-1),
+                AblageProximitySource.ManualMap,
+                AblageSurfacePlatform.Windows),
+            new ManualAblageMapEntry(
+                "ablage-lab-tablet",
+                "Ablage Lab Tablet",
+                AblageDirection.Up,
+                AblageDistanceKind.Medium,
+                2.30,
+                0.80,
+                true,
+                now.AddSeconds(-3),
+                AblageProximitySource.ManualMap,
+                AblageSurfacePlatform.IOS)
+        ]);
+    }
+
+    private static IReadOnlyList<RkwpMessage> CreateEventFlow(
+        RkwpSession session,
+        PdfFrameSmokeResult frame,
+        GlassEdge edge,
+        bool playSequence)
+    {
+        var sequence = 1L;
+        var payload = new Dictionary<string, string>
+        {
+            ["edgeId"] = edge.EdgeId,
+            ["direction"] = edge.Direction.ToString(),
+            ["counterDirection"] = edge.CounterDirection.ToString(),
+            ["targetAblageId"] = edge.TargetAblageId.Value,
+            ["thingId"] = frame.Document.ThingId,
+            ["pdfName"] = frame.Document.FileName,
+            ["frameSessionId"] = frame.FrameSession.FrameSessionId,
+            ["playSequence"] = playSequence.ToString()
+        };
+
+        var events = new List<RkwpMessage>
+        {
+            RkwpMessage.Create(RkwpMessageType.GlassEdgeAppearing, session, sequence++, payload),
+            RkwpMessage.Create(RkwpMessageType.GlassEdgeActive, session, sequence++, payload)
+        };
+
+        if (playSequence)
+        {
+            events.AddRange(
+            [
+                RkwpMessage.Create(RkwpMessageType.ObjectEnteringEdge, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.CarryLeaseRequested, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.CarryLeaseGranted, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.FrameSessionOpen, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.FrameSessionReady, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.ObjectInTransit, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.ObjectEmerging, session, sequence++, payload, frame.Lease.LeaseId),
+                RkwpMessage.Create(RkwpMessageType.ObjectPlaced, session, sequence++, payload, frame.Lease.LeaseId)
+            ]);
+        }
+
+        return events;
+    }
+}
+
+public sealed record WindowsPdfFrameGlassEdgeResult(
+    NearestAblageResult Nearest,
+    GlassEdge Edge,
+    IReadOnlyList<RkwpMessage> Events,
+    bool PlaySequenceRequested)
+{
+    public IReadOnlyList<string> EventFlow => Events.Select(message => message.MessageType.ToString()).ToArray();
+
+    public bool HasEvent(RkwpMessageType messageType)
+    {
+        return Events.Any(message => message.MessageType == messageType);
+    }
+
+    public bool PlaySequenceCompleted =>
+        PlaySequenceRequested &&
+        HasEvent(RkwpMessageType.ObjectEnteringEdge) &&
+        HasEvent(RkwpMessageType.ObjectInTransit) &&
+        HasEvent(RkwpMessageType.ObjectEmerging) &&
+        HasEvent(RkwpMessageType.ObjectPlaced) &&
+        HasEvent(RkwpMessageType.FrameSessionOpen) &&
+        HasEvent(RkwpMessageType.FrameSessionReady);
+
+    public bool IsSuccessful =>
+        Nearest.HasTarget &&
+        Edge.IsActive &&
+        HasEvent(RkwpMessageType.GlassEdgeAppearing) &&
+        HasEvent(RkwpMessageType.GlassEdgeActive) &&
+        (!PlaySequenceRequested || PlaySequenceCompleted);
 }
 
 public sealed record WindowsPdfFramePilotResult(
@@ -255,6 +518,7 @@ public sealed record WindowsPdfFramePilotResult(
     string OwnerAblageName,
     string GuestAblageName,
     PdfFrameSmokeResult Frame,
+    WindowsPdfFrameGlassEdgeResult? GlassEdge,
     bool OwnerSurfaceStarted,
     bool GuestSurfaceStarted)
 {
@@ -331,6 +595,30 @@ public sealed record WindowsPdfFramePilotResult(
     public bool VisibleTextLanguageIsValid =>
         OwnerGuestFrameStateUx.ValidateVisibleText(VisibleTexts).IsValid;
 
+    public IReadOnlyList<string> GlassEdgeEventFlow => GlassEdge?.EventFlow ?? [];
+
+    public bool NearestAblageSelected => GlassEdge?.Nearest.HasTarget == true;
+
+    public bool PlaySequenceCompleted => GlassEdge?.PlaySequenceCompleted == true;
+
+    public bool HasGlassEdgeEvent(RkwpMessageType messageType)
+    {
+        return GlassEdge?.HasEvent(messageType) == true;
+    }
+
+    public bool GlassEdgeIntegrationSuccessful =>
+        !Options.UseGlassEdge ||
+        GlassEdge?.IsSuccessful == true &&
+        NearestAblageSelected &&
+        HasGlassEdgeEvent(RkwpMessageType.GlassEdgeAppearing) &&
+        HasGlassEdgeEvent(RkwpMessageType.GlassEdgeActive) &&
+        (!Options.PlaySequence || PlaySequenceCompleted && HasGlassEdgeEvent(RkwpMessageType.ObjectEnteringEdge)) &&
+        Frame.Lease.State == CarryLeaseState.Active &&
+        Frame.FrameSession.State == FrameSessionState.Active &&
+        GuestFrameReady &&
+        NoFileIngress &&
+        ReturnSuccessful;
+
     public IReadOnlyList<string> OwnerTimeline =>
     [
         $"PDF liegt auf {OwnerAblageName}.",
@@ -366,5 +654,6 @@ public sealed record WindowsPdfFramePilotResult(
         ReturnVisibleStateIsCorrect &&
         RecoveryVisibleStateIsCorrect &&
         Frame.VisibleStateLanguageIsValid &&
-        VisibleTextLanguageIsValid;
+        VisibleTextLanguageIsValid &&
+        GlassEdgeIntegrationSuccessful;
 }
