@@ -89,6 +89,22 @@ Speicherort:
 %LOCALAPPDATA%\RKWorkspace\human-experience-playground.json
 ```
 
+## MA016 Pilot Evaluation
+
+MA016 ergaenzt die Human-Experience-Fuehrung um Owner-Testdokumente fuer den ersten realen Cross-Device-Pilotpfad:
+
+- `MA016_PilotFeedbackTaxonomy.md`
+- `MA016_RedYellowGreenCriteria.md`
+- `MA016_PilotInterviewGuide.md`
+- `MA016_TrustQuestions.md`
+- `MA016_RecoveryFeelingTest.md`
+- `MA016_iPadHapticFeelingTest.md`
+- `MA016_ProximityFeelingTest.md`
+- `MA016_ClosedOpenPdfFeelingComparison.md`
+- `MA016_HumanExperienceSummary.md`
+
+Diese Dokumente trennen bewusst Owner-Wahrnehmung von technischer Diagnose.
+
 ## Entwicklungsregel
 
 Codex darf kuenftig keine UX-Komponente entwickeln, ohne dass sie genau einer Human Experience zugeordnet ist.
