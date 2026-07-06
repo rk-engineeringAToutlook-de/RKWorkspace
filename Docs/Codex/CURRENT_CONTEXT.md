@@ -1,59 +1,64 @@
 # Current Codex Context
 
 Datum: 2026-07-06  
-Branch: `feature/ma011-secure-real-frame-cross-device-foundation`
+Branch: `feature/ma013-real-cross-platform-frame-pilot`
 
 ## Aktueller Stand
 
-MA011 bereitet den ersten echten Windows-to-macOS-Test vor. Windows ist der aktive technische Referenzpfad und kann lokal mit einer echten PDF als Original-Owned Frame arbeiten. macOS hat nun einen konkreten Build- und Handoff-Plan. iOS/iPadOS hat einen konkreten Xcode- und USB-Testplan.
+MA013 bereitet den ersten echten Cross-Device-Pilot vor. Windows ist die aktive Owner-Referenz. macOS ist der naechste Guest-Pfad. iPad/iPhone folgt danach ueber Xcode/TestFlight. RK Workspace bleibt beim Original-Owned Frame Modell: Die Originaldatei bleibt auf der Owner-Ablage, andere Ablagen sehen kontrollierte Frames.
 
 ## Grundsatz
 
 RK Workspace uebertraegt standardmaessig keine Dateien. Ein digitales Ding bleibt Original-Owned auf seiner Originalablage. Andere Ablagen sehen und nutzen kontrollierte Frames, erhalten aber keine freie Originaldatei, keinen Originalpfad und keine automatische Besitzuebernahme.
 
-## MA011 Implementiert
+## MA013 Implementiert
 
-- produktiver Secure-Session-Pfad als Architektur- und Testbasis.
-- lokaler Ablage Identity Store.
-- SecureDevTransport Spike mit DevelopmentAuthenticated Fallback.
-- PDF First Page Frame Rendering im Development-Pfad.
-- stabilisierter Windows PDF Frame Pilot.
-- Glass Edge Startpfad fuer den PDF Pilot.
-- erweiterte Manual Ablage Map CLI.
-- konkretes macOS Build-Layout und Handoff.
-- konkreter iOS/iPadOS Xcode- und USB-Testplan.
-- MA011 Readiness Review und First-Real-Test-Dokumente.
+- macOS Repository Bootstrap, Client Flow, Contract und Guest Surface Readiness.
+- iOS/iPadOS Xcode, USB, Haptics, Return und No File Ingress Readiness.
+- SecureDev, Security Gate, Policy Profile, Audit, Recovery und Diagnostics Readiness.
+- PDF Frame Renderer, Multi-Page, Tiles, Annotation ChangeSets, Text Extraction Policy und Renderer Readiness.
+- Windows Object Adapter Readiness fuer PDF, Explorer, Clipboard, Screenshot, WindowSnapshot und RemoteSession.
+- Proximity/Distance Readiness fuer Manual Map, BLE, WiFi, UWB, Dongle, USB Control und Sensor Fusion.
+- UX/HX Readiness fuer Glass Edge, digitale Hand, Owner/Guest-Zustaende, Haptics und Fehler-UX.
+- Operations Readiness fuer Config, Policy, Diagnostics, Audit Retention, Offline/Reconnect und Identity Backup/Restore.
+- Install Readiness fuer Windows Dev Package, macOS/iOS/Android/Linux Plaene, CI, Signing und Updates.
+- Performance Readiness fuer E2E-Baseline, Multi-Frame-Load, Latenz, Memory, Mobile Battery, Network Adaptation und Compression.
 
-## Wichtige MA011-Skripte
+## Wichtige Skripte
 
 ```powershell
 .\tools\run-tests.ps1
-.\tools\run-windows-owner-for-mac.ps1 -SmokeTest
-.\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
-.\tools\run-windows-pdf-frame-pilot.ps1 -UseGlassEdge -PlaySequence -SmokeTest
-.\tools\run-glass-edge-pdf-frame-e2e.ps1 -SmokeTest
-.\tools\run-mac-guest-compat.ps1 -SmokeTest
-.\tools\run-ios-guest-compat.ps1 -SmokeTest
+.\tools\run-rkwp-tests.ps1
+.\tools\run-rkwp-perf.ps1 -SmokeTest
+.\tools\run-rkwp-load.ps1 -SmokeTest
+.\tools\run-pdf-frame-smoke.ps1
+.\tools\run-windows-local-frame-e2e.ps1 -SmokeTest
+.\tools\run-windows-securedev-pdf-e2e.ps1 -SmokeTest
+.\tools\run-rkwp-securedev-smoke.ps1
+.\tools\run-rkwp-diagnostics.ps1 -SmokeTest
 .\tools\run-manual-map.ps1 -SmokeTest
+.\tools\run-windows-agent-dev.ps1 -SmokeTest
+.\tools\package-windows-dev.ps1 -SmokeTest
+.\tools\export-rkwp-schema.ps1
 .\tools\export-codex-context.ps1
 ```
 
 ## Readiness
 
-MA011 Readiness-Dateien:
+MA013 Readiness-Dateien:
 
-- `Docs/Readiness/MA011_ReadinessReview.md`
-- `Docs/Readiness/MA011_WindowsToMac_FirstRealTest.md`
-- `Docs/Readiness/MA011_iPad_FirstRealTest.md`
-- `Docs/Readiness/MA011_NextCodexActions.md`
-- `release/MA011_READINESS_SUMMARY.md`
+- `Docs/Readiness/MA013_ReadinessReview.md`
+- `Docs/Readiness/MA013_RealPilotStartPlan.md`
+- `Docs/Readiness/MA013_NextCodexActions.md`
+- `Docs/Readiness/PilotAcceptanceCriteria.md`
+- `release/MA013_READINESS_SUMMARY.md`
 
 ## Plattform-Auftraege
 
 Windows-Codex:
 
 ```text
-Starte Windows Owner fuer den ersten echten Windows-to-macOS-Test, stabilisiere den sichtbaren PDF Frame Pilot und halte No File Ingress als Gate.
+Starte Windows als Owner-Referenz, fuehre echte PDF als Original-Owned Frame und halte No File Ingress, Return, Recovery, Audit und Glass Edge stabil.
 ```
 
 macOS-Codex:
@@ -92,12 +97,6 @@ Stabiler Pfad:
 
 ```text
 release/codex-context/RKWorkspace_Context_latest.zip
-```
-
-Zeitgestempelte Exporte liegen ebenfalls unter:
-
-```text
-release/codex-context/
 ```
 
 ## Naechster Real-Lab-Pfad

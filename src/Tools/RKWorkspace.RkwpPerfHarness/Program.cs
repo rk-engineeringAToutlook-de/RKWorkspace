@@ -35,6 +35,11 @@ static void Print(RkwpPerfRunResult result)
     Console.WriteLine($"PDF: {Path.GetFileName(result.Options.PdfPath)}");
     Console.WriteLine($"Json: {result.JsonPath}");
     Console.WriteLine($"Markdown: {result.MarkdownPath}");
+    Console.WriteLine("SecureDevPath: MEASURED");
+    Console.WriteLine("PdfFramePath: MEASURED");
+    Console.WriteLine("LocalE2EPath: MEASURED");
+    Console.WriteLine("FrameInputPath: MEASURED");
+    Console.WriteLine("RecoveryPath: MEASURED");
     Console.WriteLine($"FrameUpdateBytesAverage: {result.Summary.FrameUpdateBytesAverage:F1}");
     Console.WriteLine($"FrameUpdateFrequencyHz: {result.Summary.FrameUpdateFrequencyHz:F1}");
     Console.WriteLine($"DevTransportRoundtripAverageMs: {result.Summary.DevTransportRoundtripAverageMs:F3}");
@@ -440,6 +445,11 @@ public sealed record RkwpPerfSummary(
         builder.AppendLine();
         builder.AppendLine("| Metric | Value |");
         builder.AppendLine("| --- | ---: |");
+        builder.AppendLine("| SecureDev path | measured |");
+        builder.AppendLine("| PDF frame path | measured |");
+        builder.AppendLine("| Local E2E path | measured |");
+        builder.AppendLine("| Frame input path | measured |");
+        builder.AppendLine("| Recovery path | measured |");
         builder.AppendLine($"| FrameUpdate bytes avg | {FrameUpdateBytesAverage:F1} |");
         builder.AppendLine($"| FrameUpdate frequency Hz | {FrameUpdateFrequencyHz:F1} |");
         builder.AppendLine($"| DevTransport roundtrip avg ms | {DevTransportRoundtripAverageMs:F3} |");

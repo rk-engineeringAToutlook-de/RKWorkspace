@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.67.0
+Version: 2.68.0
 Status: Accepted  
 Datum: 2026-07-06
 
@@ -113,6 +113,7 @@ Die Architecture Baseline v1.0 ist veroeffentlicht. Die produktive Core-Entwickl
 - MA013.61 bis MA013.70 vertiefen UX und Human Experience fuer Original-Owned Frame: Glass Edge nach Frame-Flow, digitale Hand fuer echte Objekte, Owner/Guest Frame State Machine, Haptics Abstraction v1, Interaction Timing Lab, Accessibility, menschliche Fehler-UX, Original-Owned Frame Test Harness, Owner Feedback Log und UX Readiness Gate.
 - MA013.71 bis MA013.80 vertiefen Operations Readiness: Config-Tool-Modi List/Show/Validate/UseProfile/CreateLocal/Redact, Policy Editor Plan, Critical Infrastructure Policy Pack, Audit Viewer CLI, Diagnostics Dashboard Plan, Log Retention/Redaction, Offline/Reconnect, Ablage Identity Backup/Restore, Lab Admin Guide und Operations Readiness Gate.
 - MA013.81 bis MA013.90 vertiefen Installations- und Plattform-Readiness: Windows Agent Dev Service v2, Windows Dev Package, macOS Agent Installer Plan, iOS TestFlight/Dev Install Plan, Android und Linux Implementation Plans, Cross-Platform CI Plan, Code Signing Plan, Update Mechanism Plan und Install Readiness Gate.
+- MA013.91 bis MA013.100 schliessen MA013 mit Performance- und Real-Pilot-Readiness ab: E2E Performance Baseline v2, Multi-Frame Load Smoke, Latenz-, Memory-, Mobile-Battery-, Network-Adaptation- und Compression-Plan, Performance Dashboard Plan, Pilot Acceptance Criteria, MA013 Readiness Review, Real Pilot Start Plan, Next Codex Actions und Context Pack.
 - Ein separates Integration-Test-Projekt prueft die Core-Komponenten gemeinsam ueber Runtime Engine und Transfer Engine.
 - Ein Core Demo Runner zeigt den aktuellen End-to-End-Core-Ablauf sichtbar ueber Runtime Engine und Transfer Engine in der Konsole.
 - Eine lokale Simulation erzeugt zwei Arbeitsflaechen und plant einen Texttransfer von A nach B mit vollstaendigem Log.
@@ -377,6 +378,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.68.0 | 2026-07-06 | MA013.91 bis MA013.100 mit Performance-Baseline, Multi-Frame-Load, Pilot-Akzeptanzkriterien und MA013 Real-Pilot-Readiness abgeschlossen. |
 | 2.61.0 | 2026-07-06 | MA011.07 Manual Map CLI fuer echten Lab-Aufbau mit Import/Export/Validate, Sample-Map und Selector-Smoke dokumentiert. |
 | 2.60.0 | 2026-07-06 | MA011.05 Windows PDF Frame Pilot mit klarer Owner-/Gast-Testanzeige, optionalem Debug und stabilisierten Rueckgabe-/Recovery-Texten dokumentiert. |
 | 2.59.0 | 2026-07-06 | MA010.01 Windows PDF Frame Pilot mit Owner-/Guest-Ablage, FrameOnly, Rueckgabe, Recovery und No File Ingress dokumentiert. |

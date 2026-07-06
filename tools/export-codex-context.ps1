@@ -70,10 +70,17 @@ $files = @(
     'Docs\Protocol\RKWP_EmergencyReturn.md',
     'Docs\Protocol\RKWP_ProductTransportPlan.md',
     'Docs\Protocol\RKWP_OfflineReconnectStrategy.md',
+    'Docs\Protocol\RKWP_NetworkQualityAdaptation.md',
     'Docs\Policy\RKWP_PolicyProfiles.md',
     'Docs\Policy\PolicyEditorPlan.md',
     'Docs\Performance\RKWP_PerformanceBaseline.md',
     'Docs\Performance\PdfFramePerformance.md',
+    'Docs\Performance\E2EPerformanceBaseline.md',
+    'Docs\Performance\LatencyOptimizationNotes.md',
+    'Docs\Performance\MemoryProfilingPlan.md',
+    'Docs\Performance\MobileBatteryPerformancePlan.md',
+    'Docs\Performance\FrameCompressionStrategy.md',
+    'Docs\Performance\PerformanceDashboardPlan.md',
     'Docs\Security\RKWP_SecurityGate.md',
     'Docs\Security\RKWP_DevCertificates.md',
     'Docs\Security\RKWP_SecureSessionPath.md',
@@ -121,6 +128,10 @@ $files = @(
     'Docs\Readiness\UXReadiness_OriginalOwnedFrame.md',
     'Docs\Readiness\OperationsReadiness.md',
     'Docs\Readiness\InstallReadiness.md',
+    'Docs\Readiness\PilotAcceptanceCriteria.md',
+    'Docs\Readiness\MA013_ReadinessReview.md',
+    'Docs\Readiness\MA013_RealPilotStartPlan.md',
+    'Docs\Readiness\MA013_NextCodexActions.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -210,6 +221,7 @@ $files = @(
     'release\MA009_READINESS_SUMMARY.md',
     'release\MA010_READINESS_SUMMARY.md',
     'release\MA011_READINESS_SUMMARY.md',
+    'release\MA013_READINESS_SUMMARY.md',
     'release\handoff\WindowsToMac_MA008_Handoff.md',
     'release\handoff\WindowsToMac_MA009_Handoff.md',
     'release\handoff\macOS_Codex_MA009_FrameGuestSurface.md',
@@ -260,7 +272,10 @@ $files = @(
     'tools\run-manual-map.ps1',
     'tools\run-policy-profile.ps1',
     'tools\run-rkwp-perf.ps1',
+    'tools\run-rkwp-load.ps1',
     'tools\run-rkwp-lan-smoke.ps1',
+    'tools\run-windows-securedev-pdf-e2e.ps1',
+    'tools\run-rkwp-chaos.ps1',
     'tools\run-security-regression.ps1',
     'tools\run-windows-pdf-frame-pilot.ps1',
     'tools\run-windows-object-adapter.ps1',
@@ -285,7 +300,10 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-windows-owner-for-mac.ps1 -InfoOnly
 .\tools\run-rkwp-diagnostics.ps1 -SmokeTest
 .\tools\run-rkwp-perf.ps1 -SmokeTest
+.\tools\run-rkwp-load.ps1 -SmokeTest
 .\tools\run-rkwp-lan-smoke.ps1
+.\tools\run-windows-securedev-pdf-e2e.ps1 -SmokeTest
+.\tools\run-rkwp-chaos.ps1 -SmokeTest
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
 .\tools\run-config-tool.ps1 -SmokeTest
 .\tools\run-windows-agent-dev.ps1 -SmokeTest

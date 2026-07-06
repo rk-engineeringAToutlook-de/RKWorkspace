@@ -1,7 +1,7 @@
 # RKWS-0290 Test Strategy
 
 Dokument-ID: RKWS-SPEC-TEST-STRATEGY-001  
-Version: 2.51.0
+Version: 2.52.0
 Status: Accepted  
 Datum: 2026-07-05
 
@@ -136,6 +136,8 @@ Ab MA013.61 bis MA013.70 pruefen die RKWP-Tests zusaetzlich die Haptics Abstract
 Ab MA013.71 bis MA013.80 pruefen `run-config-tool.ps1 -SmokeTest`, `run-policy-profile.ps1 -SmokeTest`, `run-rkwp-diagnostics.ps1 -SmokeTest`, `run-rkwp-tests.ps1` und `run-tests.ps1` die Operations-Vorstufe. Config muss List, Show, Validate, UseProfile, CreateLocal und Redact koennen. Policy muss das Critical-Infrastructure-Pack kennen. Diagnostics muss AuditList, Session, Lease, Violations und Markdown Export vorbereiten. Offline/Reconnect, Log Retention, Identity Backup/Restore, Lab Admin Guide und Operations Readiness sind dokumentierte Gates.
 
 Ab MA013.81 bis MA013.90 pruefen `run-windows-agent-dev.ps1 -SmokeTest`, `package-windows-dev.ps1 -SmokeTest` und `run-tests.ps1` die Installationsvorbereitung. Windows Agent Dev muss Start, Stop, Status, Identity, Transport, FrameOwner und GuestSurface melden. Windows Dev Package muss Scripts, Config Samples, Critical Infrastructure Policy Pack, NoSecrets und Uninstall-Vorbereitung enthalten. macOS, iOS, Android, Linux, Cross-Platform CI, Code Signing, Updates und Install Readiness sind dokumentierte Gates.
+
+Ab MA013.91 bis MA013.100 pruefen `run-rkwp-perf.ps1 -SmokeTest`, `run-rkwp-load.ps1 -SmokeTest`, `run-tests.ps1`, `run-rkwp-tests.ps1`, `run-pdf-frame-smoke.ps1`, `run-rkwp-diagnostics.ps1`, `export-rkwp-schema.ps1` und `export-codex-context.ps1` die Performance- und Real-Pilot-Readiness. Performance muss SecureDev, PDF Frame, Local E2E, Frame Input und Recovery melden. Load muss 1, 3 und 5 Frames, Leases, Memory und No File Ingress pruefen. Die MA013 Readiness Review muss Done, Partial, Planned und Blocked fuer Windows, macOS, iPad, Security, PDF, No File Ingress, Policy, Audit, Recovery, Proximity, Dongle, Object Adapter, UX, Install und Performance sichtbar machen.
 
 ## MA003.05 Core Integration Tests
 

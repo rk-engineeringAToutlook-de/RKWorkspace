@@ -41,6 +41,11 @@ if ($SmokeTest) {
     $required = @(
         'Mode: SmokeTest',
         'Iterations: 10',
+        'SecureDevPath: MEASURED',
+        'PdfFramePath: MEASURED',
+        'LocalE2EPath: MEASURED',
+        'FrameInputPath: MEASURED',
+        'RecoveryPath: MEASURED',
         'PerfSamples: OK',
         'PdfRenderFirstPageAverageMs:',
         'PdfRenderNextPageAverageMs:',
