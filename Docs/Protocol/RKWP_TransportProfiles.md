@@ -93,6 +93,28 @@ Ab MA009.01 kommt der Secure-Session-Spike hinzu:
 - Replay-Schutz bleibt transportunabhaengig im RKWP-Protokoll.
 - `LocalNetworkDev` muss spaeter dieselben Security-Felder tragen wie `NamedPipeDev`.
 
+## Windows zu macOS Development Profil
+
+MA009.02 bereitet Windows als Owner fuer macOS vor:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -SmokeTest
+```
+
+Aktuell real:
+
+- `dev+namedpipe://rkws-windows-owner-macos` fuer lokalen Windows-DevTransport.
+- Smoke-Test ohne Hanger.
+- PDF-Pfad und AblageIdentity werden geprueft.
+
+Geplant fuer echte Geraete:
+
+```text
+rkwp+tcp-dev://<windows-host>:43707
+```
+
+Dieser Netzwerkpfad ist noch nicht implementiert. Er muss spaeter Secure Session, AblageIdentity, Trust, FrameOnly und No File Ingress tragen.
+
 ## Nicht-Ziele
 
 - kein Datei-Streaming

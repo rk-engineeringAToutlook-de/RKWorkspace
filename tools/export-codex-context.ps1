@@ -78,6 +78,7 @@ $files = @(
     'Spec\ProductPhilosophy.md',
     'release\MA007_READINESS_SUMMARY.md',
     'release\handoff\WindowsToMac_MA008_Handoff.md',
+    'release\handoff\WindowsToMac_MA009_Handoff.md',
     'release\handoff\iOS_iPadOS_MA008_Handoff.md',
     'tools\run-windows-owner-for-mac.ps1',
     'tools\init-dev-rkwp-identity.ps1',

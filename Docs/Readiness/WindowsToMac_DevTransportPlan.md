@@ -34,6 +34,14 @@ Der Windows-Pfad ist lokal verifiziert:
 
 Dieser Smoke prueft Windows Owner, Windows Guest, DevPairing, `NamedPipeDev`, PDF FrameOnly, No File Ingress, Rueckgabe und Recovery.
 
+Ab MA009.02 besitzt der Windows-Owner-Pfad zusaetzlich:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -SmokeTest
+```
+
+Der Smoke prueft PDF-Pfad, lokale Dev-Ablage-Identitaet, SecurityMode-Ausgabe, DevTransport-Harness, Guest-Wait-No-Hang und sauberen Shutdown.
+
 ## DevTransport Status
 
 Aktiv implementiert:
@@ -136,6 +144,12 @@ macOS-Codex soll zuerst eine minimale FrameGuestSurface bauen:
 .\tools\run-windows-owner-for-mac.ps1
 ```
 
+Vorher kann der Owner ohne Hanger getestet werden:
+
+```powershell
+.\tools\run-windows-owner-for-mac.ps1 -SmokeTest
+```
+
 2. macOS Guest mit Context Pack starten:
 
 ```text
@@ -199,5 +213,5 @@ Return: SUCCESS
 - macOS native FrameGuestSurface fehlt.
 - Cross-Device DevTransport ist noch nicht implementiert.
 - PDF-Renderer ist aktuell noch als RendererBlocked markiert.
-- produktive Security ist nicht aktiv.
+- MA009.01 Secure Session Spike ist strukturell aktiv, aber produktive Security ist noch nicht vollstaendig.
 - Firewall/Local-Network Permissions muessen auf echter Hardware getestet werden.

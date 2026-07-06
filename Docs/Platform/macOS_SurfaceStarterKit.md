@@ -111,3 +111,24 @@ Der echte macOS-Test braucht ein netzwerkfaehiges Development-Transportprofil. `
 - netzwerkfaehiger DevTransport fuer Cross-Device-Test fehlt noch.
 - echter PDF-Renderer ist noch offen.
 - finale Overlay-/Permission-Strategie ist offen.
+# macOS Surface Starter Kit
+
+## MA009 Hinweis
+
+Der aktuelle Windows-Handoff fuer macOS liegt hier:
+
+```text
+release/handoff/WindowsToMac_MA009_Handoff.md
+```
+
+Die erste macOS Surface ist eine Frame Guest Surface:
+
+- native macOS App oder Host.
+- RKWP DevTransport Client.
+- AblageIdentity.
+- DevPairing.
+- FrameOnly View.
+- keine Dateiablage der Owner-PDF.
+- Heartbeat und Return.
+
+Benutzernahe Sprache bleibt Ablage/Frame/liegt hier/zurueckgegeben. Technische Begriffe bleiben in Logs und Doku.

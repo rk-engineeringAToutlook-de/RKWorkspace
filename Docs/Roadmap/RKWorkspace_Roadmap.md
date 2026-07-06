@@ -28,11 +28,11 @@ RK Workspace ist keine App. RK Workspace ist der digitale Raum, in dem Menschen 
 
 ## Aktueller Stand
 
-MA009.01 startet den Secure-Session-Spike. RKWP besitzt jetzt eine strukturelle Grundlage fuer gegenseitige Ablage-Authentisierung, Dev-Zertifikate, Session-Key-Vorbereitung, Policy-Bindung, Replay-Schutz und Handshake-Audit.
+MA009.02 bereitet den Windows Owner fuer den spaeteren macOS Guest Test vor. `run-windows-owner-for-mac.ps1 -SmokeTest` prueft PDF, Dev-Ablage-Identitaet, SecurityMode-Ausgabe, DevTransport-Harness und No-Hang-Verhalten.
 
 ## Naechster Fokus
 
-Nach MA009.01 liegt der Fokus weiter auf dem ersten echten Cross-Device-Test: Windows bleibt PDF Owner, macOS wird Guest Ablage und zeigt nur einen Frame ohne Originaldatei. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
+Nach MA009.02 liegt der Fokus auf dem macOS-Codex-Auftrag fuer die native Frame Guest Surface. Offen bleiben netzwerkfaehiger DevTransport, produktive Kryptografie, macOS FrameGuestSurface, native mobile Surface Apps, manipulationssicherer Audit-Speicher und echtes PDF-Seitenrendering.
 
 ## Entfernung und Ablage-Anker
 

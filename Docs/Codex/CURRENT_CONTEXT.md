@@ -266,6 +266,27 @@ Die Readiness trennt Done, Partial, Planned und Blocked fuer DevTransport, Ablag
 
 Gate-Aussage: Struktur und Protokoll stehen fuer Development-Testing. Produktiv fehlen weiterhin netzwerkfaehiger DevTransport, native macOS/iOS Guest Surfaces, produktive Verschluesselung/Mutual Auth, Trust Store, echter Gast-PDF-Renderer und echte Proximity-Hardware.
 
+## MA009 Secure Cross-Device Foundation
+
+MA009.01 liefert den Secure-Session-Spike:
+
+- `RkwpSecureSession`
+- `RkwpHandshake`
+- `RkwpDevCertificate`
+- `RkwpSessionKey`
+- `RkwpSecurityPolicy`
+- `tools/init-dev-rkwp-identity.ps1`
+- `Docs/Protocol/RKWP_SecureSession.md`
+- `Docs/Security/RKWP_DevCertificates.md`
+
+MA009.02 bereitet den Windows Owner fuer macOS vor:
+
+- `tools/run-windows-owner-for-mac.ps1 -SmokeTest`
+- `release/handoff/WindowsToMac_MA009_Handoff.md`
+- DevTransport URL Format `dev+namedpipe://rkws-windows-owner-macos`
+- geplanter LAN-Port `43707`
+- No File Ingress bleibt Pflicht.
+
 ## Context Pack
 
 Stabiler Pfad:

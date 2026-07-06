@@ -133,3 +133,27 @@ Nicht bauen:
 - noch keine native macOS-App
 - noch kein netzwerkfaehiger DevTransport-Cross-Device-Test
 - keine produktive Capture-/Overlay-Berechtigungsstrategie
+# macOS MA009 Frame Guest Surface Task
+
+Aktueller Handoff-Pfad:
+
+```text
+release/handoff/WindowsToMac_MA009_Handoff.md
+```
+
+macOS-Codex soll als naechstes eine native Frame Guest Surface bauen. Ziel ist nicht Dateiuebertragung, sondern FrameOnly:
+
+- Windows bleibt Owner.
+- macOS identifiziert sich als Ablage.
+- macOS bekommt nur RKWP Frame.
+- macOS speichert keine PDF-Datei.
+- macOS sendet Heartbeat und Return.
+- No File Ingress muss im Log sichtbar sein.
+
+Vor dem Bauen lesen:
+
+- `Docs/Protocol/RKWP_SecureSession.md`
+- `Docs/Protocol/RKWP_AblageIdentityAndTrust.md`
+- `Docs/Protocol/RKWP_OwnershipAndLease.md`
+- `Docs/Protocol/RKWP_FrameSession.md`
+- `Docs/Readiness/WindowsToMac_DevTransportPlan.md`
