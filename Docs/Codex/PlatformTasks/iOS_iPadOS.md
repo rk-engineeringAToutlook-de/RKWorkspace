@@ -20,6 +20,18 @@ Sie ist kein Dateiempfaenger und kein Sync-Ziel.
 
 ## Aktueller Handoff
 
+MA013 Xcode Bootstrap:
+
+```text
+release/handoff/iOS_XcodeProjectBootstrap_MA013.md
+```
+
+MA013 Windows to iPad Gate:
+
+```text
+release/handoff/WindowsToiPad_FirstRealTestGate.md
+```
+
 Direkt nutzbare Handoff-Datei:
 
 ```text
@@ -35,6 +47,18 @@ release/handoff/iOS_iPadOS_MA008_Handoff.md
 ## Vor dem Bauen Lesen
 
 - `Docs/Codex/CURRENT_CONTEXT.md`
+- `Docs/Platform/iOS_XcodeProjectBootstrap.md`
+- `Docs/Platform/iOS_RKWPClientFlow.md`
+- `Docs/Platform/iOS_FramePresenter.md`
+- `Docs/Platform/iOS_HapticsAndGesturePrototype.md`
+- `Docs/Platform/iOS_NoFileIngressSandboxChecklist.md`
+- `Docs/Platform/iOS_USBDeviceTestRunbook.md`
+- `Docs/Platform/iOS_ReturnAndRecovery.md`
+- `Docs/Platform/iOS_ShareExtensionObjectSource.md`
+- `Docs/Readiness/WindowsToiPad_FirstRealTestGate.md`
+- `Docs/Readiness/iOS_MA013_ReadinessGate.md`
+- `release/handoff/iOS_XcodeProjectBootstrap_MA013.md`
+- `release/handoff/WindowsToiPad_FirstRealTestGate.md`
 - `Docs/Platform/iOS_iPadOS_SurfaceStarterKit.md`
 - `src/Surfaces/RKWorkspace.Surface.iOS/README.md`
 - `src/Surfaces/RKWorkspace.Surface.iOS/iOS_SurfaceApp_Design.md`
@@ -139,3 +163,26 @@ Der Harness ist keine iOS-App. Er ist der Vertrag fuer macOS-Codex und Xcode:
 - OwnershipTransfer standardmaessig aus.
 
 Der native Xcode-Build muss diese Kriterien auf echtem iPhone/iPad bestaetigen.
+
+## MA013.11 bis MA013.20 iOS Readiness
+
+iOS/iPadOS ist ab MA013 als konkreter Xcode-Pfad vorbereitet:
+
+- Xcode Project Bootstrap.
+- RKWP Client Flow.
+- Frame Presenter.
+- Haptics und Gesten.
+- No File Ingress Sandbox Checklist.
+- USB Device Test Runbook.
+- Windows-zu-iPad First Real Test Gate.
+- Return und Recovery.
+- Share Extension Object Source Roadmap.
+- Readiness Gate.
+
+Windows-seitige Verifikation:
+
+```powershell
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
+.\tools\run-windows-pdf-owner-securedev.ps1 -SmokeTest
+.\tools\export-codex-context.ps1
+```

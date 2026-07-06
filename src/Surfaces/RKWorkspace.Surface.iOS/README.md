@@ -32,6 +32,16 @@ Der erste iOS/iPadOS-Pfad ist keine globale OS-Magie. Er startet mit:
 
 ## Handoff-Dateien
 
+- `Docs/Platform/iOS_XcodeProjectBootstrap.md`
+- `Docs/Platform/iOS_RKWPClientFlow.md`
+- `Docs/Platform/iOS_FramePresenter.md`
+- `Docs/Platform/iOS_HapticsAndGesturePrototype.md`
+- `Docs/Platform/iOS_NoFileIngressSandboxChecklist.md`
+- `Docs/Platform/iOS_USBDeviceTestRunbook.md`
+- `Docs/Platform/iOS_ReturnAndRecovery.md`
+- `Docs/Platform/iOS_ShareExtensionObjectSource.md`
+- `release/handoff/iOS_XcodeProjectBootstrap_MA013.md`
+- `release/handoff/WindowsToiPad_FirstRealTestGate.md`
 - `ios-xcode-project-layout.md`
 - `ios-rkwp-client-flow.md`
 - `ios-frame-guest-ui.md`
@@ -48,6 +58,10 @@ Der erste iOS/iPadOS-Pfad ist keine globale OS-Magie. Er startet mit:
 ## MA011.09 Xcode-Testplan
 
 MA011.09 konkretisiert den ersten echten iPad/iPhone-Test. macOS-Codex soll daraus eine native SwiftUI/Xcode-App aufbauen, die eine `AblageIdentity` erzeugt, sich per RKWP DevLan/SecureDev mit Windows Owner verbindet, einen PDF-Frame anzeigt, Haptik vorbereitet, Return senden kann und keine PDF-Datei speichert.
+
+## MA013.11 bis MA013.20 iOS Readiness
+
+MA013 konkretisiert den Xcode-Bootstrap, RKWP Client Flow, Frame Presenter, Haptics/Gestures, No File Ingress, USB-Test, Windows-zu-iPad-Gate, Return/Recovery und Share Extension Roadmap. Das Readiness Gate liegt unter `Docs/Readiness/iOS_MA013_ReadinessGate.md`.
 
 ## Offene Punkte
 

@@ -178,6 +178,30 @@ Die App soll minimal koennen:
 - PDF-Frame anzeigen.
 - Haptik bei `FrameReady` und `Return` vorbereiten.
 - einfache Touch-Geste fuer Return anbieten.
+
+## MA013 Aktualisierung
+
+MA013 macht aus dem bisherigen Handoff einen konkreten Xcode-Startpfad. macOS-Codex soll zusaetzlich lesen:
+
+1. `release/handoff/iOS_XcodeProjectBootstrap_MA013.md`
+2. `Docs/Platform/iOS_XcodeProjectBootstrap.md`
+3. `Docs/Platform/iOS_RKWPClientFlow.md`
+4. `Docs/Platform/iOS_FramePresenter.md`
+5. `Docs/Platform/iOS_HapticsAndGesturePrototype.md`
+6. `Docs/Platform/iOS_NoFileIngressSandboxChecklist.md`
+7. `Docs/Platform/iOS_USBDeviceTestRunbook.md`
+8. `Docs/Platform/iOS_ReturnAndRecovery.md`
+9. `Docs/Platform/iOS_ShareExtensionObjectSource.md`
+10. `Docs/Readiness/WindowsToiPad_FirstRealTestGate.md`
+11. `Docs/Readiness/iOS_MA013_ReadinessGate.md`
+
+Windows-seitig muessen vor dem echten iPad-Test gruen sein:
+
+```powershell
+.\tools\run-ios-guest-compat.ps1 -SmokeTest
+.\tools\run-windows-pdf-owner-securedev.ps1 -SmokeTest
+.\tools\export-codex-context.ps1
+```
 - Drei-Finger-Geste spaeter pruefen, aber nicht blockierend machen.
 - keine PDF-Datei, keinen Originalpfad und keine Originalbytes als Datei speichern.
 
