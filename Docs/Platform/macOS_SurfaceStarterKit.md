@@ -1,134 +1,100 @@
 # macOS Surface Starter Kit
 
-Dokument-ID: RKWS-PLATFORM-MACOS-001
-Status: Draft
-Datum: 2026-07-05
+Dokument-ID: RKWS-PLATFORM-MACOS-001  
+Status: Draft  
+Datum: 2026-07-06
 
 ## Ziel
 
-macOS wird als erste echte Gegenplattform vorbereitet.
+macOS wird als erste echte Gegenplattform vorbereitet. Die erste macOS Surface ist eine Gastablage fuer RKWP Frames.
 
-Die erste macOS Surface ist eine Gastablage fuer RKWP Frames. Sie zeigt ein digitales Ding als Frame an, ohne die Originaldatei zu besitzen oder als freie Datei zu speichern.
+Sie zeigt ein digitales Ding als Frame an, ohne die Originaldatei zu besitzen oder als freie Datei zu speichern.
 
 ## Produktrolle
 
-macOS Surface ist nicht Owner-Logik und nicht Protokollquelle. Sie ist eine Ablage im Arbeitsraum.
+macOS Surface ist:
 
-Erste Rolle:
+- Frame Guest Surface.
+- Ablage im Arbeitsraum.
+- Anzeige- und Eingabeflaeche fuer RKWP Frame.
 
-- FrameGuestSurface
-- Glass Edge am Rand
-- Frame anzeigen
-- Input policygebunden vorbereiten
-- No File Ingress beweisen
+macOS Surface ist nicht:
+
+- Owner der Windows-PDF.
+- Dateiempfaenger.
+- Sync-Ziel.
+- Standard-Ort fuer Ownership Transfer.
+
+## Minimaler Aufbau
+
+1. Native macOS App oder Host startet.
+2. AblageIdentity wird erzeugt.
+3. RKWP DevTransport Client verbindet.
+4. DevPairing wird angefordert.
+5. FrameSession wird empfangen.
+6. PDF Frame wird angezeigt.
+7. No File Ingress wird geprueft.
+8. Heartbeat wird gesendet.
+9. Return wird gesendet.
+10. Logs werden geschrieben.
 
 ## No File Ingress
 
 Pflicht:
 
-- keine PDF-Datei speichern
-- keine Originalbytes als Datei schreiben
-- kein automatischer Besitzwechsel
-- FrameOnly respektieren
-- Return und Recovery unterstuetzen
+- keine PDF-Datei speichern.
+- keinen Windows-Originalpfad als lokale Datei behandeln.
+- keine Originalbytes als freie Datei materialisieren.
+- FrameOnly respektieren.
+- Return und Recovery unterstuetzen.
 
 ## Native Optionen
 
-Empfohlen zuerst pruefen:
+Empfohlen:
 
-- Swift/AppKit fuer Fenster, Overlay und Berechtigungen
-- SwiftUI fuer einfache Surface-App
-- CoreAnimation/Metal fuer spaetere Glass Edge
-- Trackpad-Gesten ueber native APIs
-- haptisches Feedback ueber Trackpad, falls verfuegbar
-
-.NET/MAUI bleibt eine Option, aber nur wenn transparente Surface, Gesten und Human Experience nicht leiden.
+- Swift/AppKit fuer Fenster, Overlay und Berechtigungen.
+- SwiftUI fuer einfache Surface-App.
+- PDFKit nur kontrolliert, wenn kein File Ingress entsteht.
+- CoreAnimation/Metal spaeter fuer Glass Edge.
+- Trackpad-Gesten und Force Touch spaeter.
 
 ## Berechtigungen
 
-macOS-Codex muss klaeren:
+Siehe:
 
-- Accessibility fuer globale Gesten
-- Screen Recording fuer sichtbare Inhalte/Overlay
-- Sandbox und Entitlements
-- Security-Scoped Access fuer Dateien
-- Network Local Access fuer DevTransport
-- Trackpad-Gesten und Force Touch
-
-## Erste Surface
-
-Minimaler Start:
-
-1. App oder Agent startet.
-2. SurfaceId wird angezeigt oder geloggt.
-3. RKWP DevTransport kann spaeter verbinden.
-4. FrameSession wird angenommen.
-5. Frame-Darstellung wird gezeigt.
-6. Keine Datei wird lokal materialisiert.
-7. Return/Close invalidiert den Frame.
-
-## Erste Gesten
-
-Zu pruefen:
-
-- Maus-Drag als Fallback
-- Trackpad Hold/Drag
-- Drei-Finger-Langdruck
-- Force Touch / Haptik
-- Escape/Cancel
-
-## Glass Edge
-
-Die macOS Surface zeigt spaeter eine Glass Edge an dem Rand, der zur naechsten Ablage zeigt. In V1 reicht eine vorbereitete Visualisierung; die Proximity-Logik kommt aus RKWP/Surface-Contracts.
-
-## Testpfad
-
-Erster echter Test:
-
-Windows besitzt PDF.
-macOS zeigt PDF-Frame.
-macOS bekommt keine PDF-Datei.
-Windows bleibt Owner.
-macOS gibt Frame zurueck.
-
-MA008.06 liefert dafuer:
-
-- `Docs/Readiness/WindowsToMac_DevTransportPlan.md`
-- `release/handoff/WindowsToMac_MA008_Handoff.md`
-- `tools/run-windows-owner-for-mac.ps1`
-
-Windows kann den Owner-Status mit folgendem Befehl ausgeben:
-
-```powershell
-.\tools\run-windows-owner-for-mac.ps1 -InfoOnly
+```text
+src/Surfaces/RKWorkspace.Surface.macOS/macOS_Permissions_Checklist.md
 ```
 
-Der echte macOS-Test braucht ein netzwerkfaehiges Development-Transportprofil. `NamedPipeDev` bleibt der lokal verifizierte Windows-Pfad.
+## Handoff
 
-## Offene Blocker
+Der vollstaendige macOS-Codex-Auftrag liegt hier:
 
-- macOS-Codex/Xcode-Umgebung fehlt in diesem Windows-Thread.
-- netzwerkfaehiger DevTransport fuer Cross-Device-Test fehlt noch.
-- echter PDF-Renderer ist noch offen.
-- finale Overlay-/Permission-Strategie ist offen.
-# macOS Surface Starter Kit
+```text
+release/handoff/macOS_Codex_MA009_FrameGuestSurface.md
+```
 
-## MA009 Hinweis
-
-Der aktuelle Windows-Handoff fuer macOS liegt hier:
+Windows Owner Handoff:
 
 ```text
 release/handoff/WindowsToMac_MA009_Handoff.md
 ```
 
-Die erste macOS Surface ist eine Frame Guest Surface:
+## Testpfad
 
-- native macOS App oder Host.
-- RKWP DevTransport Client.
-- AblageIdentity.
-- DevPairing.
-- FrameOnly View.
-- keine Dateiablage der Owner-PDF.
-- Heartbeat und Return.
+Erster echter Test:
 
-Benutzernahe Sprache bleibt Ablage/Frame/liegt hier/zurueckgegeben. Technische Begriffe bleiben in Logs und Doku.
+1. Windows besitzt PDF.
+2. macOS meldet sich als Ablage.
+3. Windows gibt FrameOnly frei.
+4. macOS zeigt PDF-Frame.
+5. macOS bekommt keine PDF-Datei.
+6. macOS sendet Return.
+7. Windows bestaetigt Rueckgabe oder Recovery.
+
+## Offene Blocker
+
+- macOS-Codex/Xcode-Umgebung fehlt in diesem Windows-Thread.
+- netzwerkfaehiger DevTransport fuer Cross-Device-Test fehlt.
+- echter PDF-Renderer ist noch offen.
+- finale Overlay-/Permission-Strategie ist offen.

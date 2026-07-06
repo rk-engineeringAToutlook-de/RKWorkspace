@@ -287,6 +287,16 @@ MA009.02 bereitet den Windows Owner fuer macOS vor:
 - geplanter LAN-Port `43707`
 - No File Ingress bleibt Pflicht.
 
+MA009.03 liefert das macOS-Codex-Auftragspaket:
+
+- `release/handoff/macOS_Codex_MA009_FrameGuestSurface.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/README.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/macOS_FrameGuestSurface_Design.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/macOS_Permissions_Checklist.md`
+- `src/Surfaces/RKWorkspace.Surface.macOS/macOS_Build_Notes.md`
+
+Windows-Codex baut keine native macOS-App. macOS-Codex/Xcode muss die Frame Guest Surface bauen.
+
 ## Context Pack
 
 Stabiler Pfad:

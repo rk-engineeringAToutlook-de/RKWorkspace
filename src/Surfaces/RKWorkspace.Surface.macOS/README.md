@@ -1,34 +1,41 @@
 # RKWorkspace.Surface.macOS
 
-Status: Prepared stub
+Status: Prepared handoff  
+Datum: 2026-07-06
 
-macOS wird als native Surface vorbereitet. Der spaetere Fokus liegt auf Trackpad-/Maus-Gesten, transparentem Overlay, Frame-Presentation und RKWP-Eingabekanaelen.
+## Zweck
 
-MA007.00 implementiert noch keine macOS-APIs. Die macOS-Surface darf Ownership nicht selbst entscheiden, sondern muss `RKWorkspace.Protocol` und `RKWorkspace.Surface.Abstractions` verwenden.
+Dieses Verzeichnis enthaelt die Windows-seitig vorbereitete macOS-Surface-Uebergabe. Es ist noch keine buildbare macOS-App.
 
-Pflichtsemantik:
+macOS-Codex/Xcode baut spaeter die native App.
 
-- Original bleibt beim Owner.
-- Gast bekommt Frame oder Session-Handoff nach Policy.
-- CopyOut/Fork/MoveOwnership brauchen explizite Entscheidung.
+## Ziel
 
-## Berechtigungen und Risiken
+Baue eine macOS RK Workspace Frame Guest Surface:
 
-- Accessibility fuer globale Eingaben und Gesten pruefen.
-- Screen Recording fuer sichtbare Frame-/Overlay-Faelle pruefen.
-- Sandbox und security-scoped access respektieren.
-- Trackpad und Haptik sind native Surface-Details, keine Protokollregeln.
+- native macOS Ablage.
+- RKWP DevTransport Client.
+- AblageIdentity.
+- DevPairing.
+- FrameSession empfangen.
+- PDF Frame anzeigen.
+- No File Ingress beweisen.
+- Heartbeat und Return senden.
 
-## Naechster Plattformauftrag
-
-macOS Surface Host mit Trackpad-Geste, FrameOnly Presenter und RKWP No File Ingress Proof skizzieren.
-
-## MA007.10 Starter Kit
-
-Dieses Verzeichnis enthaelt ab MA007.10 zusaetzliche Handoff-Stubs:
+## Dateien
 
 - `SurfaceHostStub.md`
 - `FrameGuestSurfacePlan.md`
 - `macOSPermissions.md`
+- `macOS_FrameGuestSurface_Design.md`
+- `macOS_Permissions_Checklist.md`
+- `macOS_Build_Notes.md`
 
-Die Umsetzung bleibt macOS-Codex/Xcode vorbehalten. Windows-Codex liefert hier nur Architektur, Pflichten und Testziel.
+## Pflichtregeln
+
+- keine Originaldatei auf macOS speichern.
+- keine Ownership-Entscheidung lokal erfinden.
+- FrameOnly respektieren.
+- Input nur ueber RKWP Input Channel und Policy.
+- ChangeSets sind Vorschlaege.
+- Return und Recovery muessen nachvollziehbar sein.
