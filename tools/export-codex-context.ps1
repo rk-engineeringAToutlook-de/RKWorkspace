@@ -209,6 +209,7 @@ $files = @(
     'release\ma016\reports\ma016-feedback-report.md',
     'release\ma016\reports\ma016-repeatability-report.md',
     'release\ma016\reports\ma016-performance-baseline.md',
+    'release\ma016\reports\REPOSITORY_HYGIENE.md',
     'release\ma016\reports\templates\no-file-ingress-macos-template.md',
     'release\ma016\packages\apple-rkwp-bundle\README.md',
     'release\ma016\packages\apple-rkwp-bundle\swift-model-plan.md',
@@ -384,6 +385,11 @@ $files = @(
     'tools\run-ma016-repeatability.ps1',
     'tools\export-ma016-performance-baseline.ps1',
     'tools\package-ma016-owner-test.ps1',
+    'tools\test-context-pack-no-secrets.ps1',
+    'tools\redact-local-config.ps1',
+    'tools\clean-build-artifacts.ps1',
+    'tools\clean-pilot-artifacts.ps1',
+    'tools\check-ma016-final-status.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -411,6 +417,11 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-windows-securedev-pdf-e2e.ps1 -SmokeTest
 .\tools\run-rkwp-chaos.ps1 -SmokeTest
 .\tools\run-ma016-smoke.ps1 -SkipHeavy
+.\tools\test-context-pack-no-secrets.ps1
+.\tools\redact-local-config.ps1 -SmokeTest
+.\tools\clean-build-artifacts.ps1 -DryRun
+.\tools\clean-pilot-artifacts.ps1 -DryRun
+.\tools\check-ma016-final-status.ps1
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest -UseGlassEdge -UseUwbSim -UwbProfile MovingCloser -PlaySequence
 .\tools\run-windows-pdf-frame-pilot.ps1 -SmokeTest -UseGlassEdge -UseProximityFusion -UwbProfile PassingBy -PlaySequence
