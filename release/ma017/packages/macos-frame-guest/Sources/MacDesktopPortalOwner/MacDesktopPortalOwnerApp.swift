@@ -43,7 +43,11 @@ final class DesktopPortalController {
     private let sessionId = "rkwp-macos-desktop-owner-\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased())"
 
     func start() {
-        requestAccessibilityIfNeeded()
+        if settings.devAutoPlace {
+            print("Accessibility: SKIPPED_DEV_AUTO_PLACE")
+        } else {
+            requestAccessibilityIfNeeded()
+        }
         createOverlayWindow()
         startFrameServer()
         installEventMonitors()
@@ -457,47 +461,241 @@ struct DesktopPortalOverlayView: View {
 
     private func edgeView(in size: CGSize) -> some View {
         let edgeFrame = frameForEdge(in: size)
-        return ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(.ultraThinMaterial)
-            Capsule()
-                .fill(Color.white.opacity(0.52))
-                .frame(
-                    width: state.edge == .left || state.edge == .right ? 9 : 160,
-                    height: state.edge == .left || state.edge == .right ? 176 : 9)
-            Text(state.targetName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .offset(labelOffset())
-        }
+        return ProgressiveDesktopGlassEdge(edge: state.edge)
         .frame(width: edgeFrame.width, height: edgeFrame.height)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.cyan.opacity(0.68), lineWidth: 1.5)
-        )
-        .shadow(color: Color.cyan.opacity(0.35), radius: 24)
         .position(x: edgeFrame.midX, y: edgeFrame.midY)
     }
 
     private func frameForEdge(in size: CGSize) -> CGRect {
+        let depth: CGFloat = 224
         switch state.edge {
         case .left:
-            return CGRect(x: 0, y: size.height * 0.5 - 160, width: 88, height: 320)
+            return CGRect(x: 0, y: 0, width: depth, height: size.height)
         case .right:
-            return CGRect(x: size.width - 88, y: size.height * 0.5 - 160, width: 88, height: 320)
+            return CGRect(x: size.width - depth, y: 0, width: depth, height: size.height)
         case .top:
-            return CGRect(x: size.width * 0.5 - 190, y: 0, width: 380, height: 76)
+            return CGRect(x: 0, y: 0, width: size.width, height: depth)
         case .bottom:
-            return CGRect(x: size.width * 0.5 - 190, y: size.height - 76, width: 380, height: 76)
+            return CGRect(x: 0, y: size.height - depth, width: size.width, height: depth)
+        }
+    }
+}
+
+struct ProgressiveDesktopGlassEdge: View {
+    let edge: DesktopPortalEdge
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Rectangle()
+                    .fill(.regularMaterial)
+                    .opacity(0.98)
+                    .mask(progressiveMask)
+
+                Rectangle()
+                    .fill(glassBodyGradient)
+                    .mask(progressiveMask)
+
+                Rectangle()
+                    .fill(edgeGlowGradient)
+                    .blur(radius: 22)
+                    .mask(progressiveMask)
+
+                throat(in: geometry.size)
+                    .blur(radius: 0.6)
+
+                physicalLightEdge(in: geometry.size)
+
+                innerCatchlight(in: geometry.size)
+            }
         }
     }
 
-    private func labelOffset() -> CGSize {
-        switch state.edge {
+    private var progressiveMask: LinearGradient {
+        switch edge {
+        case .right:
+            return LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0.00),
+                    .init(color: .black.opacity(0.08), location: 0.18),
+                    .init(color: .black.opacity(0.68), location: 0.58),
+                    .init(color: .black, location: 1.00)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing)
+        case .left:
+            return LinearGradient(
+                stops: [
+                    .init(color: .black, location: 0.00),
+                    .init(color: .black.opacity(0.68), location: 0.42),
+                    .init(color: .black.opacity(0.08), location: 0.82),
+                    .init(color: .clear, location: 1.00)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing)
+        case .top:
+            return LinearGradient(
+                stops: [
+                    .init(color: .black, location: 0.00),
+                    .init(color: .black.opacity(0.68), location: 0.42),
+                    .init(color: .black.opacity(0.08), location: 0.82),
+                    .init(color: .clear, location: 1.00)
+                ],
+                startPoint: .top,
+                endPoint: .bottom)
+        case .bottom:
+            return LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0.00),
+                    .init(color: .black.opacity(0.08), location: 0.18),
+                    .init(color: .black.opacity(0.68), location: 0.58),
+                    .init(color: .black, location: 1.00)
+                ],
+                startPoint: .top,
+                endPoint: .bottom)
+        }
+    }
+
+    private var glassBodyGradient: LinearGradient {
+        switch edge {
+        case .right:
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.00),
+                    Color.white.opacity(0.08),
+                    Color.cyan.opacity(0.15),
+                    Color.white.opacity(0.30)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing)
+        case .left:
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.30),
+                    Color.cyan.opacity(0.15),
+                    Color.white.opacity(0.08),
+                    Color.white.opacity(0.00)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing)
+        case .top:
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.30),
+                    Color.cyan.opacity(0.15),
+                    Color.white.opacity(0.08),
+                    Color.white.opacity(0.00)
+                ],
+                startPoint: .top,
+                endPoint: .bottom)
+        case .bottom:
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.00),
+                    Color.white.opacity(0.08),
+                    Color.cyan.opacity(0.15),
+                    Color.white.opacity(0.30)
+                ],
+                startPoint: .top,
+                endPoint: .bottom)
+        }
+    }
+
+    private var edgeGlowGradient: LinearGradient {
+        switch edge {
         case .left, .right:
-            return CGSize(width: 0, height: 108)
+            return LinearGradient(
+                colors: [
+                    Color.cyan.opacity(0.00),
+                    Color.white.opacity(0.32),
+                    Color.cyan.opacity(0.22),
+                    Color.white.opacity(0.32),
+                    Color.cyan.opacity(0.00)
+                ],
+                startPoint: .top,
+                endPoint: .bottom)
         case .top, .bottom:
-            return CGSize(width: 0, height: 22)
+            return LinearGradient(
+                colors: [
+                    Color.cyan.opacity(0.00),
+                    Color.white.opacity(0.32),
+                    Color.cyan.opacity(0.22),
+                    Color.white.opacity(0.32),
+                    Color.cyan.opacity(0.00)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing)
+        }
+    }
+
+    @ViewBuilder
+    private func throat(in size: CGSize) -> some View {
+        if edge == .left || edge == .right {
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.00),
+                            Color.white.opacity(0.48),
+                            Color.cyan.opacity(0.34),
+                            Color.white.opacity(0.00)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom))
+                .frame(width: 13, height: min(size.height * 0.38, 320))
+                .position(
+                    x: edge == .right ? size.width - 18 : 18,
+                    y: size.height * 0.50)
+                .shadow(color: Color.cyan.opacity(0.36), radius: 18)
+        } else {
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.00),
+                            Color.white.opacity(0.48),
+                            Color.cyan.opacity(0.34),
+                            Color.white.opacity(0.00)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing))
+                .frame(width: min(size.width * 0.38, 360), height: 13)
+                .position(
+                    x: size.width * 0.50,
+                    y: edge == .bottom ? size.height - 18 : 18)
+                .shadow(color: Color.cyan.opacity(0.36), radius: 18)
+        }
+    }
+
+    @ViewBuilder
+    private func physicalLightEdge(in size: CGSize) -> some View {
+        if edge == .left || edge == .right {
+            Rectangle()
+                .fill(edgeGlowGradient)
+                .frame(width: 2.0, height: size.height)
+                .position(x: edge == .right ? size.width - 1.0 : 1.0, y: size.height / 2)
+        } else {
+            Rectangle()
+                .fill(edgeGlowGradient)
+                .frame(width: size.width, height: 2.0)
+                .position(x: size.width / 2, y: edge == .bottom ? size.height - 1.0 : 1.0)
+        }
+    }
+
+    @ViewBuilder
+    private func innerCatchlight(in size: CGSize) -> some View {
+        if edge == .left || edge == .right {
+            Rectangle()
+                .fill(edgeGlowGradient.opacity(0.52))
+                .frame(width: 3.2, height: size.height * 0.72)
+                .blur(radius: 2.2)
+                .position(x: edge == .right ? size.width * 0.82 : size.width * 0.18, y: size.height / 2)
+        } else {
+            Rectangle()
+                .fill(edgeGlowGradient.opacity(0.52))
+                .frame(width: size.width * 0.72, height: 3.2)
+                .blur(radius: 2.2)
+                .position(x: size.width / 2, y: edge == .bottom ? size.height * 0.82 : size.height * 0.18)
         }
     }
 }
