@@ -958,7 +958,14 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
                 $"  \"targetEdge\": \"{EscapeJson(_nearestAblage.EdgeHint.ToString())}\",",
                 $"  \"targetDistanceMeters\": \"{_nearestAblage.DistanceMeters:0.00}\",",
                 $"  \"targetDistanceSource\": \"{EscapeJson(_nearestAblage.Source.ToString())}\",",
-                "  \"requestedFrameFormat\": \"PdfMemoryFrame\"",
+                "  \"requestedFrameFormat\": \"TransientPdfBytes\",",
+                "  \"transientPdfFrame\": \"true\",",
+                "  \"supportsTransientPdfBytes\": \"true\",",
+                "  \"pdfLeaseMode\": \"MemoryOnly\",",
+                "  \"ownerKeepsOriginal\": \"true\",",
+                "  \"guestMayPersistPdf\": \"false\",",
+                "  \"guestMayExportPdf\": \"false\",",
+                "  \"allowTextSelection\": \"true\"",
                 "}"
             });
             _diagnostics.Set("Signal", $"geschrieben: {_placementSignalPath}");

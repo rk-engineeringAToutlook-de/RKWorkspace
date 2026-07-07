@@ -62,11 +62,11 @@ internal static class Program
                 page,
                 0,
                 0,
-                "PdfMemoryFrame",
+                "TransientPdfBytes",
                 string.Empty,
                 Convert.ToBase64String(pdfBytes),
                 pdfBytes.Length,
-                "PDFKitMemoryFrame",
+                "TransientPdfLease",
                 DateTimeOffset.UtcNow);
         }
 
@@ -109,7 +109,7 @@ internal static class Program
         Console.WriteLine("Mode: SmokeTest");
         Console.WriteLine($"DisplayName: {frame.DisplayName}");
         Console.WriteLine($"Page: {frame.Page}/{frame.PageCount}");
-        if (frame.FrameFormat == "PdfMemoryFrame")
+        if (frame.HasTransientPdfLease)
         {
             Console.WriteLine($"PdfBytes: {frame.PdfByteCount}");
         }
@@ -122,10 +122,14 @@ internal static class Program
         Console.WriteLine("OwnerKeepsOriginal: OK");
         Console.WriteLine("GuestHasPdfFile: NO");
         Console.WriteLine("GuestHasOriginalPath: NO");
-        Console.WriteLine(frame.FrameFormat == "PdfMemoryFrame"
-            ? "OriginalFileBytes: MEMORY_ONLY_PDF_FRAME"
-            : "OriginalFileBytes: NO");
+        Console.WriteLine("OriginalFileBytes: NO");
         Console.WriteLine($"FrameFormat: {frame.FrameFormat}");
+        Console.WriteLine(frame.HasTransientPdfLease
+            ? "TransientPdfLease: OK"
+            : "TransientPdfLease: NOT_USED");
+        Console.WriteLine(frame.HasTransientPdfLease
+            ? "PDFCache: MemoryOnly"
+            : "PDFCache: NOT_USED");
         Console.WriteLine("FrameCache: MemoryOnly");
         Console.WriteLine("NoFileIngress: SUCCESS");
         Console.WriteLine("RESULT: SUCCESS");
@@ -206,10 +210,11 @@ internal static class Program
         if (frame is not null)
         {
             Console.WriteLine($"Page: {frame.Page}/{frame.PageCount}");
-            if (frame.FrameFormat == "PdfMemoryFrame")
+            if (frame.HasTransientPdfLease)
             {
-                Console.WriteLine($"FrameFormat: PdfMemoryFrame");
+                Console.WriteLine($"FrameFormat: {frame.FrameFormat}");
                 Console.WriteLine($"PdfBytes: {frame.PdfByteCount}");
+                Console.WriteLine("TransientPdfLease: OK");
             }
             else
             {
@@ -296,6 +301,12 @@ internal static class Program
                     ["noFileIngress"] = "true",
                     ["memoryOnlyFrame"] = "true",
                     ["pdfMemoryFrame"] = options.MemoryPdfFrame ? "true" : "false",
+                    ["transientPdfFrame"] = options.MemoryPdfFrame ? "true" : "false",
+                    ["supportsTransientPdfBytes"] = "true",
+                    ["pdfLeaseMode"] = "MemoryOnly",
+                    ["guestMayPersistPdf"] = "false",
+                    ["guestMayExportPdf"] = "false",
+                    ["allowTextSelection"] = "true",
                     ["openFrame"] = "true",
                     ["returnSupported"] = "true",
                     ["ownerKeepsOriginal"] = "true"
@@ -311,6 +322,12 @@ internal static class Program
                     ["frameOnly"] = "true",
                     ["noFileIngress"] = "true",
                     ["pdfMemoryFrame"] = options.MemoryPdfFrame ? "true" : "false",
+                    ["transientPdfFrame"] = options.MemoryPdfFrame ? "true" : "false",
+                    ["supportsTransientPdfBytes"] = "true",
+                    ["pdfLeaseMode"] = "MemoryOnly",
+                    ["guestMayPersistPdf"] = "false",
+                    ["guestMayExportPdf"] = "false",
+                    ["allowTextSelection"] = "true",
                     ["devPairing"] = "allowed"
                 },
                 request.MessageId),
@@ -332,6 +349,9 @@ internal static class Program
                     ["frameSessionId"] = frame?.FrameSessionId ?? string.Empty,
                     ["leaseId"] = frame?.LeaseId ?? string.Empty,
                     ["guestKeptOriginalFile"] = "false",
+                    ["guestPersistedPdfFile"] = "false",
+                    ["transientPdfDiscarded"] = "true",
+                    ["pdfLeaseMode"] = "MemoryOnly",
                     ["noFileIngress"] = "true"
                 },
                 request.MessageId),
@@ -400,8 +420,15 @@ internal static class Program
                 ["containsOriginalFileBytes"] = "false",
                 ["hasOriginalPath"] = "false",
                 ["guestHasPdfFile"] = "false",
+                ["guestMayPersistPdf"] = "false",
+                ["guestMayExportPdf"] = "false",
                 ["noFileIngress"] = "true",
                 ["frameCache"] = "MemoryOnly",
+                ["pdfCache"] = "MemoryOnly",
+                ["transientPdfFrame"] = "true",
+                ["supportsTransientPdfBytes"] = "true",
+                ["pdfLeaseMode"] = "MemoryOnly",
+                ["allowTextSelection"] = "true",
                 ["visibleStatus"] = File.Exists(options.PlacementSignalPath)
                     ? "Ablage-Signal erkannt, PDF-Pfad wird geprueft"
                     : "wartet auf echte PDF am Glasrand"
@@ -432,8 +459,15 @@ internal static class Program
             ["containsOriginalFileBytes"] = "false",
             ["hasOriginalPath"] = "false",
             ["guestHasPdfFile"] = "false",
+            ["guestMayPersistPdf"] = "false",
+            ["guestMayExportPdf"] = "false",
             ["noFileIngress"] = "true",
             ["frameCache"] = "MemoryOnly",
+            ["pdfCache"] = "MemoryOnly",
+            ["transientPdfFrame"] = "true",
+            ["supportsTransientPdfBytes"] = "true",
+            ["pdfLeaseMode"] = "MemoryOnly",
+            ["allowTextSelection"] = "true",
             ["visibleStatus"] = "wartet auf Ablage am Glasrand"
         };
     }
@@ -449,7 +483,7 @@ internal static class Program
         Console.WriteLine("  --page <number>         PDF page. Default: 1");
         Console.WriteLine("  --width <pixels>        Rendered frame width. Default: 1400");
         Console.WriteLine("  --wait-for-placement    Send the frame only after the glass-edge placement signal exists.");
-        Console.WriteLine("  --memory-pdf-frame      Send the real PDF as a memory-only frame for PDFKit.");
+        Console.WriteLine("  --memory-pdf-frame      Send the real PDF as a transient MemoryOnly PDF lease.");
         Console.WriteLine("  --placement-signal <p>  Local Windows signal file written by the glass overlay.");
         Console.WriteLine("  --once                  Stop after first FrameUpdate.");
         Console.WriteLine("  --smoke-test            Render the PDF frame without listening.");
@@ -653,6 +687,10 @@ internal static class Program
         string RendererName,
         DateTimeOffset RenderedAt)
     {
+        public bool HasTransientPdfLease =>
+            (FrameFormat is "TransientPdfBytes" or "PdfMemoryFrame") &&
+            !string.IsNullOrWhiteSpace(PdfBase64);
+
         public IReadOnlyDictionary<string, string> ToPayload()
         {
             var payload = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -670,26 +708,33 @@ internal static class Program
                 ["rendererName"] = RendererName,
                 ["renderedAt"] = RenderedAt.ToString("O"),
                 ["ownerKeepsOriginal"] = "true",
-                ["hasOriginalPath"] = "false",
-                ["guestHasPdfFile"] = "false",
                 ["noFileIngress"] = "true",
                 ["frameCache"] = "MemoryOnly",
+                ["pdfCache"] = "MemoryOnly",
+                ["containsOriginalFileBytes"] = "false",
+                ["hasOriginalPath"] = "false",
+                ["guestHasPdfFile"] = "false",
+                ["guestMayPersistPdf"] = "false",
+                ["guestMayExportPdf"] = "false",
+                ["transientPdfFrame"] = "true",
+                ["supportsTransientPdfBytes"] = "true",
+                ["pdfLeaseMode"] = "MemoryOnly",
+                ["allowTextSelection"] = "true",
                 ["visibleStatus"] = "liegt hier im Frame"
             };
 
-            if (FrameFormat == "PdfMemoryFrame")
+            if (HasTransientPdfLease)
             {
                 payload["pdfBase64"] = PdfBase64;
                 payload["pdfByteCount"] = PdfByteCount.ToString();
                 payload["memoryOnlyPdf"] = "true";
                 payload["noPersistentFileIngress"] = "true";
-                payload["containsOriginalFileBytes"] = "true";
+                payload["transientPdfBytes"] = "true";
                 payload["visibleStatus"] = "liegt hier als PDF-Frame";
             }
             else
             {
                 payload["pngBase64"] = PngBase64;
-                payload["containsOriginalFileBytes"] = "false";
             }
 
             return payload;

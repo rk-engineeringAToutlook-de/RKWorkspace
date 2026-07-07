@@ -43,7 +43,7 @@ function Invoke-CheckedStep {
 
 Write-Output 'RK Workspace MA017 Windows to macOS Glass Frame Pilot'
 Write-Output '-----------------------------------------------------'
-Write-Output 'Goal: Windows owns Rechnung.pdf; macOS shows only a memory-only PNG Frame.'
+Write-Output 'Goal: Windows owns Rechnung.pdf; macOS shows only a transient MemoryOnly PDF Frame.'
 Write-Output 'AblageFlow: Windows -> Glass Edge -> Ablage macOS Frame'
 Write-Output "WindowsOwnerAddressForMac: $WindowsOwnerAddress"
 Write-Output "OwnerListen: $BindAddress`:$Port"
@@ -84,10 +84,13 @@ if ($SmokeTest) {
             -BindAddress $BindAddress `
             -Port $Port `
             -Page $Page `
-            -Width $Width
+            -Width $Width `
+            -MemoryPdfFrame
     } @(
-        'RendererName: PopplerPdfFrameRenderer',
-        'FrameFormat: PngFrame',
+        'RendererName: TransientPdfLease',
+        'FrameFormat: TransientPdfBytes',
+        'TransientPdfLease: OK',
+        'PDFCache: MemoryOnly',
         'GuestHasPdfFile: NO',
         'GuestHasOriginalPath: NO',
         'OriginalFileBytes: NO',
@@ -97,7 +100,7 @@ if ($SmokeTest) {
 
     Write-Output 'MacGuestCommand:'
     Write-Output "  cd release/ma017/packages/macos-frame-guest"
-    Write-Output "  swift run MacPdfFrameGuest --host $WindowsOwnerAddress --port $Port --auto-open"
+    Write-Output "  swift run MacPdfFrameGuest --host $WindowsOwnerAddress --port $Port --wait-for-placement"
     Write-Output 'MA017WindowsToMacGlassFramePilot: READY'
     Write-Output 'RESULT: SUCCESS'
     exit 0
@@ -105,10 +108,10 @@ if ($SmokeTest) {
 
 Write-Output 'Next on macOS:'
 Write-Output "  cd release/ma017/packages/macos-frame-guest"
-Write-Output "  swift run MacPdfFrameGuest --host $WindowsOwnerAddress --port $Port --auto-open"
+Write-Output "  swift run MacPdfFrameGuest --host $WindowsOwnerAddress --port $Port --wait-for-placement"
 Write-Output ''
 Write-Output 'Then keep this Windows owner host running:'
-Write-Output "  .\tools\run-macos-pdf-frame-owner.ps1 -BindAddress $BindAddress -Port $Port -Page $Page -Width $Width"
+Write-Output "  .\tools\run-macos-pdf-frame-owner.ps1 -BindAddress $BindAddress -Port $Port -Page $Page -Width $Width -MemoryPdfFrame -WaitForPlacement"
 Write-Output ''
 
 if ($StartOwnerHost) {
@@ -116,7 +119,9 @@ if ($StartOwnerHost) {
         -BindAddress $BindAddress `
         -Port $Port `
         -Page $Page `
-        -Width $Width
+        -Width $Width `
+        -MemoryPdfFrame `
+        -WaitForPlacement
     exit $LASTEXITCODE
 }
 
