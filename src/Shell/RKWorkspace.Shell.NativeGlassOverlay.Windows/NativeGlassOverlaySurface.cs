@@ -91,6 +91,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     public void Tick()
     {
+        UpdatePortalGeometry();
         var elapsed = TakeElapsedMilliseconds();
         _phase += elapsed / 1000.0;
         _session.Advance(elapsed);
@@ -260,6 +261,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
+        UpdatePortalGeometry();
         DrawLens(drawingContext);
         DrawThing(drawingContext);
         DrawPortalDirectionGuide(drawingContext);
@@ -276,14 +278,9 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             (_session.Approach * 0.34),
             0.0,
             1.0);
-        var opacity = 0.92;
+        var opacity = Math.Clamp(0.58 + (active * 0.22), 0.58, 0.80);
 
         drawingContext.PushOpacity(opacity);
-
-        drawingContext.DrawRectangle(
-            new SolidColorBrush(WColor.FromArgb(116, 0, 0, 0)),
-            null,
-            new WRect(edge.X, edge.Y, edge.Width, edge.Height));
 
         var backShadow = new LinearGradientBrush
         {
@@ -291,37 +288,44 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             EndPoint = new WPoint(1.0, 0.5)
         };
         backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
-        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(74, 0, 0, 0), 0.48));
-        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(172, 0, 0, 0), 1.00));
-        drawingContext.DrawRectangle(backShadow, null, new WRect(edge.X - 180, edge.Y, edge.Width + 180, edge.Height));
+        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(18, 0, 0, 0), 0.72));
+        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(56, 0, 0, 0), 1.00));
+        drawingContext.DrawRoundedRectangle(backShadow, null, new WRect(edge.X - 58, edge.Y + 18, edge.Width + 62, edge.Height - 36), edge.Width * 0.48, edge.Width * 0.48);
 
         var body = new LinearGradientBrush
         {
             StartPoint = new WPoint(0.0, 0.5),
             EndPoint = new WPoint(1.0, 0.5)
         };
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(22, 255, 255, 255), 0.00));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(130, 255, 255, 255), 0.15));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(214, 250, 252, 255), 0.45));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(128, 255, 255, 255), 0.72));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(18, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(body, null, edge, 24, 24);
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(42, 255, 255, 255), 0.20));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(82, 238, 250, 255), 0.48));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(32, 255, 255, 255), 0.72));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
+        drawingContext.DrawRoundedRectangle(body, null, edge, edge.Width * 0.48, edge.Width * 0.48);
 
-        var tunnelRect = new WRect(edge.X + 42, edge.Y + 42, edge.Width - 84, edge.Height - 84);
-        var tunnelFill = new LinearGradientBrush
+        var throat = new WRect(
+            edge.X + (edge.Width * 0.30),
+            edge.Y + (edge.Height * 0.10),
+            edge.Width * 0.42,
+            edge.Height * 0.80);
+        var tunnelFill = new RadialGradientBrush
         {
-            StartPoint = new WPoint(0.0, 0.5),
-            EndPoint = new WPoint(1.0, 0.5)
+            Center = new WPoint(0.42, 0.50),
+            GradientOrigin = new WPoint(0.66, 0.50),
+            RadiusX = 0.78,
+            RadiusY = 0.54,
+            Opacity = 0.86
         };
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(42, 255, 255, 255), 0.00));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(190, 0, 0, 0), 0.28));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(248, 0, 0, 0), 0.54));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(190, 0, 0, 0), 0.78));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(34, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(tunnelFill, null, tunnelRect, 32, 32);
+        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(118, 0, 0, 0), 0.00));
+        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(54, 14, 20, 24), 0.44));
+        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(12, 255, 255, 255), 0.82));
+        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
+        drawingContext.DrawRoundedRectangle(tunnelFill, null, throat, throat.Width * 0.46, throat.Width * 0.46);
 
-        var tunnelRim = new WPen(new SolidColorBrush(WColor.FromArgb(240, 255, 255, 255)), 4.0);
-        drawingContext.DrawRoundedRectangle(null, tunnelRim, tunnelRect, 32, 32);
+        var rimAlpha = (byte)Math.Clamp(172 + (active * 48), 172, 220);
+        var tunnelRim = new WPen(new SolidColorBrush(WColor.FromArgb(rimAlpha, 244, 252, 255)), 2.3 + active);
+        drawingContext.DrawRoundedRectangle(null, tunnelRim, edge, edge.Width * 0.48, edge.Width * 0.48);
 
         var innerLight = new LinearGradientBrush
         {
@@ -329,40 +333,40 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             EndPoint = new WPoint(0.0, 1.0)
         };
         innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
-        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(102 + (active * 82)), 255, 255, 255), 0.30));
-        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(68 + (active * 76)), 220, 242, 255), 0.58));
+        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(92, 255, 255, 255), 0.24));
+        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(48, 210, 240, 255), 0.58));
         innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.34, edge.Y + 24, edge.Width * 0.34, edge.Height - 48), 16, 16);
+        drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.10, edge.Y + 22, edge.Width * 0.28, edge.Height - 44), edge.Width * 0.14, edge.Width * 0.14);
 
-        var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb(246, 255, 255, 255)), 5.0);
-        drawingContext.DrawLine(edgeLine, new WPoint(edge.X + edge.Width * 0.48, edge.Y + 24), new WPoint(edge.X + edge.Width * 0.48, edge.Bottom - 24));
+        var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb((byte)Math.Clamp(182 + (active * 38), 182, 220), 255, 255, 255)), 2.4);
+        drawingContext.DrawLine(edgeLine, new WPoint(edge.X + edge.Width * 0.18, edge.Y + 26), new WPoint(edge.X + edge.Width * 0.18, edge.Bottom - 26));
 
-        var glassRim = new WPen(new SolidColorBrush(WColor.FromArgb(220, 255, 255, 255)), 3.0);
-        drawingContext.DrawRoundedRectangle(null, glassRim, edge, 24, 24);
+        var rightCatchlight = new WPen(new SolidColorBrush(WColor.FromArgb(112, 255, 255, 255)), 1.2);
+        drawingContext.DrawLine(rightCatchlight, new WPoint(edge.Right - 8, edge.Y + 42), new WPoint(edge.Right - 8, edge.Bottom - 42));
 
-        var portalMouth = new WPoint(tunnelRect.X + (tunnelRect.Width * 0.50), _lensCenter.Y);
-        var depth = new RadialGradientBrush(WColor.FromArgb(230, 0, 0, 0), WColor.FromArgb(0, 0, 0, 0))
+        var glassRim = new WPen(new SolidColorBrush(WColor.FromArgb(142, 255, 255, 255)), 1.0);
+        drawingContext.DrawRoundedRectangle(null, glassRim, new WRect(edge.X + 2, edge.Y + 2, edge.Width - 4, edge.Height - 4), edge.Width * 0.44, edge.Width * 0.44);
+
+        var portalMouth = new WPoint(throat.X + (throat.Width * 0.52), throat.Y + (throat.Height * 0.50));
+        var depth = new RadialGradientBrush(WColor.FromArgb((byte)Math.Clamp(74 + (active * 64), 74, 138), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0))
         {
             RadiusX = 0.54,
             RadiusY = 0.74,
-            Opacity = 0.88
+            Opacity = 0.56
         };
-        drawingContext.DrawEllipse(depth, null, portalMouth, edge.Width * (0.32 + active * 0.16), edge.Height * (0.18 + active * 0.10));
+        drawingContext.DrawEllipse(depth, null, portalMouth, edge.Width * (0.22 + active * 0.08), edge.Height * (0.20 + active * 0.08));
 
-        if (true)
+        for (var index = 0; index < 7; index++)
         {
-            for (var index = 0; index < 12; index++)
-            {
-                var t = index / 11.0;
-                var alpha = (byte)Math.Clamp(178 - (t * 102), 48, 178);
-                var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 255, 255, 255)), 1.4);
-                drawingContext.DrawEllipse(
-                    null,
-                    pen,
-                    portalMouth + new Vector(Math.Sin(_phase * 0.9 + index) * 1.2, 0),
-                    tunnelRect.Width * (0.14 + (t * 0.42)),
-                    tunnelRect.Height * (0.035 + (t * 0.064)));
-            }
+            var t = index / 6.0;
+            var alpha = (byte)Math.Clamp(84 - (t * 40) + (active * 24), 28, 108);
+            var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 255, 255, 255)), 0.7);
+            drawingContext.DrawEllipse(
+                null,
+                pen,
+                portalMouth + new Vector(Math.Sin(_phase * 0.72 + index) * 0.8, 0),
+                throat.Width * (0.18 + (t * 0.48)),
+                throat.Height * (0.08 + (t * 0.13)));
         }
 
         if (_session.PickProgress > 0.10f || _session.State == NativeGlassOverlayCarryState.InTransit || opacity > 0.40)
@@ -778,15 +782,28 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         var surfaceWidth = Math.Max(1.0, SurfaceWidth());
         var surfaceHeight = Math.Max(1.0, SurfaceHeight());
-        var width = Math.Clamp(surfaceWidth * 0.22, 260.0, 340.0);
+        var width = Math.Clamp(surfaceWidth * 0.065, 82.0, 116.0);
+        var maxHeight = Math.Max(220.0, surfaceHeight - 80.0);
+        var minHeight = Math.Min(460.0, maxHeight);
+        var height = Math.Clamp(surfaceHeight * 0.68, minHeight, maxHeight);
         var inset = 8.0;
-        return new WRect(Math.Max(0, surfaceWidth - width - inset), inset, width, Math.Max(1.0, surfaceHeight - (inset * 2.0)));
+        return new WRect(
+            Math.Max(0, surfaceWidth - width - inset),
+            Math.Max(24.0, (surfaceHeight - height) / 2.0),
+            width,
+            height);
+    }
+
+    private void UpdatePortalGeometry()
+    {
+        var edge = PortalEdgeBounds();
+        _lensCenter = new WPoint(edge.X + (edge.Width * 0.50), edge.Y + (edge.Height * 0.52));
     }
 
     private bool IsOverPortalEdge(WPoint point, WRect thingBounds)
     {
         var edge = PortalEdgeBounds();
-        var hit = new WRect(Math.Max(0, edge.X - 140), 0, edge.Width + 160, SurfaceHeight());
+        var hit = new WRect(Math.Max(0, edge.X - 210), edge.Y - 80, edge.Width + 230, edge.Height + 160);
         return hit.Contains(point) || hit.IntersectsWith(thingBounds);
     }
 
@@ -840,9 +857,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private double SurfaceWidth()
     {
-        if (IsUsableDimension(SystemParameters.PrimaryScreenWidth))
+        var dpi = VisualTreeHelper.GetDpi(this);
+        var primaryWidthInDips = SystemParameters.PrimaryScreenWidth / Math.Max(1.0, dpi.DpiScaleX);
+        if (IsUsableDimension(primaryWidthInDips))
         {
-            return SystemParameters.PrimaryScreenWidth;
+            return primaryWidthInDips;
         }
 
         if (IsUsableDimension(RenderSize.Width))
@@ -865,9 +884,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private double SurfaceHeight()
     {
-        if (IsUsableDimension(SystemParameters.PrimaryScreenHeight))
+        var dpi = VisualTreeHelper.GetDpi(this);
+        var primaryHeightInDips = SystemParameters.PrimaryScreenHeight / Math.Max(1.0, dpi.DpiScaleY);
+        if (IsUsableDimension(primaryHeightInDips))
         {
-            return SystemParameters.PrimaryScreenHeight;
+            return primaryHeightInDips;
         }
 
         if (IsUsableDimension(RenderSize.Height))
