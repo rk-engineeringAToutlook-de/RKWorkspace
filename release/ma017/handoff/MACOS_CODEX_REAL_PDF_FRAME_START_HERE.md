@@ -16,6 +16,18 @@ macOS shows only a rendered Frame.
 macOS must not receive, store, copy, or expose the original PDF file.
 ```
 
+## Coordination Rule
+
+Windows Codex and macOS Codex exchange project state only through GitHub.
+
+Read this before making changes:
+
+```text
+release/ma017/handoff/CODEX_GITHUB_COORDINATION_RULES.md
+```
+
+Do not rely on HiDrive file sync, copied files, or uncommitted working-tree changes as shared state.
+
 ## Repository
 
 GitHub:
@@ -33,6 +45,7 @@ feature/ma016-ma017-real-platform-pilot
 Important paths:
 
 ```text
+release/ma017/handoff/CODEX_GITHUB_COORDINATION_RULES.md
 release/ma017/packages/macos-frame-guest/
 release/ma017/packages/macos-frame-guest/README.md
 release/ma017/packages/macos-frame-guest/Package.swift
