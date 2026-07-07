@@ -12,10 +12,14 @@ public sealed class NativeGlassOverlayWindow : Window
     private readonly WorkspaceShellRuntime _runtime;
     private readonly NativeGlassOverlaySurface _surface;
     private readonly NativeGlassShaderLayer _shaderLayer;
+    private readonly NativeGlassOverlayOptions _options;
+    private NativePdfPickHotkey? _pickHotkey;
+    private NativePdfContextPipeListener? _contextPipeListener;
 
     public NativeGlassOverlayWindow(WorkspaceShellRuntime runtime, NativeGlassOverlayOptions options)
     {
         _runtime = runtime;
+        _options = options;
         var bounds = FormsScreen.PrimaryScreen?.Bounds ?? new System.Drawing.Rectangle(0, 0, 1280, 720);
 
         WindowStyle = WindowStyle.None;
@@ -48,13 +52,41 @@ public sealed class NativeGlassOverlayWindow : Window
         Content = root;
 
         KeyDown += OnKeyDown;
-        SourceInitialized += (_, _) => _surface.MarkCaptureExclusion(false);
+        _surface.PointerInputModeChanged += (_, _) => UpdatePointerInputMode();
+        SourceInitialized += (_, _) =>
+        {
+            _surface.MarkCaptureExclusion(false);
+            _pickHotkey = new NativePdfPickHotkey(this, _surface.Diagnostics);
+            _pickHotkey.PickRequested += (_, args) => _surface.PickSelectedPdfFromGesture(args.KeyName);
+            _pickHotkey.Register();
+            if (_options.ContextListenerEnabled)
+            {
+                _contextPipeListener = new NativePdfContextPipeListener(
+                    _options.ContextPipeName,
+                    Dispatcher,
+                    _surface.PickPdfFromContextPath,
+                    _surface.Diagnostics);
+                _contextPipeListener.Start();
+            }
+
+            UpdatePointerInputMode();
+        };
         Loaded += (_, _) =>
         {
             Activate();
+            if (_options.PickImmediately)
+            {
+                Dispatcher.BeginInvoke(() => _surface.PickLoadedPdfFromContext());
+            }
+
             CompositionTarget.Rendering += OnRendering;
         };
-        Closed += (_, _) => CompositionTarget.Rendering -= OnRendering;
+        Closed += (_, _) =>
+        {
+            CompositionTarget.Rendering -= OnRendering;
+            _pickHotkey?.Dispose();
+            _contextPipeListener?.Dispose();
+        };
     }
 
     private void OnRendering(object? sender, EventArgs e)
@@ -78,5 +110,16 @@ public sealed class NativeGlassOverlayWindow : Window
             _surface.ActivatePickAt(Mouse.GetPosition(_surface));
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
         }
+    }
+
+    private void UpdatePointerInputMode()
+    {
+        if (!_options.RealPdfGestureMode)
+        {
+            NativeGlassWindowInteractivity.SetClickThrough(this, false);
+            return;
+        }
+
+        NativeGlassWindowInteractivity.SetClickThrough(this, !_surface.WantsPointerInput);
     }
 }

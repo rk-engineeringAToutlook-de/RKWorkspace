@@ -6,6 +6,8 @@ param(
     [int] $Width = 1400,
     [string] $PlacementSignalPath,
     [switch] $WaitForPlacement,
+    [switch] $DynamicPdfFromPlacementSignal,
+    [switch] $MemoryPdfFrame,
     [switch] $PlacementGatingSmokeTest,
     [switch] $Once,
     [switch] $SmokeTest
@@ -33,6 +35,14 @@ if ($Once) {
 
 if ($WaitForPlacement) {
     $arguments += '--wait-for-placement'
+}
+
+if ($DynamicPdfFromPlacementSignal) {
+    $arguments += '--dynamic-pdf-from-placement-signal'
+}
+
+if ($MemoryPdfFrame) {
+    $arguments += '--memory-pdf-frame'
 }
 
 if (-not [string]::IsNullOrWhiteSpace($PlacementSignalPath)) {

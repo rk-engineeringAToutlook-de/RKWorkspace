@@ -101,6 +101,23 @@ enum NoFileIngressVerifier {
             throw FrameGuestError.invalidFrame
         }
 
+        if payload["frameFormat"] == "PdfMemoryFrame" {
+            guard isTrue(payload["memoryOnlyPdf"]),
+                  isTrue(payload["containsOriginalFileBytes"]),
+                  isTrue(payload["noPersistentFileIngress"]),
+                  isFalse(payload["hasOriginalPath"]),
+                  isFalse(payload["guestHasPdfFile"], defaultValue: "false"),
+                  payload["pdfBase64"]?.isEmpty == false else {
+                throw FrameGuestError.invalidFrame
+            }
+
+            if let frameCache = payload["frameCache"], frameCache != "MemoryOnly" {
+                throw FrameGuestError.invalidFrame
+            }
+
+            return
+        }
+
         guard isFalse(payload["containsOriginalFileBytes"]),
               isFalse(payload["hasOriginalPath"]),
               isFalse(payload["guestHasPdfFile"], defaultValue: "false") else {

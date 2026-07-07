@@ -19,13 +19,15 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 {
     private readonly WorkspaceShellRuntime _runtime;
     private readonly System.Drawing.Rectangle _screenBounds;
-    private readonly string _sourcePdfPath;
-    private readonly string _sourceFileName;
     private readonly string _placementSignalPath;
-    private readonly ImageSource? _pdfPreview;
+    private readonly NativeGlassOverlayOptions _options;
+    private readonly NativeGlassOverlayDiagnostics _diagnostics;
     private readonly WRect _portalScreenBounds;
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private readonly NativeGlassOverlaySession _session = new();
+    private string? _sourcePdfPath;
+    private string _sourceFileName = string.Empty;
+    private ImageSource? _pdfPreview;
     private WPoint _thingCenter;
     private WPoint _targetCenter;
     private WPoint _lastTargetCenter;
@@ -36,17 +38,26 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private bool _captureExclusionReady;
     private bool _pendingRemotePlacement;
     private bool _placementSignalWritten;
+    private bool _gestureCarryMode;
     private long _lastMilliseconds;
     private double _phase;
+    private NearestAblageResult _nearestAblage;
 
     public NativeGlassOverlaySurface(WorkspaceShellRuntime runtime, System.Drawing.Rectangle screenBounds, NativeGlassOverlayOptions options)
     {
         _runtime = runtime;
         _screenBounds = screenBounds;
-        _sourcePdfPath = options.SourcePdfPath;
-        _sourceFileName = Path.GetFileName(options.SourcePdfPath);
+        _options = options;
         _placementSignalPath = options.PlacementSignalPath;
-        _pdfPreview = TryLoadPdfPreview(options.SourcePdfPath);
+        _diagnostics = new NativeGlassOverlayDiagnostics(options.DiagnosticsPath);
+        _nearestAblage = ResolveNearestAblage();
+        _diagnostics.Set("Gegenseite", DescribeNearestAblage());
+        _diagnostics.Set("Glaskante", $"{_nearestAblage.EdgeHint} -> {_nearestAblage.TargetDisplayName}");
+        if (!string.IsNullOrWhiteSpace(options.SourcePdfPath))
+        {
+            LoadSourcePdf(options.SourcePdfPath, deferPreview: options.PickImmediately);
+        }
+
         _portalScreenBounds = GetPrimaryScreenBoundsRelativeTo(screenBounds);
         Focusable = true;
         Cursor = WCursors.Arrow;
@@ -65,6 +76,12 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     public NativeGlassOverlaySession Session => _session;
 
+    public NativeGlassOverlayDiagnostics Diagnostics => _diagnostics;
+
+    public bool WantsPointerInput => !_options.RealPdfGestureMode || IsThingVisible() || _isHolding;
+
+    public event EventHandler? PointerInputModeChanged;
+
     public void MarkCaptureExclusion(bool ready)
     {
         _captureExclusionReady = ready;
@@ -72,6 +89,12 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     public void ActivatePickAt(WPoint point)
     {
+        if (_sourcePdfPath is null)
+        {
+            _diagnostics.Set("Geste", "keine PDF geladen");
+            return;
+        }
+
         if (!IsValidPoint(point))
         {
             point = _thingCenter;
@@ -82,10 +105,103 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _lastTargetCenter = point;
         _velocity = default;
         _grabOffset = default;
-        _isHolding = true;
+        SetHolding(true);
+        _gestureCarryMode = false;
         CaptureMouse();
         Cursor = WCursors.SizeAll;
         _session.Pick();
+        _diagnostics.Set("Carry", $"genommen: {_sourceFileName}");
+        InvalidateVisual();
+    }
+
+    public void PickSelectedPdfFromGesture(string gestureName = "Hotkey")
+    {
+        _diagnostics.Set("Geste", $"Pick-Geste empfangen ({gestureName})");
+        var selectedPdf = NativeSelectedPdfResolver.TryResolveSelectedPdf(Dispatcher, _diagnostics);
+        if (string.IsNullOrWhiteSpace(selectedPdf) || !File.Exists(selectedPdf))
+        {
+            _diagnostics.Set("Geste", "PDF nicht erkannt - PDF markieren und Strg+Alt+Leertaste oder F9 druecken");
+            InvalidateVisual();
+            return;
+        }
+
+        LoadSourcePdf(selectedPdf, deferPreview: true);
+        PickCurrentPdfAtCursor("PDF genommen");
+    }
+
+    public void PickLoadedPdfFromContext()
+    {
+        if (string.IsNullOrWhiteSpace(_sourcePdfPath) || !File.Exists(_sourcePdfPath))
+        {
+            _diagnostics.Set("Geste", "Kontextaufruf ohne gueltige PDF");
+            InvalidateVisual();
+            return;
+        }
+
+        PickCurrentPdfAtCursor("Windows-Kontext");
+    }
+
+    public NativePdfContextPickResult PickPdfFromContextPath(string pdfPath)
+    {
+        if (string.IsNullOrWhiteSpace(pdfPath))
+        {
+            _diagnostics.Set("Kontext", "kein PDF-Pfad empfangen");
+            InvalidateVisual();
+            return NativePdfContextPickResult.Failed("Kein PDF-Pfad empfangen.");
+        }
+
+        var resolvedPath = Path.GetFullPath(pdfPath);
+        if (!File.Exists(resolvedPath))
+        {
+            _diagnostics.Set("Kontext", "PDF existiert nicht");
+            InvalidateVisual();
+            return NativePdfContextPickResult.Failed("PDF existiert nicht.");
+        }
+
+        if (!resolvedPath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            _diagnostics.Set("Kontext", "Datei ist keine PDF");
+            InvalidateVisual();
+            return NativePdfContextPickResult.Failed("Datei ist keine PDF.");
+        }
+
+        _diagnostics.Set("Kontext", "PDF-Pfad empfangen");
+        LoadSourcePdf(resolvedPath, deferPreview: true);
+        PickCurrentPdfAtCursor("Windows-Kontext");
+        return NativePdfContextPickResult.Ok($"PDF genommen: {_sourceFileName}");
+    }
+
+    private void PickCurrentPdfAtCursor(string gestureName)
+    {
+        if (string.IsNullOrWhiteSpace(_sourcePdfPath))
+        {
+            _diagnostics.Set("Geste", "keine PDF geladen");
+            InvalidateVisual();
+            return;
+        }
+
+        var screen = System.Windows.Forms.Cursor.Position;
+        var point = PointFromScreen(new WPoint(screen.X, screen.Y));
+        if (!IsValidPoint(point))
+        {
+            point = new WPoint(SurfaceWidth() * 0.46, SurfaceHeight() * 0.52);
+        }
+
+        _thingCenter = point;
+        _targetCenter = point;
+        _lastTargetCenter = point;
+        _velocity = default;
+        _grabOffset = default;
+        _gestureCarryMode = true;
+        SetHolding(true);
+        Cursor = WCursors.SizeAll;
+        _session.Pick();
+        _pendingRemotePlacement = false;
+        _placementSignalWritten = false;
+        _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
+        _diagnostics.Set("Geste", gestureName);
+        _diagnostics.Set("Carry", $"in virtueller Hand: {_sourceFileName}");
+        PointerInputModeChanged?.Invoke(this, EventArgs.Empty);
         InvalidateVisual();
     }
 
@@ -129,37 +245,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     public NativeGlassShaderSnapshot CreateShaderSnapshot()
     {
-        if (_session.LensEmergence <= 0.001f)
-        {
-            return default;
-        }
-
-        var bounds = LensBounds();
-        var capture = DesktopSampleRect(bounds);
-        var render = new WRect(
-            capture.X - _screenBounds.Left,
-            capture.Y - _screenBounds.Top,
-            capture.Width,
-            capture.Height);
-
-        var intensity = Math.Clamp(
-            (_session.LensEmergence * 0.52) +
-            (_session.Approach * 0.26) +
-            (_session.LensOpen * 0.22),
-            0.0,
-            1.0);
-
-        return new NativeGlassShaderSnapshot(
-            true,
-            capture,
-            render,
-            (_lensCenter.X - render.X) / render.Width,
-            (_lensCenter.Y - render.Y) / render.Height,
-            (bounds.Width / 2.0) / render.Width,
-            (bounds.Height / 2.0) / render.Height,
-            _session.LensOpen,
-            intensity,
-            _phase);
+        return default;
     }
 
     protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
@@ -171,14 +257,23 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         Focus();
         var point = e.GetPosition(this);
+        if (_isHolding && _gestureCarryMode && e.ChangedButton == MouseButton.Left)
+        {
+            CompletePlacementOrReturn(point);
+            e.Handled = true;
+            return;
+        }
+
         if (e.ChangedButton == MouseButton.Left && ThingBounds().Contains(point) && IsThingVisible())
         {
-            _isHolding = true;
+            SetHolding(true);
+            _gestureCarryMode = false;
             _grabOffset = point - _thingCenter;
             CaptureMouse();
             Cursor = WCursors.SizeAll;
             _session.Pick();
             _pendingRemotePlacement = false;
+            _diagnostics.Set("Carry", $"genommen: {_sourceFileName}");
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
             e.Handled = true;
             return;
@@ -191,7 +286,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             _lastTargetCenter = point;
             _velocity = default;
             _grabOffset = default;
-            _isHolding = true;
+            SetHolding(true);
+            _gestureCarryMode = false;
             CaptureMouse();
             Cursor = WCursors.SizeAll;
             _session.PullOut();
@@ -217,6 +313,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         if (IsOverPortalEdge(_targetCenter, ThingBounds()))
         {
             _session.ApproachLens(1f);
+            _diagnostics.Set("Glaskante", $"aktiv: {_nearestAblage.EdgeHint} -> {_nearestAblage.TargetDisplayName}");
         }
         else if (IsNearLens(_targetCenter, 245))
         {
@@ -228,6 +325,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         }
 
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Carried, "HX-002");
+        _diagnostics.Set("Carry", $"wird getragen: {_sourceFileName}");
     }
 
     protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -237,36 +335,73 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             return;
         }
 
-        _isHolding = false;
+        SetHolding(false);
         ReleaseMouseCapture();
         Cursor = WCursors.Arrow;
-        if (IsOverPortalEdge(_targetCenter, ThingBounds()) || IsNearLens(_targetCenter, 228))
+        CompletePlacementOrReturn(_targetCenter);
+
+        e.Handled = true;
+    }
+
+    private void CompletePlacementOrReturn(WPoint point)
+    {
+        _gestureCarryMode = false;
+        SetHolding(false);
+        ReleaseMouseCapture();
+        Cursor = WCursors.Arrow;
+
+        if (IsOverPortalEdge(point, ThingBounds()) || IsNearLens(point, 228))
         {
             _session.ApproachLens(1f);
             _session.PlaceIntoLens();
-            _pendingRemotePlacement = true;
             _targetCenter = Interpolate(_targetCenter, _lensCenter, 0.40);
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
+            _diagnostics.Set("Drop", $"auf Glaskante abgelegt -> {_nearestAblage.TargetDisplayName}");
+            if (_options.InstantPlacementSignal)
+            {
+                SignalPlacementReady();
+                _placementSignalWritten = true;
+                _pendingRemotePlacement = false;
+                _diagnostics.Set("Signal", "sofort geschrieben");
+            }
+            else
+            {
+                _pendingRemotePlacement = true;
+                _diagnostics.Set("Signal", "wartet 10s Retake-Fenster");
+            }
         }
         else
         {
             _session.PlaceOnDesktop();
             _pendingRemotePlacement = false;
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
+            _diagnostics.Set("Drop", "zurück auf Windows-Ablage");
+            _diagnostics.Set("Signal", "nicht geschrieben");
         }
 
-        e.Handled = true;
+        PointerInputModeChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void SetHolding(bool value)
+    {
+        if (_isHolding == value)
+        {
+            return;
+        }
+
+        _isHolding = value;
+        PointerInputModeChanged?.Invoke(this, EventArgs.Empty);
     }
 
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
         UpdatePortalGeometry();
-        DrawLens(drawingContext);
         DrawThing(drawingContext);
         DrawPortalDirectionGuide(drawingContext);
         DrawGlassPortalEdge(drawingContext);
         DrawMicroStatus(drawingContext);
+        DrawDiagnostics(drawingContext);
     }
 
     private void DrawGlassPortalEdge(DrawingContext drawingContext)
@@ -290,7 +425,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
         backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(18, 0, 0, 0), 0.72));
         backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(56, 0, 0, 0), 1.00));
-        drawingContext.DrawRoundedRectangle(backShadow, null, new WRect(edge.X - 58, edge.Y + 18, edge.Width + 62, edge.Height - 36), edge.Width * 0.48, edge.Width * 0.48);
+        drawingContext.DrawRoundedRectangle(backShadow, null, new WRect(edge.X - 42, edge.Y + 10, edge.Width + 46, edge.Height - 20), 6, 6);
 
         var body = new LinearGradientBrush
         {
@@ -302,30 +437,28 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         body.GradientStops.Add(new GradientStop(WColor.FromArgb(82, 238, 250, 255), 0.48));
         body.GradientStops.Add(new GradientStop(WColor.FromArgb(32, 255, 255, 255), 0.72));
         body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(body, null, edge, edge.Width * 0.48, edge.Width * 0.48);
+        drawingContext.DrawRoundedRectangle(body, null, edge, 5, 5);
 
         var throat = new WRect(
-            edge.X + (edge.Width * 0.30),
-            edge.Y + (edge.Height * 0.10),
-            edge.Width * 0.42,
-            edge.Height * 0.80);
-        var tunnelFill = new RadialGradientBrush
+            edge.X + (edge.Width * 0.42),
+            edge.Y + 28,
+            edge.Width * 0.18,
+            edge.Height - 56);
+        var slotFill = new LinearGradientBrush
         {
-            Center = new WPoint(0.42, 0.50),
-            GradientOrigin = new WPoint(0.66, 0.50),
-            RadiusX = 0.78,
-            RadiusY = 0.54,
-            Opacity = 0.86
+            StartPoint = new WPoint(0.0, 0.5),
+            EndPoint = new WPoint(1.0, 0.5),
+            Opacity = 0.72
         };
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(118, 0, 0, 0), 0.00));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(54, 14, 20, 24), 0.44));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(12, 255, 255, 255), 0.82));
-        tunnelFill.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(tunnelFill, null, throat, throat.Width * 0.46, throat.Width * 0.46);
+        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
+        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(62, 0, 0, 0), 0.44));
+        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(28, 255, 255, 255), 0.78));
+        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
+        drawingContext.DrawRoundedRectangle(slotFill, null, throat, 3, 3);
 
         var rimAlpha = (byte)Math.Clamp(172 + (active * 48), 172, 220);
         var tunnelRim = new WPen(new SolidColorBrush(WColor.FromArgb(rimAlpha, 244, 252, 255)), 2.3 + active);
-        drawingContext.DrawRoundedRectangle(null, tunnelRim, edge, edge.Width * 0.48, edge.Width * 0.48);
+        drawingContext.DrawRoundedRectangle(null, tunnelRim, edge, 5, 5);
 
         var innerLight = new LinearGradientBrush
         {
@@ -336,7 +469,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(92, 255, 255, 255), 0.24));
         innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(48, 210, 240, 255), 0.58));
         innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.10, edge.Y + 22, edge.Width * 0.28, edge.Height - 44), edge.Width * 0.14, edge.Width * 0.14);
+        drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.10, edge.Y + 22, edge.Width * 0.20, edge.Height - 44), 4, 4);
 
         var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb((byte)Math.Clamp(182 + (active * 38), 182, 220), 255, 255, 255)), 2.4);
         drawingContext.DrawLine(edgeLine, new WPoint(edge.X + edge.Width * 0.18, edge.Y + 26), new WPoint(edge.X + edge.Width * 0.18, edge.Bottom - 26));
@@ -345,29 +478,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         drawingContext.DrawLine(rightCatchlight, new WPoint(edge.Right - 8, edge.Y + 42), new WPoint(edge.Right - 8, edge.Bottom - 42));
 
         var glassRim = new WPen(new SolidColorBrush(WColor.FromArgb(142, 255, 255, 255)), 1.0);
-        drawingContext.DrawRoundedRectangle(null, glassRim, new WRect(edge.X + 2, edge.Y + 2, edge.Width - 4, edge.Height - 4), edge.Width * 0.44, edge.Width * 0.44);
-
-        var portalMouth = new WPoint(throat.X + (throat.Width * 0.52), throat.Y + (throat.Height * 0.50));
-        var depth = new RadialGradientBrush(WColor.FromArgb((byte)Math.Clamp(74 + (active * 64), 74, 138), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0))
-        {
-            RadiusX = 0.54,
-            RadiusY = 0.74,
-            Opacity = 0.56
-        };
-        drawingContext.DrawEllipse(depth, null, portalMouth, edge.Width * (0.22 + active * 0.08), edge.Height * (0.20 + active * 0.08));
-
-        for (var index = 0; index < 7; index++)
-        {
-            var t = index / 6.0;
-            var alpha = (byte)Math.Clamp(84 - (t * 40) + (active * 24), 28, 108);
-            var pen = new WPen(new SolidColorBrush(WColor.FromArgb(alpha, 255, 255, 255)), 0.7);
-            drawingContext.DrawEllipse(
-                null,
-                pen,
-                portalMouth + new Vector(Math.Sin(_phase * 0.72 + index) * 0.8, 0),
-                throat.Width * (0.18 + (t * 0.48)),
-                throat.Height * (0.08 + (t * 0.13)));
-        }
+        drawingContext.DrawRoundedRectangle(null, glassRim, new WRect(edge.X + 2, edge.Y + 2, edge.Width - 4, edge.Height - 4), 4, 4);
 
         if (_session.PickProgress > 0.10f || _session.State == NativeGlassOverlayCarryState.InTransit || opacity > 0.40)
         {
@@ -380,7 +491,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private void DrawPortalLabel(DrawingContext drawingContext, WRect edge, double active)
     {
         var text = new FormattedText(
-            "macOS",
+            string.IsNullOrWhiteSpace(_nearestAblage.TargetDisplayName) ? _options.TargetDisplayName : _nearestAblage.TargetDisplayName,
             CultureInfo.CurrentCulture,
             System.Windows.FlowDirection.LeftToRight,
             new Typeface("Segoe UI Semibold"),
@@ -651,7 +762,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private void SignalPlacementReady()
     {
-        if (string.IsNullOrWhiteSpace(_placementSignalPath))
+        if (string.IsNullOrWhiteSpace(_placementSignalPath) || string.IsNullOrWhiteSpace(_sourcePdfPath))
         {
             return;
         }
@@ -670,12 +781,20 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
                 $"  \"placedAtUtc\": \"{DateTimeOffset.UtcNow:O}\",",
                 $"  \"sourcePdfName\": \"{EscapeJson(_sourceFileName)}\",",
                 $"  \"sourcePdfOwner\": \"Windows\",",
-                $"  \"sourcePdfPathLocalOnly\": \"{EscapeJson(_sourcePdfPath)}\"",
+                $"  \"sourcePdfPathLocalOnly\": \"{EscapeJson(_sourcePdfPath)}\",",
+                $"  \"targetAblageName\": \"{EscapeJson(_nearestAblage.TargetDisplayName)}\",",
+                $"  \"targetEdge\": \"{EscapeJson(_nearestAblage.EdgeHint.ToString())}\",",
+                $"  \"targetDistanceMeters\": \"{_nearestAblage.DistanceMeters:0.00}\",",
+                $"  \"targetDistanceSource\": \"{EscapeJson(_nearestAblage.Source.ToString())}\",",
+                "  \"requestedFrameFormat\": \"PdfMemoryFrame\"",
                 "}"
             });
+            _diagnostics.Set("Signal", $"geschrieben: {_placementSignalPath}");
+            _diagnostics.Set("macOS", "FrameGuest darf Frame jetzt holen");
         }
-        catch
+        catch (Exception ex)
         {
+            _diagnostics.Set("Signal", $"Fehler: {ex.Message}");
             // The overlay must never crash while the owner is carrying a document.
         }
     }
@@ -696,6 +815,37 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             new SolidColorBrush(WColor.FromArgb(118, 255, 255, 255)),
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
         drawingContext.DrawText(text, LensThroatPoint() + new Vector(-text.Width / 2, 28));
+    }
+
+    private void DrawDiagnostics(DrawingContext drawingContext)
+    {
+        var lines = _diagnostics.Steps
+            .Select(pair => $"{pair.Key}: {pair.Value}")
+            .Take(11)
+            .ToArray();
+        var text = new FormattedText(
+            string.Join(Environment.NewLine, lines),
+            CultureInfo.CurrentCulture,
+            System.Windows.FlowDirection.LeftToRight,
+            new Typeface("Segoe UI"),
+            11,
+            new SolidColorBrush(WColor.FromArgb(220, 238, 246, 250)),
+            VisualTreeHelper.GetDpi(this).PixelsPerDip)
+        {
+            MaxTextWidth = 460,
+            Trimming = TextTrimming.CharacterEllipsis
+        };
+
+        var panel = new WRect(18, Math.Max(18, SurfaceHeight() - text.Height - 38), 490, text.Height + 22);
+        var background = new SolidColorBrush(WColor.FromArgb(132, 14, 18, 20));
+        drawingContext.DrawRoundedRectangle(background, null, panel, 8, 8);
+        drawingContext.DrawRoundedRectangle(
+            null,
+            new WPen(new SolidColorBrush(WColor.FromArgb(80, 240, 250, 255)), 0.8),
+            panel,
+            8,
+            8);
+        drawingContext.DrawText(text, new WPoint(panel.X + 12, panel.Y + 10));
     }
 
     private WPoint[] PaperCorners(WRect bounds)
@@ -805,6 +955,134 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         var edge = PortalEdgeBounds();
         var hit = new WRect(Math.Max(0, edge.X - 210), edge.Y - 80, edge.Width + 230, edge.Height + 160);
         return hit.Contains(point) || hit.IntersectsWith(thingBounds);
+    }
+
+    private void LoadSourcePdf(string pdfPath, bool deferPreview = false)
+    {
+        _sourcePdfPath = Path.GetFullPath(pdfPath);
+        _sourceFileName = Path.GetFileName(_sourcePdfPath);
+        _pdfPreview = null;
+        _diagnostics.Set("PDF", _sourceFileName);
+        _diagnostics.Set("Gegenseite", DescribeNearestAblage());
+        if (deferPreview)
+        {
+            _diagnostics.Set("PDF", $"{_sourceFileName} | Vorschau im Hintergrund");
+            BeginLoadPdfPreview(_sourcePdfPath);
+            return;
+        }
+
+        _pdfPreview = TryLoadPdfPreview(_sourcePdfPath);
+    }
+
+    private void BeginLoadPdfPreview(string pdfPath)
+    {
+        var expectedPath = Path.GetFullPath(pdfPath);
+        Task.Run(() => TryLoadPdfPreview(expectedPath))
+            .ContinueWith(task =>
+            {
+                if (!Dispatcher.CheckAccess())
+                {
+                    Dispatcher.BeginInvoke(() => ApplyPreview(expectedPath, task));
+                    return;
+                }
+
+                ApplyPreview(expectedPath, task);
+            }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+    }
+
+    private void ApplyPreview(string expectedPath, Task<ImageSource?> task)
+    {
+        if (!string.Equals(_sourcePdfPath, expectedPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (task.Status == TaskStatus.RanToCompletion)
+        {
+            _pdfPreview = task.Result;
+            _diagnostics.Set("PDF", _pdfPreview is null
+                ? $"{_sourceFileName} | Vorschau nicht verfuegbar"
+                : $"{_sourceFileName} | Vorschau bereit");
+        }
+        else
+        {
+            _diagnostics.Set("PDF", $"{_sourceFileName} | Vorschaufehler");
+        }
+
+        InvalidateVisual();
+    }
+
+    private NearestAblageResult ResolveNearestAblage()
+    {
+        if (_options.TargetDistanceMeters > 0)
+        {
+            var direction = ParseDirection(_options.TargetDirection);
+            var source = ParseSource(_options.TargetDistanceSource);
+            var distanceKind = _options.TargetDistanceMeters <= 0.50
+                ? AblageDistanceKind.VeryNear
+                : AblageDistanceKind.Near;
+            return new NearestAblageResult(
+                SimulatedAblageProximityProvider.WindowsAblageId,
+                new AblageIdentity("ablage-macos"),
+                _options.TargetDisplayName,
+                AblageSurfacePlatform.MacOS,
+                direction,
+                direction,
+                distanceKind,
+                _options.TargetDistanceMeters,
+                1.0,
+                source,
+                true,
+                true,
+                "Manuell kalibriert fuer Live-Test");
+        }
+
+        var selector = new NearestAblageSelector();
+        var snapshot = new SimulatedAblageProximityProvider().GetSnapshot(SimulatedAblageProximityProvider.WindowsAblageId);
+        var nearest = selector.Select(snapshot);
+        if (nearest.HasTarget)
+        {
+            return nearest;
+        }
+
+        return new NearestAblageResult(
+            SimulatedAblageProximityProvider.WindowsAblageId,
+            new AblageIdentity("ablage-macos"),
+            _options.TargetDisplayName,
+            AblageSurfacePlatform.MacOS,
+            AblageDirection.Right,
+            AblageDirection.Right,
+            AblageDistanceKind.Near,
+            1.2,
+            0.9,
+            AblageProximitySource.Simulated,
+            true,
+            true,
+            "Fallback: macOS rechts");
+    }
+
+    private static AblageDirection ParseDirection(string value)
+    {
+        return Enum.TryParse<AblageDirection>(value, ignoreCase: true, out var direction)
+            ? direction
+            : AblageDirection.Right;
+    }
+
+    private static AblageProximitySource ParseSource(string value)
+    {
+        return Enum.TryParse<AblageProximitySource>(value, ignoreCase: true, out var source)
+            ? source
+            : AblageProximitySource.ManualMap;
+    }
+
+    private string DescribeNearestAblage()
+    {
+        if (!_nearestAblage.HasTarget)
+        {
+            return "keine Gegenseite erkannt";
+        }
+
+        return $"{_nearestAblage.TargetDisplayName} | Seite: {_nearestAblage.EdgeHint} | Abstand: {_nearestAblage.DistanceMeters:0.00}m | Quelle: {_nearestAblage.Source} | Stabil: {(_nearestAblage.IsStable ? "ja" : "nein")}";
     }
 
     private static ImageSource? TryLoadPdfPreview(string pdfPath)
@@ -956,7 +1234,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private bool IsThingVisible()
     {
-        return _session.State is not NativeGlassOverlayCarryState.PlacedRemote and not NativeGlassOverlayCarryState.Closed &&
+        return _sourcePdfPath is not null &&
+            _session.State is not NativeGlassOverlayCarryState.PlacedRemote and not NativeGlassOverlayCarryState.Closed &&
             (_session.Absorption < 0.995f || _session.IsHolding);
     }
 

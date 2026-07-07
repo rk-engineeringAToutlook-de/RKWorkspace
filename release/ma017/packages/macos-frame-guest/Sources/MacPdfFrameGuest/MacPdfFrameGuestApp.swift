@@ -418,6 +418,7 @@ final class FrameGuestModel: ObservableObject {
             status = "FrameView: OK"
             policyText = "Owner: Windows | PDF: MemoryOnly | Ablage: NO | Text: OK"
             print("FrameView: OK")
+            print("FrameFormat: \(frame.payload["frameFormat"] ?? "TransientPdfBytes")")
             print("TransientPdfLease: OK")
             print("OwnerKeepsOriginal: OK")
             print("GuestPersistedPdfFile: NO")

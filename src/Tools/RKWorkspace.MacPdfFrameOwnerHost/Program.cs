@@ -2,6 +2,7 @@ using RKWorkspace.Frame.Pdf;
 using RKWorkspace.RkwpTransport.DevLan;
 using RKWorkspace.Transport;
 using RKWorkspace.Transport.Rkwp;
+using System.Text.Json;
 
 namespace RKWorkspace.MacPdfFrameOwnerHost;
 
@@ -21,16 +22,16 @@ internal static class Program
                 return 0;
             }
 
-            var frame = RenderFrame(options);
+            var frame = options.DynamicPdfFromPlacementSignal ? null : RenderFrame(options);
             if (options.SmokeTest)
             {
-                PrintSmoke(frame);
+                PrintSmoke(frame ?? RenderFrame(options.PdfPath ?? Options.DefaultPdfPath()));
                 return 0;
             }
 
             if (options.PlacementGatingSmokeTest)
             {
-                PrintPlacementGatingSmoke(frame, options);
+                PrintPlacementGatingSmoke(frame ?? RenderFrame(options.PdfPath ?? Options.DefaultPdfPath()), options);
                 return 0;
             }
 
@@ -45,14 +46,35 @@ internal static class Program
         }
     }
 
-    private static RenderedFrame RenderFrame(Options options)
+    private static RenderedFrame RenderFrame(string pdfPath, int page = 1, int width = 1400, bool memoryPdfFrame = false)
     {
-        var document = PdfFrameDocument.Load(options.PdfPath);
+        var document = PdfFrameDocument.Load(pdfPath);
+        if (memoryPdfFrame)
+        {
+            var pdfBytes = File.ReadAllBytes(pdfPath);
+            return new RenderedFrame(
+                $"frame-macos-{Guid.NewGuid():N}",
+                $"lease-macos-{Guid.NewGuid():N}",
+                document.ThingId,
+                document.FileName,
+                document.PageCount,
+                document.Sha256,
+                page,
+                0,
+                0,
+                "PdfMemoryFrame",
+                string.Empty,
+                Convert.ToBase64String(pdfBytes),
+                pdfBytes.Length,
+                "PDFKitMemoryFrame",
+                DateTimeOffset.UtcNow);
+        }
+
         var renderer = PdfFrameRendererFactory.CreateDefault();
         var render = renderer.Render(new PdfFrameRenderRequest(
             document,
-            options.Page,
-            new PdfFrameRenderOptions(RequestedWidth: options.Width),
+            page,
+            new PdfFrameRenderOptions(RequestedWidth: width),
             OwnerAblageId,
             document.ThingId));
 
@@ -72,7 +94,10 @@ internal static class Program
             render.PageNumber,
             render.Width,
             render.Height,
+            "PngFrame",
             Convert.ToBase64String(render.PixelData),
+            string.Empty,
+            0,
             render.RendererName,
             render.RenderedAt);
     }
@@ -84,13 +109,23 @@ internal static class Program
         Console.WriteLine("Mode: SmokeTest");
         Console.WriteLine($"DisplayName: {frame.DisplayName}");
         Console.WriteLine($"Page: {frame.Page}/{frame.PageCount}");
-        Console.WriteLine($"FrameSize: {frame.Width}x{frame.Height}");
+        if (frame.FrameFormat == "PdfMemoryFrame")
+        {
+            Console.WriteLine($"PdfBytes: {frame.PdfByteCount}");
+        }
+        else
+        {
+            Console.WriteLine($"FrameSize: {frame.Width}x{frame.Height}");
+        }
+
         Console.WriteLine($"RendererName: {frame.RendererName}");
         Console.WriteLine("OwnerKeepsOriginal: OK");
         Console.WriteLine("GuestHasPdfFile: NO");
         Console.WriteLine("GuestHasOriginalPath: NO");
-        Console.WriteLine("OriginalFileBytes: NO");
-        Console.WriteLine("FrameFormat: PngFrame");
+        Console.WriteLine(frame.FrameFormat == "PdfMemoryFrame"
+            ? "OriginalFileBytes: MEMORY_ONLY_PDF_FRAME"
+            : "OriginalFileBytes: NO");
+        Console.WriteLine($"FrameFormat: {frame.FrameFormat}");
         Console.WriteLine("FrameCache: MemoryOnly");
         Console.WriteLine("NoFileIngress: SUCCESS");
         Console.WriteLine("RESULT: SUCCESS");
@@ -120,8 +155,9 @@ internal static class Program
 
         File.WriteAllText(gatedOptions.PlacementSignalPath, "ready");
         var after = CreateFramePayload(frame, gatedOptions);
-        if (!after.TryGetValue("pngBase64", out var pngBase64) ||
-            string.IsNullOrWhiteSpace(pngBase64) ||
+        var hasFrame = (after.TryGetValue("pngBase64", out var pngBase64) && !string.IsNullOrWhiteSpace(pngBase64)) ||
+            (after.TryGetValue("pdfBase64", out var pdfBase64) && !string.IsNullOrWhiteSpace(pdfBase64));
+        if (!hasFrame ||
             !after.TryGetValue("placementReady", out var afterReady) ||
             !string.Equals(afterReady, "true", StringComparison.OrdinalIgnoreCase))
         {
@@ -134,13 +170,18 @@ internal static class Program
         Console.WriteLine("----------------------------------");
         Console.WriteLine("Mode: PlacementGatingSmokeTest");
         Console.WriteLine("BeforeSignal: NO_FRAME");
-        Console.WriteLine("AfterSignal: PNG_FRAME");
+        Console.WriteLine($"AfterSignal: {frame.FrameFormat}");
         Console.WriteLine("PlacementGating: SUCCESS");
         Console.WriteLine("NoFileIngress: SUCCESS");
         Console.WriteLine("RESULT: SUCCESS");
     }
 
-    private static async Task<int> RunOwnerAsync(Options options, RenderedFrame frame)
+    private static RenderedFrame RenderFrame(Options options)
+    {
+        return RenderFrame(options.PdfPath ?? Options.DefaultPdfPath(), options.Page, options.Width, options.MemoryPdfFrame);
+    }
+
+    private static async Task<int> RunOwnerAsync(Options options, RenderedFrame? frame)
     {
         var sessionId = string.IsNullOrWhiteSpace(options.SessionId)
             ? $"rkwp-macos-frame-{Guid.NewGuid():N}"
@@ -161,10 +202,25 @@ internal static class Program
         Console.WriteLine("ProductPath: Workspace Shell / Frame Owner Pilot");
         Console.WriteLine($"Listen: rkwp+tcp-dev://{options.BindAddress}:{options.Port}");
         Console.WriteLine($"Session: {sessionId}");
-        Console.WriteLine($"PDF: {frame.DisplayName}");
-        Console.WriteLine($"Page: {frame.Page}/{frame.PageCount}");
-        Console.WriteLine($"FrameSize: {frame.Width}x{frame.Height}");
-        Console.WriteLine($"RendererName: {frame.RendererName}");
+        Console.WriteLine($"PDF: {(frame is null ? "wartet auf echte PDF-Geste" : frame.DisplayName)}");
+        if (frame is not null)
+        {
+            Console.WriteLine($"Page: {frame.Page}/{frame.PageCount}");
+            if (frame.FrameFormat == "PdfMemoryFrame")
+            {
+                Console.WriteLine($"FrameFormat: PdfMemoryFrame");
+                Console.WriteLine($"PdfBytes: {frame.PdfByteCount}");
+            }
+            else
+            {
+                Console.WriteLine($"FrameSize: {frame.Width}x{frame.Height}");
+                Console.WriteLine($"FrameFormat: {frame.FrameFormat}");
+            }
+
+            Console.WriteLine($"RendererName: {frame.RendererName}");
+        }
+
+        Console.WriteLine($"DynamicPdfFromPlacementSignal: {(options.DynamicPdfFromPlacementSignal ? "YES" : "NO")}");
         Console.WriteLine("OwnerKeepsOriginal: OK");
         Console.WriteLine("GuestFileIngressAllowed: NO");
         Console.WriteLine($"WaitForGlassEdgePlacement: {(options.WaitForPlacement ? "YES" : "NO")}");
@@ -223,7 +279,7 @@ internal static class Program
 
     private static RkwpTransportMessage CreateResponse(
         RkwpTransportMessage request,
-        RenderedFrame frame,
+        RenderedFrame? frame,
         Options options,
         string sessionId)
     {
@@ -239,6 +295,7 @@ internal static class Program
                     ["frameOnly"] = "true",
                     ["noFileIngress"] = "true",
                     ["memoryOnlyFrame"] = "true",
+                    ["pdfMemoryFrame"] = options.MemoryPdfFrame ? "true" : "false",
                     ["openFrame"] = "true",
                     ["returnSupported"] = "true",
                     ["ownerKeepsOriginal"] = "true"
@@ -253,6 +310,7 @@ internal static class Program
                 {
                     ["frameOnly"] = "true",
                     ["noFileIngress"] = "true",
+                    ["pdfMemoryFrame"] = options.MemoryPdfFrame ? "true" : "false",
                     ["devPairing"] = "allowed"
                 },
                 request.MessageId),
@@ -261,7 +319,7 @@ internal static class Program
                 OwnerAblageId,
                 request.SourceAblageId,
                 sessionId,
-                CreateFramePayload(frame, options),
+                CreateFramePayload(ResolveFrameForRequest(frame, options), options),
                 request.MessageId),
             TransportMessageType.CarryLeaseReturn => RkwpTransportMessage.Create(
                 TransportMessageType.CarryLeaseReturn,
@@ -271,8 +329,8 @@ internal static class Program
                 new Dictionary<string, string>
                 {
                     ["return"] = "accepted",
-                    ["frameSessionId"] = frame.FrameSessionId,
-                    ["leaseId"] = frame.LeaseId,
+                    ["frameSessionId"] = frame?.FrameSessionId ?? string.Empty,
+                    ["leaseId"] = frame?.LeaseId ?? string.Empty,
                     ["guestKeptOriginalFile"] = "false",
                     ["noFileIngress"] = "true"
                 },
@@ -291,8 +349,65 @@ internal static class Program
         };
     }
 
-    private static IReadOnlyDictionary<string, string> CreateFramePayload(RenderedFrame frame, Options options)
+    private static RenderedFrame? ResolveFrameForRequest(RenderedFrame? frame, Options options)
     {
+        if (frame is not null)
+        {
+            return frame;
+        }
+
+        if (!options.DynamicPdfFromPlacementSignal || !File.Exists(options.PlacementSignalPath))
+        {
+            return null;
+        }
+
+        var pdfPath = TryReadPdfPathFromPlacementSignal(options.PlacementSignalPath);
+        if (string.IsNullOrWhiteSpace(pdfPath) || !File.Exists(pdfPath))
+        {
+            return null;
+        }
+
+        return RenderFrame(pdfPath, options.Page, options.Width, options.MemoryPdfFrame);
+    }
+
+    private static string? TryReadPdfPathFromPlacementSignal(string placementSignalPath)
+    {
+        try
+        {
+            using var stream = File.OpenRead(placementSignalPath);
+            using var json = JsonDocument.Parse(stream);
+            if (json.RootElement.TryGetProperty("sourcePdfPathLocalOnly", out var pathElement))
+            {
+                return pathElement.GetString();
+            }
+        }
+        catch
+        {
+            return null;
+        }
+
+        return null;
+    }
+
+    private static IReadOnlyDictionary<string, string> CreateFramePayload(RenderedFrame? frame, Options options)
+    {
+        if (frame is null)
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["placementReady"] = "false",
+                ["ownerKeepsOriginal"] = "true",
+                ["containsOriginalFileBytes"] = "false",
+                ["hasOriginalPath"] = "false",
+                ["guestHasPdfFile"] = "false",
+                ["noFileIngress"] = "true",
+                ["frameCache"] = "MemoryOnly",
+                ["visibleStatus"] = File.Exists(options.PlacementSignalPath)
+                    ? "Ablage-Signal erkannt, PDF-Pfad wird geprueft"
+                    : "wartet auf echte PDF am Glasrand"
+            };
+        }
+
         if (!options.WaitForPlacement || File.Exists(options.PlacementSignalPath))
         {
             var payload = new Dictionary<string, string>(frame.ToPayload(), StringComparer.OrdinalIgnoreCase)
@@ -334,6 +449,7 @@ internal static class Program
         Console.WriteLine("  --page <number>         PDF page. Default: 1");
         Console.WriteLine("  --width <pixels>        Rendered frame width. Default: 1400");
         Console.WriteLine("  --wait-for-placement    Send the frame only after the glass-edge placement signal exists.");
+        Console.WriteLine("  --memory-pdf-frame      Send the real PDF as a memory-only frame for PDFKit.");
         Console.WriteLine("  --placement-signal <p>  Local Windows signal file written by the glass overlay.");
         Console.WriteLine("  --once                  Stop after first FrameUpdate.");
         Console.WriteLine("  --smoke-test            Render the PDF frame without listening.");
@@ -350,15 +466,23 @@ internal static class Program
         string SessionId,
         string PlacementSignalPath,
         bool WaitForPlacement,
+        bool DynamicPdfFromPlacementSignal,
+        bool MemoryPdfFrame,
         bool Once,
         bool SmokeTest,
         bool PlacementGatingSmokeTest,
         bool ShowHelp)
     {
+        public static string DefaultPdfPath()
+        {
+            var root = FindRepositoryRoot();
+            return Path.Combine(root, "samples", "Objects", "Rechnung.pdf");
+        }
+
         public static Options Parse(string[] args)
         {
             var root = FindRepositoryRoot();
-            var pdfPath = Path.Combine(root, "samples", "Objects", "Rechnung.pdf");
+            var pdfPath = DefaultPdfPath();
             var bindAddress = "0.0.0.0";
             var port = 57120;
             var page = 1;
@@ -366,6 +490,8 @@ internal static class Program
             var sessionId = string.Empty;
             var placementSignalPath = Path.Combine(Path.GetTempPath(), "rkws-ma017-real-pdf-placement-ready.signal");
             var waitForPlacement = false;
+            var dynamicPdfFromPlacementSignal = false;
+            var memoryPdfFrame = false;
             var once = false;
             var smokeTest = false;
             var placementGatingSmokeTest = false;
@@ -389,6 +515,19 @@ internal static class Program
                 if (Is(arg, "--wait-for-placement", "-WaitForPlacement"))
                 {
                     waitForPlacement = true;
+                    continue;
+                }
+
+                if (Is(arg, "--dynamic-pdf-from-placement-signal", "-DynamicPdfFromPlacementSignal"))
+                {
+                    dynamicPdfFromPlacementSignal = true;
+                    waitForPlacement = true;
+                    continue;
+                }
+
+                if (Is(arg, "--memory-pdf-frame", "-MemoryPdfFrame"))
+                {
+                    memoryPdfFrame = true;
                     continue;
                 }
 
@@ -456,6 +595,8 @@ internal static class Program
                 sessionId,
                 Path.GetFullPath(placementSignalPath),
                 waitForPlacement,
+                dynamicPdfFromPlacementSignal,
+                memoryPdfFrame,
                 once,
                 smokeTest,
                 placementGatingSmokeTest,
@@ -505,13 +646,16 @@ internal static class Program
         int Page,
         int Width,
         int Height,
+        string FrameFormat,
         string PngBase64,
+        string PdfBase64,
+        int PdfByteCount,
         string RendererName,
         DateTimeOffset RenderedAt)
     {
         public IReadOnlyDictionary<string, string> ToPayload()
         {
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            var payload = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["frameSessionId"] = FrameSessionId,
                 ["leaseId"] = LeaseId,
@@ -522,18 +666,33 @@ internal static class Program
                 ["page"] = Page.ToString(),
                 ["width"] = Width.ToString(),
                 ["height"] = Height.ToString(),
-                ["frameFormat"] = "PngFrame",
-                ["pngBase64"] = PngBase64,
+                ["frameFormat"] = FrameFormat,
                 ["rendererName"] = RendererName,
                 ["renderedAt"] = RenderedAt.ToString("O"),
                 ["ownerKeepsOriginal"] = "true",
-                ["containsOriginalFileBytes"] = "false",
                 ["hasOriginalPath"] = "false",
                 ["guestHasPdfFile"] = "false",
                 ["noFileIngress"] = "true",
                 ["frameCache"] = "MemoryOnly",
                 ["visibleStatus"] = "liegt hier im Frame"
             };
+
+            if (FrameFormat == "PdfMemoryFrame")
+            {
+                payload["pdfBase64"] = PdfBase64;
+                payload["pdfByteCount"] = PdfByteCount.ToString();
+                payload["memoryOnlyPdf"] = "true";
+                payload["noPersistentFileIngress"] = "true";
+                payload["containsOriginalFileBytes"] = "true";
+                payload["visibleStatus"] = "liegt hier als PDF-Frame";
+            }
+            else
+            {
+                payload["pngBase64"] = PngBase64;
+                payload["containsOriginalFileBytes"] = "false";
+            }
+
+            return payload;
         }
     }
 }
