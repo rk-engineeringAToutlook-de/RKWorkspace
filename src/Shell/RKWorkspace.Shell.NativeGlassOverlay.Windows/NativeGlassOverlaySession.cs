@@ -21,6 +21,10 @@ public sealed class NativeGlassOverlaySession
 
     public bool RectangularPaperPrepared { get; } = true;
 
+    public bool ProgressiveDesktopGlassEdgePrepared { get; } = true;
+
+    public bool GlassEdgeIntentGatePrepared { get; } = true;
+
     public bool ReleaseRequiredForAbsorptionPrepared { get; private set; } = true;
 
     public bool SmoothPickScalePrepared { get; private set; }

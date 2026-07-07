@@ -49,6 +49,8 @@ public static class NativeGlassOverlayApplication
                 session.RealDesktopOnlyPrepared &&
                 session.SmoothPickScalePrepared &&
                 session.RectangularPaperPrepared &&
+                session.ProgressiveDesktopGlassEdgePrepared &&
+                session.GlassEdgeIntentGatePrepared &&
                 session.GentleVectorTiltPrepared &&
                 session.SoftPerspectiveShadowPrepared &&
                 session.ReleaseRequiredForAbsorptionPrepared &&
@@ -78,6 +80,8 @@ public static class NativeGlassOverlayApplication
             Console.WriteLine($"RealDesktopOnly: {(session.RealDesktopOnlyPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"SmoothPickScale: {(session.SmoothPickScalePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"RectangularPaper: {(session.RectangularPaperPrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"ProgressiveDesktopGlassEdge: {(session.ProgressiveDesktopGlassEdgePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"GlassEdgeIntentGate: {(session.GlassEdgeIntentGatePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"GentleVectorTilt: {(session.GentleVectorTiltPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"SoftPerspectiveShadow: {(session.SoftPerspectiveShadowPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ReleaseRequiredForAbsorption: {(session.ReleaseRequiredForAbsorptionPrepared ? "OK" : "FAILED")}");

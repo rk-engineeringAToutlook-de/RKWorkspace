@@ -52,7 +52,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _diagnostics = new NativeGlassOverlayDiagnostics(options.DiagnosticsPath);
         _nearestAblage = ResolveNearestAblage();
         _diagnostics.Set("Gegenseite", DescribeNearestAblage());
-        _diagnostics.Set("Glaskante", $"{_nearestAblage.EdgeHint} -> {_nearestAblage.TargetDisplayName}");
+        _diagnostics.Set("Glaskante", $"bereit (aus): {PortalEdgeDirection()} -> {_nearestAblage.TargetDisplayName}");
         if (!string.IsNullOrWhiteSpace(options.SourcePdfPath))
         {
             LoadSourcePdf(options.SourcePdfPath, deferPreview: options.PickImmediately);
@@ -201,6 +201,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
         _diagnostics.Set("Geste", gestureName);
         _diagnostics.Set("Carry", $"in virtueller Hand: {_sourceFileName}");
+        _diagnostics.Set("Glaskante", $"sichtbar: {PortalEdgeDirection()} -> {_nearestAblage.TargetDisplayName}");
         PointerInputModeChanged?.Invoke(this, EventArgs.Empty);
         InvalidateVisual();
     }
@@ -274,6 +275,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             _session.Pick();
             _pendingRemotePlacement = false;
             _diagnostics.Set("Carry", $"genommen: {_sourceFileName}");
+            _diagnostics.Set("Glaskante", $"sichtbar: {PortalEdgeDirection()} -> {_nearestAblage.TargetDisplayName}");
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
             e.Handled = true;
             return;
@@ -292,6 +294,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             Cursor = WCursors.SizeAll;
             _session.PullOut();
             _pendingRemotePlacement = false;
+            _diagnostics.Set("Glaskante", $"sichtbar: {PortalEdgeDirection()} -> {_nearestAblage.TargetDisplayName}");
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
             e.Handled = true;
         }
@@ -377,6 +380,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
             _diagnostics.Set("Drop", "zurück auf Windows-Ablage");
             _diagnostics.Set("Signal", "nicht geschrieben");
+            _diagnostics.Set("Glaskante", $"aus (kein Transfer): {PortalEdgeDirection()} -> {_nearestAblage.TargetDisplayName}");
         }
 
         PointerInputModeChanged?.Invoke(this, EventArgs.Empty);
@@ -406,86 +410,254 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private void DrawGlassPortalEdge(DrawingContext drawingContext)
     {
-        var edge = PortalEdgeBounds();
-        var active = Math.Clamp(
-            (_session.LensEmergence * 0.62) +
-            (_session.PickProgress * 0.24) +
-            (_session.Approach * 0.34),
-            0.0,
-            1.0);
-        var opacity = Math.Clamp(0.58 + (active * 0.22), 0.58, 0.80);
-
-        drawingContext.PushOpacity(opacity);
-
-        var backShadow = new LinearGradientBrush
+        if (!ShouldShowGlassPortalEdge())
         {
-            StartPoint = new WPoint(0.0, 0.5),
-            EndPoint = new WPoint(1.0, 0.5)
-        };
-        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
-        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(18, 0, 0, 0), 0.72));
-        backShadow.GradientStops.Add(new GradientStop(WColor.FromArgb(56, 0, 0, 0), 1.00));
-        drawingContext.DrawRoundedRectangle(backShadow, null, new WRect(edge.X - 42, edge.Y + 10, edge.Width + 46, edge.Height - 20), 6, 6);
-
-        var body = new LinearGradientBrush
-        {
-            StartPoint = new WPoint(0.0, 0.5),
-            EndPoint = new WPoint(1.0, 0.5)
-        };
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(42, 255, 255, 255), 0.20));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(82, 238, 250, 255), 0.48));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(32, 255, 255, 255), 0.72));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(body, null, edge, 5, 5);
-
-        var throat = new WRect(
-            edge.X + (edge.Width * 0.42),
-            edge.Y + 28,
-            edge.Width * 0.18,
-            edge.Height - 56);
-        var slotFill = new LinearGradientBrush
-        {
-            StartPoint = new WPoint(0.0, 0.5),
-            EndPoint = new WPoint(1.0, 0.5),
-            Opacity = 0.72
-        };
-        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
-        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(62, 0, 0, 0), 0.44));
-        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(28, 255, 255, 255), 0.78));
-        slotFill.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(slotFill, null, throat, 3, 3);
-
-        var rimAlpha = (byte)Math.Clamp(172 + (active * 48), 172, 220);
-        var tunnelRim = new WPen(new SolidColorBrush(WColor.FromArgb(rimAlpha, 244, 252, 255)), 2.3 + active);
-        drawingContext.DrawRoundedRectangle(null, tunnelRim, edge, 5, 5);
-
-        var innerLight = new LinearGradientBrush
-        {
-            StartPoint = new WPoint(0.0, 0.0),
-            EndPoint = new WPoint(0.0, 1.0)
-        };
-        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
-        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(92, 255, 255, 255), 0.24));
-        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(48, 210, 240, 255), 0.58));
-        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
-        drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.10, edge.Y + 22, edge.Width * 0.20, edge.Height - 44), 4, 4);
-
-        var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb((byte)Math.Clamp(182 + (active * 38), 182, 220), 255, 255, 255)), 2.4);
-        drawingContext.DrawLine(edgeLine, new WPoint(edge.X + edge.Width * 0.18, edge.Y + 26), new WPoint(edge.X + edge.Width * 0.18, edge.Bottom - 26));
-
-        var rightCatchlight = new WPen(new SolidColorBrush(WColor.FromArgb(112, 255, 255, 255)), 1.2);
-        drawingContext.DrawLine(rightCatchlight, new WPoint(edge.Right - 8, edge.Y + 42), new WPoint(edge.Right - 8, edge.Bottom - 42));
-
-        var glassRim = new WPen(new SolidColorBrush(WColor.FromArgb(142, 255, 255, 255)), 1.0);
-        drawingContext.DrawRoundedRectangle(null, glassRim, new WRect(edge.X + 2, edge.Y + 2, edge.Width - 4, edge.Height - 4), 4, 4);
-
-        if (_session.PickProgress > 0.10f || _session.State == NativeGlassOverlayCarryState.InTransit || opacity > 0.40)
-        {
-            DrawPortalLabel(drawingContext, edge, active);
+            return;
         }
 
+        var edge = PortalEdgeBounds();
+        var direction = PortalEdgeDirection();
+        var active = Math.Clamp((_session.PickProgress * 0.42) + (_session.Approach * 0.46) + (_session.LensOpen * 0.20), 0.0, 1.0);
+        var closingFade = _session.State == NativeGlassOverlayCarryState.Closing
+            ? Math.Clamp(_session.LensEmergence, 0.0, 1.0)
+            : 1.0;
+        var opacity = Math.Clamp((0.78 + (active * 0.18)) * closingFade, 0.0, 0.96);
+
+        drawingContext.PushOpacity(opacity);
+        drawingContext.PushOpacityMask(ProgressiveEdgeMask(direction));
+
+        var desktopMaterial = EdgeAxisGradient(direction,
+            WColor.FromArgb(0, 255, 255, 255),
+            WColor.FromArgb(5, 255, 255, 255),
+            WColor.FromArgb(26, 232, 252, 255),
+            WColor.FromArgb(48, 255, 255, 255));
+        drawingContext.DrawRectangle(desktopMaterial, null, edge);
+
+        var body = EdgeAxisGradient(direction,
+            WColor.FromArgb(0, 255, 255, 255),
+            WColor.FromArgb(14, 255, 255, 255),
+            WColor.FromArgb(34, 178, 238, 246),
+            WColor.FromArgb(56, 255, 255, 255));
+        drawingContext.DrawRectangle(body, null, edge);
+
+        var glow = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 190, 245, 255),
+            WColor.FromArgb(48, 255, 255, 255),
+            WColor.FromArgb(38, 142, 236, 245),
+            WColor.FromArgb(48, 255, 255, 255),
+            WColor.FromArgb(0, 190, 245, 255));
+        glow.Opacity = 0.62;
+        drawingContext.DrawRectangle(glow, null, edge);
+
         drawingContext.Pop();
+
+        DrawGlassThroat(drawingContext, edge, direction, active);
+        DrawPhysicalGlassEdge(drawingContext, edge, direction, active);
+        DrawInnerGlassCatchlight(drawingContext, edge, direction);
+
+        drawingContext.Pop();
+    }
+
+    private bool ShouldShowGlassPortalEdge()
+    {
+        if (string.IsNullOrWhiteSpace(_sourcePdfPath))
+        {
+            return false;
+        }
+
+        return _isHolding ||
+            _pendingRemotePlacement ||
+            _session.State is NativeGlassOverlayCarryState.Held or
+                NativeGlassOverlayCarryState.InTransit or
+                NativeGlassOverlayCarryState.Closing ||
+            _session.PickProgress > 0.03f ||
+            _session.Approach > 0.03f ||
+            _session.LensOpen > 0.03f;
+    }
+
+    private void DrawGlassThroat(DrawingContext drawingContext, WRect edge, AblageDirection direction, double active)
+    {
+        var fill = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(116 + (active * 18), 116, 134), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(80 + (active * 18), 80, 98), 136, 235, 245),
+            WColor.FromArgb(0, 255, 255, 255));
+        var halo = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 145, 235, 246),
+            WColor.FromArgb(34, 150, 236, 246),
+            WColor.FromArgb(24, 255, 255, 255),
+            WColor.FromArgb(0, 145, 235, 246));
+
+        if (direction is AblageDirection.Left or AblageDirection.Right)
+        {
+            var height = Math.Min(edge.Height * 0.38, 320.0);
+            var centerX = direction == AblageDirection.Right ? edge.Right - 18.0 : edge.Left + 18.0;
+            var y = edge.Y + ((edge.Height - height) / 2.0);
+            drawingContext.DrawRoundedRectangle(halo, null, new WRect(centerX - 23.0, y - 16.0, 46.0, height + 32.0), 23.0, 23.0);
+            drawingContext.DrawRoundedRectangle(fill, null, new WRect(centerX - 6.5, y, 13.0, height), 6.5, 6.5);
+            return;
+        }
+
+        var width = Math.Min(edge.Width * 0.38, 360.0);
+        var centerY = direction == AblageDirection.Down ? edge.Bottom - 18.0 : edge.Top + 18.0;
+        var x = edge.X + ((edge.Width - width) / 2.0);
+        drawingContext.DrawRoundedRectangle(halo, null, new WRect(x - 16.0, centerY - 23.0, width + 32.0, 46.0), 23.0, 23.0);
+        drawingContext.DrawRoundedRectangle(fill, null, new WRect(x, centerY - 6.5, width, 13.0), 6.5, 6.5);
+    }
+
+    private void DrawPhysicalGlassEdge(DrawingContext drawingContext, WRect edge, AblageDirection direction, double active)
+    {
+        var fill = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 180, 245, 255),
+            WColor.FromArgb((byte)Math.Clamp(88 + (active * 22), 88, 110), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(58 + (active * 20), 58, 78), 126, 228, 240),
+            WColor.FromArgb((byte)Math.Clamp(88 + (active * 22), 88, 110), 255, 255, 255),
+            WColor.FromArgb(0, 180, 245, 255));
+
+        switch (direction)
+        {
+            case AblageDirection.Left:
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Top, 2.0, edge.Height));
+                break;
+            case AblageDirection.Up:
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Top, edge.Width, 2.0));
+                break;
+            case AblageDirection.Down:
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Bottom - 2.0, edge.Width, 2.0));
+                break;
+            default:
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Right - 2.0, edge.Top, 2.0, edge.Height));
+                break;
+        }
+    }
+
+    private void DrawInnerGlassCatchlight(DrawingContext drawingContext, WRect edge, AblageDirection direction)
+    {
+        var fill = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 255, 255, 255),
+            WColor.FromArgb(48, 255, 255, 255),
+            WColor.FromArgb(24, 142, 230, 242),
+            WColor.FromArgb(0, 255, 255, 255));
+        fill.Opacity = 0.52;
+
+        if (direction is AblageDirection.Left or AblageDirection.Right)
+        {
+            var x = direction == AblageDirection.Right
+                ? edge.Left + (edge.Width * 0.82)
+                : edge.Left + (edge.Width * 0.18);
+            drawingContext.DrawRoundedRectangle(fill, null, new WRect(x - 1.6, edge.Y + (edge.Height * 0.14), 3.2, edge.Height * 0.72), 1.6, 1.6);
+            return;
+        }
+
+        var y = direction == AblageDirection.Down
+            ? edge.Top + (edge.Height * 0.82)
+            : edge.Top + (edge.Height * 0.18);
+        drawingContext.DrawRoundedRectangle(fill, null, new WRect(edge.X + (edge.Width * 0.14), y - 1.6, edge.Width * 0.72, 3.2), 1.6, 1.6);
+    }
+
+    private static LinearGradientBrush ProgressiveEdgeMask(AblageDirection direction)
+    {
+        var brush = new LinearGradientBrush();
+        switch (direction)
+        {
+            case AblageDirection.Left:
+                brush.StartPoint = new WPoint(0.0, 0.5);
+                brush.EndPoint = new WPoint(1.0, 0.5);
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(255, 0, 0, 0), 0.00));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(174, 0, 0, 0), 0.42));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(20, 0, 0, 0), 0.82));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 1.00));
+                break;
+            case AblageDirection.Up:
+                brush.StartPoint = new WPoint(0.5, 0.0);
+                brush.EndPoint = new WPoint(0.5, 1.0);
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(255, 0, 0, 0), 0.00));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(174, 0, 0, 0), 0.42));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(20, 0, 0, 0), 0.82));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 1.00));
+                break;
+            case AblageDirection.Down:
+                brush.StartPoint = new WPoint(0.5, 0.0);
+                brush.EndPoint = new WPoint(0.5, 1.0);
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(20, 0, 0, 0), 0.18));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(174, 0, 0, 0), 0.58));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(255, 0, 0, 0), 1.00));
+                break;
+            default:
+                brush.StartPoint = new WPoint(0.0, 0.5);
+                brush.EndPoint = new WPoint(1.0, 0.5);
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 0, 0, 0), 0.00));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(20, 0, 0, 0), 0.18));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(174, 0, 0, 0), 0.58));
+                brush.GradientStops.Add(new GradientStop(WColor.FromArgb(255, 0, 0, 0), 1.00));
+                break;
+        }
+
+        return brush;
+    }
+
+    private static LinearGradientBrush EdgeAxisGradient(AblageDirection direction, WColor far, WColor soft, WColor glass, WColor edge)
+    {
+        var brush = new LinearGradientBrush();
+        switch (direction)
+        {
+            case AblageDirection.Left:
+                brush.StartPoint = new WPoint(0.0, 0.5);
+                brush.EndPoint = new WPoint(1.0, 0.5);
+                brush.GradientStops.Add(new GradientStop(edge, 0.00));
+                brush.GradientStops.Add(new GradientStop(glass, 0.42));
+                brush.GradientStops.Add(new GradientStop(soft, 0.82));
+                brush.GradientStops.Add(new GradientStop(far, 1.00));
+                break;
+            case AblageDirection.Up:
+                brush.StartPoint = new WPoint(0.5, 0.0);
+                brush.EndPoint = new WPoint(0.5, 1.0);
+                brush.GradientStops.Add(new GradientStop(edge, 0.00));
+                brush.GradientStops.Add(new GradientStop(glass, 0.42));
+                brush.GradientStops.Add(new GradientStop(soft, 0.82));
+                brush.GradientStops.Add(new GradientStop(far, 1.00));
+                break;
+            case AblageDirection.Down:
+                brush.StartPoint = new WPoint(0.5, 0.0);
+                brush.EndPoint = new WPoint(0.5, 1.0);
+                brush.GradientStops.Add(new GradientStop(far, 0.00));
+                brush.GradientStops.Add(new GradientStop(soft, 0.18));
+                brush.GradientStops.Add(new GradientStop(glass, 0.58));
+                brush.GradientStops.Add(new GradientStop(edge, 1.00));
+                break;
+            default:
+                brush.StartPoint = new WPoint(0.0, 0.5);
+                brush.EndPoint = new WPoint(1.0, 0.5);
+                brush.GradientStops.Add(new GradientStop(far, 0.00));
+                brush.GradientStops.Add(new GradientStop(soft, 0.18));
+                brush.GradientStops.Add(new GradientStop(glass, 0.58));
+                brush.GradientStops.Add(new GradientStop(edge, 1.00));
+                break;
+        }
+
+        return brush;
+    }
+
+    private static LinearGradientBrush CrossAxisGradient(AblageDirection direction, params WColor[] colors)
+    {
+        var brush = new LinearGradientBrush
+        {
+            StartPoint = direction is AblageDirection.Left or AblageDirection.Right
+                ? new WPoint(0.5, 0.0)
+                : new WPoint(0.0, 0.5),
+            EndPoint = direction is AblageDirection.Left or AblageDirection.Right
+                ? new WPoint(0.5, 1.0)
+                : new WPoint(1.0, 0.5)
+        };
+
+        for (var index = 0; index < colors.Length; index++)
+        {
+            var location = colors.Length == 1 ? 1.0 : (double)index / (colors.Length - 1);
+            brush.GradientStops.Add(new GradientStop(colors[index], location));
+        }
+
+        return brush;
     }
 
     private void DrawPortalLabel(DrawingContext drawingContext, WRect edge, double active)
@@ -517,8 +689,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         }
 
         var active = Math.Clamp((_session.PickProgress * 0.48) + (_session.Approach * 0.52), 0.0, 1.0);
-        var start = new WPoint(_thingCenter.X + (ThingBounds().Width * 0.58), _thingCenter.Y);
-        var end = new WPoint(PortalEdgeBounds().X + 18, _lensCenter.Y);
+        var start = PortalGuideStartPoint();
+        var end = _lensCenter;
         var distance = Distance(start, end);
         if (distance < 120)
         {
@@ -932,29 +1104,67 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         var surfaceWidth = Math.Max(1.0, SurfaceWidth());
         var surfaceHeight = Math.Max(1.0, SurfaceHeight());
-        var width = Math.Clamp(surfaceWidth * 0.065, 82.0, 116.0);
-        var maxHeight = Math.Max(220.0, surfaceHeight - 80.0);
-        var minHeight = Math.Min(460.0, maxHeight);
-        var height = Math.Clamp(surfaceHeight * 0.68, minHeight, maxHeight);
-        var inset = 8.0;
-        return new WRect(
-            Math.Max(0, surfaceWidth - width - inset),
-            Math.Max(24.0, (surfaceHeight - height) / 2.0),
-            width,
-            height);
+        var depth = Math.Clamp(Math.Min(surfaceWidth, surfaceHeight) * 0.24, 176.0, 224.0);
+
+        return PortalEdgeDirection() switch
+        {
+            AblageDirection.Left => new WRect(0, 0, Math.Min(depth, surfaceWidth), surfaceHeight),
+            AblageDirection.Up => new WRect(0, 0, surfaceWidth, Math.Min(depth, surfaceHeight)),
+            AblageDirection.Down => new WRect(0, Math.Max(0, surfaceHeight - depth), surfaceWidth, Math.Min(depth, surfaceHeight)),
+            _ => new WRect(Math.Max(0, surfaceWidth - depth), 0, Math.Min(depth, surfaceWidth), surfaceHeight)
+        };
     }
 
     private void UpdatePortalGeometry()
     {
         var edge = PortalEdgeBounds();
-        _lensCenter = new WPoint(edge.X + (edge.Width * 0.50), edge.Y + (edge.Height * 0.52));
+        _lensCenter = PortalEdgeDirection() switch
+        {
+            AblageDirection.Left => new WPoint(edge.Left + 18.0, edge.Y + (edge.Height * 0.50)),
+            AblageDirection.Up => new WPoint(edge.X + (edge.Width * 0.50), edge.Top + 18.0),
+            AblageDirection.Down => new WPoint(edge.X + (edge.Width * 0.50), edge.Bottom - 18.0),
+            _ => new WPoint(edge.Right - 18.0, edge.Y + (edge.Height * 0.50))
+        };
     }
 
     private bool IsOverPortalEdge(WPoint point, WRect thingBounds)
     {
         var edge = PortalEdgeBounds();
-        var hit = new WRect(Math.Max(0, edge.X - 210), edge.Y - 80, edge.Width + 230, edge.Height + 160);
+        var surfaceWidth = Math.Max(1.0, SurfaceWidth());
+        var surfaceHeight = Math.Max(1.0, SurfaceHeight());
+        var hit = PortalEdgeDirection() switch
+        {
+            AblageDirection.Left => new WRect(0, 0, Math.Min(surfaceWidth, edge.Right + 230.0), surfaceHeight),
+            AblageDirection.Up => new WRect(0, 0, surfaceWidth, Math.Min(surfaceHeight, edge.Bottom + 230.0)),
+            AblageDirection.Down => new WRect(0, Math.Max(0, edge.Y - 230.0), surfaceWidth, surfaceHeight - Math.Max(0, edge.Y - 230.0)),
+            _ => new WRect(Math.Max(0, edge.X - 230.0), 0, surfaceWidth - Math.Max(0, edge.X - 230.0), surfaceHeight)
+        };
         return hit.Contains(point) || hit.IntersectsWith(thingBounds);
+    }
+
+    private AblageDirection PortalEdgeDirection()
+    {
+        return _nearestAblage.EdgeHint switch
+        {
+            AblageDirection.Left or AblageDirection.Right or AblageDirection.Up or AblageDirection.Down => _nearestAblage.EdgeHint,
+            AblageDirection.UpLeft or AblageDirection.DownLeft => AblageDirection.Left,
+            AblageDirection.UpRight or AblageDirection.DownRight => AblageDirection.Right,
+            AblageDirection.Front => AblageDirection.Up,
+            AblageDirection.Back => AblageDirection.Down,
+            _ => AblageDirection.Right
+        };
+    }
+
+    private WPoint PortalGuideStartPoint()
+    {
+        var bounds = ThingBounds();
+        return PortalEdgeDirection() switch
+        {
+            AblageDirection.Left => new WPoint(bounds.Left, bounds.Top + (bounds.Height * 0.50)),
+            AblageDirection.Up => new WPoint(bounds.Left + (bounds.Width * 0.50), bounds.Top),
+            AblageDirection.Down => new WPoint(bounds.Left + (bounds.Width * 0.50), bounds.Bottom),
+            _ => new WPoint(bounds.Right, bounds.Top + (bounds.Height * 0.50))
+        };
     }
 
     private void LoadSourcePdf(string pdfPath, bool deferPreview = false)
