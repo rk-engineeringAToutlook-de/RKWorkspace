@@ -1,0 +1,24 @@
+{
+  "schema": "rkworkspace.ma017.pilot.config.v0.1",
+  "scenario": "WindowsToiPad",
+  "owner": "WindowsOwner",
+  "target": "iPadGuest",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "UwbSimulation",
+    "uwbProfile": "MovingCloser",
+    "confidenceThreshold": 0.7,
+    "distanceHysteresis": 0.24
+  },
+  "commands": [
+    ".\\tools\\run-ma017-windows-to-ipad-closed-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices",
+    ".\\tools\\run-ma017-windows-to-ipad-open-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices"
+  ],
+  "expected": [
+    "NoFileIngress: SUCCESS",
+    "MA017WindowsToiPadClosedPdf: SUCCESS",
+    "MA017WindowsToiPadOpenPdf: SUCCESS",
+    "RESULT: SUCCESS"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "rkworkspace.ma017.pilot.config.v0.1",
+  "scenario": "WindowsToMac",
+  "owner": "WindowsOwner",
+  "target": "macOSGuest",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "ProximityFusion",
+    "uwbProfile": "Static",
+    "confidenceThreshold": 0.7,
+    "distanceHysteresis": 0.24
+  },
+  "commands": [
+    ".\\tools\\run-ma017-windows-to-mac-closed-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices",
+    ".\\tools\\run-ma017-windows-to-mac-open-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices"
+  ],
+  "expected": [
+    "NoFileIngress: SUCCESS",
+    "MA017WindowsToMacClosedPdf: SUCCESS",
+    "MA017WindowsToMacOpenPdf: SUCCESS",
+    "RESULT: SUCCESS"
+  ]
+}

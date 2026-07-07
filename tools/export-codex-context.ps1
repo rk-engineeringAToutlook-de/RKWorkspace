@@ -176,6 +176,7 @@ $files = @(
     'Docs\Readiness\MA017_SecurityPolicyPilotCheckpoint.md',
     'Docs\Readiness\MA017_UwbDongleCheckpoint.md',
     'Docs\Readiness\MA017_CrossDeviceScriptsCheckpoint.md',
+    'Docs\Readiness\MA017_PilotLabCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
@@ -186,6 +187,7 @@ $files = @(
     'Docs\Testing\MA017_WindowsPdfStandardTest.md',
     'Docs\Testing\MA017_CrossDeviceOwnerInstructions.md',
     'Docs\Testing\MA017_CrossDeviceFailurePlaybook.md',
+    'Docs\Testing\MA017_PilotRiskChecklist.md',
     'Docs\Development\MA017_UwbConfidenceVisualization.md',
     'Docs\Security\MA017_PdfLifecycleThreatModel.md',
     'Docs\Security\MA017_ProximityPrivacy.md',
@@ -195,6 +197,11 @@ $files = @(
     'release\ma017\handoff\macOS_MinimalGuestAppTask.md',
     'release\ma017\handoff\macOS_CHECKPOINT.md',
     'release\ma017\config\macos-guest.sample.json',
+    'release\ma017\config\windows-local.sample.json',
+    'release\ma017\config\windows-to-mac.sample.json',
+    'release\ma017\config\windows-to-ipad.sample.json',
+    'release\ma017\config\uwb-simulation.sample.json',
+    'release\ma017\config\dongle-prep.sample.json',
     'release\ma017\schemas\macos-capsule-contract.v0.2.json',
     'release\ma017\schemas\macos-openframe-contract.v0.2.json',
     'release\ma017\schemas\macos-no-file-ingress-contract.v0.2.json',
@@ -217,6 +224,9 @@ $files = @(
     'release\ma017\runbooks\iOS_iPad_PilotRunbook.md',
     'release\ma017\reports\uwb-dongle-report.md',
     'release\ma017\reports\cross-device-diagnostics.md',
+    'release\ma017\reports\ma017-pilot-report.md',
+    'release\ma017\reports\ma017-feedback-report.md',
+    'release\ma017\reports\ma017-repeatability-report.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -464,6 +474,13 @@ $files = @(
     'tools\run-ma017-windows-all-pdf-lifecycle.ps1',
     'tools\run-ma017-cross-device-session-monitor.ps1',
     'tools\export-ma017-cross-device-diagnostics.ps1',
+    'tools\run-ma017-pilot-lab.ps1',
+    'tools\configure-ma017-pilot.ps1',
+    'tools\export-ma017-pilot-report.ps1',
+    'tools\record-ma017-feedback.ps1',
+    'tools\export-ma017-feedback-report.ps1',
+    'tools\cleanup-ma017-pilot.ps1',
+    'tools\run-ma017-repeatability.ps1',
     'tools\run-dongle-sim.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
@@ -510,6 +527,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-dongle-sim.ps1 -SmokeTest -UseFusion -Profile MovingCloser
 .\tools\run-ma017-windows-all-pdf-lifecycle.ps1 -SmokeTest
 .\tools\export-ma017-cross-device-diagnostics.ps1 -SmokeTest
+.\tools\run-ma017-pilot-lab.ps1 -SmokeTest
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest

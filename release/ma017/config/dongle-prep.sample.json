@@ -1,0 +1,23 @@
+{
+  "schema": "rkworkspace.ma017.pilot.config.v0.1",
+  "scenario": "DonglePrep",
+  "owner": "WindowsOwner",
+  "target": "AblageAnchorDongle",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "DongleSimulation",
+    "uwbProfile": "MovingCloser",
+    "confidenceThreshold": 0.7,
+    "distanceHysteresis": 0.24
+  },
+  "commands": [
+    ".\\tools\\run-dongle-sim.ps1 -SmokeTest -UseFusion -Profile MovingCloser"
+  ],
+  "expected": [
+    "BleAnchor: OK",
+    "UwbAnchor: OK",
+    "PrivacyMode: EphemeralLab",
+    "RESULT: SUCCESS"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "rkworkspace.ma017.pilot.config.v0.1",
+  "scenario": "WindowsLocal",
+  "owner": "WindowsOwner",
+  "target": "WindowsGuest",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "Simulated",
+    "uwbProfile": "Static",
+    "confidenceThreshold": 0.7,
+    "distanceHysteresis": 0.24
+  },
+  "commands": [
+    ".\\tools\\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf -Policy TrustedPersonalDevices"
+  ],
+  "expected": [
+    "NoFileIngress: SUCCESS",
+    "Recovery: SUCCESS",
+    "RESULT: SUCCESS"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "rkworkspace.ma017.pilot.config.v0.1",
+  "scenario": "UwbSimulation",
+  "owner": "WindowsOwner",
+  "target": "NearestAblage",
+  "policy": "TrustedPersonalDevices",
+  "pdfMode": "ClosedPdfCapsule",
+  "proximity": {
+    "mode": "UwbSimulation",
+    "uwbProfile": "MovingCloser",
+    "confidenceThreshold": 0.7,
+    "distanceHysteresis": 0.24
+  },
+  "commands": [
+    ".\\tools\\run-ma017-uwb-dongle-pilot.ps1 -SmokeTest"
+  ],
+  "expected": [
+    "MA017UwbDonglePilot: SUCCESS",
+    "DirectionDistanceConfidence: OK",
+    "RESULT: SUCCESS"
+  ]
+}
