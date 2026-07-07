@@ -211,7 +211,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _lastTargetCenter = _targetCenter;
         _session.Carry((float)movement.X, (float)movement.Y);
 
-        if (IsNearLens(_targetCenter, 245))
+        if (IsOverPortalEdge(_targetCenter, ThingBounds()))
+        {
+            _session.ApproachLens(1f);
+        }
+        else if (IsNearLens(_targetCenter, 245))
         {
             _session.ApproachLens((float)LensNearness(_targetCenter));
         }
@@ -233,7 +237,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _isHolding = false;
         ReleaseMouseCapture();
         Cursor = WCursors.Arrow;
-        if (IsNearLens(_targetCenter, 228))
+        if (IsOverPortalEdge(_targetCenter, ThingBounds()) || IsNearLens(_targetCenter, 228))
         {
             _session.ApproachLens(1f);
             _session.PlaceIntoLens();
@@ -254,10 +258,10 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
-        DrawGlassPortalEdge(drawingContext);
         DrawLens(drawingContext);
         DrawThing(drawingContext);
         DrawPortalDirectionGuide(drawingContext);
+        DrawGlassPortalEdge(drawingContext);
         DrawMicroStatus(drawingContext);
     }
 
@@ -270,7 +274,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             (_session.Approach * 0.34),
             0.0,
             1.0);
-        var opacity = 0.30 + (active * 0.64);
+        var opacity = 0.48 + (active * 0.48);
 
         drawingContext.PushOpacity(opacity);
 
@@ -280,9 +284,9 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             EndPoint = new WPoint(1.0, 0.5)
         };
         body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(30, 255, 255, 255), 0.18));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(82, 238, 250, 255), 0.52));
-        body.GradientStops.Add(new GradientStop(WColor.FromArgb(30, 255, 255, 255), 0.84));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(42, 255, 255, 255), 0.16));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(112, 245, 252, 255), 0.52));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(46, 255, 255, 255), 0.84));
         body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
         drawingContext.DrawRoundedRectangle(body, null, edge, 18, 18);
 
@@ -297,7 +301,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
         drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.42, edge.Y + 18, edge.Width * 0.26, edge.Height - 36), 10, 10);
 
-        var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(118 + (active * 92)), 255, 255, 255)), 1.8 + (active * 0.9));
+        var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(156 + (active * 72)), 255, 255, 255)), 2.4 + (active * 1.2));
         drawingContext.DrawLine(edgeLine, new WPoint(edge.X + edge.Width * 0.55, edge.Y + 22), new WPoint(edge.X + edge.Width * 0.55, edge.Bottom - 22));
 
         var glassRim = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(72 + (active * 76)), 255, 255, 255)), 1.0);
@@ -311,7 +315,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         };
         drawingContext.DrawEllipse(depth, null, _lensCenter, edge.Width * (0.38 + active * 0.20), edge.Height * (0.24 + active * 0.08));
 
-        if (_session.PickProgress > 0.10f || _session.State == NativeGlassOverlayCarryState.InTransit)
+        if (_session.PickProgress > 0.10f || _session.State == NativeGlassOverlayCarryState.InTransit || opacity > 0.40)
         {
             DrawPortalLabel(drawingContext, edge, active);
         }
@@ -722,9 +726,16 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private WRect PortalEdgeBounds()
     {
-        var width = 112.0;
-        var height = Math.Max(430.0, ActualHeight * 0.86);
-        return new WRect(ActualWidth - width + 2, (ActualHeight - height) / 2, width, height);
+        var width = 156.0;
+        var height = Math.Max(480.0, ActualHeight * 0.94);
+        return new WRect(ActualWidth - width + 4, (ActualHeight - height) / 2, width, height);
+    }
+
+    private bool IsOverPortalEdge(WPoint point, WRect thingBounds)
+    {
+        var edge = PortalEdgeBounds();
+        var hit = new WRect(edge.X - 92, edge.Y - 18, edge.Width + 116, edge.Height + 36);
+        return hit.Contains(point) || hit.IntersectsWith(thingBounds);
     }
 
     private static ImageSource? TryLoadPdfPreview(string pdfPath)
