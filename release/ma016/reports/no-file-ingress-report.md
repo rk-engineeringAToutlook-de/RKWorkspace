@@ -1,6 +1,6 @@
 # MA016 No File Ingress Report
 
-Generated: 2026-07-07T00:07:44Z
+Generated: 2026-07-07T00:18:41Z
 
 ## Scope
 
@@ -16,6 +16,7 @@ This report covers the Windows PDF lifecycle pilot for Closed PDF Capsule and Op
 - Capsule cache is MemoryOnly: PASS
 - OpenFrame cache is MemoryOnly: PASS
 - Unauthorized capsule open is denied: PASS
+- Unauthorized OpenFrame input is denied and audited: PASS
 - Expired capsule is recovered by owner: PASS
 
 ## Commands

@@ -17,6 +17,7 @@ Er prueft nicht nur technische Ausfuehrung, sondern sichtbare Vertrauenssignale:
 - CloseFrame Return als Standard.
 - KeepCapsule als verbotene Policy-Variante.
 - Recovery fuer Closed PDF Capsule und Open PDF Frame.
+- Unauthorized OpenFrame Input als Denial/Audit-Signal.
 - keine sichtbare verbotene Sprache.
 
 ## Standardbefehl

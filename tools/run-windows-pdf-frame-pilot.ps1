@@ -155,6 +155,7 @@ if ($SmokeTest) {
         'OpenFrameCache: MemoryOnly',
         'AuditEventsPresent: SUCCESS',
         'UnauthorizedCapsuleOpen: DENIED',
+        'UnauthorizedOpenFrameInput: DENIED',
         'ExpiredCapsule: RECOVERED_BY_OWNER',
         'RESULT: SUCCESS'
     )

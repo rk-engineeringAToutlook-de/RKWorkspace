@@ -16,6 +16,7 @@ Ein Profil buendelt:
 - SecurityConfiguration
 - LeaseTimeout
 - Development-/Simulationserlaubnis
+- PDF-Lifecycle-Freigaben fuer Capsule, OpenFrame und KeepCapsule
 
 ## Profile
 
@@ -29,6 +30,9 @@ Ein Profil buendelt:
 - SecureSessionRequired
 - Revocable
 - kurzer LeaseTimeout
+- Capsule erlaubt
+- OpenFrame erlaubt
+- KeepCapsule verboten
 
 ### OfficeDefault
 
@@ -37,6 +41,9 @@ Ein Profil buendelt:
 - CopyOut nur mit Bestaetigung
 - Audit optional
 - SecureSession preferred/required im aktuellen Modell
+- Capsule erlaubt
+- OpenFrame erlaubt
+- KeepCapsule verboten
 
 ### DevelopmentLab
 
@@ -44,6 +51,9 @@ Ein Profil buendelt:
 - Simulated Proximity erlaubt
 - DevelopmentInsecure erlaubt mit Warnung
 - NoFileIngress bleibt testbar
+- Capsule erlaubt
+- OpenFrame erlaubt
+- KeepCapsule erlaubt, aber nur fuer Labortests
 
 ### PresentationOnly
 
@@ -51,6 +61,9 @@ Ein Profil buendelt:
 - NoInput
 - NoExtract
 - NoOwnershipTransfer
+- Capsule erlaubt
+- OpenFrame verboten
+- KeepCapsule verboten
 
 ### TrustedPersonalDevices
 
@@ -59,6 +72,26 @@ Ein Profil buendelt:
 - CopyOut optional mit Bestaetigung
 - Haptics erlaubt
 - OwnershipTransfer spaeter nur nach Policy/Bestaetigung
+- Capsule erlaubt
+- OpenFrame erlaubt
+- KeepCapsule erlaubt
+
+## PDF Lifecycle Policy Fields
+
+Im technischen Modell heisst das Kapsel-Feld `AllowFrameCapsule`.
+Ab MA017 ist `AllowCapsule` als Alias vorhanden, damit die Owner-nahe Sprache eindeutig bleibt.
+
+| Feld | Bedeutung |
+| --- | --- |
+| `AllowCapsule` / `AllowFrameCapsule` | Kapsel darf erzeugt und geoeffnet werden. |
+| `AllowOpenFrame` | Geoeffnete PDF darf als OpenFrame sichtbar werden. |
+| `AllowKeepCapsule` | Kapsel darf nach CloseFrame auf der Gastablage bleiben. |
+
+Security-Regel:
+
+- CriticalInfrastructure: Capsule und OpenFrame ja, KeepCapsule nein.
+- TrustedPersonalDevices: Capsule, OpenFrame und KeepCapsule ja, aber NoFileIngress bleibt Pflicht.
+- PresentationOnly: Capsule ja, OpenFrame und KeepCapsule nein.
 
 ## Tool
 

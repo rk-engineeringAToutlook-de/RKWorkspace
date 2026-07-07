@@ -61,6 +61,7 @@ Invoke-Checked 'Closed PDF Critical Security' {
     'NoFileIngress: SUCCESS',
     'SecurityModeWarning: NONE',
     'CrossDeviceAuditEventsPresent: SUCCESS',
+    'UnauthorizedOpenFrameInput: DENIED',
     'RESULT: SUCCESS'
 )
 
@@ -73,6 +74,7 @@ Invoke-Checked 'Open PDF Critical Security' {
     'NoFileIngress: SUCCESS',
     'SecurityModeWarning: NONE',
     'CrossDeviceAuditEventsPresent: SUCCESS',
+    'UnauthorizedOpenFrameInput: DENIED',
     'RESULT: SUCCESS'
 )
 

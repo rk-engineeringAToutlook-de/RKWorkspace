@@ -109,6 +109,7 @@ static void PrintLifecycleArea(WindowsPdfFramePilotResult result)
     Console.WriteLine($"CapsuleCache: {result.Frame.CachePolicy.Scope}");
     Console.WriteLine($"OpenFrameCache: {result.Frame.CachePolicy.Scope}");
     Console.WriteLine($"UnauthorizedCapsuleOpen: {(result.Lifecycle.UnauthorizedOpenDenied ? "DENIED" : "ALLOWED")}");
+    Console.WriteLine($"UnauthorizedOpenFrameInput: {(result.UnauthorizedOpenFrameInputDenied ? "DENIED" : "ALLOWED")}");
     Console.WriteLine($"ExpiredCapsule: {(result.Lifecycle.ExpiredCapsuleRecovered ? "RECOVERED_BY_OWNER" : "FAILED")}");
     Console.WriteLine($"AuditEvents: {string.Join(" -> ", result.Lifecycle.AuditEvents)}");
 
@@ -278,6 +279,7 @@ static void PrintSmokeChecks(WindowsPdfFramePilotResult result)
     Console.WriteLine($"OpenFrameCache: {result.Frame.CachePolicy.Scope}");
     Console.WriteLine($"AuditEventsPresent: {(result.Lifecycle.RequiredAuditEventsPresent ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"UnauthorizedCapsuleOpen: {(result.Lifecycle.UnauthorizedOpenDenied ? "DENIED" : "ALLOWED")}");
+    Console.WriteLine($"UnauthorizedOpenFrameInput: {(result.UnauthorizedOpenFrameInputDenied ? "DENIED" : "ALLOWED")}");
     Console.WriteLine($"ExpiredCapsule: {(result.Lifecycle.ExpiredCapsuleRecovered ? "RECOVERED_BY_OWNER" : "FAILED")}");
     Console.WriteLine($"CrossDeviceAuditEventsPresent: {(result.CrossDeviceAuditEventsPresent ? "SUCCESS" : "FAILED")}");
     Console.WriteLine($"SecurityModeWarning: {result.SecurityModeWarning}");
@@ -936,6 +938,38 @@ public sealed record WindowsPdfFramePilotResult(
         CrossDeviceAuditEvents.Contains("GuestRecovered") &&
         (!(Options.UseUwbSim || Options.UseProximityFusion) || CrossDeviceAuditEvents.Contains("UwbSelectedTarget"));
 
+    public bool UnauthorizedOpenFrameInputDenied
+    {
+        get
+        {
+            var audit = new InMemoryRkwpAuditSink();
+            var input = new FrameInputEvent(
+                "input-openframe-unauthorized",
+                Frame.FrameSession.FrameSessionId,
+                Frame.Lease.LeaseId,
+                Frame.Lease.GuestAblageId,
+                Frame.Lease.OwnerAblageId,
+                1,
+                FrameInputType.KeyboardText,
+                null,
+                null,
+                "nicht direkt schreiben",
+                [],
+                null,
+                FramePointerKind.Unknown,
+                DateTimeOffset.UtcNow);
+
+            var validation = FrameInputValidator.Validate(
+                input,
+                Frame.Lease,
+                Frame.FrameSession,
+                FramePolicy.CriticalViewOnly,
+                audit);
+
+            return !validation.Accepted && audit.Contains(RkwpAuditEventType.PolicyDenied);
+        }
+    }
+
     public string SecurityModeWarning =>
         Options.PolicyProfile == RkwpPolicyProfileName.CriticalInfrastructure
             ? "NONE"
@@ -1041,6 +1075,7 @@ public sealed record WindowsPdfFramePilotResult(
         GuestFrameReady &&
         NoFileIngress &&
         Lifecycle.IsSuccessful &&
+        UnauthorizedOpenFrameInputDenied &&
         CrossDeviceAuditEventsPresent &&
         ReturnSuccessful &&
         RecoverySuccessful &&

@@ -34,6 +34,7 @@ $required = @(
     'CapsuleCache: MemoryOnly',
     'OpenFrameCache: MemoryOnly',
     'UnauthorizedCapsuleOpen: DENIED',
+    'UnauthorizedOpenFrameInput: DENIED',
     'ExpiredCapsule: RECOVERED_BY_OWNER',
     'RESULT: SUCCESS'
 )
@@ -68,6 +69,7 @@ This report covers the Windows PDF lifecycle pilot for Closed PDF Capsule and Op
 - Capsule cache is MemoryOnly: PASS
 - OpenFrame cache is MemoryOnly: PASS
 - Unauthorized capsule open is denied: PASS
+- Unauthorized OpenFrame input is denied and audited: PASS
 - Expired capsule is recovered by owner: PASS
 
 ## Commands

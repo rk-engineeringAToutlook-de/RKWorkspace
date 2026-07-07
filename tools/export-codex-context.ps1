@@ -172,6 +172,7 @@ $files = @(
     'Docs\Readiness\MA017_PlatformStatus.md',
     'Docs\Readiness\MA017_StartCheckpoint.md',
     'Docs\Readiness\MA017_WindowsPilotCheckpoint.md',
+    'Docs\Readiness\MA017_SecurityPolicyPilotCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
@@ -180,6 +181,7 @@ $files = @(
     'Docs\Testing\MA016_RealTestRunbook.md',
     'Docs\Testing\MA017_OwnerTestGoal.md',
     'Docs\Testing\MA017_WindowsPdfStandardTest.md',
+    'Docs\Security\MA017_PdfLifecycleThreatModel.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -413,6 +415,7 @@ $files = @(
     'tools\check-ma016-final-status.ps1',
     'tools\run-ma017-smoke.ps1',
     'tools\run-ma017-windows-pdf-pilot.ps1',
+    'tools\run-ma017-security-policy-pilot.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -451,6 +454,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -ClosedPdf
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf
 .\tools\run-ma017-windows-pdf-pilot.ps1 -SmokeTest
+.\tools\run-ma017-security-policy-pilot.ps1 -SmokeTest
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest

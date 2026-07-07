@@ -1,6 +1,6 @@
 # MA016 Pilot Lab Report
 
-Generated: 2026-07-07T00:08:50Z
+Generated: 2026-07-07T00:17:53Z
 
 ## Config
 
@@ -27,15 +27,15 @@ NativeDeviceExecution: PENDING_EXTERNAL_MACOS_XCODE
   Wiederherzustellende Projekte werden ermittelt...
   Alle Projekte sind für die Wiederherstellung auf dem neuesten Stand.
   RKWorkspace.Protocol -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Protocol\RKWorkspace.Protocol\bin\Debug\net8.0\RKWorkspace.Protocol.dll
-  RKWorkspace.Frame.Pdf -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Frame\RKWorkspace.Frame.Pdf\bin\Debug\net8.0\RKWorkspace.Frame.Pdf.dll
   RKWorkspace.Shell -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Shell\RKWorkspace.Shell\bin\Debug\net8.0\RKWorkspace.Shell.dll
+  RKWorkspace.Frame.Pdf -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Frame\RKWorkspace.Frame.Pdf\bin\Debug\net8.0\RKWorkspace.Frame.Pdf.dll
   RKWorkspace.WindowsPdfFramePilot -> E:\HiDrive\users\RK Workspace\RKWorkspace\src\Tools\RKWorkspace.WindowsPdfFramePilot\bin\Debug\net8.0\RKWorkspace.WindowsPdfFramePilot.dll
 
 Der Buildvorgang wurde erfolgreich ausgeführt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:01.07
+Verstrichene Zeit 00:00:00.94
 RK Workspace Windows PDF Frame Pilot
 ------------------------------------
 Modus: Smoke-Test
@@ -80,6 +80,7 @@ OpenFrameNoFileIngress: SUCCESS
 CapsuleCache: MemoryOnly
 OpenFrameCache: MemoryOnly
 UnauthorizedCapsuleOpen: DENIED
+UnauthorizedOpenFrameInput: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 AuditEvents: ClosedPdfPicked -> CapsuleCreated -> CapsuleOpened -> CloseReturnsEvaluated -> PdfReturned -> PdfRecovered
 
@@ -157,6 +158,7 @@ CapsuleCache: MemoryOnly
 OpenFrameCache: MemoryOnly
 AuditEventsPresent: SUCCESS
 UnauthorizedCapsuleOpen: DENIED
+UnauthorizedOpenFrameInput: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 CrossDeviceAuditEventsPresent: SUCCESS
 SecurityModeWarning: NON_PRODUCTION_SECURITY

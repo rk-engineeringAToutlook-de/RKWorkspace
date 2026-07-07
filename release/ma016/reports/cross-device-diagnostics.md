@@ -1,6 +1,6 @@
 # MA016 Cross-Device Diagnostics
 
-Generated: 2026-07-07T00:07:51Z
+Generated: 2026-07-07T00:16:59Z
 
 ## Monitor
 
@@ -26,7 +26,7 @@ Der Buildvorgang wurde erfolgreich ausgeführt.
     0 Warnung(en)
     0 Fehler
 
-Verstrichene Zeit 00:00:00.94
+Verstrichene Zeit 00:00:01.10
 RK Workspace Windows PDF Frame Pilot
 ------------------------------------
 Modus: Smoke-Test
@@ -71,6 +71,7 @@ OpenFrameNoFileIngress: SUCCESS
 CapsuleCache: MemoryOnly
 OpenFrameCache: MemoryOnly
 UnauthorizedCapsuleOpen: DENIED
+UnauthorizedOpenFrameInput: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 AuditEvents: ClosedPdfPicked -> CapsuleCreated -> CapsuleOpened -> CloseReturnsEvaluated -> PdfReturned -> PdfRecovered
 
@@ -148,6 +149,7 @@ CapsuleCache: MemoryOnly
 OpenFrameCache: MemoryOnly
 AuditEventsPresent: SUCCESS
 UnauthorizedCapsuleOpen: DENIED
+UnauthorizedOpenFrameInput: DENIED
 ExpiredCapsule: RECOVERED_BY_OWNER
 CrossDeviceAuditEventsPresent: SUCCESS
 SecurityModeWarning: NON_PRODUCTION_SECURITY

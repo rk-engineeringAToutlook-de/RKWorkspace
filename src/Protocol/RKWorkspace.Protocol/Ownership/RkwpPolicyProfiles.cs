@@ -33,6 +33,8 @@ public sealed record RkwpPolicyProfile(
 {
     public bool FrameOnlyDefault => Ownership.DefaultMode == OwnershipMode.FrameOnly;
 
+    public bool AllowCapsule => AllowFrameCapsule;
+
     public bool NoFileIngress => Ownership.NoFileIngress && !Extraction.FileIngressAllowed;
 
     public bool OwnershipTransferAllowed => Ownership.OwnershipTransferAllowed;
