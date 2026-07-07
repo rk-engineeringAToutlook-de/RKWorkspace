@@ -12,6 +12,9 @@ final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate {
     private var frameWindows: [String: GuestFrameWindowController] = [:]
 
     static func main() {
+        setbuf(stdout, nil)
+        setbuf(stderr, nil)
+        RkwpTrace.log("main start args=\(CommandLine.arguments.dropFirst().joined(separator: " "))")
         SmokeTestRunner.runAndExitIfRequested(arguments: CommandLine.arguments)
 
         let app = NSApplication.shared
@@ -27,6 +30,9 @@ final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate {
         self.model = model
         model.onPortalPulse = { [weak self] edge in
             self?.glassOverlay.pulse(edge: edge)
+        }
+        model.onPortalError = { [weak self] edge in
+            self?.glassOverlay.errorPulse(edge: edge)
         }
         model.onPortalChanged = { [weak self] isVisible, edge in
             isVisible ? self?.glassOverlay.show(edge: edge) : self?.glassOverlay.hide()
@@ -48,9 +54,11 @@ final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate {
     private func openFrameWindow(_ lease: GuestFrameLease) {
         let key = lease.windowKey
         guard frameWindows[key] == nil else {
+            RkwpTrace.log("window skip existing key=\(key)")
             return
         }
 
+        RkwpTrace.log("window open key=\(key) display=\(lease.displayName) size=\(Int(lease.documentSize.width))x\(Int(lease.documentSize.height))")
         let controller = GuestFrameWindowController(
             lease: lease,
             cascadeIndex: frameWindows.count,
@@ -113,6 +121,7 @@ final class GuestFrameWindowController: NSObject, NSWindowDelegate {
             return
         }
 
+        RkwpTrace.log("window close key=\(lease.windowKey)")
         self.lease = nil
         window?.contentView = nil
         onClose(lease)
@@ -254,6 +263,7 @@ final class FrameGuestModel: ObservableObject {
     @Published var hasError = false
 
     var onPortalPulse: ((GuestPortalEdge) -> Void)?
+    var onPortalError: ((GuestPortalEdge) -> Void)?
     var onPortalChanged: ((Bool, GuestPortalEdge) -> Void)?
     var onFrameReady: ((GuestFrameLease) -> Void)?
     var onAutoReturnFrame: ((GuestFrameLease) -> Void)?
@@ -261,6 +271,7 @@ final class FrameGuestModel: ObservableObject {
     private var sessionId = ""
     private var activeFrameSessionIds = Set<String>()
     private var recentFrameKeys: [String: Date] = [:]
+    private var pendingTransferVisual = false
     private var autoReturnDelaySeconds: Double?
     private var exitAfterReturn = false
     private var portalEdge: GuestPortalEdge = .left
@@ -297,6 +308,7 @@ final class FrameGuestModel: ObservableObject {
 
         exitAfterReturn = args.contains("--exit-after-return") ||
             environment["RKWS_EXIT_AFTER_RETURN"] == "1"
+        RkwpTrace.log("apply host=\(host) port=\(portText) wait=\(args.contains("--wait-for-placement") || args.contains("--watch-for-frame")) autoOpen=\(args.contains("--auto-open")) edge=\(portalEdge.rawValue)")
 
         if args.contains("--local-frame") {
             showLocalVerificationFrame()
@@ -349,6 +361,7 @@ final class FrameGuestModel: ObservableObject {
             } catch {
                 hasError = true
                 status = "nicht verfuegbar: \(error.localizedDescription)"
+                onPortalError?(portalEdge)
                 onPortalChanged?(false, portalEdge)
             }
         }
@@ -358,6 +371,7 @@ final class FrameGuestModel: ObservableObject {
         hasError = false
         status = "hoert im Hintergrund auf PDF-Leases"
         onPortalChanged?(false, portalEdge)
+        RkwpTrace.log("wait start host=\(host) port=\(portText)")
         Task {
             let port = UInt16(portText) ?? 57120
             let client = RkwpDevLanClient(host: host, port: port)
@@ -374,6 +388,7 @@ final class FrameGuestModel: ObservableObject {
                             payload: capabilities(waitForPlacement: true)))
                         sessionId = hello.sessionId
                         print("AblageHello: OK")
+                        RkwpTrace.log("hello ok session=\(sessionId)")
 
                         _ = try await client.request(RkwpMessage(
                             messageType: "AblageCapabilities",
@@ -382,6 +397,7 @@ final class FrameGuestModel: ObservableObject {
                             sessionId: sessionId,
                             payload: capabilities(waitForPlacement: true)))
                         print("AblageCapabilities: OK")
+                        RkwpTrace.log("caps ok session=\(sessionId)")
                         handshakeComplete = true
                     }
 
@@ -391,6 +407,11 @@ final class FrameGuestModel: ObservableObject {
                         targetAblageId: "ablage-windows-owner",
                         sessionId: sessionId,
                         payload: frameRequest(waitForPlacement: true)))
+                    let frameKey = Self.frameWindowKey(from: frame.payload, fallback: frame.payload["frameSessionId"] ?? "")
+                    RkwpTrace.log("frame response ready=\(frame.payload["placementReady"] ?? "nil") renderable=\(Self.hasRenderableFrame(frame.payload)) key=\(frameKey) name=\(frame.payload["displayName"] ?? "") pdfChars=\(frame.payload["pdfBase64"]?.count ?? 0)")
+                    if frame.payload["placementReady"] == "true" || Self.hasTransferIntent(frame.payload) {
+                        pendingTransferVisual = true
+                    }
 
                     if frame.payload["placementReady"] == "false" || !Self.hasRenderableFrame(frame.payload) {
                         hasError = false
@@ -403,6 +424,7 @@ final class FrameGuestModel: ObservableObject {
                     }
 
                     if shouldSkipFramePayload(frame.payload) {
+                        RkwpTrace.log("frame skip duplicate key=\(frameKey)")
                         status = "Frame bereits offen, hoere weiter"
                         try? await Task.sleep(nanoseconds: 650_000_000)
                         continue
@@ -410,9 +432,11 @@ final class FrameGuestModel: ObservableObject {
 
                     let lease = try makeFrameLease(frame, localVerification: false)
                     if registerFrameLease(lease) {
+                        RkwpTrace.log("frame registered key=\(lease.windowKey)")
                         onPortalPulse?(portalEdge)
                         onFrameReady?(lease)
                         scheduleAutoReturnIfNeeded(for: lease)
+                        pendingTransferVisual = false
                         status = "Frame geoeffnet, hoere weiter"
                     } else {
                         status = "Frame bereits offen, hoere weiter"
@@ -422,6 +446,11 @@ final class FrameGuestModel: ObservableObject {
                 } catch {
                     hasError = true
                     status = "warte auf Windows-Ablage: \(error.localizedDescription)"
+                    RkwpTrace.log("wait error \(error.localizedDescription)")
+                    if pendingTransferVisual {
+                        onPortalError?(portalEdge)
+                        pendingTransferVisual = false
+                    }
                     handshakeComplete = false
                     onPortalChanged?(false, portalEdge)
                     try? await Task.sleep(nanoseconds: 1_000_000_000)
@@ -466,6 +495,7 @@ final class FrameGuestModel: ObservableObject {
             } catch {
                 hasError = true
                 status = "nicht verfuegbar: \(error.localizedDescription)"
+                onPortalError?(portalEdge)
             }
         }
     }
@@ -493,6 +523,7 @@ final class FrameGuestModel: ObservableObject {
 
         if let pdfData = Self.decodePdfPayload(frame.payload),
            let document = PDFDocument(data: pdfData) {
+            RkwpTrace.log("pdf lease decoded key=\(windowKey) bytes=\(pdfData.count)")
             status = "FrameView: OK"
             print("FrameView: OK")
             print("FrameFormat: \(frame.payload["frameFormat"] ?? "TransientPdfBytes")")
@@ -521,6 +552,7 @@ final class FrameGuestModel: ObservableObject {
         if let pngBase64 = frame.payload["pngBase64"],
            let pngData = Data(base64Encoded: pngBase64),
            let nsImage = NSImage(data: pngData) {
+            RkwpTrace.log("png frame decoded key=\(windowKey) bytes=\(pngData.count)")
             status = "FrameView: OK"
             print("FrameView: OK")
             print("LegacyPngFrame: OK")
@@ -823,6 +855,11 @@ enum GuestPortalPlacement {
     }
 }
 
+enum GuestPortalTone {
+    case normal
+    case error
+}
+
 @MainActor
 final class GuestGlassOverlayController {
     private let state = GuestGlassOverlayState()
@@ -830,7 +867,7 @@ final class GuestGlassOverlayController {
     private var fadeTask: Task<Void, Never>?
 
     func pulse(edge: GuestPortalEdge) {
-        show(edge: edge)
+        show(edge: edge, tone: .normal)
         fadeTask?.cancel()
         fadeTask = Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds: 650_000_000)
@@ -838,9 +875,23 @@ final class GuestGlassOverlayController {
         }
     }
 
+    func errorPulse(edge: GuestPortalEdge) {
+        show(edge: edge, tone: .error)
+        fadeTask?.cancel()
+        fadeTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 900_000_000)
+            self?.hide()
+        }
+    }
+
     func show(edge: GuestPortalEdge) {
+        show(edge: edge, tone: .normal)
+    }
+
+    private func show(edge: GuestPortalEdge, tone: GuestPortalTone) {
         fadeTask?.cancel()
         state.edge = edge
+        state.tone = tone
         if window == nil {
             createWindow()
         }
@@ -896,6 +947,7 @@ final class GuestGlassOverlayState: ObservableObject {
     @Published var isMounted = false
     @Published var openness = 0.0
     @Published var edge: GuestPortalEdge = .left
+    @Published var tone: GuestPortalTone = .normal
 }
 
 struct GuestGlassOverlayView: View {
@@ -906,7 +958,7 @@ struct GuestGlassOverlayView: View {
             ZStack {
                 if state.isMounted {
                     let frame = edgeFrame(in: geometry.size)
-                    GuestProgressiveGlassEdge(edge: state.edge, openness: state.openness)
+                    GuestProgressiveGlassEdge(edge: state.edge, openness: state.openness, tone: state.tone)
                         .frame(width: frame.width, height: frame.height)
                         .position(x: frame.midX, y: frame.midY)
                         .opacity(state.openness)
@@ -935,6 +987,7 @@ struct GuestGlassOverlayView: View {
 struct GuestProgressiveGlassEdge: View {
     let edge: GuestPortalEdge
     let openness: Double
+    let tone: GuestPortalTone
 
     var body: some View {
         GeometryReader { geometry in
@@ -1009,23 +1062,31 @@ struct GuestProgressiveGlassEdge: View {
     private var bodyGradient: LinearGradient {
         switch edge {
         case .right:
-            return LinearGradient(colors: [.clear, .white.opacity(0.05), .cyan.opacity(0.12), .white.opacity(0.25)], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [.clear, .white.opacity(0.05), accent.opacity(0.16), highlight.opacity(0.28)], startPoint: .leading, endPoint: .trailing)
         case .left:
-            return LinearGradient(colors: [.white.opacity(0.25), .cyan.opacity(0.12), .white.opacity(0.05), .clear], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [highlight.opacity(0.28), accent.opacity(0.16), .white.opacity(0.05), .clear], startPoint: .leading, endPoint: .trailing)
         case .top:
-            return LinearGradient(colors: [.white.opacity(0.25), .cyan.opacity(0.12), .white.opacity(0.05), .clear], startPoint: .top, endPoint: .bottom)
+            return LinearGradient(colors: [highlight.opacity(0.28), accent.opacity(0.16), .white.opacity(0.05), .clear], startPoint: .top, endPoint: .bottom)
         case .bottom:
-            return LinearGradient(colors: [.clear, .white.opacity(0.05), .cyan.opacity(0.12), .white.opacity(0.25)], startPoint: .top, endPoint: .bottom)
+            return LinearGradient(colors: [.clear, .white.opacity(0.05), accent.opacity(0.16), highlight.opacity(0.28)], startPoint: .top, endPoint: .bottom)
         }
     }
 
     private var lightGradient: LinearGradient {
         switch edge {
         case .left, .right:
-            return LinearGradient(colors: [.clear, .white.opacity(0.35), .cyan.opacity(0.22), .white.opacity(0.35), .clear], startPoint: .top, endPoint: .bottom)
+            return LinearGradient(colors: [.clear, highlight.opacity(0.38), accent.opacity(0.30), highlight.opacity(0.38), .clear], startPoint: .top, endPoint: .bottom)
         case .top, .bottom:
-            return LinearGradient(colors: [.clear, .white.opacity(0.35), .cyan.opacity(0.22), .white.opacity(0.35), .clear], startPoint: .leading, endPoint: .trailing)
+            return LinearGradient(colors: [.clear, highlight.opacity(0.38), accent.opacity(0.30), highlight.opacity(0.38), .clear], startPoint: .leading, endPoint: .trailing)
         }
+    }
+
+    private var accent: Color {
+        tone == .error ? .red : .cyan
+    }
+
+    private var highlight: Color {
+        tone == .error ? Color(red: 1.0, green: 0.22, blue: 0.18) : .white
     }
 
     @ViewBuilder
@@ -1036,13 +1097,13 @@ struct GuestProgressiveGlassEdge: View {
                 .fill(lightGradient)
                 .frame(width: 8 + (12 * open), height: min(size.height * (0.24 + (0.16 * open)), 360))
                 .position(x: edge == .left ? 14 + (8 * open) : size.width - 14 - (8 * open), y: size.height / 2)
-                .shadow(color: Color.cyan.opacity(0.18 + (0.22 * open)), radius: 10 + (20 * open))
+                .shadow(color: accent.opacity(0.18 + (0.26 * open)), radius: 10 + (20 * open))
         } else {
             Capsule()
                 .fill(lightGradient)
                 .frame(width: min(size.width * (0.24 + (0.16 * open)), 420), height: 8 + (12 * open))
                 .position(x: size.width / 2, y: edge == .top ? 14 + (8 * open) : size.height - 14 - (8 * open))
-                .shadow(color: Color.cyan.opacity(0.18 + (0.22 * open)), radius: 10 + (20 * open))
+                .shadow(color: accent.opacity(0.18 + (0.26 * open)), radius: 10 + (20 * open))
         }
     }
 
@@ -1152,6 +1213,10 @@ final class RkwpDevLanClient: @unchecked Sendable {
     }
 
     private func openSocket() throws -> Int32 {
+        if let fd = try openNumericIPv4SocketIfPossible() {
+            return fd
+        }
+
         var hints = addrinfo(
             ai_flags: 0,
             ai_family: AF_UNSPEC,
@@ -1164,6 +1229,7 @@ final class RkwpDevLanClient: @unchecked Sendable {
         var result: UnsafeMutablePointer<addrinfo>?
         let lookup = getaddrinfo(host, String(port), &hints, &result)
         guard lookup == 0, let result else {
+            RkwpTrace.log("socket getaddrinfo failed host=\(host) port=\(port) code=\(lookup)")
             throw FrameGuestError.connectionFailed
         }
         defer {
@@ -1179,11 +1245,50 @@ final class RkwpDevLanClient: @unchecked Sendable {
                 if Darwin.connect(fd, info.ai_addr, info.ai_addrlen) == 0 {
                     return fd
                 }
+                RkwpTrace.log("socket connect candidate failed host=\(host) port=\(port) errno=\(errno)")
                 Darwin.close(fd)
             }
             candidate = info.ai_next
         }
 
+        throw FrameGuestError.connectionFailed
+    }
+
+    private func openNumericIPv4SocketIfPossible() throws -> Int32? {
+        var address = in_addr()
+        let parsed = host.withCString {
+            inet_pton(AF_INET, $0, &address)
+        }
+        guard parsed == 1 else {
+            return nil
+        }
+
+        let fd = Darwin.socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+        guard fd >= 0 else {
+            RkwpTrace.log("socket ipv4 create failed host=\(host) port=\(port) errno=\(errno)")
+            throw FrameGuestError.connectionFailed
+        }
+
+        setTimeouts(on: fd)
+
+        var socketAddress = sockaddr_in()
+        socketAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+        socketAddress.sin_family = sa_family_t(AF_INET)
+        socketAddress.sin_port = port.bigEndian
+        socketAddress.sin_addr = address
+
+        let connected = withUnsafePointer(to: &socketAddress) { pointer in
+            pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                Darwin.connect(fd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+            }
+        }
+
+        if connected == 0 {
+            return fd
+        }
+
+        RkwpTrace.log("socket ipv4 connect failed host=\(host) port=\(port) errno=\(errno)")
+        Darwin.close(fd)
         throw FrameGuestError.connectionFailed
     }
 
@@ -1238,6 +1343,35 @@ enum RkwpDateCoding {
         throw DecodingError.dataCorruptedError(
             in: container,
             debugDescription: "Invalid RKWP timestamp: \(value)")
+    }
+}
+
+enum RkwpTrace {
+    static func log(_ message: String) {
+        let directory = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Logs/RKWorkspace", isDirectory: true)
+        let url = directory.appendingPathComponent("mac-pdf-frame-guest.trace.log")
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        let line = "\(timestamp) \(message)\n"
+        guard let data = line.data(using: .utf8) else {
+            return
+        }
+
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        if !FileManager.default.fileExists(atPath: url.path) {
+            FileManager.default.createFile(atPath: url.path, contents: nil)
+        }
+
+        guard let handle = try? FileHandle(forWritingTo: url) else {
+            return
+        }
+
+        defer {
+            try? handle.close()
+        }
+
+        _ = try? handle.seekToEnd()
+        _ = try? handle.write(contentsOf: data)
     }
 }
 
