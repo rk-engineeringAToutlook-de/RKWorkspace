@@ -1,7 +1,7 @@
 # RKWS-0470 Glossary
 
 Dokument-ID: RKWS-GLOSSARY-001  
-Version: 1.22.0
+Version: 1.23.0
 Status: Accepted  
 Datum: 2026-07-07
 
@@ -49,6 +49,10 @@ Dieses Glossar definiert bevorzugte Begriffe fuer RK Workspace und ordnet deutsc
 | No File Ingress | Kein Datei-Eintritt | Sicherheitsregel, dass eine Gastablage keine Originaldatei, keinen Originalpfad und keine kopierten PDF-Bytes bekommt. | Nicht mit fehlender Darstellung verwechseln. |
 | Owner Lock | Owner-Sperre | Zustand, in dem das Original beim Owner sichtbar gebunden bleibt, solange eine Gastablage einen Frame oder eine Kapsel nutzt. | Kein Besitzwechsel und kein Schreibverlust. |
 | Original-Owned Frame | Original-Owned Frame | Modell, bei dem das Original beim Owner bleibt und eine Gastablage nur eine kontrollierte Frame-Darstellung bekommt. | Nicht als Datei kopieren, senden oder synchronisieren beschreiben. |
+| Pilot Acceptance Criteria | Pilot-Abnahmekriterien | Muss-/Darf-/No-Go-Regeln fuer einen kontrollierten Pilotpfad. | Keine Produktfreigabe und kein Marketing-Versprechen. |
+| Failure Taxonomy | Fehlertaxonomie | Klassifikation von Pilotfehlern nach Ursache und Reaktion, z. B. No File Ingress, Ownership Confusion oder Recovery Failure. | Nicht als Bugliste ohne Entscheidungspfad verwenden. |
+| Go/No-Go Decision | Go/No-Go Entscheidung | Owner- und Engineering-Entscheidung, ob ein Pilot kontrolliert weiterlaufen darf. | Kein automatischer Release-Status. |
+| Readiness Review | Readiness Review | Pruefung, ob Gates, Handoffs, Reports und Grenzen fuer einen Pilotpfad ausreichend dokumentiert sind. | Nicht mit finaler Produktabnahme verwechseln. |
 | CarryLease | Trage-Lease | Zeitlich und fachlich begrenzte Berechtigung, ein Ding auf einer Gastablage als Frame zu erleben. | Kein Besitzwechsel. |
 | FrameSession | Frame-Session | Sichtbare, kontrollierte Darstellung eines digitalen Dings auf einer Gastablage. | Keine lokale Originaldatei. |
 | FrameOnly | Nur-Frame-Modus | Gast sieht Anzeige, Scroll und Zoom, aber keine Originaldatei und keinen stillen CopyOut. | Nicht mit "Datei liegt dort" verwechseln. |

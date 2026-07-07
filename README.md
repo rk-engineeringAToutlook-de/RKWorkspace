@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.69.0
+Version: 2.70.0
 Status: Accepted  
 Datum: 2026-07-07
 
@@ -36,6 +36,22 @@ Wichtige Start- und Pruefbefehle:
 ~~~
 
 Vor Handover oder Owner-Test werden Build- und lokale Pilot-Artefakte mit `tools/clean-build-artifacts.ps1` und `tools/clean-pilot-artifacts.ps1` bereinigt.
+
+## MA017 Pilotstand
+
+MA017 fuehrt den Real-Pilot weiter aus: Windows bleibt Owner-Referenz, Closed PDF Capsule und Open PDF Frame sind Standardtests, macOS und iOS/iPadOS sind als Handoff-Pakete vorbereitet, UWB/Dongle-Proximity ist simuliert und die Owner-Bewertung ist ueber Human-Experience-Dokumente gefuehrt.
+
+Wichtige MA017-Gates:
+
+~~~powershell
+.\tools\run-ma017-smoke.ps1 -SkipHeavy
+.\tools\run-ma017-security-checkpoint.ps1 -SmokeTest
+.\tools\run-ma017-packaging-checkpoint.ps1 -SmokeTest -AllowDirty
+.\tools\run-ma017-performance-stability.ps1 -SmokeTest
+.\tools\run-ma017-documentation-checkpoint.ps1 -SmokeTest
+~~~
+
+MA017 ist nur ein kontrollierter Pilotpfad. Native macOS- und iOS-Ausfuehrung bleibt an die finalen Xcode-Handoffs gebunden; Produktivbetrieb, Discovery, Cloud-Sync und Ownership Transfer sind weiterhin ausgeschlossen.
 
 - Human Experience Specification HX-000 definiert die oberste Wahrnehmung: `Ich betrete meinen Arbeitsraum`.
 - Der Nordstern ist als Projektorientierung dokumentiert und folgt HX-000 als verbindlichem Kompass fuer Architektur, UX und Implementierung.

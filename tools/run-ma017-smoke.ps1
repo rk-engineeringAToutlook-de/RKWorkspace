@@ -43,6 +43,7 @@ Invoke-RkwsSmoke 'MA017 Human Experience Check' { & (Join-Path $root 'tools\run-
 Invoke-RkwsSmoke 'MA017 Security Checkpoint' { & (Join-Path $root 'tools\run-ma017-security-checkpoint.ps1') -SmokeTest -SkipRegression }
 Invoke-RkwsSmoke 'MA017 Packaging Checkpoint' { & (Join-Path $root 'tools\run-ma017-packaging-checkpoint.ps1') -SmokeTest -AllowDirty }
 Invoke-RkwsSmoke 'MA017 Performance/Stability Checkpoint' { & (Join-Path $root 'tools\run-ma017-performance-stability.ps1') -SmokeTest -SkipMeasurements }
+Invoke-RkwsSmoke 'MA017 Documentation Checkpoint' { & (Join-Path $root 'tools\run-ma017-documentation-checkpoint.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Context Export' { & (Join-Path $root 'tools\export-codex-context.ps1') }
 Invoke-RkwsSmoke 'MA017 Context Secret Scan' { & (Join-Path $root 'tools\test-context-pack-no-secrets.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Final Status Guard Smoke' { & (Join-Path $root 'tools\check-ma016-final-status.ps1') -SmokeTest }

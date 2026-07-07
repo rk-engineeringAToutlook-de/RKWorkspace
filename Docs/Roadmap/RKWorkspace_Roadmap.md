@@ -93,3 +93,17 @@ MA017 startet nach dem finalen MA016-Commit. Der Fokus wechselt von Readiness zu
 6. Owner-Testfragen entscheiden ueber Human Experience.
 
 MA017 darf keine MA016-Sicherheitsregel abschwaechen. No File Ingress, Owner Lock, Return und Recovery bleiben Gate-Kriterien.
+
+## MA017 Documentation Checkpoint
+
+MA017 ergaenzt nach Security, Packaging und Performance den formalen Dokumentationspfad:
+
+1. Readiness Review.
+2. Go/No-Go Entscheidungsvorlage.
+3. Real Test Runbook.
+4. Pilot Acceptance Criteria.
+5. Failure Taxonomy.
+6. Next Actions.
+7. README-, Roadmap- und Glossar-Abgleich.
+
+Der naechste Schritt ist MA017 final verification: Final Verification Plan, Full Verification, Completion Report und Owner-Go/No-Go.
