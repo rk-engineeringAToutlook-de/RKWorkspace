@@ -33,3 +33,15 @@ release/ma016/frame-cache/
 release/ma016/config/*.local.json
 release/ma016/config/*.secret.json
 release/ma016/config/*identity*.json
+
+# MA017 local pilot state
+release/ma017/logs/*
+!release/ma017/logs/.gitkeep
+release/ma017/context/*
+!release/ma017/context/.gitkeep
+release/ma017/packages/*.zip
+release/ma017/temp/
+release/ma017/frame-cache/
+release/ma017/config/*.local.json
+release/ma017/config/*.secret.json
+release/ma017/config/*identity*.json

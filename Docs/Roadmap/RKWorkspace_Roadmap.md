@@ -80,3 +80,16 @@ MA016 ist kein Sync- oder Dateiuebertragungs-Sprint. Die Originalablage bleibt E
 ## Pilot-Lab Go/No-Go
 
 Nach MA016 muss ein Go/No-Go fuer groessere Tests vorliegen. Go ist nur moeglich, wenn Windows lokal Closed PDF und Open PDF testen kann, No File Ingress gruen ist, macOS/iOS-Handoffs vollstaendig sind, Proximity/UWB simulierbar ist und das Context Pack alle Runbooks, Schemas, Configs und Reports enthaelt.
+
+## MA017 Real Pilot Execution
+
+MA017 startet nach dem finalen MA016-Commit. Der Fokus wechselt von Readiness zu echter Ausfuehrung:
+
+1. Windows bleibt Owner-Referenz.
+2. macOS wird erster nativer Guest-Pilot.
+3. iPad/iPhone folgen als mobile Ablagen.
+4. Closed PDF Capsule und Open PDF Frame werden Standardtests.
+5. Proximity entscheidet genau eine naechste Ablage.
+6. Owner-Testfragen entscheiden ueber Human Experience.
+
+MA017 darf keine MA016-Sicherheitsregel abschwaechen. No File Ingress, Owner Lock, Return und Recovery bleiben Gate-Kriterien.
