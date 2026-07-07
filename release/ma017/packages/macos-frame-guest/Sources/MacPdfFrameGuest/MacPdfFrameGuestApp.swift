@@ -5,6 +5,10 @@ import SwiftUI
 struct MacPdfFrameGuestApp: App {
     @StateObject private var model = FrameGuestModel()
 
+    init() {
+        SmokeTestRunner.runAndExitIfRequested(arguments: CommandLine.arguments)
+    }
+
     var body: some Scene {
         WindowGroup("RK Workspace Ablage") {
             ContentView(model: model)
@@ -33,7 +37,7 @@ struct ContentView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Ablage macOS")
+                Text(model.visibleName)
                     .font(.system(size: 28, weight: .semibold))
                 Text(model.visibleState)
                     .foregroundStyle(.secondary)
@@ -42,7 +46,7 @@ struct ContentView: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text("Original bleibt bei Windows")
                     .font(.callout)
-                Text("FrameOnly / MemoryOnly")
+                Text("nur Frame / nur im Speicher")
                     .foregroundStyle(.secondary)
                     .font(.caption)
             }
@@ -51,7 +55,7 @@ struct ContentView: View {
 
     private var connection: some View {
         HStack(spacing: 10) {
-            TextField("Windows-IP", text: $model.host)
+            TextField("Windows", text: $model.host)
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 180)
             TextField("Port", text: $model.portText)
@@ -110,8 +114,9 @@ struct ContentView: View {
 
 @MainActor
 final class FrameGuestModel: ObservableObject {
-    @Published var host = "127.0.0.1"
-    @Published var portText = "57120"
+    @Published var visibleName: String
+    @Published var host: String
+    @Published var portText: String
     @Published var status = "macOSGuestAblage: STARTED"
     @Published var visibleState = "bereit fuer Frame"
     @Published var noFileIngressText = "GuestHasPdfFile: NO"
@@ -121,9 +126,24 @@ final class FrameGuestModel: ObservableObject {
     var frameSessionId = ""
     private var leaseId = ""
     private var sessionId = ""
+    private var usesLocalVerificationFrame = false
+    private var autoReturnDelaySeconds: Double?
+    private var exitAfterReturn = false
+    private let configuration: MacGuestConfiguration
+
+    init(configuration: MacGuestConfiguration = .loadDefault()) {
+        self.configuration = configuration
+        visibleName = configuration.visibleName
+        host = configuration.ownerDiscovery.windowsOwnerHost
+        portText = String(configuration.ownerDiscovery.devTransportPort)
+        noFileIngressText = configuration.framePolicy.memoryOnlyCache
+            ? "GuestHasPdfFile: NO | FrameCache: MemoryOnly"
+            : "GuestHasPdfFile: NO"
+    }
 
     func applyCommandLine() {
         let args = CommandLine.arguments
+        let environment = ProcessInfo.processInfo.environment
         for index in args.indices {
             if args[index] == "--host", index + 1 < args.count {
                 host = args[index + 1]
@@ -132,6 +152,23 @@ final class FrameGuestModel: ObservableObject {
             if args[index] == "--port", index + 1 < args.count {
                 portText = args[index + 1]
             }
+
+            if args[index] == "--auto-return-after", index + 1 < args.count {
+                autoReturnDelaySeconds = Double(args[index + 1])
+            }
+        }
+
+        if let returnDelay = environment["RKWS_AUTO_RETURN_AFTER"] {
+            autoReturnDelaySeconds = Double(returnDelay)
+        }
+
+        exitAfterReturn = args.contains("--exit-after-return") ||
+            environment["RKWS_EXIT_AFTER_RETURN"] == "1"
+
+        if args.contains("--local-frame") {
+            showLocalVerificationFrame()
+        } else if args.contains("--auto-open") {
+            openFrame()
         }
     }
 
@@ -153,6 +190,7 @@ final class FrameGuestModel: ObservableObject {
                         "noFileIngress": "true"
                     ]))
                 sessionId = hello.sessionId
+                print("AblageHello: OK")
 
                 _ = try await client.request(RkwpMessage(
                     messageType: "AblageCapabilities",
@@ -164,6 +202,7 @@ final class FrameGuestModel: ObservableObject {
                         "noFileIngress": "true",
                         "memoryOnlyFrame": "true"
                     ]))
+                print("AblageCapabilities: OK")
 
                 let frame = try await client.request(RkwpMessage(
                     messageType: "FrameUpdate",
@@ -175,21 +214,7 @@ final class FrameGuestModel: ObservableObject {
                         "noFileIngress": "true"
                     ]))
 
-                guard frame.payload["containsOriginalFileBytes"] == "false",
-                      frame.payload["hasOriginalPath"] == "false",
-                      frame.payload["noFileIngress"] == "true",
-                      let pngBase64 = frame.payload["pngBase64"],
-                      let pngData = Data(base64Encoded: pngBase64),
-                      let nsImage = NSImage(data: pngData) else {
-                    throw FrameGuestError.invalidFrame
-                }
-
-                frameSessionId = frame.payload["frameSessionId"] ?? ""
-                leaseId = frame.payload["leaseId"] ?? ""
-                image = nsImage
-                visibleState = "liegt hier im Frame"
-                status = "FrameView: OK"
-                noFileIngressText = "GuestHasPdfFile: NO | GuestHasOriginalPath: NO | OriginalFileBytes: NO | NoFileIngress: SUCCESS"
+                try presentFrame(frame, localVerification: false)
             } catch {
                 hasError = true
                 status = "nicht verfuegbar: \(error.localizedDescription)"
@@ -204,6 +229,11 @@ final class FrameGuestModel: ObservableObject {
 
         hasError = false
         status = "gebe zurueck..."
+        if usesLocalVerificationFrame {
+            finishReturn()
+            return
+        }
+
         Task {
             do {
                 let port = UInt16(portText) ?? 57120
@@ -219,16 +249,78 @@ final class FrameGuestModel: ObservableObject {
                         "guestKeptOriginalFile": "false",
                         "noFileIngress": "true"
                     ]))
+                print("CarryLeaseReturn: OK")
 
-                image = nil
-                frameSessionId = ""
-                leaseId = ""
-                visibleState = "zurueckgegeben"
-                status = "Return: SUCCESS"
+                finishReturn()
             } catch {
                 hasError = true
                 status = "nicht verfuegbar: \(error.localizedDescription)"
             }
+        }
+    }
+
+    private func showLocalVerificationFrame() {
+        do {
+            try presentFrame(LocalVerificationFrame.message(), localVerification: true)
+        } catch {
+            hasError = true
+            status = "nicht verfuegbar: \(error.localizedDescription)"
+        }
+    }
+
+    private func presentFrame(_ frame: RkwpMessage, localVerification: Bool) throws {
+        try NoFileIngressVerifier.validatePayload(frame.payload)
+        guard let pngBase64 = frame.payload["pngBase64"],
+              let pngData = Data(base64Encoded: pngBase64),
+              let nsImage = NSImage(data: pngData) else {
+            throw FrameGuestError.invalidFrame
+        }
+
+        frameSessionId = frame.payload["frameSessionId"] ?? ""
+        leaseId = frame.payload["leaseId"] ?? ""
+        sessionId = frame.sessionId
+        image = nsImage
+        usesLocalVerificationFrame = localVerification
+        visibleState = frame.payload["visibleStatus"] ?? "liegt hier im Frame"
+        status = "FrameView: OK"
+        noFileIngressText = "GuestHasPdfFile: NO | GuestHasOriginalPath: NO | OriginalFileBytes: NO | NoFileIngress: SUCCESS"
+        print("FrameView: OK")
+        print("GuestHasPdfFile: NO")
+        print("GuestHasOriginalPath: NO")
+        print("OriginalFileBytes: NO")
+        print("FrameCache: MemoryOnly")
+        print("NoFileIngress: SUCCESS")
+        scheduleAutoReturnIfNeeded()
+    }
+
+    private func clearFrame() {
+        image = nil
+        frameSessionId = ""
+        leaseId = ""
+        usesLocalVerificationFrame = false
+    }
+
+    private func finishReturn() {
+        clearFrame()
+        visibleState = "zurueckgegeben"
+        status = "Return: SUCCESS"
+        print("Return: SUCCESS")
+
+        if exitAfterReturn {
+            NSApplication.shared.terminate(nil)
+        }
+    }
+
+    private func scheduleAutoReturnIfNeeded() {
+        guard let delay = autoReturnDelaySeconds else {
+            return
+        }
+
+        autoReturnDelaySeconds = nil
+        let nanoseconds = UInt64(max(0.1, delay) * 1_000_000_000)
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: nanoseconds)
+            returnFrame()
         }
     }
 }
@@ -245,7 +337,7 @@ struct RkwpMessage: Codable {
     var headers: [String: String] = [:]
 }
 
-final class RkwpDevLanClient {
+final class RkwpDevLanClient: @unchecked Sendable {
     private let host: String
     private let port: UInt16
 
@@ -345,6 +437,8 @@ enum FrameGuestError: LocalizedError {
     case readFailed
     case emptyResponse
     case invalidFrame
+    case forbiddenPayloadKey(String)
+    case repositoryRootNotFound
 
     var errorDescription: String? {
         switch self {
@@ -360,6 +454,10 @@ enum FrameGuestError: LocalizedError {
             return "keine Antwort"
         case .invalidFrame:
             return "Frame ist ungueltig"
+        case .forbiddenPayloadKey(let key):
+            return "Frame enthaelt unzulaessiges Feld: \(key)"
+        case .repositoryRootNotFound:
+            return "Repository nicht gefunden"
         }
     }
 }
