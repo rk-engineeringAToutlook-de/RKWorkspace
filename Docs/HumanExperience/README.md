@@ -105,6 +105,22 @@ MA016 ergaenzt die Human-Experience-Fuehrung um Owner-Testdokumente fuer den ers
 
 Diese Dokumente trennen bewusst Owner-Wahrnehmung von technischer Diagnose.
 
+## MA017 Pilot Experience Tests
+
+MA017 erweitert diese Fuehrung um pruefbare Owner-Testunterlagen fuer den naechsten realen Pilotblock:
+
+- `MA017_ClosedPdfExperienceTest.md`
+- `MA017_OpenPdfExperienceTest.md`
+- `MA017_FrameCapsuleExperienceTest.md`
+- `MA017_macOSGuestExperienceTest.md`
+- `MA017_iPadHapticExperienceTest.md`
+- `MA017_ProximityUwbExperienceTest.md`
+- `MA017_GlassEdgeFeelingCriteria.md`
+- `MA017_OriginalOwnedFrameTrustCriteria.md`
+- `MA017_OwnerInterviewGuide.md`
+
+Der Checkpoint liegt in `Docs/Readiness/MA017_HumanExperienceCheckpoint.md` und wird durch `tools/run-ma017-hx-check.ps1` validiert.
+
 ## Entwicklungsregel
 
 Codex darf kuenftig keine UX-Komponente entwickeln, ohne dass sie genau einer Human Experience zugeordnet ist.
