@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RKWorkspace.Shell\RKWorkspace.Shell.csproj" />
+    <ProjectReference Include="..\..\Frame\RKWorkspace.Frame.Pdf\RKWorkspace.Frame.Pdf.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\RKWorkspace.Shell.LivingLens.Gpu.Windows\Shaders\LivingLensMaterial.hlsl" Link="Shaders\NativeGlassMaterial.hlsl" />

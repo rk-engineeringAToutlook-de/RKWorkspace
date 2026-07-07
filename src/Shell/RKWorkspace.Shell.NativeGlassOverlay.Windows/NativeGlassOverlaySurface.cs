@@ -1,10 +1,12 @@
 using RKWorkspace.Shell;
+using RKWorkspace.Frame.Pdf;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using WColor = System.Windows.Media.Color;
 using WCursors = System.Windows.Input.Cursors;
 using WPen = System.Windows.Media.Pen;
@@ -20,6 +22,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private readonly string _sourcePdfPath;
     private readonly string _sourceFileName;
     private readonly string _placementSignalPath;
+    private readonly ImageSource? _pdfPreview;
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private readonly NativeGlassOverlaySession _session = new();
     private WPoint _thingCenter;
@@ -42,6 +45,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _sourcePdfPath = options.SourcePdfPath;
         _sourceFileName = Path.GetFileName(options.SourcePdfPath);
         _placementSignalPath = options.PlacementSignalPath;
+        _pdfPreview = TryLoadPdfPreview(options.SourcePdfPath);
         Focusable = true;
         Cursor = WCursors.Arrow;
         Width = screenBounds.Width;
@@ -250,9 +254,128 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
+        DrawGlassPortalEdge(drawingContext);
         DrawLens(drawingContext);
         DrawThing(drawingContext);
+        DrawPortalDirectionGuide(drawingContext);
         DrawMicroStatus(drawingContext);
+    }
+
+    private void DrawGlassPortalEdge(DrawingContext drawingContext)
+    {
+        var edge = PortalEdgeBounds();
+        var active = Math.Clamp(
+            (_session.LensEmergence * 0.62) +
+            (_session.PickProgress * 0.24) +
+            (_session.Approach * 0.34),
+            0.0,
+            1.0);
+        var opacity = 0.30 + (active * 0.64);
+
+        drawingContext.PushOpacity(opacity);
+
+        var body = new LinearGradientBrush
+        {
+            StartPoint = new WPoint(0.0, 0.5),
+            EndPoint = new WPoint(1.0, 0.5)
+        };
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(30, 255, 255, 255), 0.18));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(82, 238, 250, 255), 0.52));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(30, 255, 255, 255), 0.84));
+        body.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
+        drawingContext.DrawRoundedRectangle(body, null, edge, 18, 18);
+
+        var innerLight = new LinearGradientBrush
+        {
+            StartPoint = new WPoint(0.0, 0.0),
+            EndPoint = new WPoint(0.0, 1.0)
+        };
+        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.00));
+        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(64 + (active * 64)), 255, 255, 255), 0.34));
+        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb((byte)(46 + (active * 54)), 210, 240, 255), 0.58));
+        innerLight.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 1.00));
+        drawingContext.DrawRoundedRectangle(innerLight, null, new WRect(edge.X + edge.Width * 0.42, edge.Y + 18, edge.Width * 0.26, edge.Height - 36), 10, 10);
+
+        var edgeLine = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(118 + (active * 92)), 255, 255, 255)), 1.8 + (active * 0.9));
+        drawingContext.DrawLine(edgeLine, new WPoint(edge.X + edge.Width * 0.55, edge.Y + 22), new WPoint(edge.X + edge.Width * 0.55, edge.Bottom - 22));
+
+        var glassRim = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(72 + (active * 76)), 255, 255, 255)), 1.0);
+        drawingContext.DrawRoundedRectangle(null, glassRim, edge, 18, 18);
+
+        var depth = new RadialGradientBrush(WColor.FromArgb((byte)(20 + (active * 58)), 0, 0, 0), WColor.FromArgb(0, 0, 0, 0))
+        {
+            RadiusX = 0.64,
+            RadiusY = 0.80,
+            Opacity = 0.58
+        };
+        drawingContext.DrawEllipse(depth, null, _lensCenter, edge.Width * (0.38 + active * 0.20), edge.Height * (0.24 + active * 0.08));
+
+        if (_session.PickProgress > 0.10f || _session.State == NativeGlassOverlayCarryState.InTransit)
+        {
+            DrawPortalLabel(drawingContext, edge, active);
+        }
+
+        drawingContext.Pop();
+    }
+
+    private void DrawPortalLabel(DrawingContext drawingContext, WRect edge, double active)
+    {
+        var text = new FormattedText(
+            "Ablage macOS",
+            CultureInfo.CurrentCulture,
+            System.Windows.FlowDirection.LeftToRight,
+            new Typeface("Segoe UI Semibold"),
+            12,
+            new SolidColorBrush(WColor.FromArgb((byte)(126 + (active * 82)), 255, 255, 255)),
+            VisualTreeHelper.GetDpi(this).PixelsPerDip)
+        {
+            MaxTextWidth = 118,
+            MaxLineCount = 1,
+            Trimming = TextTrimming.CharacterEllipsis
+        };
+
+        drawingContext.PushTransform(new RotateTransform(-90, edge.X + 18, edge.Y + (edge.Height / 2)));
+        drawingContext.DrawText(text, new WPoint(edge.X + 18 - (text.Width / 2), edge.Y + (edge.Height / 2) - (text.Height / 2)));
+        drawingContext.Pop();
+    }
+
+    private void DrawPortalDirectionGuide(DrawingContext drawingContext)
+    {
+        if (!_isHolding || _session.PickProgress <= 0.08f)
+        {
+            return;
+        }
+
+        var active = Math.Clamp((_session.PickProgress * 0.48) + (_session.Approach * 0.52), 0.0, 1.0);
+        var start = new WPoint(_thingCenter.X + (ThingBounds().Width * 0.58), _thingCenter.Y);
+        var end = new WPoint(PortalEdgeBounds().X + 18, _lensCenter.Y);
+        var distance = Distance(start, end);
+        if (distance < 120)
+        {
+            return;
+        }
+
+        var pen = new WPen(new SolidColorBrush(WColor.FromArgb((byte)(34 + active * 74), 236, 250, 255)), 1.0)
+        {
+            DashStyle = new DashStyle(new[] { 7.0, 10.0 }, (_phase * 14.0) % 17.0)
+        };
+        drawingContext.DrawLine(pen, start, end);
+
+        var direction = end - start;
+        direction.Normalize();
+        var normal = new Vector(-direction.Y, direction.X);
+        var tip = end - (direction * 10);
+        var arrow = new StreamGeometry();
+        using (var context = arrow.Open())
+        {
+            context.BeginFigure(tip, true, true);
+            context.LineTo(tip - (direction * 18) + (normal * 7), true, false);
+            context.LineTo(tip - (direction * 18) - (normal * 7), true, false);
+        }
+
+        arrow.Freeze();
+        drawingContext.DrawGeometry(new SolidColorBrush(WColor.FromArgb((byte)(72 + active * 84), 236, 250, 255)), null, arrow);
     }
 
     private void DrawLens(DrawingContext drawingContext)
@@ -358,6 +481,23 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         var border = new WPen(new SolidColorBrush(WColor.FromArgb(156, 96, 106, 112)), 0.9);
         drawingContext.DrawGeometry(fill, border, geometry);
 
+        if (_pdfPreview is not null)
+        {
+            drawingContext.PushClip(geometry);
+            var previewRect = PdfPreviewRect(bounds);
+            drawingContext.DrawImage(_pdfPreview, previewRect);
+            var veil = new LinearGradientBrush
+            {
+                StartPoint = new WPoint(0.0, 0.0),
+                EndPoint = new WPoint(0.0, 1.0),
+                Opacity = 0.18
+            };
+            veil.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
+            veil.GradientStops.Add(new GradientStop(WColor.FromArgb(90, 255, 255, 255), 1.0));
+            drawingContext.DrawRectangle(veil, null, previewRect);
+            drawingContext.Pop();
+        }
+
         var gripOpacity = Math.Clamp(_session.PickProgress * 0.28, 0.0, 0.28);
         if (gripOpacity > 0.02)
         {
@@ -433,8 +573,22 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         };
 
         drawingContext.PushOpacity(opacity);
-        drawingContext.DrawText(text, new WPoint(bounds.X + 18, bounds.Y + (bounds.Height / 2) - (text.Height / 2)));
+        var y = _pdfPreview is null
+            ? bounds.Y + (bounds.Height / 2) - (text.Height / 2)
+            : bounds.Bottom - text.Height - 8;
+        drawingContext.DrawText(text, new WPoint(bounds.X + 10, y));
         drawingContext.Pop();
+    }
+
+    private WRect PdfPreviewRect(WRect bounds)
+    {
+        var margin = Math.Max(7.0, bounds.Width * 0.055);
+        var labelHeight = Math.Min(34.0, bounds.Height * 0.18);
+        return new WRect(
+            bounds.X + margin,
+            bounds.Y + margin,
+            Math.Max(4, bounds.Width - (margin * 2)),
+            Math.Max(4, bounds.Height - (margin * 2) - labelHeight));
     }
 
     private void SignalPlacementReady()
@@ -552,8 +706,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         }
 
         scale = Math.Clamp(scale, 0.08, 1.0);
-        var width = 188.0 * scale;
-        var height = 96.0 * scale;
+        var width = (_pdfPreview is null ? 188.0 : 176.0) * scale;
+        var height = (_pdfPreview is null ? 96.0 : 232.0) * scale;
         return new WRect(_thingCenter.X - (width / 2), _thingCenter.Y - (height / 2), width, height);
     }
 
@@ -564,6 +718,51 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         var width = 270.0 * (0.84 + (emergence * 0.16) + (approach * 0.06));
         var height = 205.0 * (0.84 + (emergence * 0.16) + (approach * 0.04));
         return new WRect(_lensCenter.X - (width / 2), _lensCenter.Y - (height / 2), width, height);
+    }
+
+    private WRect PortalEdgeBounds()
+    {
+        var width = 112.0;
+        var height = Math.Max(430.0, ActualHeight * 0.86);
+        return new WRect(ActualWidth - width + 2, (ActualHeight - height) / 2, width, height);
+    }
+
+    private static ImageSource? TryLoadPdfPreview(string pdfPath)
+    {
+        try
+        {
+            if (!File.Exists(pdfPath))
+            {
+                return null;
+            }
+
+            var document = PdfFrameDocument.Load(pdfPath);
+            var renderer = PdfFrameRendererFactory.CreateDefault();
+            var result = renderer.Render(new PdfFrameRenderRequest(
+                document,
+                1,
+                new PdfFrameRenderOptions(RequestedWidth: 520),
+                "ablage-windows-owner",
+                document.ThingId));
+
+            if (!result.ContainsPixelPayload || result.PixelData is null || result.FrameFormat != FrameFormat.PngFrame)
+            {
+                return null;
+            }
+
+            using var stream = new MemoryStream(result.PixelData);
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.StreamSource = stream;
+            bitmap.EndInit();
+            bitmap.Freeze();
+            return bitmap;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private Int32Rect DesktopSampleRect(WRect bounds)
