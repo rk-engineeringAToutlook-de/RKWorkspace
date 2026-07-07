@@ -39,6 +39,8 @@ final class DesktopPortalController {
     private var eventMonitors: [Any] = []
     private var preparedFrame: DesktopPortalFrame?
     private var heldApplication: NSRunningApplication?
+    private var pendingHandGesture: DispatchWorkItem?
+    private var pendingHandPoint = NSPoint.zero
     private var settings = DesktopPortalSettings.parse(CommandLine.arguments)
     private let sessionId = "rkwp-macos-desktop-owner-\(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased())"
 
@@ -53,7 +55,8 @@ final class DesktopPortalController {
         installEventMonitors()
 
         print("MacDesktopPortalOwner: READY")
-        print("Gesture: TripleClick")
+        print("Gesture: OptionHold")
+        print("GestureFallback: OptionSpace")
         print("NearestAblage: \(settings.targetName)")
         print("EdgeDirection: \(settings.portalEdge.rawValue)")
         print("OwnerKeepsOriginal: OK")
@@ -75,6 +78,7 @@ final class DesktopPortalController {
     func stop() {
         eventMonitors.forEach { NSEvent.removeMonitor($0) }
         eventMonitors.removeAll()
+        cancelPendingHandGesture()
         frameServer.stop()
     }
 
@@ -175,7 +179,7 @@ final class DesktopPortalController {
     }
 
     private func installEventMonitors() {
-        let mask: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .mouseMoved, .leftMouseDragged]
+        let mask: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .mouseMoved, .leftMouseDragged, .keyDown]
         if let globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: { [weak self] event in
             DispatchQueue.main.async {
                 self?.handle(event)
@@ -194,15 +198,47 @@ final class DesktopPortalController {
 
     private func handle(_ event: NSEvent) {
         switch event.type {
-        case .leftMouseDown where event.clickCount >= 3:
+        case .leftMouseDown where event.modifierFlags.contains(.option):
+            startOptionHold(at: NSEvent.mouseLocation)
+        case .leftMouseDown:
+            cancelPendingHandGesture()
+        case .keyDown where event.modifierFlags.contains(.option) && event.keyCode == 49:
+            cancelPendingHandGesture()
             beginCarry(at: NSEvent.mouseLocation)
         case .mouseMoved, .leftMouseDragged:
             updateCarry(at: NSEvent.mouseLocation)
         case .leftMouseUp:
+            if !state.isCarrying {
+                cancelPendingHandGesture()
+            }
             updateCarry(at: NSEvent.mouseLocation)
         default:
             break
         }
+    }
+
+    private func startOptionHold(at screenPoint: NSPoint) {
+        guard !state.isCarrying else {
+            return
+        }
+
+        cancelPendingHandGesture()
+        pendingHandPoint = screenPoint
+        let item = DispatchWorkItem { [weak self] in
+            guard let self, !self.state.isCarrying else {
+                return
+            }
+
+            self.beginCarry(at: self.pendingHandPoint)
+            self.pendingHandGesture = nil
+        }
+        pendingHandGesture = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.46, execute: item)
+    }
+
+    private func cancelPendingHandGesture() {
+        pendingHandGesture?.cancel()
+        pendingHandGesture = nil
     }
 
     private func beginCarry(at screenPoint: NSPoint) {
@@ -222,7 +258,7 @@ final class DesktopPortalController {
                 edge: settings.portalEdge,
                 targetName: settings.targetName)
             heldApplication?.hide()
-            print("DesktopGesture: TRIPLE_CLICK")
+            print("DesktopGesture: OPTION_HOLD")
             print("PdfObjectResolved: OK")
             print("DigitalHand: OK")
             print("GlassEdgeMode: NearestOnly")
@@ -230,7 +266,7 @@ final class DesktopPortalController {
             print("OwnerKeepsOriginal: OK")
         } catch {
             state.showNotice(error.localizedDescription, at: localPoint(for: screenPoint))
-            print("DesktopGesture: TRIPLE_CLICK")
+            print("DesktopGesture: OPTION_HOLD")
             print("PdfObjectResolved: FAILED")
             print("Reason: \(error.localizedDescription)")
         }
@@ -1233,7 +1269,8 @@ enum DesktopPortalSmokeTest {
 
         print("MacDesktopPortalOwner: STARTED")
         print("DesktopGesture: PREPARED")
-        print("TripleClick: PREPARED")
+        print("OptionHold: PREPARED")
+        print("OptionSpace: PREPARED")
         print("OpenDocumentResolver: PREPARED")
         print("FinderSelectionResolver: PREPARED")
         print("DigitalHand: OK")

@@ -55,7 +55,7 @@ Fuer den Gegenweg Mac -> Windows:
 tools/run-macos-real-pdf-glass-portal-owner.sh --target-host 192.168.163.11
 ~~~
 
-Der Prozess bleibt im Hintergrund. Dreifachklick auf eine geoeffnete PDF oder auf eine PDF-Auswahl im Finder nimmt genau dieses Ding in die Hand, laesst es klein ueber dem Desktop liegen, oeffnet den Glasrand in Richtung der naechsten Ablage und gibt danach nur den PNG-Frame frei. Die Original-PDF bleibt auf macOS.
+Der Prozess bleibt im Hintergrund. `Option` gedrueckt halten und kurz auf eine geoeffnete PDF oder eine PDF-Auswahl im Finder halten nimmt genau dieses Ding in die Hand. Fallback: `Option` + Leertaste, waehrend der Mauszeiger ueber der PDF liegt. Das Ding liegt danach klein ueber dem Desktop, der Glasrand oeffnet sich in Richtung der naechsten Ablage und macOS gibt nur den PNG-Frame frei. Die Original-PDF bleibt auf macOS.
 
 ## Erwartung
 
