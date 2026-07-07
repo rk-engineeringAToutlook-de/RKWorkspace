@@ -1,0 +1,44 @@
+{
+  "profile": "ma017-ios-guest",
+  "visibleName": "Ablage iPad",
+  "platform": "iPadOS",
+  "secondaryPlatform": "iOS",
+  "role": "MobileFrameGuestSurface",
+  "installMode": "XcodeUsb",
+  "ownerDiscovery": {
+    "mode": "manual",
+    "windowsOwnerHost": "WINDOWS_OWNER_IP",
+    "devTransportPort": 57100
+  },
+  "identity": {
+    "store": "app-group-dev-identity",
+    "trustLevel": "DevelopmentTrusted",
+    "pairingState": "Paired"
+  },
+  "framePolicy": {
+    "frameOnly": true,
+    "noFileIngress": true,
+    "memoryOnlyCache": true,
+    "allowCapsule": true,
+    "allowOpenFrame": true,
+    "allowKeepCapsule": false,
+    "returnSupported": true,
+    "recoverySupported": true
+  },
+  "sandbox": {
+    "documentsOriginalPdf": false,
+    "cachesOriginalPdf": false,
+    "tempOriginalPdf": false,
+    "filesAppOriginalPdf": false,
+    "shareSheetOriginalPdf": false
+  },
+  "haptics": {
+    "enabled": true,
+    "capsuleArrived": "softArrival",
+    "capsuleOpened": "softConfirm",
+    "openFrameArrived": "softArrival",
+    "return": "softComplete",
+    "recovery": "softNotice",
+    "denied": "firmButShort"
+  }
+}

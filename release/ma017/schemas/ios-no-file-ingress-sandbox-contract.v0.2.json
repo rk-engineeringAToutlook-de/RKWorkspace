@@ -1,0 +1,30 @@
+{
+  "$schema": "https://rkworkspace.local/schema/ios-no-file-ingress-sandbox-contract-v0.2.json",
+  "contractId": "ios-no-file-ingress-sandbox-contract-v0.2",
+  "platforms": ["iPadOS", "iOS"],
+  "requiredChecks": [
+    "documentsContainsNoOriginalPdf",
+    "cachesContainsNoOriginalPdf",
+    "tmpContainsNoOriginalPdf",
+    "filesAppExportContainsNoOriginalPdf",
+    "shareSheetDoesNotExportOriginalPdf",
+    "appGroupContainsNoOriginalPdf",
+    "frameCacheIsMemoryOnly",
+    "payloadContainsNoOriginalPath",
+    "payloadContainsNoOriginalBytes",
+    "unauthorizedOpenFrameInputDenied"
+  ],
+  "expectedOutput": [
+    "DocumentsOriginalPdf: NO",
+    "CachesOriginalPdf: NO",
+    "TempOriginalPdf: NO",
+    "FilesAppOriginalPdf: NO",
+    "GuestHasPdfFile: NO",
+    "GuestHasOriginalPath: NO",
+    "GuestHasCopiedPdfBytes: NO",
+    "FrameCache: MemoryOnly",
+    "UnauthorizedOpenFrameInput: DENIED",
+    "NoFileIngress: SUCCESS"
+  ],
+  "forbiddenPayloadKeys": ["pdfBytes", "originalBytes", "originalFileBytes", "originalPath", "localPdfPath", "downloadPath", "filePath"]
+}

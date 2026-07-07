@@ -1,0 +1,25 @@
+{
+  "$schema": "https://rkworkspace.local/schema/ios-haptics-contract-v0.2.json",
+  "contractId": "ios-haptics-contract-v0.2",
+  "platforms": ["iPadOS", "iOS"],
+  "scope": "HumanFeedback",
+  "rules": {
+    "subtleOnly": true,
+    "noAlarmPatterns": true,
+    "noTechnicalMeaning": true
+  },
+  "patterns": {
+    "capsuleArrived": "softArrival",
+    "capsuleOpened": "softConfirm",
+    "openFrameArrived": "softArrival",
+    "return": "softComplete",
+    "recovery": "softNotice",
+    "denied": "firmButShort"
+  },
+  "expectedOutput": [
+    "HapticsPrepared: OK",
+    "CapsuleArrivedHaptic: softArrival",
+    "OpenFrameArrivedHaptic: softArrival",
+    "DeniedHaptic: firmButShort"
+  ]
+}

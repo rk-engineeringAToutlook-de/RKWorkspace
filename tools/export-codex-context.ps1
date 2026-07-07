@@ -196,6 +196,16 @@ $files = @(
     'release\ma017\packages\apple-rkwp-swift-bundle\samples\capsule-created.json',
     'release\ma017\packages\apple-rkwp-swift-bundle\samples\openframe-started.json',
     'release\ma017\packages\apple-rkwp-swift-bundle\samples\no-file-ingress-result.json',
+    'release\ma017\handoff\iOS_START_HERE.md',
+    'release\ma017\handoff\iOS_XcodeMinimalAppTask.md',
+    'release\ma017\handoff\iOS_iPad_CHECKPOINT.md',
+    'release\ma017\config\ios-guest.sample.json',
+    'release\ma017\schemas\ios-capsule-contract.v0.2.json',
+    'release\ma017\schemas\ios-openframe-contract.v0.2.json',
+    'release\ma017\schemas\ios-haptics-contract.v0.2.json',
+    'release\ma017\schemas\ios-no-file-ingress-sandbox-contract.v0.2.json',
+    'release\ma017\runbooks\iOS_USBInstallRunbook.md',
+    'release\ma017\runbooks\iOS_iPad_PilotRunbook.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -431,6 +441,7 @@ $files = @(
     'tools\run-ma017-windows-pdf-pilot.ps1',
     'tools\run-ma017-security-policy-pilot.ps1',
     'tools\run-ma017-macos-handoff.ps1',
+    'tools\run-ma017-ios-handoff.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -471,6 +482,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-ma017-windows-pdf-pilot.ps1 -SmokeTest
 .\tools\run-ma017-security-policy-pilot.ps1 -SmokeTest
 .\tools\run-ma017-macos-handoff.ps1 -SmokeTest
+.\tools\run-ma017-ios-handoff.ps1 -SmokeTest
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest
