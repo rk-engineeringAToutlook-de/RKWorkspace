@@ -109,6 +109,14 @@ macOS displays the PNG Frame.
 10. Do not send original PDF path to macOS.
 11. Provide one visible start script for the Owner:
 
+Visual glass edge material must follow:
+
+```text
+release/ma017/handoff/WINDOWS_GLASS_EDGE_PROGRESSIVE_BLUR_GRADIENT.md
+```
+
+The edge must use a progressive blur/fade gradient and must not look like a hard rectangular bar.
+
 ```powershell
 .\tools\run-ma017-real-pdf-glass-portal-live.ps1
 ```
