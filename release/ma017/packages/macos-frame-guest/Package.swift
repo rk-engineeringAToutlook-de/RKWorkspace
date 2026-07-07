@@ -8,10 +8,12 @@ let package = Package(
     ],
     products: [
         .executable(name: "MacPdfFrameGuest", targets: ["MacPdfFrameGuest"]),
-        .executable(name: "MacPdfPortalOwner", targets: ["MacPdfPortalOwner"])
+        .executable(name: "MacPdfPortalOwner", targets: ["MacPdfPortalOwner"]),
+        .executable(name: "MacDesktopPortalOwner", targets: ["MacDesktopPortalOwner"])
     ],
     targets: [
         .executableTarget(name: "MacPdfFrameGuest"),
-        .executableTarget(name: "MacPdfPortalOwner")
+        .executableTarget(name: "MacPdfPortalOwner"),
+        .executableTarget(name: "MacDesktopPortalOwner")
     ]
 )

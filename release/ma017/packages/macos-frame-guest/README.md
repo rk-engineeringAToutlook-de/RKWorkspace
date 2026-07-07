@@ -47,7 +47,7 @@ Fuer den sichtbaren Windows-Glasrand-Livefluss wartet macOS schon vor dem Ablege
 swift run MacPdfFrameGuest --host WINDOWS_IP --port 57120 --wait-for-placement
 ~~~
 
-## macOS als Owner starten
+## macOS Desktop-Owner starten
 
 Fuer den Gegenweg Mac -> Windows:
 
@@ -55,7 +55,7 @@ Fuer den Gegenweg Mac -> Windows:
 tools/run-macos-real-pdf-glass-portal-owner.sh --target-host 192.168.163.11
 ~~~
 
-Das Fenster laedt eine echte PDF, nimmt sie per langem Halten in die Hand, oeffnet den Glasrand und gibt danach nur den PNG-Frame frei. Die Original-PDF bleibt auf macOS.
+Der Prozess bleibt im Hintergrund. Dreifachklick auf eine geoeffnete PDF oder auf eine PDF-Auswahl im Finder nimmt genau dieses Ding in die Hand, laesst es klein ueber dem Desktop liegen, oeffnet den Glasrand in Richtung der naechsten Ablage und gibt danach nur den PNG-Frame frei. Die Original-PDF bleibt auf macOS.
 
 ## Erwartung
 
