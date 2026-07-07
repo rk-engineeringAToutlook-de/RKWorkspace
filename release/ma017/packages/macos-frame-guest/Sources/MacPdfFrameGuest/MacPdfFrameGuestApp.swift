@@ -572,7 +572,7 @@ final class FrameGuestModel: ObservableObject {
                 sessionId: frame.sessionId,
                 displayName: displayName,
                 status: "FrameView: OK",
-                policyText: "Owner: Windows | PDF: MemoryOnly | Ablage: NO | Text: OK",
+                policyText: "Owner: Windows | PDF: MemoryOnly | Ablage: NO | Text/Copy: OK",
                 document: document,
                 image: nil,
                 documentSize: Self.documentDisplaySize(document),
@@ -721,6 +721,10 @@ final class FrameGuestModel: ObservableObject {
             "guestMayPersistPdf": "false",
             "guestMayExportPdf": "false",
             "allowTextSelection": "true",
+            "allowTextCopy": "true",
+            "allowClipboardReadFromFrame": "true",
+            "allowClipboardWriteToGuest": "true",
+            "allowTextEditingShortcuts": "true",
             "waitForPlacement": waitForPlacement ? "true" : "false"
         ]
     }
@@ -736,6 +740,10 @@ final class FrameGuestModel: ObservableObject {
             "guestMayPersistPdf": "false",
             "guestMayExportPdf": "false",
             "allowTextSelection": "true",
+            "allowTextCopy": "true",
+            "allowClipboardReadFromFrame": "true",
+            "allowClipboardWriteToGuest": "true",
+            "allowTextEditingShortcuts": "true",
             "waitForPlacement": waitForPlacement ? "true" : "false"
         ]
     }

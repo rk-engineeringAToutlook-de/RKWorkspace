@@ -231,8 +231,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             _session.TransitRemainingMilliseconds <= 0 &&
             _session.State is NativeGlassOverlayCarryState.Closing or NativeGlassOverlayCarryState.Closed or NativeGlassOverlayCarryState.PlacedRemote)
         {
-            SignalPlacementReady();
-            _placementSignalWritten = true;
+            _placementSignalWritten = SignalPlacementReady();
             _pendingRemotePlacement = false;
         }
 
@@ -375,10 +374,14 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             _diagnostics.Set("Drop", $"auf Glaskante abgelegt -> {_nearestAblage.TargetDisplayName}");
             if (_options.InstantPlacementSignal)
             {
-                SignalPlacementReady();
-                _placementSignalWritten = true;
+                _placementSignalWritten = SignalPlacementReady();
                 _pendingRemotePlacement = false;
-                _diagnostics.Set("Signal", "sofort geschrieben");
+                if (_placementSignalWritten)
+                {
+                    _session.CompleteRemotePlacement();
+                    _diagnostics.Set("Signal", "sofort geschrieben");
+                    _diagnostics.Set("Glaskante", "Transfer abgeschlossen - blendet aus");
+                }
             }
             else
             {
@@ -415,7 +418,6 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         base.OnRender(drawingContext);
         UpdatePortalGeometry();
         DrawThing(drawingContext);
-        DrawPortalDirectionGuide(drawingContext);
         DrawGlassPortalEdge(drawingContext);
         DrawMicroStatus(drawingContext);
         DrawDiagnostics(drawingContext);
@@ -466,6 +468,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
         DrawGlassThroat(drawingContext, edge, direction, active);
         DrawPhysicalGlassEdge(drawingContext, edge, direction, active);
+        DrawGlassBevelDepth(drawingContext, edge, direction, active);
         DrawInnerGlassCatchlight(drawingContext, edge, direction);
         DrawGlassErrorPulse(drawingContext, edge, direction);
 
@@ -532,18 +535,55 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         switch (direction)
         {
             case AblageDirection.Left:
-                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Top, 2.0, edge.Height));
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Top, 5.0, edge.Height));
                 break;
             case AblageDirection.Up:
-                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Top, edge.Width, 2.0));
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Top, edge.Width, 5.0));
                 break;
             case AblageDirection.Down:
-                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Bottom - 2.0, edge.Width, 2.0));
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Left, edge.Bottom - 5.0, edge.Width, 5.0));
                 break;
             default:
-                drawingContext.DrawRectangle(fill, null, new WRect(edge.Right - 2.0, edge.Top, 2.0, edge.Height));
+                drawingContext.DrawRectangle(fill, null, new WRect(edge.Right - 5.0, edge.Top, 5.0, edge.Height));
                 break;
         }
+    }
+
+    private void DrawGlassBevelDepth(DrawingContext drawingContext, WRect edge, AblageDirection direction, double active)
+    {
+        var strength = Math.Clamp(0.72 + (active * 0.12), 0.72, 0.84);
+        var bright = EdgeAxisGradient(direction,
+            WColor.FromArgb(0, 255, 255, 255),
+            WColor.FromArgb(10, 255, 255, 255),
+            WColor.FromArgb(34, 232, 244, 250),
+            WColor.FromArgb(92, 255, 255, 255));
+        bright.Opacity = strength;
+        drawingContext.DrawRectangle(bright, null, edge);
+
+        var shadow = EdgeAxisGradient(direction,
+            WColor.FromArgb(0, 0, 0, 0),
+            WColor.FromArgb(0, 0, 0, 0),
+            WColor.FromArgb(14, 20, 30, 36),
+            WColor.FromArgb(28, 4, 8, 12));
+        shadow.Opacity = 0.42;
+        drawingContext.DrawRectangle(shadow, null, edge);
+
+        var highlight = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 255, 255, 255),
+            WColor.FromArgb(74, 255, 255, 255),
+            WColor.FromArgb(18, 220, 232, 240),
+            WColor.FromArgb(66, 255, 255, 255),
+            WColor.FromArgb(0, 255, 255, 255));
+        highlight.Opacity = 0.48;
+        if (direction is AblageDirection.Left or AblageDirection.Right)
+        {
+            var x = direction == AblageDirection.Right ? edge.Right - 18.0 : edge.Left + 18.0;
+            drawingContext.DrawRoundedRectangle(highlight, null, new WRect(x - 2.2, edge.Top + 18.0, 4.4, edge.Height - 36.0), 2.2, 2.2);
+            return;
+        }
+
+        var y = direction == AblageDirection.Down ? edge.Bottom - 18.0 : edge.Top + 18.0;
+        drawingContext.DrawRoundedRectangle(highlight, null, new WRect(edge.Left + 18.0, y - 2.2, edge.Width - 36.0, 4.4), 2.2, 2.2);
     }
 
     private void DrawInnerGlassCatchlight(DrawingContext drawingContext, WRect edge, AblageDirection direction)
@@ -942,67 +982,39 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private void DrawWarpedThingTexture(DrawingContext drawingContext, BitmapSource texture, WRect bounds)
     {
         var warp = PortalWarpAmount();
+        var dest = WholeObjectPortalRect(bounds, warp);
+        drawingContext.DrawImage(texture, dest);
+    }
+
+    private WRect WholeObjectPortalRect(WRect bounds, double warp)
+    {
         if (warp <= 0.015)
         {
-            drawingContext.DrawImage(texture, bounds);
-            return;
+            return bounds;
         }
 
-        var direction = PortalEdgeDirection();
         var throat = LensThroatPoint();
-        const int slices = 34;
-        if (direction is AblageDirection.Left or AblageDirection.Right)
-        {
-            for (var index = 0; index < slices; index++)
-            {
-                var start = index / (double)slices;
-                var end = (index + 1) / (double)slices;
-                var sourceX = (int)Math.Round(texture.PixelWidth * start);
-                var sourceRight = (int)Math.Round(texture.PixelWidth * end);
-                var sourceWidth = Math.Max(1, sourceRight - sourceX);
-                var crop = new CroppedBitmap(texture, new Int32Rect(sourceX, 0, sourceWidth, texture.PixelHeight));
-                var x0 = bounds.X + (bounds.Width * start);
-                var x1 = bounds.X + (bounds.Width * end);
-                var pullWeight = direction == AblageDirection.Right ? end : 1.0 - start;
-                var local = warp * Math.Pow(Math.Clamp(pullWeight, 0.0, 1.0), 1.55);
-                var center = new WPoint((x0 + x1) / 2.0, bounds.Y + (bounds.Height / 2.0));
-                var pulledCenter = Interpolate(center, throat, local * 0.88);
-                var destWidth = Math.Max(0.7, (x1 - x0) * (1.0 - (local * 0.72)));
-                var destHeight = Math.Max(1.0, bounds.Height * (1.0 - (local * 0.24)));
-                var dest = new WRect(
-                    pulledCenter.X - (destWidth / 2.0),
-                    pulledCenter.Y - (destHeight / 2.0),
-                    destWidth,
-                    destHeight);
-                drawingContext.DrawImage(crop, dest);
-            }
+        var center = new WPoint(bounds.X + (bounds.Width / 2.0), bounds.Y + (bounds.Height / 2.0));
+        var pulledCenter = Interpolate(center, throat, warp * 0.58);
+        var scale = Math.Clamp(1.0 - (warp * 0.46), 0.20, 1.0);
+        var axisCompression = 1.0 - (warp * 0.16);
 
-            return;
+        var width = bounds.Width * scale;
+        var height = bounds.Height * scale;
+        if (PortalEdgeDirection() is AblageDirection.Left or AblageDirection.Right)
+        {
+            width *= axisCompression;
+        }
+        else
+        {
+            height *= axisCompression;
         }
 
-        for (var index = 0; index < slices; index++)
-        {
-            var start = index / (double)slices;
-            var end = (index + 1) / (double)slices;
-            var sourceY = (int)Math.Round(texture.PixelHeight * start);
-            var sourceBottom = (int)Math.Round(texture.PixelHeight * end);
-            var sourceHeight = Math.Max(1, sourceBottom - sourceY);
-            var crop = new CroppedBitmap(texture, new Int32Rect(0, sourceY, texture.PixelWidth, sourceHeight));
-            var y0 = bounds.Y + (bounds.Height * start);
-            var y1 = bounds.Y + (bounds.Height * end);
-            var pullWeight = direction == AblageDirection.Down ? end : 1.0 - start;
-            var local = warp * Math.Pow(Math.Clamp(pullWeight, 0.0, 1.0), 1.55);
-            var center = new WPoint(bounds.X + (bounds.Width / 2.0), (y0 + y1) / 2.0);
-            var pulledCenter = Interpolate(center, throat, local * 0.88);
-            var destWidth = Math.Max(1.0, bounds.Width * (1.0 - (local * 0.24)));
-            var destHeight = Math.Max(0.7, (y1 - y0) * (1.0 - (local * 0.72)));
-            var dest = new WRect(
-                pulledCenter.X - (destWidth / 2.0),
-                pulledCenter.Y - (destHeight / 2.0),
-                destWidth,
-                destHeight);
-            drawingContext.DrawImage(crop, dest);
-        }
+        return new WRect(
+            pulledCenter.X - (width / 2.0),
+            pulledCenter.Y - (height / 2.0),
+            Math.Max(1.0, width),
+            Math.Max(1.0, height));
     }
 
     private double PortalWarpAmount()
@@ -1087,11 +1099,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             Math.Max(4, bounds.Height - (margin * 2) - labelHeight));
     }
 
-    private void SignalPlacementReady()
+    private bool SignalPlacementReady()
     {
         if (string.IsNullOrWhiteSpace(_placementSignalPath) || string.IsNullOrWhiteSpace(_sourcePdfPath))
         {
-            return;
+            return false;
         }
 
         try
@@ -1124,12 +1136,17 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
                 "  \"guestMayPersistPdf\": \"false\",",
                 "  \"guestMayExportPdf\": \"false\",",
                 "  \"allowTextSelection\": \"true\",",
+                "  \"allowTextCopy\": \"true\",",
+                "  \"allowClipboardReadFromFrame\": \"true\",",
+                "  \"allowClipboardWriteToGuest\": \"true\",",
+                "  \"allowTextEditingShortcuts\": \"true\",",
                 "  \"committed\": \"true\"",
                 "}"
             });
             _diagnostics.Set("Placement", $"committed: {placementId} | {_sourceFileName}");
             _diagnostics.Set("Signal", $"geschrieben: {_placementSignalPath}");
             _diagnostics.Set("macOS", "FrameGuest darf Frame jetzt holen");
+            return true;
         }
         catch (Exception ex)
         {
@@ -1137,6 +1154,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             _diagnostics.Set("Glaskante", "Fehlerfeedback: roter Puls");
             _session.FailTransfer();
             // The overlay must never crash while the owner is carrying a document.
+            return false;
         }
     }
 

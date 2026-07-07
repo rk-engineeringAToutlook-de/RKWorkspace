@@ -259,6 +259,7 @@ internal static class Program
         Console.WriteLine("TransientPdfLease: OK");
         Console.WriteLine("StableLeasePerPlacement: OK");
         Console.WriteLine("ReturnRelease: OK");
+        Console.WriteLine("ReturnedLeaseRetired: OK");
         Console.WriteLine("SequentialPlacementLease: OK");
         Console.WriteLine("NoFileIngress: SUCCESS");
         Console.WriteLine("RESULT: SUCCESS");
@@ -396,6 +397,10 @@ internal static class Program
                     ["guestMayPersistPdf"] = "false",
                     ["guestMayExportPdf"] = "false",
                     ["allowTextSelection"] = "true",
+                    ["allowTextCopy"] = "true",
+                    ["allowClipboardReadFromFrame"] = "true",
+                    ["allowClipboardWriteToGuest"] = "true",
+                    ["allowTextEditingShortcuts"] = "true",
                     ["openFrame"] = "true",
                     ["returnSupported"] = "true",
                     ["ownerKeepsOriginal"] = "true"
@@ -417,6 +422,10 @@ internal static class Program
                     ["guestMayPersistPdf"] = "false",
                     ["guestMayExportPdf"] = "false",
                     ["allowTextSelection"] = "true",
+                    ["allowTextCopy"] = "true",
+                    ["allowClipboardReadFromFrame"] = "true",
+                    ["allowClipboardWriteToGuest"] = "true",
+                    ["allowTextEditingShortcuts"] = "true",
                     ["devPairing"] = "allowed"
                 },
                 request.MessageId),
@@ -538,6 +547,8 @@ internal static class Program
         private readonly Options _options;
         private string? _lastFingerprint;
         private RenderedFrame? _lastFrame;
+        private readonly HashSet<string> _retiredFingerprints = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _retiredLeaseIds = new(StringComparer.Ordinal);
 
         public DynamicPlacementFrameProvider(Options options)
         {
@@ -545,6 +556,34 @@ internal static class Program
         }
 
         public RenderedFrame? CurrentFrame => _lastFrame;
+
+        public void RetireFrame(IReadOnlyDictionary<string, string> payload)
+        {
+            if (_lastFrame is null || string.IsNullOrWhiteSpace(_lastFingerprint))
+            {
+                return;
+            }
+
+            payload.TryGetValue("leaseId", out var returnedLeaseId);
+            payload.TryGetValue("frameSessionId", out var returnedFrameSessionId);
+            var leaseMatches = string.IsNullOrWhiteSpace(returnedLeaseId) ||
+                string.Equals(returnedLeaseId, _lastFrame.LeaseId, StringComparison.Ordinal);
+            var frameMatches = string.IsNullOrWhiteSpace(returnedFrameSessionId) ||
+                string.Equals(returnedFrameSessionId, _lastFrame.FrameSessionId, StringComparison.Ordinal);
+            if (!leaseMatches || !frameMatches)
+            {
+                Console.WriteLine($"PlacementReturn: IGNORED lease={returnedLeaseId} frame={returnedFrameSessionId}");
+                return;
+            }
+
+            _retiredFingerprints.Add(_lastFingerprint);
+            _retiredLeaseIds.Add(_lastFrame.LeaseId);
+            Console.WriteLine($"PlacementReturn: RETIRED {_lastFrame.DisplayName}");
+            Console.WriteLine($"RetiredPlacementFingerprint: {_lastFingerprint}");
+            Console.WriteLine($"RetiredLeaseId: {_lastFrame.LeaseId}");
+            _lastFrame = null;
+            _lastFingerprint = null;
+        }
 
         public RenderedFrame? ResolveFrame()
         {
@@ -555,8 +594,20 @@ internal static class Program
             }
 
             var fingerprint = signal.Fingerprint;
+            if (_retiredFingerprints.Contains(fingerprint))
+            {
+                Console.WriteLine($"PlacementSignal: RETIRED {signal.PlacementId}");
+                return null;
+            }
+
             if (string.Equals(_lastFingerprint, fingerprint, StringComparison.Ordinal) && _lastFrame is not null)
             {
+                if (_retiredLeaseIds.Contains(_lastFrame.LeaseId))
+                {
+                    Console.WriteLine($"PlacementLease: RETIRED {_lastFrame.LeaseId}");
+                    return null;
+                }
+
                 return _lastFrame;
             }
 
@@ -611,6 +662,14 @@ internal static class Program
                 return false;
             }
 
+            if (!string.IsNullOrWhiteSpace(_lastFingerprint))
+            {
+                _retiredFingerprints.Add(_lastFingerprint);
+            }
+
+            _retiredLeaseIds.Add(_lastFrame.LeaseId);
+            Console.WriteLine($"PlacementReturn: RETIRED {_lastFrame.DisplayName}");
+            Console.WriteLine($"RetiredLeaseId: {_lastFrame.LeaseId}");
             _lastFrame = null;
             _lastFingerprint = null;
             TryDeletePlacementSignal(_options.PlacementSignalPath);
@@ -708,6 +767,10 @@ internal static class Program
                 ["supportsTransientPdfBytes"] = "true",
                 ["pdfLeaseMode"] = "MemoryOnly",
                 ["allowTextSelection"] = "true",
+                ["allowTextCopy"] = "true",
+                ["allowClipboardReadFromFrame"] = "true",
+                ["allowClipboardWriteToGuest"] = "true",
+                ["allowTextEditingShortcuts"] = "true",
                 ["visibleStatus"] = File.Exists(options.PlacementSignalPath)
                     ? "Ablage-Signal erkannt, PDF-Pfad wird geprueft"
                     : "wartet auf echte PDF am Glasrand"
@@ -801,6 +864,10 @@ internal static class Program
             "  \"guestMayPersistPdf\": \"false\",",
             "  \"guestMayExportPdf\": \"false\",",
             "  \"allowTextSelection\": \"true\",",
+            "  \"allowTextCopy\": \"true\",",
+            "  \"allowClipboardReadFromFrame\": \"true\",",
+            "  \"allowClipboardWriteToGuest\": \"true\",",
+            "  \"allowTextEditingShortcuts\": \"true\",",
             "  \"committed\": \"true\"",
             "}"
         });
@@ -1053,6 +1120,10 @@ internal static class Program
                 ["supportsTransientPdfBytes"] = "true",
                 ["pdfLeaseMode"] = "MemoryOnly",
                 ["allowTextSelection"] = "true",
+                ["allowTextCopy"] = "true",
+                ["allowClipboardReadFromFrame"] = "true",
+                ["allowClipboardWriteToGuest"] = "true",
+                ["allowTextEditingShortcuts"] = "true",
                 ["visibleStatus"] = "liegt hier im Frame"
             };
 

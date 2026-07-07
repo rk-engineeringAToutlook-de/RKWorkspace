@@ -153,6 +153,22 @@ public sealed class NativeGlassOverlaySession
         WholeObjectPortalWarpPrepared = true;
     }
 
+    public void CompleteRemotePlacement()
+    {
+        State = NativeGlassOverlayCarryState.PlacedRemote;
+        IsHolding = false;
+        TransitMilliseconds = TransitTimeoutMilliseconds;
+        Absorption = 1f;
+        PullOutRecovery = 1f;
+        _openTarget = 0f;
+        _approachTarget = 0f;
+        LensOpen = Math.Max(LensOpen, 0.18f);
+        LensEmergence = Math.Max(LensEmergence, 0.32f);
+        RemotePlacementPrepared = true;
+        TunnelAutoClosePrepared = true;
+        TransferSuccessFadePrepared = true;
+    }
+
     public void PlaceOnDesktop()
     {
         State = NativeGlassOverlayCarryState.LocalReady;
