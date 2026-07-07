@@ -48,7 +48,7 @@ public sealed class NativeGlassOverlayWindow : Window
         Content = root;
 
         KeyDown += OnKeyDown;
-        SourceInitialized += (_, _) => _surface.MarkCaptureExclusion(NativeGlassCaptureExclusion.TryEnable(this));
+        SourceInitialized += (_, _) => _surface.MarkCaptureExclusion(false);
         Loaded += (_, _) =>
         {
             Activate();
