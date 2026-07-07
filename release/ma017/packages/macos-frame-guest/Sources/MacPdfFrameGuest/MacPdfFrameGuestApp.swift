@@ -260,7 +260,7 @@ final class FrameGuestModel: ObservableObject {
 
     private var sessionId = ""
     private var activeFrameSessionIds = Set<String>()
-    private var completedFrameSessionIds = Set<String>()
+    private var recentFrameKeys: [String: Date] = [:]
     private var autoReturnDelaySeconds: Double?
     private var exitAfterReturn = false
     private var portalEdge: GuestPortalEdge = .left
@@ -402,6 +402,12 @@ final class FrameGuestModel: ObservableObject {
                         continue
                     }
 
+                    if shouldSkipFramePayload(frame.payload) {
+                        status = "Frame bereits offen, hoere weiter"
+                        try? await Task.sleep(nanoseconds: 650_000_000)
+                        continue
+                    }
+
                     let lease = try makeFrameLease(frame, localVerification: false)
                     if registerFrameLease(lease) {
                         onPortalPulse?(portalEdge)
@@ -483,6 +489,7 @@ final class FrameGuestModel: ObservableObject {
         let frameSessionId = frame.payload["frameSessionId"] ?? "frame-macos-\(UUID().uuidString)"
         let leaseId = frame.payload["leaseId"] ?? ""
         let displayName = frame.payload["displayName"] ?? "RK Workspace PDF Frame"
+        let windowKey = Self.frameWindowKey(from: frame.payload, fallback: frameSessionId)
 
         if let pdfData = Self.decodePdfPayload(frame.payload),
            let document = PDFDocument(data: pdfData) {
@@ -497,7 +504,7 @@ final class FrameGuestModel: ObservableObject {
             print("TextSelection: OK")
             print("NoDiskPdf: SUCCESS")
             return GuestFrameLease(
-                windowKey: frameSessionId,
+                windowKey: windowKey,
                 frameSessionId: frameSessionId,
                 leaseId: leaseId,
                 sessionId: frame.sessionId,
@@ -518,7 +525,7 @@ final class FrameGuestModel: ObservableObject {
             print("FrameView: OK")
             print("LegacyPngFrame: OK")
             return GuestFrameLease(
-                windowKey: frameSessionId,
+                windowKey: windowKey,
                 frameSessionId: frameSessionId,
                 leaseId: leaseId,
                 sessionId: frame.sessionId,
@@ -536,8 +543,9 @@ final class FrameGuestModel: ObservableObject {
     }
 
     private func registerFrameLease(_ lease: GuestFrameLease) -> Bool {
+        pruneRecentFrameKeys()
         guard !activeFrameSessionIds.contains(lease.windowKey),
-              !completedFrameSessionIds.contains(lease.windowKey) else {
+              recentFrameKeys[lease.windowKey] == nil else {
             return false
         }
 
@@ -545,12 +553,21 @@ final class FrameGuestModel: ObservableObject {
         return true
     }
 
+    private func shouldSkipFramePayload(_ payload: [String: String]) -> Bool {
+        pruneRecentFrameKeys()
+        let key = Self.frameWindowKey(from: payload, fallback: payload["frameSessionId"] ?? "")
+        return activeFrameSessionIds.contains(key) || recentFrameKeys[key] != nil
+    }
+
     private func markFrameClosed(_ lease: GuestFrameLease) {
         activeFrameSessionIds.remove(lease.windowKey)
-        completedFrameSessionIds.insert(lease.windowKey)
-        if completedFrameSessionIds.count > 100 {
-            completedFrameSessionIds.removeAll(keepingCapacity: true)
-        }
+        recentFrameKeys[lease.windowKey] = Date()
+        pruneRecentFrameKeys()
+    }
+
+    private func pruneRecentFrameKeys() {
+        let cutoff = Date().addingTimeInterval(-3)
+        recentFrameKeys = recentFrameKeys.filter { $0.value >= cutoff }
     }
 
     private static func decodePdfPayload(_ payload: [String: String]) -> Data? {
@@ -595,6 +612,27 @@ final class FrameGuestModel: ObservableObject {
             visibleStatus.contains("transport") ||
             visibleStatus.contains("uebertragung") ||
             visibleStatus.contains("übertragung")
+    }
+
+    private static func frameWindowKey(from payload: [String: String], fallback: String) -> String {
+        let keys = [
+            "transferId",
+            "carryId",
+            "carrySessionId",
+            "placementId",
+            "thingId",
+            "sourceHash",
+            "displayName",
+            "frameSessionId"
+        ]
+
+        for key in keys {
+            if let value = payload[key], !value.isEmpty {
+                return "\(key):\(value)"
+            }
+        }
+
+        return "frameSessionId:\(fallback)"
     }
 
     private static func documentDisplaySize(_ document: PDFDocument) -> CGSize {
@@ -1107,7 +1145,9 @@ final class RkwpDevLanClient: @unchecked Sendable {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .custom { decoder in
+            try RkwpDateCoding.decode(decoder)
+        }
         return try decoder.decode(RkwpMessage.self, from: response)
     }
 
@@ -1172,6 +1212,32 @@ final class RkwpDevLanClient: @unchecked Sendable {
                 sent += written
             }
         }
+    }
+}
+
+enum RkwpDateCoding {
+    private static let fractionalFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let plainFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    static func decode(_ decoder: Decoder) throws -> Date {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        if let date = fractionalFormatter.date(from: value) ?? plainFormatter.date(from: value) {
+            return date
+        }
+
+        throw DecodingError.dataCorruptedError(
+            in: container,
+            debugDescription: "Invalid RKWP timestamp: \(value)")
     }
 }
 
