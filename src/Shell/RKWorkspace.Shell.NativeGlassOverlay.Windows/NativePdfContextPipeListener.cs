@@ -8,6 +8,9 @@ namespace RKWorkspace.Shell.NativeGlassOverlay.Windows;
 
 public sealed class NativePdfContextPipeListener : IDisposable
 {
+    private const int MaxPipeInstances = 4;
+    private static readonly TimeSpan ReadTimeout = TimeSpan.FromSeconds(2);
+
     private readonly string _pipeName;
     private readonly Dispatcher _dispatcher;
     private readonly Func<string, NativePdfContextPickResult> _pickPdf;
@@ -50,34 +53,15 @@ public sealed class NativePdfContextPipeListener : IDisposable
         {
             try
             {
-                using var server = new NamedPipeServerStream(
+                var server = new NamedPipeServerStream(
                     _pipeName,
                     PipeDirection.InOut,
-                    1,
-                    PipeTransmissionMode.Message,
+                    MaxPipeInstances,
+                    PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous);
 
                 await server.WaitForConnectionAsync(_cancellation.Token).ConfigureAwait(false);
-
-                using var reader = new StreamReader(
-                    server,
-                    Encoding.UTF8,
-                    detectEncodingFromByteOrderMarks: true,
-                    bufferSize: 1024,
-                    leaveOpen: true);
-                using var writer = new StreamWriter(
-                    server,
-                    Encoding.UTF8,
-                    bufferSize: 1024,
-                    leaveOpen: true) { AutoFlush = true };
-                var line = await reader.ReadLineAsync(_cancellation.Token).ConfigureAwait(false);
-                var pdfPath = ReadPdfPath(line);
-                var result = await _dispatcher.InvokeAsync(() => _pickPdf(pdfPath)).Task.ConfigureAwait(false);
-                await writer.WriteLineAsync(JsonSerializer.Serialize(new
-                {
-                    ok = result.Success,
-                    message = result.Message
-                })).ConfigureAwait(false);
+                _ = HandleClientAsync(server);
             }
             catch (OperationCanceledException)
             {
@@ -89,6 +73,72 @@ public sealed class NativePdfContextPipeListener : IDisposable
                     _diagnostics.Set("Kontext", $"Listener-Fehler: {ex.Message}"));
                 await Task.Delay(250, _cancellation.Token).ConfigureAwait(false);
             }
+        }
+    }
+
+    private async Task HandleClientAsync(NamedPipeServerStream server)
+    {
+        using (server)
+        {
+            using var reader = new StreamReader(
+                server,
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                detectEncodingFromByteOrderMarks: true,
+                bufferSize: 1024,
+                leaveOpen: true);
+            await using var writer = new StreamWriter(
+                server,
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                bufferSize: 1024,
+                leaveOpen: true) { AutoFlush = true };
+
+            try
+            {
+                using var readCancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancellation.Token);
+                readCancellation.CancelAfter(ReadTimeout);
+                var line = await reader.ReadLineAsync(readCancellation.Token).ConfigureAwait(false);
+                var pdfPath = ReadPdfPath(line);
+                var validation = ValidatePdfPath(pdfPath);
+                if (validation is not null)
+                {
+                    await TryWriteResponseAsync(writer, false, validation).ConfigureAwait(false);
+                    _ = _dispatcher.BeginInvoke(() => _diagnostics.Set("Kontext", validation));
+                    return;
+                }
+
+                _ = _dispatcher.BeginInvoke(() =>
+                {
+                    var result = _pickPdf(pdfPath);
+                    _diagnostics.Set("Kontext", result.Message);
+                });
+                await TryWriteResponseAsync(writer, true, $"PDF an Overlay uebergeben: {Path.GetFileName(pdfPath)}").ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (!_cancellation.IsCancellationRequested)
+            {
+                await TryWriteResponseAsync(writer, false, "Kontextnachricht Timeout").ConfigureAwait(false);
+                _ = _dispatcher.BeginInvoke(() => _diagnostics.Set("Kontext", "Client-Timeout; Listener bleibt aktiv"));
+            }
+            catch (Exception ex)
+            {
+                await TryWriteResponseAsync(writer, false, ex.Message).ConfigureAwait(false);
+                _ = _dispatcher.BeginInvoke(() => _diagnostics.Set("Kontext", $"Client-Fehler: {ex.Message}"));
+            }
+        }
+    }
+
+    private static async Task TryWriteResponseAsync(StreamWriter writer, bool success, string message)
+    {
+        try
+        {
+            await writer.WriteLineAsync(JsonSerializer.Serialize(new
+            {
+                ok = success,
+                message
+            })).ConfigureAwait(false);
+        }
+        catch
+        {
+            // The context menu launcher is best-effort; diagnostics on the overlay remain authoritative.
         }
     }
 
@@ -106,6 +156,26 @@ public sealed class NativePdfContextPipeListener : IDisposable
         }
 
         throw new InvalidOperationException("Kontextnachricht enthaelt keinen pdfPath.");
+    }
+
+    private static string? ValidatePdfPath(string pdfPath)
+    {
+        if (string.IsNullOrWhiteSpace(pdfPath))
+        {
+            return "Kontextnachricht ohne PDF-Pfad.";
+        }
+
+        if (!File.Exists(pdfPath))
+        {
+            return $"PDF existiert nicht: {pdfPath}";
+        }
+
+        if (!pdfPath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Datei ist keine PDF: {pdfPath}";
+        }
+
+        return null;
     }
 }
 
