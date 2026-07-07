@@ -7,9 +7,11 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .executable(name: "MacPdfFrameGuest", targets: ["MacPdfFrameGuest"])
+        .executable(name: "MacPdfFrameGuest", targets: ["MacPdfFrameGuest"]),
+        .executable(name: "MacPdfPortalOwner", targets: ["MacPdfPortalOwner"])
     ],
     targets: [
-        .executableTarget(name: "MacPdfFrameGuest")
+        .executableTarget(name: "MacPdfFrameGuest"),
+        .executableTarget(name: "MacPdfPortalOwner")
     ]
 )

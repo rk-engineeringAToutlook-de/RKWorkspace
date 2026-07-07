@@ -96,6 +96,15 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+
+            if model.receivingEdgeOpen {
+                HStack {
+                    Spacer()
+                    ReceivingGlassEdge()
+                        .padding(.trailing, 12)
+                }
+                .transition(.opacity)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -112,6 +121,27 @@ struct ContentView: View {
     }
 }
 
+struct ReceivingGlassEdge: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Capsule()
+                .fill(Color.white.opacity(0.55))
+                .frame(width: 8, height: 64)
+            Text("Glasrand")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(width: 86, height: 260)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.cyan.opacity(0.55), lineWidth: 1.5)
+        )
+        .shadow(color: Color.cyan.opacity(0.28), radius: 18)
+    }
+}
+
 @MainActor
 final class FrameGuestModel: ObservableObject {
     @Published var visibleName: String
@@ -122,6 +152,7 @@ final class FrameGuestModel: ObservableObject {
     @Published var noFileIngressText = "GuestHasPdfFile: NO"
     @Published var image: NSImage?
     @Published var hasError = false
+    @Published var receivingEdgeOpen = false
 
     var frameSessionId = ""
     private var leaseId = ""
@@ -167,7 +198,7 @@ final class FrameGuestModel: ObservableObject {
 
         if args.contains("--local-frame") {
             showLocalVerificationFrame()
-        } else if args.contains("--wait-for-placement") {
+        } else if args.contains("--wait-for-placement") || args.contains("--watch-for-frame") {
             waitForPlacement()
         } else if args.contains("--auto-open") {
             openFrame()
@@ -176,6 +207,7 @@ final class FrameGuestModel: ObservableObject {
 
     func openFrame() {
         hasError = false
+        receivingEdgeOpen = false
         status = "frage Frame an..."
         Task {
             do {
@@ -227,6 +259,7 @@ final class FrameGuestModel: ObservableObject {
     func waitForPlacement() {
         hasError = false
         clearFrame()
+        receivingEdgeOpen = true
         visibleState = "wartet auf Ablage am Glasrand"
         status = "warte auf deine PDF von Windows..."
         Task {
@@ -354,6 +387,7 @@ final class FrameGuestModel: ObservableObject {
         leaseId = frame.payload["leaseId"] ?? ""
         sessionId = frame.sessionId
         image = nsImage
+        receivingEdgeOpen = false
         usesLocalVerificationFrame = localVerification
         visibleState = frame.payload["visibleStatus"] ?? "liegt hier im Frame"
         status = "FrameView: OK"
@@ -369,6 +403,7 @@ final class FrameGuestModel: ObservableObject {
 
     private func clearFrame() {
         image = nil
+        receivingEdgeOpen = false
         frameSessionId = ""
         leaseId = ""
         usesLocalVerificationFrame = false
