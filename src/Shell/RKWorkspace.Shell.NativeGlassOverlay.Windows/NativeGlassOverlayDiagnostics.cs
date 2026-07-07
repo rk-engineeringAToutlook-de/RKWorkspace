@@ -19,6 +19,7 @@ public sealed class NativeGlassOverlayDiagnostics
         Set("Glaskante", "noch nicht sichtbar");
         Set("Carry", "leer");
         Set("Drop", "wartet");
+        Set("Placement", "keine aktive Lease");
         Set("Signal", "nicht geschrieben");
         Set("macOS", "wartet auf FrameGuest");
     }

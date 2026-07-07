@@ -3,6 +3,7 @@ using RKWorkspace.Frame.Pdf;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -19,6 +20,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 {
     private readonly WorkspaceShellRuntime _runtime;
     private readonly System.Drawing.Rectangle _screenBounds;
+    private readonly double _surfaceWidth;
+    private readonly double _surfaceHeight;
     private readonly string _placementSignalPath;
     private readonly NativeGlassOverlayOptions _options;
     private readonly NativeGlassOverlayDiagnostics _diagnostics;
@@ -39,14 +42,22 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private bool _pendingRemotePlacement;
     private bool _placementSignalWritten;
     private bool _gestureCarryMode;
+    private int _placementSequence;
     private long _lastMilliseconds;
     private double _phase;
     private NearestAblageResult _nearestAblage;
 
-    public NativeGlassOverlaySurface(WorkspaceShellRuntime runtime, System.Drawing.Rectangle screenBounds, NativeGlassOverlayOptions options)
+    public NativeGlassOverlaySurface(
+        WorkspaceShellRuntime runtime,
+        System.Drawing.Rectangle screenBounds,
+        double surfaceWidth,
+        double surfaceHeight,
+        NativeGlassOverlayOptions options)
     {
         _runtime = runtime;
         _screenBounds = screenBounds;
+        _surfaceWidth = Math.Max(1.0, surfaceWidth);
+        _surfaceHeight = Math.Max(1.0, surfaceHeight);
         _options = options;
         _placementSignalPath = options.PlacementSignalPath;
         _diagnostics = new NativeGlassOverlayDiagnostics(options.DiagnosticsPath);
@@ -58,17 +69,17 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             LoadSourcePdf(options.SourcePdfPath, deferPreview: options.PickImmediately);
         }
 
-        _portalScreenBounds = GetPrimaryScreenBoundsRelativeTo(screenBounds);
+        _portalScreenBounds = new WRect(0, 0, _surfaceWidth, _surfaceHeight);
         Focusable = true;
         Cursor = WCursors.Arrow;
-        Width = screenBounds.Width;
-        Height = screenBounds.Height;
+        Width = _surfaceWidth;
+        Height = _surfaceHeight;
         SnapsToDevicePixels = false;
         UseLayoutRounding = false;
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality);
         RenderOptions.SetEdgeMode(this, EdgeMode.Unspecified);
 
-        _thingCenter = new WPoint(screenBounds.Width * 0.38, screenBounds.Height * 0.50);
+        _thingCenter = new WPoint(_surfaceWidth * 0.38, _surfaceHeight * 0.50);
         _targetCenter = _thingCenter;
         _lastTargetCenter = _thingCenter;
         _lensCenter = new WPoint(_portalScreenBounds.Right - 78, _portalScreenBounds.Y + (_portalScreenBounds.Height * 0.52));
@@ -421,32 +432,32 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         var closingFade = _session.State == NativeGlassOverlayCarryState.Closing
             ? Math.Clamp(_session.LensEmergence, 0.0, 1.0)
             : 1.0;
-        var opacity = Math.Clamp((0.78 + (active * 0.18)) * closingFade, 0.0, 0.96);
+        var opacity = Math.Clamp((0.68 + (active * 0.16)) * closingFade, 0.0, 0.88);
 
         drawingContext.PushOpacity(opacity);
         drawingContext.PushOpacityMask(ProgressiveEdgeMask(direction));
 
         var desktopMaterial = EdgeAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb(5, 255, 255, 255),
-            WColor.FromArgb(26, 232, 252, 255),
-            WColor.FromArgb(48, 255, 255, 255));
+            WColor.FromArgb(4, 255, 255, 255),
+            WColor.FromArgb(18, 230, 250, 255),
+            WColor.FromArgb(32, 255, 255, 255));
         drawingContext.DrawRectangle(desktopMaterial, null, edge);
 
         var body = EdgeAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb(14, 255, 255, 255),
-            WColor.FromArgb(34, 178, 238, 246),
-            WColor.FromArgb(56, 255, 255, 255));
+            WColor.FromArgb(8, 255, 255, 255),
+            WColor.FromArgb(24, 174, 232, 244),
+            WColor.FromArgb(42, 255, 255, 255));
         drawingContext.DrawRectangle(body, null, edge);
 
         var glow = CrossAxisGradient(direction,
             WColor.FromArgb(0, 190, 245, 255),
-            WColor.FromArgb(48, 255, 255, 255),
-            WColor.FromArgb(38, 142, 236, 245),
-            WColor.FromArgb(48, 255, 255, 255),
+            WColor.FromArgb(30, 255, 255, 255),
+            WColor.FromArgb(26, 142, 236, 245),
+            WColor.FromArgb(30, 255, 255, 255),
             WColor.FromArgb(0, 190, 245, 255));
-        glow.Opacity = 0.62;
+        glow.Opacity = 0.52;
         drawingContext.DrawRectangle(glow, null, edge);
 
         drawingContext.Pop();
@@ -479,13 +490,13 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         var fill = CrossAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb((byte)Math.Clamp(116 + (active * 18), 116, 134), 255, 255, 255),
-            WColor.FromArgb((byte)Math.Clamp(80 + (active * 18), 80, 98), 136, 235, 245),
+            WColor.FromArgb((byte)Math.Clamp(72 + (active * 16), 72, 88), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(54 + (active * 14), 54, 68), 136, 235, 245),
             WColor.FromArgb(0, 255, 255, 255));
         var halo = CrossAxisGradient(direction,
             WColor.FromArgb(0, 145, 235, 246),
-            WColor.FromArgb(34, 150, 236, 246),
-            WColor.FromArgb(24, 255, 255, 255),
+            WColor.FromArgb(24, 150, 236, 246),
+            WColor.FromArgb(18, 255, 255, 255),
             WColor.FromArgb(0, 145, 235, 246));
 
         if (direction is AblageDirection.Left or AblageDirection.Right)
@@ -509,9 +520,9 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         var fill = CrossAxisGradient(direction,
             WColor.FromArgb(0, 180, 245, 255),
-            WColor.FromArgb((byte)Math.Clamp(88 + (active * 22), 88, 110), 255, 255, 255),
-            WColor.FromArgb((byte)Math.Clamp(58 + (active * 20), 58, 78), 126, 228, 240),
-            WColor.FromArgb((byte)Math.Clamp(88 + (active * 22), 88, 110), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(62 + (active * 18), 62, 80), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(42 + (active * 16), 42, 58), 126, 228, 240),
+            WColor.FromArgb((byte)Math.Clamp(62 + (active * 18), 62, 80), 255, 255, 255),
             WColor.FromArgb(0, 180, 245, 255));
 
         switch (direction)
@@ -941,6 +952,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
         try
         {
+            var placementId = $"placement-windows-{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}-{Interlocked.Increment(ref _placementSequence):000}";
             var directory = Path.GetDirectoryName(_placementSignalPath);
             if (!string.IsNullOrWhiteSpace(directory))
             {
@@ -950,6 +962,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             File.WriteAllLines(_placementSignalPath, new[]
             {
                 "{",
+                $"  \"signalSchema\": \"rkws-placement-v2\",",
+                $"  \"placementId\": \"{EscapeJson(placementId)}\",",
                 $"  \"placedAtUtc\": \"{DateTimeOffset.UtcNow:O}\",",
                 $"  \"sourcePdfName\": \"{EscapeJson(_sourceFileName)}\",",
                 $"  \"sourcePdfOwner\": \"Windows\",",
@@ -965,9 +979,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
                 "  \"ownerKeepsOriginal\": \"true\",",
                 "  \"guestMayPersistPdf\": \"false\",",
                 "  \"guestMayExportPdf\": \"false\",",
-                "  \"allowTextSelection\": \"true\"",
+                "  \"allowTextSelection\": \"true\",",
+                "  \"committed\": \"true\"",
                 "}"
             });
+            _diagnostics.Set("Placement", $"committed: {placementId} | {_sourceFileName}");
             _diagnostics.Set("Signal", $"geschrieben: {_placementSignalPath}");
             _diagnostics.Set("macOS", "FrameGuest darf Frame jetzt holen");
         }
@@ -1352,13 +1368,6 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private double SurfaceWidth()
     {
-        var dpi = VisualTreeHelper.GetDpi(this);
-        var primaryWidthInDips = SystemParameters.PrimaryScreenWidth / Math.Max(1.0, dpi.DpiScaleX);
-        if (IsUsableDimension(primaryWidthInDips))
-        {
-            return primaryWidthInDips;
-        }
-
         if (IsUsableDimension(RenderSize.Width))
         {
             return RenderSize.Width;
@@ -1374,18 +1383,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             return Width;
         }
 
-        return Math.Max(1, _screenBounds.Width);
+        return _surfaceWidth;
     }
 
     private double SurfaceHeight()
     {
-        var dpi = VisualTreeHelper.GetDpi(this);
-        var primaryHeightInDips = SystemParameters.PrimaryScreenHeight / Math.Max(1.0, dpi.DpiScaleY);
-        if (IsUsableDimension(primaryHeightInDips))
-        {
-            return primaryHeightInDips;
-        }
-
         if (IsUsableDimension(RenderSize.Height))
         {
             return RenderSize.Height;
@@ -1401,7 +1403,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             return Height;
         }
 
-        return Math.Max(1, _screenBounds.Height);
+        return _surfaceHeight;
     }
 
     private static bool IsUsableDimension(double value)
@@ -1411,12 +1413,14 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 
     private Int32Rect DesktopSampleRect(WRect bounds)
     {
+        var scaleX = _screenBounds.Width / Math.Max(1.0, SurfaceWidth());
+        var scaleY = _screenBounds.Height / Math.Max(1.0, SurfaceHeight());
         var overscanX = bounds.Width * 0.30;
         var overscanY = bounds.Height * 0.24;
-        var x = (int)Math.Floor(_screenBounds.Left + bounds.X - overscanX);
-        var y = (int)Math.Floor(_screenBounds.Top + bounds.Y - overscanY);
-        var width = (int)Math.Ceiling(bounds.Width + (overscanX * 2));
-        var height = (int)Math.Ceiling(bounds.Height + (overscanY * 2));
+        var x = (int)Math.Floor(_screenBounds.Left + ((bounds.X - overscanX) * scaleX));
+        var y = (int)Math.Floor(_screenBounds.Top + ((bounds.Y - overscanY) * scaleY));
+        var width = (int)Math.Ceiling((bounds.Width + (overscanX * 2)) * scaleX);
+        var height = (int)Math.Ceiling((bounds.Height + (overscanY * 2)) * scaleY);
 
         var screenLeft = _screenBounds.Left;
         var screenTop = _screenBounds.Top;

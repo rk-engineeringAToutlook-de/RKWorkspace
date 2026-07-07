@@ -133,6 +133,19 @@ if ($SmokeTest) {
         exit $LASTEXITCODE
     }
 
+    & (Join-Path $root 'tools\run-macos-pdf-frame-owner.ps1') `
+        -DynamicPlacementSmokeTest `
+        -PdfPath (Join-Path $root 'samples\Objects\Rechnung.pdf') `
+        -BindAddress $BindAddress `
+        -Port $Port `
+        -WaitForPlacement `
+        -DynamicPdfFromPlacementSignal `
+        -MemoryPdfFrame `
+        -PlacementSignalPath $signalPath
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+
     & (Join-Path $root 'tools\run-native-glass-overlay.ps1') `
         -SmokeTest `
         -RealPdfGesture `

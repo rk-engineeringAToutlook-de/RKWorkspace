@@ -35,6 +35,12 @@ internal static class Program
                 return 0;
             }
 
+            if (options.DynamicPlacementSmokeTest)
+            {
+                PrintDynamicPlacementSmoke(options);
+                return 0;
+            }
+
             return await RunOwnerAsync(options, frame).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -180,6 +186,68 @@ internal static class Program
         Console.WriteLine("RESULT: SUCCESS");
     }
 
+    private static void PrintDynamicPlacementSmoke(Options options)
+    {
+        var smokeOptions = options with
+        {
+            WaitForPlacement = true,
+            DynamicPdfFromPlacementSignal = true,
+            MemoryPdfFrame = true
+        };
+
+        if (File.Exists(smokeOptions.PlacementSignalPath))
+        {
+            File.Delete(smokeOptions.PlacementSignalPath);
+        }
+
+        var provider = new DynamicPlacementFrameProvider(smokeOptions);
+        var before = CreateFramePayload(provider.ResolveFrame(), smokeOptions);
+        if (before.TryGetValue("pdfBase64", out _) ||
+            !before.TryGetValue("placementReady", out var beforeReady) ||
+            !string.Equals(beforeReady, "false", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Dynamic placement smoke failed: frame leaked before placement.");
+        }
+
+        WritePlacementSignal(smokeOptions.PlacementSignalPath, "placement-smoke-001", smokeOptions.PdfPath);
+        var firstFrame = provider.ResolveFrame();
+        var firstPayload = CreateFramePayload(firstFrame, smokeOptions);
+        if (firstFrame is null ||
+            !firstPayload.TryGetValue("pdfBase64", out var firstPdf) ||
+            string.IsNullOrWhiteSpace(firstPdf) ||
+            !firstPayload.TryGetValue("placementReady", out var firstReady) ||
+            !string.Equals(firstReady, "true", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Dynamic placement smoke failed: PDF lease was not released after placement.");
+        }
+
+        var stableFrame = provider.ResolveFrame();
+        if (stableFrame is null || !string.Equals(stableFrame.LeaseId, firstFrame.LeaseId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Dynamic placement smoke failed: lease was not stable for the same placement.");
+        }
+
+        WritePlacementSignal(smokeOptions.PlacementSignalPath, "placement-smoke-002", smokeOptions.PdfPath);
+        var secondFrame = provider.ResolveFrame();
+        if (secondFrame is null || string.Equals(secondFrame.LeaseId, firstFrame.LeaseId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Dynamic placement smoke failed: second placement did not create a new lease.");
+        }
+
+        File.Delete(smokeOptions.PlacementSignalPath);
+
+        Console.WriteLine("RK Workspace macOS PDF Frame Owner");
+        Console.WriteLine("----------------------------------");
+        Console.WriteLine("Mode: DynamicPlacementSmokeTest");
+        Console.WriteLine("BeforeSignal: NO_FRAME");
+        Console.WriteLine($"AfterSignal: {firstFrame.FrameFormat}");
+        Console.WriteLine("TransientPdfLease: OK");
+        Console.WriteLine("StableLeasePerPlacement: OK");
+        Console.WriteLine("SequentialPlacementLease: OK");
+        Console.WriteLine("NoFileIngress: SUCCESS");
+        Console.WriteLine("RESULT: SUCCESS");
+    }
+
     private static RenderedFrame RenderFrame(Options options)
     {
         return RenderFrame(options.PdfPath ?? Options.DefaultPdfPath(), options.Page, options.Width, options.MemoryPdfFrame);
@@ -247,6 +315,9 @@ internal static class Program
         Console.WriteLine("OwnerServerStarted: OK");
 
         var requestCount = 0;
+        var dynamicFrameProvider = frame is null && options.DynamicPdfFromPlacementSignal
+            ? new DynamicPlacementFrameProvider(options)
+            : null;
         while (!cancellation.IsCancellationRequested)
         {
             RkwpTransportMessage request;
@@ -266,7 +337,7 @@ internal static class Program
             }
 
             requestCount++;
-            var response = CreateResponse(request, frame, options, sessionId);
+            var response = CreateResponse(request, frame, dynamicFrameProvider, options, sessionId);
             await server.SendResponseAsync(response, cancellation.Token).ConfigureAwait(false);
             Console.WriteLine($"{request.MessageType}: OK");
 
@@ -285,9 +356,11 @@ internal static class Program
     private static RkwpTransportMessage CreateResponse(
         RkwpTransportMessage request,
         RenderedFrame? frame,
+        DynamicPlacementFrameProvider? dynamicFrameProvider,
         Options options,
         string sessionId)
     {
+        var activeFrame = dynamicFrameProvider?.CurrentFrame ?? frame;
         return request.MessageType switch
         {
             TransportMessageType.AblageHello => RkwpTransportMessage.Create(
@@ -336,7 +409,7 @@ internal static class Program
                 OwnerAblageId,
                 request.SourceAblageId,
                 sessionId,
-                CreateFramePayload(ResolveFrameForRequest(frame, options), options),
+                CreateFramePayload(ResolveFrameForRequest(frame, dynamicFrameProvider, options), options),
                 request.MessageId),
             TransportMessageType.CarryLeaseReturn => RkwpTransportMessage.Create(
                 TransportMessageType.CarryLeaseReturn,
@@ -346,8 +419,8 @@ internal static class Program
                 new Dictionary<string, string>
                 {
                     ["return"] = "accepted",
-                    ["frameSessionId"] = frame?.FrameSessionId ?? string.Empty,
-                    ["leaseId"] = frame?.LeaseId ?? string.Empty,
+                    ["frameSessionId"] = activeFrame?.FrameSessionId ?? string.Empty,
+                    ["leaseId"] = activeFrame?.LeaseId ?? string.Empty,
                     ["guestKeptOriginalFile"] = "false",
                     ["guestPersistedPdfFile"] = "false",
                     ["transientPdfDiscarded"] = "true",
@@ -369,11 +442,19 @@ internal static class Program
         };
     }
 
-    private static RenderedFrame? ResolveFrameForRequest(RenderedFrame? frame, Options options)
+    private static RenderedFrame? ResolveFrameForRequest(
+        RenderedFrame? frame,
+        DynamicPlacementFrameProvider? dynamicFrameProvider,
+        Options options)
     {
         if (frame is not null)
         {
             return frame;
+        }
+
+        if (dynamicFrameProvider is not null)
+        {
+            return dynamicFrameProvider.ResolveFrame();
         }
 
         if (!options.DynamicPdfFromPlacementSignal || !File.Exists(options.PlacementSignalPath))
@@ -407,6 +488,110 @@ internal static class Program
         }
 
         return null;
+    }
+
+    private sealed class DynamicPlacementFrameProvider
+    {
+        private readonly Options _options;
+        private string? _lastFingerprint;
+        private RenderedFrame? _lastFrame;
+
+        public DynamicPlacementFrameProvider(Options options)
+        {
+            _options = options;
+        }
+
+        public RenderedFrame? CurrentFrame => _lastFrame;
+
+        public RenderedFrame? ResolveFrame()
+        {
+            var signal = TryReadPlacementSignal(_options.PlacementSignalPath);
+            if (signal is null)
+            {
+                return null;
+            }
+
+            var fingerprint = signal.Fingerprint;
+            if (string.Equals(_lastFingerprint, fingerprint, StringComparison.Ordinal) && _lastFrame is not null)
+            {
+                return _lastFrame;
+            }
+
+            if (!File.Exists(signal.SourcePdfPath))
+            {
+                Console.WriteLine($"PlacementSignal: PDF_MISSING {signal.SourcePdfPath}");
+                return null;
+            }
+
+            try
+            {
+                _lastFrame = RenderFrame(signal.SourcePdfPath, _options.Page, _options.Width, memoryPdfFrame: true);
+                _lastFingerprint = fingerprint;
+                Console.WriteLine($"PlacementCommit: OK {_lastFrame.DisplayName}");
+                Console.WriteLine($"PlacementId: {signal.PlacementId}");
+                Console.WriteLine($"FrameSessionId: {_lastFrame.FrameSessionId}");
+                Console.WriteLine($"LeaseId: {_lastFrame.LeaseId}");
+                Console.WriteLine($"FrameFormat: {_lastFrame.FrameFormat}");
+                Console.WriteLine($"PdfBytes: {_lastFrame.PdfByteCount}");
+                return _lastFrame;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PlacementCommit: FAILED {ex.Message}");
+                return null;
+            }
+        }
+    }
+
+    private sealed record PlacementSignal(
+        string PlacementId,
+        string SourcePdfPath,
+        string Fingerprint);
+
+    private static PlacementSignal? TryReadPlacementSignal(string placementSignalPath)
+    {
+        try
+        {
+            if (!File.Exists(placementSignalPath))
+            {
+                return null;
+            }
+
+            using var stream = File.OpenRead(placementSignalPath);
+            using var json = JsonDocument.Parse(stream);
+            if (!json.RootElement.TryGetProperty("sourcePdfPathLocalOnly", out var pathElement))
+            {
+                return null;
+            }
+
+            var sourcePdfPath = pathElement.GetString();
+            if (string.IsNullOrWhiteSpace(sourcePdfPath))
+            {
+                return null;
+            }
+
+            var placementId = ReadJsonString(json.RootElement, "placementId");
+            if (string.IsNullOrWhiteSpace(placementId))
+            {
+                placementId = $"signal-{File.GetLastWriteTimeUtc(placementSignalPath).Ticks}";
+            }
+
+            var placedAtUtc = ReadJsonString(json.RootElement, "placedAtUtc");
+            var fingerprint = $"{placementId}|{placedAtUtc}|{sourcePdfPath}";
+            return new PlacementSignal(placementId, sourcePdfPath, fingerprint);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PlacementSignal: INVALID {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string ReadJsonString(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out var value)
+            ? value.GetString() ?? string.Empty
+            : string.Empty;
     }
 
     private static IReadOnlyDictionary<string, string> CreateFramePayload(RenderedFrame? frame, Options options)
@@ -489,7 +674,46 @@ internal static class Program
         Console.WriteLine("  --smoke-test            Render the PDF frame without listening.");
         Console.WriteLine("  --placement-gating-smoke-test");
         Console.WriteLine("                         Verify that the frame is released only after placement.");
+        Console.WriteLine("  --dynamic-placement-smoke-test");
+        Console.WriteLine("                         Verify dynamic PDF lease release and sequential placements.");
     }
+
+    private static void WritePlacementSignal(string placementSignalPath, string placementId, string pdfPath)
+    {
+        var directory = Path.GetDirectoryName(placementSignalPath);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        var pdfName = Path.GetFileName(pdfPath);
+        File.WriteAllLines(placementSignalPath, new[]
+        {
+            "{",
+            "  \"signalSchema\": \"rkws-placement-v2\",",
+            $"  \"placementId\": \"{EscapeJson(placementId)}\",",
+            $"  \"placedAtUtc\": \"{DateTimeOffset.UtcNow:O}\",",
+            $"  \"sourcePdfName\": \"{EscapeJson(pdfName)}\",",
+            "  \"sourcePdfOwner\": \"Windows\",",
+            $"  \"sourcePdfPathLocalOnly\": \"{EscapeJson(Path.GetFullPath(pdfPath))}\",",
+            "  \"targetAblageName\": \"Ablage macOS\",",
+            "  \"targetEdge\": \"Right\",",
+            "  \"requestedFrameFormat\": \"TransientPdfBytes\",",
+            "  \"transientPdfFrame\": \"true\",",
+            "  \"supportsTransientPdfBytes\": \"true\",",
+            "  \"pdfLeaseMode\": \"MemoryOnly\",",
+            "  \"ownerKeepsOriginal\": \"true\",",
+            "  \"guestMayPersistPdf\": \"false\",",
+            "  \"guestMayExportPdf\": \"false\",",
+            "  \"allowTextSelection\": \"true\",",
+            "  \"committed\": \"true\"",
+            "}"
+        });
+    }
+
+    private static string EscapeJson(string value) =>
+        value.Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("\"", "\\\"", StringComparison.Ordinal);
 
     private sealed record Options(
         string PdfPath,
@@ -505,6 +729,7 @@ internal static class Program
         bool Once,
         bool SmokeTest,
         bool PlacementGatingSmokeTest,
+        bool DynamicPlacementSmokeTest,
         bool ShowHelp)
     {
         public static string DefaultPdfPath()
@@ -529,6 +754,7 @@ internal static class Program
             var once = false;
             var smokeTest = false;
             var placementGatingSmokeTest = false;
+            var dynamicPlacementSmokeTest = false;
             var showHelp = false;
 
             for (var index = 0; index < args.Length; index++)
@@ -574,6 +800,15 @@ internal static class Program
                 if (Is(arg, "--placement-gating-smoke-test", "-PlacementGatingSmokeTest"))
                 {
                     placementGatingSmokeTest = true;
+                    waitForPlacement = true;
+                    continue;
+                }
+
+                if (Is(arg, "--dynamic-placement-smoke-test", "-DynamicPlacementSmokeTest"))
+                {
+                    dynamicPlacementSmokeTest = true;
+                    dynamicPdfFromPlacementSignal = true;
+                    memoryPdfFrame = true;
                     waitForPlacement = true;
                     continue;
                 }
@@ -634,6 +869,7 @@ internal static class Program
                 once,
                 smokeTest,
                 placementGatingSmokeTest,
+                dynamicPlacementSmokeTest,
                 showHelp);
         }
 

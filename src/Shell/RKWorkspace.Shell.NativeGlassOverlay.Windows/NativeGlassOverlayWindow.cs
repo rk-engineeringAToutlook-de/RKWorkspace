@@ -20,7 +20,8 @@ public sealed class NativeGlassOverlayWindow : Window
     {
         _runtime = runtime;
         _options = options;
-        var bounds = FormsScreen.PrimaryScreen?.Bounds ?? new System.Drawing.Rectangle(0, 0, 1280, 720);
+        var pixelBounds = FormsScreen.PrimaryScreen?.Bounds ?? new System.Drawing.Rectangle(0, 0, 1280, 720);
+        var dipBounds = PrimaryScreenDipBounds(pixelBounds);
 
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
@@ -28,23 +29,23 @@ public sealed class NativeGlassOverlayWindow : Window
         Background = System.Windows.Media.Brushes.Transparent;
         Topmost = true;
         ShowInTaskbar = false;
-        Left = bounds.Left;
-        Top = bounds.Top;
-        Width = bounds.Width;
-        Height = bounds.Height;
+        Left = dipBounds.Left;
+        Top = dipBounds.Top;
+        Width = dipBounds.Width;
+        Height = dipBounds.Height;
         Title = string.Empty;
 
-        _surface = new NativeGlassOverlaySurface(runtime, bounds, options);
+        _surface = new NativeGlassOverlaySurface(runtime, pixelBounds, dipBounds.Width, dipBounds.Height, options);
         _shaderLayer = new NativeGlassShaderLayer
         {
-            Width = bounds.Width,
-            Height = bounds.Height
+            Width = dipBounds.Width,
+            Height = dipBounds.Height
         };
 
         var root = new Grid
         {
-            Width = bounds.Width,
-            Height = bounds.Height,
+            Width = dipBounds.Width,
+            Height = dipBounds.Height,
             Background = System.Windows.Media.Brushes.Transparent
         };
         root.Children.Add(_shaderLayer);
@@ -121,5 +122,23 @@ public sealed class NativeGlassOverlayWindow : Window
         }
 
         NativeGlassWindowInteractivity.SetClickThrough(this, !_surface.WantsPointerInput);
+    }
+
+    private static Rect PrimaryScreenDipBounds(System.Drawing.Rectangle pixelBounds)
+    {
+        var primaryWidth = SystemParameters.PrimaryScreenWidth;
+        var primaryHeight = SystemParameters.PrimaryScreenHeight;
+        if (primaryWidth <= 1 || primaryHeight <= 1)
+        {
+            return new Rect(0, 0, pixelBounds.Width, pixelBounds.Height);
+        }
+
+        var scaleX = Math.Max(0.01, pixelBounds.Width / primaryWidth);
+        var scaleY = Math.Max(0.01, pixelBounds.Height / primaryHeight);
+        return new Rect(
+            pixelBounds.Left / scaleX,
+            pixelBounds.Top / scaleY,
+            primaryWidth,
+            primaryHeight);
     }
 }

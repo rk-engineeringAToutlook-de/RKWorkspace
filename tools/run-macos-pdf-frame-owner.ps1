@@ -9,6 +9,7 @@ param(
     [switch] $DynamicPdfFromPlacementSignal,
     [switch] $MemoryPdfFrame,
     [switch] $PlacementGatingSmokeTest,
+    [switch] $DynamicPlacementSmokeTest,
     [switch] $Once,
     [switch] $SmokeTest
 )
@@ -56,6 +57,10 @@ if ($SmokeTest) {
 
 if ($PlacementGatingSmokeTest) {
     $arguments += '--placement-gating-smoke-test'
+}
+
+if ($DynamicPlacementSmokeTest) {
+    $arguments += '--dynamic-placement-smoke-test'
 }
 
 Write-Host 'RK Workspace macOS PDF Frame Owner'
