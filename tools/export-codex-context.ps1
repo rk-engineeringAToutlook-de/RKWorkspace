@@ -198,6 +198,8 @@ $files = @(
     'Docs\Readiness\MA017_FailureTaxonomy.md',
     'Docs\Readiness\MA017_NextActions.md',
     'Docs\Readiness\MA017_DocumentationCheckpoint.md',
+    'Docs\Readiness\MA017_FinalVerificationPlan.md',
+    'Docs\Readiness\MA017_FinalCleanupCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
@@ -273,8 +275,16 @@ $files = @(
     'release\ma017\reports\stability-report.md',
     'release\ma017\reports\performance-stability-checkpoint-report.md',
     'release\ma017\reports\documentation-checkpoint-report.md',
+    'release\ma017\reports\final-smoke-report.md',
+    'release\ma017\reports\final-no-file-report.md',
+    'release\ma017\reports\final-security-report.md',
+    'release\ma017\reports\final-proximity-report.md',
+    'release\ma017\reports\final-pdf-lifecycle-report.md',
+    'release\ma017\reports\final-platform-handoff-report.md',
+    'release\ma017\reports\final-cleanup-checkpoint-report.md',
     'release\ma017\PACKAGE_INDEX.md',
     'release\ma017\OWNER_SHORT_GUIDE.md',
+    'release\ma017\OWNER_FINAL_GUIDE.md',
     'release\ma017\packages\windows-pilot\README.md',
     'release\ma017\packages\windows-pilot\manifest.json',
     'release\ma017\packages\macos-handoff\README.md',
@@ -544,6 +554,8 @@ $files = @(
     'tools\run-ma017-packaging-checkpoint.ps1',
     'tools\run-ma017-performance-stability.ps1',
     'tools\run-ma017-documentation-checkpoint.ps1',
+    'tools\run-ma017-final-verification.ps1',
+    'tools\run-ma017-final-cleanup-checkpoint.ps1',
     'tools\configure-ma017-pilot.ps1',
     'tools\export-ma017-pilot-report.ps1',
     'tools\record-ma017-feedback.ps1',
@@ -597,6 +609,8 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-ma017-windows-all-pdf-lifecycle.ps1 -SmokeTest
 .\tools\export-ma017-cross-device-diagnostics.ps1 -SmokeTest
 .\tools\run-ma017-pilot-lab.ps1 -SmokeTest
+.\tools\run-ma017-final-verification.ps1 -SkipHeavy
+.\tools\run-ma017-final-cleanup-checkpoint.ps1 -SmokeTest -AllowDirty
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest

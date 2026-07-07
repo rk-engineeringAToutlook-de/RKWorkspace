@@ -1,7 +1,7 @@
 # RK Workspace
 
 Dokument-ID: RKWS-README-001  
-Version: 2.70.0
+Version: 2.71.0
 Status: Accepted  
 Datum: 2026-07-07
 
@@ -49,6 +49,8 @@ Wichtige MA017-Gates:
 .\tools\run-ma017-packaging-checkpoint.ps1 -SmokeTest -AllowDirty
 .\tools\run-ma017-performance-stability.ps1 -SmokeTest
 .\tools\run-ma017-documentation-checkpoint.ps1 -SmokeTest
+.\tools\run-ma017-final-verification.ps1 -SkipHeavy
+.\tools\run-ma017-final-cleanup-checkpoint.ps1 -SmokeTest -AllowDirty
 ~~~
 
 MA017 ist nur ein kontrollierter Pilotpfad. Native macOS- und iOS-Ausfuehrung bleibt an die finalen Xcode-Handoffs gebunden; Produktivbetrieb, Discovery, Cloud-Sync und Ownership Transfer sind weiterhin ausgeschlossen.
@@ -412,6 +414,7 @@ Nach MA006.09 hat der erste Owner-Test entschieden: Die aktuelle C#-Darstellung 
 
 | Version | Datum | Aenderung |
 | --- | --- | --- |
+| 2.71.0 | 2026-07-07 | MA017.131 bis MA017.140 mit Final Verification Plan, finalen Smoke-/Security-/No-File-/Proximity-/PDF-/Platform-Handoff-Reports und Final Cleanup Checkpoint dokumentiert. |
 | 2.68.0 | 2026-07-06 | MA013.91 bis MA013.100 mit Performance-Baseline, Multi-Frame-Load, Pilot-Akzeptanzkriterien und MA013 Real-Pilot-Readiness abgeschlossen. |
 | 2.61.0 | 2026-07-06 | MA011.07 Manual Map CLI fuer echten Lab-Aufbau mit Import/Export/Validate, Sample-Map und Selector-Smoke dokumentiert. |
 | 2.60.0 | 2026-07-06 | MA011.05 Windows PDF Frame Pilot mit klarer Owner-/Gast-Testanzeige, optionalem Debug und stabilisierten Rueckgabe-/Recovery-Texten dokumentiert. |
