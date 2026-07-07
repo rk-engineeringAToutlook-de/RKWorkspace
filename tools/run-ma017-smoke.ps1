@@ -31,6 +31,7 @@ else {
     Invoke-RkwsSmoke 'MA016 Verified Baseline' { & (Join-Path $root 'tools\run-ma016-smoke.ps1') }
 }
 
+Invoke-RkwsSmoke 'MA017 Windows PDF Standard Pilot' { & (Join-Path $root 'tools\run-ma017-windows-pdf-pilot.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Context Export' { & (Join-Path $root 'tools\export-codex-context.ps1') }
 Invoke-RkwsSmoke 'MA017 Context Secret Scan' { & (Join-Path $root 'tools\test-context-pack-no-secrets.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Final Status Guard Smoke' { & (Join-Path $root 'tools\check-ma016-final-status.ps1') -SmokeTest }
