@@ -17,6 +17,8 @@ Diese Matrix definiert die ersten MA017 Pilotlaeufe.
 | P6 | Windows | iPad | Rechnung.pdf | Open PDF Frame | Haptik/Touch pruefen |
 | P7 | Windows | iPhone | Rechnung.pdf | Compact Frame | kompakte Surface pruefen |
 | P8 | Windows | macOS + iPad | Rechnung.pdf | Nearest Ablage | Proximity-Auswahl pruefen |
+| P9 | Windows | simulated UWB/Dongle | Rechnung.pdf | Glass Edge + nearest Ablage | genau eine naechste Ablage |
+| P10 | Windows | Manual Map + UWB Fusion | Rechnung.pdf | Fusion | keine springende Kante |
 
 ## Pflichtbeobachtung
 
@@ -27,5 +29,5 @@ Jeder Pilot dokumentiert:
 - Return.
 - Recovery.
 - aktive Glass Edge.
+- Direction, Distance und Confidence bei Proximity-Piloten.
 - Owner-Bewertung: Gruen, Gelb oder Rot.
-

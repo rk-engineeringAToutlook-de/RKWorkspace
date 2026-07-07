@@ -35,6 +35,7 @@ Invoke-RkwsSmoke 'MA017 Windows PDF Standard Pilot' { & (Join-Path $root 'tools\
 Invoke-RkwsSmoke 'MA017 Security/Policy Pilot' { & (Join-Path $root 'tools\run-ma017-security-policy-pilot.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 macOS Handoff' { & (Join-Path $root 'tools\run-ma017-macos-handoff.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 iOS/iPad Handoff' { & (Join-Path $root 'tools\run-ma017-ios-handoff.ps1') -SmokeTest }
+Invoke-RkwsSmoke 'MA017 UWB/Dongle Pilot' { & (Join-Path $root 'tools\run-ma017-uwb-dongle-pilot.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Context Export' { & (Join-Path $root 'tools\export-codex-context.ps1') }
 Invoke-RkwsSmoke 'MA017 Context Secret Scan' { & (Join-Path $root 'tools\test-context-pack-no-secrets.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Final Status Guard Smoke' { & (Join-Path $root 'tools\check-ma016-final-status.ps1') -SmokeTest }

@@ -17,7 +17,7 @@ Der Zielzustand ist nicht "mehr Dokumentation", sondern ein reproduzierbarer Tes
 - No File Ingress bleibt hart.
 - Glass Edge zeigt genau die naechste Ablage.
 - Manual Map bleibt Fallback.
-- UWB/Dongle werden fuer echte Naehe vorbereitet.
+- UWB/Dongle werden fuer echte Naehe vorbereitet und simuliert getestet.
 - Owner bewertet Human Experience, nicht Technik.
 
 ## Nicht-Ziele
@@ -31,4 +31,3 @@ Der Zielzustand ist nicht "mehr Dokumentation", sondern ein reproduzierbarer Tes
 ## Erfolg
 
 MA017 ist erfolgreich, wenn mindestens ein realer Plattformpfad mit Owner-Freigabe testbar ist und alle Sicherheitsregeln aus MA016 erhalten bleiben.
-

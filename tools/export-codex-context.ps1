@@ -45,6 +45,7 @@ $files = @(
     'Docs\Proximity\EdgeSelectionUserControl.md',
     'Docs\AblageAnchorDongle.md',
     'Docs\Hardware\AblageAnchorDongle_MVP.md',
+    'Docs\Hardware\DongleAnchorMvp_MA017.md',
     'Docs\Hardware\DongleFirmwareArchitecture.md',
     'Docs\Hardware\UsbDongleControlProtocol.md',
     'Docs\GestureStrategy.md',
@@ -173,6 +174,7 @@ $files = @(
     'Docs\Readiness\MA017_StartCheckpoint.md',
     'Docs\Readiness\MA017_WindowsPilotCheckpoint.md',
     'Docs\Readiness\MA017_SecurityPolicyPilotCheckpoint.md',
+    'Docs\Readiness\MA017_UwbDongleCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
@@ -181,7 +183,11 @@ $files = @(
     'Docs\Testing\MA016_RealTestRunbook.md',
     'Docs\Testing\MA017_OwnerTestGoal.md',
     'Docs\Testing\MA017_WindowsPdfStandardTest.md',
+    'Docs\Development\MA017_UwbConfidenceVisualization.md',
     'Docs\Security\MA017_PdfLifecycleThreatModel.md',
+    'Docs\Security\MA017_ProximityPrivacy.md',
+    'Docs\Platform\iPhone_UwbCapabilityMapping.md',
+    'Docs\Platform\Android_UwbCapabilityMapping.md',
     'release\ma017\handoff\macOS_START_HERE.md',
     'release\ma017\handoff\macOS_MinimalGuestAppTask.md',
     'release\ma017\handoff\macOS_CHECKPOINT.md',
@@ -206,6 +212,7 @@ $files = @(
     'release\ma017\schemas\ios-no-file-ingress-sandbox-contract.v0.2.json',
     'release\ma017\runbooks\iOS_USBInstallRunbook.md',
     'release\ma017\runbooks\iOS_iPad_PilotRunbook.md',
+    'release\ma017\reports\uwb-dongle-report.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -376,6 +383,9 @@ $files = @(
     'src\Shell\RKWorkspace.Shell\Ablage\EdgeSelectionOverride.cs',
     'src\Shell\RKWorkspace.Shell\Ablage\WiFiPresenceProvider.cs',
     'src\Shell\RKWorkspace.Shell\Ablage\UwbProximityProvider.cs',
+    'src\Shell\RKWorkspace.Shell\Ablage\DongleAnchorProvider.cs',
+    'src\Tools\RKWorkspace.DongleAnchorSim\RKWorkspace.DongleAnchorSim.csproj',
+    'src\Tools\RKWorkspace.DongleAnchorSim\Program.cs',
     'src\Surfaces\RKWorkspace.Surface.Abstractions\HapticModels.cs',
     'src\Surfaces\RKWorkspace.Surface.Abstractions\ISurfaceHapticsProvider.cs',
     'src\Frame\RKWorkspace.Frame.Pdf\OwnerGuestFrameStateUx.cs',
@@ -442,6 +452,8 @@ $files = @(
     'tools\run-ma017-security-policy-pilot.ps1',
     'tools\run-ma017-macos-handoff.ps1',
     'tools\run-ma017-ios-handoff.ps1',
+    'tools\run-ma017-uwb-dongle-pilot.ps1',
+    'tools\run-dongle-sim.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -483,6 +495,8 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-ma017-security-policy-pilot.ps1 -SmokeTest
 .\tools\run-ma017-macos-handoff.ps1 -SmokeTest
 .\tools\run-ma017-ios-handoff.ps1 -SmokeTest
+.\tools\run-ma017-uwb-dongle-pilot.ps1 -SmokeTest
+.\tools\run-dongle-sim.ps1 -SmokeTest -UseFusion -Profile MovingCloser
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest

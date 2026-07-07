@@ -54,10 +54,16 @@ Status: Surface starter kit prepared, not MA017 first execution target.
 
 ## Hardware / UWB / Dongle
 
-Status: Simulated and documented.
+Status: Simulated, documented, and smoke-tested.
+
+Evidence:
+
+- UWB Simulator is active in the Windows PDF Glass Edge pilot.
+- Manual Map + UWB Fusion is part of the MA017 UWB/Dongle pilot.
+- `SimulatedDongleAnchorProvider` exists in the Shell model.
+- `run-dongle-sim.ps1` verifies BLE/UWB anchor simulation, confidence, direction and privacy mode.
 
 Next:
 
 - real UWB kit validation.
 - dongle MVP task execution.
-

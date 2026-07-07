@@ -95,6 +95,7 @@ var checks = new List<(string Name, Func<bool> Check)>
     ("PdfLifecycleAuditAndRecovery", PdfLifecycleAuditAndRecovery),
     ("SurfaceContracts", SurfaceContracts),
     ("UwbProviderProfiles", UwbProviderProfiles),
+    ("DongleAnchorProviderSelectsNearest", DongleAnchorProviderSelectsNearest),
     ("ProximityFusionSelectsPriority", ProximityFusionSelectsPriority),
     ("GlassEdgeUsesUwbDirection", GlassEdgeUsesUwbDirection),
     ("GestureTypes", GestureTypes),
@@ -1206,6 +1207,23 @@ static bool UwbProviderProfiles()
            closerNearest.EdgeHint == RKWorkspace.Shell.AblageDirection.Right &&
            passingNearest.TargetDisplayName == "Ablage iPhone" &&
            passingNearest.EdgeHint == RKWorkspace.Shell.AblageDirection.Up;
+}
+
+static bool DongleAnchorProviderSelectsNearest()
+{
+    var current = new RKWorkspace.Shell.AblageIdentity("ablage-windows");
+    var dongle = new RKWorkspace.Shell.SimulatedDongleAnchorProvider(
+        new RKWorkspace.Shell.DongleAnchorSimulationOptions(Profile: RKWorkspace.Shell.UwbSimulationProfile.MovingCloser));
+    var nearest = new RKWorkspace.Shell.NearestAblageSelector().Select(dongle.GetSnapshot(current));
+    return dongle.Status == RKWorkspace.Shell.UwbProviderStatus.Simulated &&
+           dongle.SupportsBlePresence &&
+           dongle.SupportsUwbRanging &&
+           dongle.PrivacyMode == "EphemeralLab" &&
+           nearest.HasTarget &&
+           nearest.Source == RKWorkspace.Shell.AblageProximitySource.Dongle &&
+           nearest.TargetDisplayName == "Ablage iPad via Dongle" &&
+           nearest.EdgeHint == RKWorkspace.Shell.AblageDirection.Right &&
+           nearest.DistanceMeters <= 0.50;
 }
 
 static bool ProximityFusionSelectsPriority()

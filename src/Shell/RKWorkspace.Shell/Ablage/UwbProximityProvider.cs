@@ -138,6 +138,7 @@ public sealed record ProximityFusionSettings
     public IReadOnlyList<AblageProximitySource> ProviderPriority { get; init; } =
     [
         AblageProximitySource.UWB,
+        AblageProximitySource.Dongle,
         AblageProximitySource.ManualMap,
         AblageProximitySource.WiFi,
         AblageProximitySource.Simulated

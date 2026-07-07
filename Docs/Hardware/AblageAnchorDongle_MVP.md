@@ -47,6 +47,24 @@ Mindestplanung fuer MA016:
 
 Der Dongle liefert nur Distanz, Richtung, Confidence und Zeitstempel an die Shell. Die Shell entscheidet daraus die eine naechste Ablage.
 
+## MA017 Simulated Anchor Provider
+
+MA017 fuehrt den ersten simulierten Dongle-Anker ein:
+
+```text
+SimulatedDongleAnchorProvider
+```
+
+Er repraesentiert BLE Presence, optionale UWB-Ranging-Faehigkeit, Direction, Distance, Confidence und `PrivacyMode: EphemeralLab`.
+
+Der Smoke laeuft ueber:
+
+```powershell
+.\tools\run-dongle-sim.ps1 -SmokeTest -UseFusion -Profile MovingCloser
+```
+
+Damit ist der Hardwarepfad vorbereitet, ohne schon echte Hardware, BLE-Scan oder USB-Control zu verlangen.
+
 ## Nicht-Ziele
 
 - keine Dateiablage
