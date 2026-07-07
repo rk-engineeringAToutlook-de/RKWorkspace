@@ -1,0 +1,18 @@
+{
+  "messageId": "msg-ma017-capsule-created",
+  "messageType": "CapsuleCreated",
+  "sessionId": "session-ma017-macos",
+  "sourceAblageId": "ablage-windows-owner",
+  "targetAblageId": "ablage-macos-guest",
+  "timestamp": "2026-07-07T00:00:00Z",
+  "payload": {
+    "capsuleId": "capsule-rechnung",
+    "thingId": "pdf-rechnung",
+    "displayName": "Rechnung.pdf",
+    "frameSessionId": "frame-rechnung",
+    "leaseId": "lease-rechnung",
+    "noFileIngress": true,
+    "containsOriginalFileBytes": false,
+    "hasOriginalPath": false
+  }
+}

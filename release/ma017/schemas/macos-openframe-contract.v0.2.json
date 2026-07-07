@@ -1,0 +1,36 @@
+{
+  "$schema": "https://rkworkspace.local/schema/macos-openframe-contract-v0.2.json",
+  "contractId": "macos-openframe-contract-v0.2",
+  "platform": "macOS",
+  "scope": "OpenFrame",
+  "noFileIngressRequired": true,
+  "messages": [
+    {
+      "type": "OpenFrameStarted",
+      "direction": "owner-to-guest",
+      "requiredPayload": ["frameSessionId", "leaseId", "thingId", "viewerName", "page", "zoom", "noFileIngress"]
+    },
+    {
+      "type": "OpenFrameReady",
+      "direction": "guest-to-owner",
+      "requiredPayload": ["frameSessionId", "leaseId", "noFileIngress"]
+    },
+    {
+      "type": "OpenFrameReturned",
+      "direction": "guest-to-owner",
+      "requiredPayload": ["frameSessionId", "leaseId", "guestKeptOriginalFile"]
+    },
+    {
+      "type": "OpenFrameInputDenied",
+      "direction": "guest-to-owner",
+      "requiredPayload": ["frameSessionId", "leaseId", "inputType", "policyDenied"]
+    },
+    {
+      "type": "OpenFrameRecovered",
+      "direction": "owner-to-guest",
+      "requiredPayload": ["frameSessionId", "leaseId", "guestFrameInvalidated"]
+    }
+  ],
+  "allowedFrameData": ["RenderedPage", "MetadataPreview", "FrameInputAck"],
+  "forbiddenPayloadKeys": ["pdfBytes", "originalBytes", "originalFileBytes", "originalPath", "localPdfPath", "downloadPath", "filePath"]
+}

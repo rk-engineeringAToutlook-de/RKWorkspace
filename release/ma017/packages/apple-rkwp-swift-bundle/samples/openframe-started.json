@@ -1,0 +1,20 @@
+{
+  "messageId": "msg-ma017-openframe-started",
+  "messageType": "OpenFrameStarted",
+  "sessionId": "session-ma017-macos",
+  "sourceAblageId": "ablage-windows-owner",
+  "targetAblageId": "ablage-macos-guest",
+  "timestamp": "2026-07-07T00:00:01Z",
+  "payload": {
+    "frameSessionId": "frame-rechnung",
+    "leaseId": "lease-rechnung",
+    "thingId": "pdf-rechnung",
+    "displayName": "Rechnung.pdf",
+    "viewerName": "Windows PDF Viewer",
+    "page": 1,
+    "zoom": 1.0,
+    "noFileIngress": true,
+    "containsOriginalFileBytes": false,
+    "hasOriginalPath": false
+  }
+}

@@ -182,6 +182,20 @@ $files = @(
     'Docs\Testing\MA017_OwnerTestGoal.md',
     'Docs\Testing\MA017_WindowsPdfStandardTest.md',
     'Docs\Security\MA017_PdfLifecycleThreatModel.md',
+    'release\ma017\handoff\macOS_START_HERE.md',
+    'release\ma017\handoff\macOS_MinimalGuestAppTask.md',
+    'release\ma017\handoff\macOS_CHECKPOINT.md',
+    'release\ma017\config\macos-guest.sample.json',
+    'release\ma017\schemas\macos-capsule-contract.v0.2.json',
+    'release\ma017\schemas\macos-openframe-contract.v0.2.json',
+    'release\ma017\schemas\macos-no-file-ingress-contract.v0.2.json',
+    'release\ma017\runbooks\macOS_PilotRunbook.md',
+    'release\ma017\runbooks\macOS_BuildPermissionsChecklist.md',
+    'release\ma017\packages\apple-rkwp-swift-bundle\README.md',
+    'release\ma017\packages\apple-rkwp-swift-bundle\RKWPModels.swift',
+    'release\ma017\packages\apple-rkwp-swift-bundle\samples\capsule-created.json',
+    'release\ma017\packages\apple-rkwp-swift-bundle\samples\openframe-started.json',
+    'release\ma017\packages\apple-rkwp-swift-bundle\samples\no-file-ingress-result.json',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -416,6 +430,7 @@ $files = @(
     'tools\run-ma017-smoke.ps1',
     'tools\run-ma017-windows-pdf-pilot.ps1',
     'tools\run-ma017-security-policy-pilot.ps1',
+    'tools\run-ma017-macos-handoff.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
     'tools\package-windows-dev.ps1',
@@ -455,6 +470,7 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-windows-pdf-lifecycle-pilot.ps1 -SmokeTest -OpenPdf
 .\tools\run-ma017-windows-pdf-pilot.ps1 -SmokeTest
 .\tools\run-ma017-security-policy-pilot.ps1 -SmokeTest
+.\tools\run-ma017-macos-handoff.ps1 -SmokeTest
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest

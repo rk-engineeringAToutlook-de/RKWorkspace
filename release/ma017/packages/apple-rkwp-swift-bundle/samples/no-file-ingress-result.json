@@ -1,0 +1,8 @@
+{
+  "guestHasPdfFile": false,
+  "guestHasOriginalPath": false,
+  "guestHasCopiedPdfBytes": false,
+  "frameCache": "MemoryOnly",
+  "sandboxContainsOriginal": false,
+  "result": "SUCCESS"
+}

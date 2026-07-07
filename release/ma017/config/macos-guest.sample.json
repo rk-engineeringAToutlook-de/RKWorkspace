@@ -1,0 +1,31 @@
+{
+  "profile": "ma017-macos-guest",
+  "visibleName": "Ablage macOS",
+  "platform": "macOS",
+  "role": "FrameGuestSurface",
+  "productMode": "PilotLab",
+  "ownerDiscovery": {
+    "mode": "manual",
+    "windowsOwnerHost": "WINDOWS_OWNER_IP",
+    "devTransportPort": 57100
+  },
+  "identity": {
+    "store": ".rkworkspace-dev/identities/macos-guest",
+    "trustLevel": "DevelopmentTrusted",
+    "pairingState": "Paired"
+  },
+  "framePolicy": {
+    "frameOnly": true,
+    "noFileIngress": true,
+    "memoryOnlyCache": true,
+    "allowCapsule": true,
+    "allowOpenFrame": true,
+    "allowKeepCapsule": false,
+    "returnSupported": true,
+    "recoverySupported": true
+  },
+  "ui": {
+    "visibleLanguage": "human",
+    "showTechnicalDiagnostics": false
+  }
+}
