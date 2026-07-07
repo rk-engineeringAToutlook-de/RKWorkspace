@@ -175,6 +175,7 @@ $files = @(
     'Docs\Readiness\MA017_WindowsPilotCheckpoint.md',
     'Docs\Readiness\MA017_SecurityPolicyPilotCheckpoint.md',
     'Docs\Readiness\MA017_UwbDongleCheckpoint.md',
+    'Docs\Readiness\MA017_CrossDeviceScriptsCheckpoint.md',
     'Docs\Testing\MA016_macOS_FirstPilotRunbook.md',
     'Docs\Testing\MA016_iOS_USBInstallRunbook.md',
     'Docs\Testing\MA016_CrossDeviceOwnerInstructions.md',
@@ -183,6 +184,8 @@ $files = @(
     'Docs\Testing\MA016_RealTestRunbook.md',
     'Docs\Testing\MA017_OwnerTestGoal.md',
     'Docs\Testing\MA017_WindowsPdfStandardTest.md',
+    'Docs\Testing\MA017_CrossDeviceOwnerInstructions.md',
+    'Docs\Testing\MA017_CrossDeviceFailurePlaybook.md',
     'Docs\Development\MA017_UwbConfidenceVisualization.md',
     'Docs\Security\MA017_PdfLifecycleThreatModel.md',
     'Docs\Security\MA017_ProximityPrivacy.md',
@@ -213,6 +216,7 @@ $files = @(
     'release\ma017\runbooks\iOS_USBInstallRunbook.md',
     'release\ma017\runbooks\iOS_iPad_PilotRunbook.md',
     'release\ma017\reports\uwb-dongle-report.md',
+    'release\ma017\reports\cross-device-diagnostics.md',
     'Docs\Readiness\CrossDeviceTestPlan_Windows_macOS_iPad.md',
     'Docs\Readiness\WindowsToMac_DevTransportPlan.md',
     'Docs\Readiness\WindowsToMac_LanTestPlan.md',
@@ -453,6 +457,13 @@ $files = @(
     'tools\run-ma017-macos-handoff.ps1',
     'tools\run-ma017-ios-handoff.ps1',
     'tools\run-ma017-uwb-dongle-pilot.ps1',
+    'tools\run-ma017-windows-to-mac-closed-pdf.ps1',
+    'tools\run-ma017-windows-to-mac-open-pdf.ps1',
+    'tools\run-ma017-windows-to-ipad-closed-pdf.ps1',
+    'tools\run-ma017-windows-to-ipad-open-pdf.ps1',
+    'tools\run-ma017-windows-all-pdf-lifecycle.ps1',
+    'tools\run-ma017-cross-device-session-monitor.ps1',
+    'tools\export-ma017-cross-device-diagnostics.ps1',
     'tools\run-dongle-sim.ps1',
     'tools\run-windows-object-adapter.ps1',
     'tools\run-config-tool.ps1',
@@ -497,6 +508,8 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-ma017-ios-handoff.ps1 -SmokeTest
 .\tools\run-ma017-uwb-dongle-pilot.ps1 -SmokeTest
 .\tools\run-dongle-sim.ps1 -SmokeTest -UseFusion -Profile MovingCloser
+.\tools\run-ma017-windows-all-pdf-lifecycle.ps1 -SmokeTest
+.\tools\export-ma017-cross-device-diagnostics.ps1 -SmokeTest
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest
