@@ -14,7 +14,7 @@ ARGS=()
 cd "$PACKAGE"
 
 if [[ "$#" == "0" ]]; then
-  ARGS=(--host 192.168.163.11 --port 57120 --wait-for-placement)
+  ARGS=(--host 192.168.163.11 --port 57120 --wait-for-placement --direction Left)
 fi
 
 for arg in "$@"; do
@@ -50,7 +50,7 @@ info = {
     "CFBundlePackageType": "APPL",
     "CFBundleVersion": "1",
     "CFBundleShortVersionString": "0.1",
-    "NSLocalNetworkUsageDescription": "RK Workspace verbindet sich lokal mit der Windows-Ablage und uebertraegt nur den PDF-Frame.",
+    "NSLocalNetworkUsageDescription": "RK Workspace verbindet sich lokal mit der Windows-Ablage und zeigt die PDF nur als fluechtige Memory-Lease im Frame.",
 }
 
 with open(sys.argv[1], "wb") as handle:

@@ -10,14 +10,20 @@ Start here for a separate macOS Codex instance:
 
 ## Ziel
 
-Windows bleibt Owner der echten PDF. macOS zeigt nur einen gerenderten PNG-Frame im Speicher.
+Windows bleibt Owner der echten PDF. macOS zeigt die PDF nur als fluechtige Memory-Lease in einem nativen Frame.
 
 macOS darf nicht:
 
-- die Original-PDF speichern.
+- die PDF als Finder-Datei, Download, Cache-Datei oder tmp-Datei speichern.
 - den Originalpfad erhalten.
-- Originalbytes erhalten.
-- eine freie PDF-Datei in Finder, Downloads, tmp oder Cache erzeugen.
+- die PDF dauerhaft behalten.
+- Speichern, Exportieren oder Ablegen aus dem Frame anbieten.
+
+macOS darf:
+
+- die PDF-Bytes nur im Speicher des Frame-Fensters halten.
+- Textauswahl/Kopieren im Frame erlauben.
+- die Frame-Lease beim Schliessen, Zurueckgeben oder Verbindungsverlust verwerfen.
 
 ## Windows starten
 
@@ -39,7 +45,7 @@ cd "/path/to/RKWorkspace/release/ma017/packages/macos-frame-guest"
 swift run MacPdfFrameGuest --host WINDOWS_IP --port 57120
 ~~~
 
-Danach im macOS-Fenster `Frame holen` druecken. Die PDF-Seite muss sichtbar erscheinen.
+Danach im macOS-Fenster `Frame holen` druecken. Die PDF muss im nativen Frame sichtbar und als PDF textselektierbar sein.
 
 Fuer den sichtbaren Windows-Glasrand-Livefluss wartet macOS schon vor dem Ablegen:
 
@@ -51,10 +57,10 @@ Fuer den Live-Pilot als dauerhafte macOS-Ablage wird die App als lokales `.app`-
 
 ~~~bash
 cd "/path/to/RKWorkspace"
-tools/run-macos-pdf-frame-guest.sh --host 192.168.163.11 --port 57120 --wait-for-placement
+tools/run-macos-pdf-frame-guest.sh --host 192.168.163.11 --port 57120 --wait-for-placement --direction Left
 ~~~
 
-Der Dienst laeuft als interaktive LaunchAgent-App weiter. Die macOS-Abfrage fuer lokale Netzwerke muss mit `Erlauben` bestaetigt werden.
+Der Dienst laeuft als interaktive LaunchAgent-App weiter. Die macOS-Abfrage fuer lokale Netzwerke muss mit `Erlauben` bestaetigt werden. Die Glaskante liegt als Desktop-Overlay an der erkannten Windows-Seite, nicht im PDF-Frame.
 
 ## macOS Desktop-Owner starten
 
@@ -71,9 +77,11 @@ Der Prozess bleibt im Hintergrund. `Option` gedrueckt halten und kurz auf eine g
 ~~~text
 macOSGuestAblage: STARTED
 FrameView: OK
-GuestHasPdfFile: NO
+TransientPdfLease: OK
+GuestPersistedPdfFile: NO
 GuestHasOriginalPath: NO
 OriginalFileBytes: NO
-FrameCache: MemoryOnly
-NoFileIngress: SUCCESS
+PDFCache: MemoryOnly
+TextSelection: OK
+NoDiskPdf: SUCCESS
 ~~~

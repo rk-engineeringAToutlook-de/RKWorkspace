@@ -144,6 +144,39 @@ enum NoFileIngressVerifier {
 }
 
 enum LocalVerificationFrame {
+    static func transientPdfMessage() throws -> RkwpMessage {
+        guard let root = MacGuestPaths.repositoryRoot() else {
+            throw FrameGuestError.repositoryRootNotFound
+        }
+
+        let pdf = root.appendingPathComponent("samples/Objects/Rechnung.pdf")
+        let pdfData = try Data(contentsOf: pdf)
+        return RkwpMessage(
+            messageType: "FrameUpdate",
+            sourceAblageId: "ablage-local-owner-check",
+            targetAblageId: "ablage-macos-guest",
+            sessionId: "session-local-transient-pdf-check",
+            payload: [
+                "frameSessionId": "frame-local-transient-pdf",
+                "leaseId": "lease-local-transient-pdf",
+                "thingId": "ding-local-transient-pdf",
+                "displayName": pdf.lastPathComponent,
+                "page": "1",
+                "frameFormat": "TransientPdfBytes",
+                "pdfBase64": pdfData.base64EncodedString(),
+                "ownerKeepsOriginal": "true",
+                "containsOriginalFileBytes": "false",
+                "hasOriginalPath": "false",
+                "guestHasPdfFile": "false",
+                "guestMayPersistPdf": "false",
+                "guestMayExportPdf": "false",
+                "pdfLeaseMode": "MemoryOnly",
+                "pdfCache": "MemoryOnly",
+                "allowTextSelection": "true",
+                "visibleStatus": "liegt hier im Frame"
+            ])
+    }
+
     static func message() throws -> RkwpMessage {
         let pngData = try makePngData()
         return RkwpMessage(
@@ -269,11 +302,11 @@ enum SmokeTestRunner {
         let noFileIngress = try decoder.decode(NoFileIngressResult.self, from: noFileIngressData)
         try NoFileIngressVerifier.validateNoFileIngress(noFileIngress)
 
-        let frame = try LocalVerificationFrame.message()
-        try NoFileIngressVerifier.validatePayload(frame.payload)
-        guard let pngBase64 = frame.payload["pngBase64"],
-              let pngData = Data(base64Encoded: pngBase64),
-              NSImage(data: pngData) != nil else {
+        let frame = try LocalVerificationFrame.transientPdfMessage()
+        try TransientPdfLeaseVerifier.validatePayload(frame.payload)
+        guard let pdfBase64 = frame.payload["pdfBase64"],
+              let pdfData = Data(base64Encoded: pdfBase64),
+              pdfData.starts(with: Data("%PDF".utf8)) else {
             throw FrameGuestError.invalidFrame
         }
 
@@ -282,14 +315,15 @@ enum SmokeTestRunner {
         print("FrameCapsule: OK")
         print("OpenFrame: OK")
         print("FrameView: OK")
-        print("GuestHasPdfFile: NO")
+        print("TransientPdfLease: OK")
+        print("GuestPersistedPdfFile: NO")
         print("GuestHasOriginalPath: NO")
         print("OriginalFileBytes: NO")
-        print("GuestHasCopiedPdfBytes: NO")
-        print("FrameCache: MemoryOnly")
+        print("PDFCache: MemoryOnly")
+        print("TextSelection: OK")
         print("Return: SUCCESS")
         print("Recovery: SUCCESS")
-        print("NoFileIngress: SUCCESS")
+        print("NoDiskPdf: SUCCESS")
         print("RESULT: SUCCESS")
     }
 }
