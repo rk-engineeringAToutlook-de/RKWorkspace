@@ -1,22 +1,49 @@
 import AppKit
+import Darwin
 import SwiftUI
 
 @main
-struct MacPdfFrameGuestApp: App {
-    @StateObject private var model = FrameGuestModel()
+@MainActor
+final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate {
+    private static var retainedDelegate: MacPdfFrameGuestApp?
+    private var window: NSWindow?
+    private var model: FrameGuestModel?
 
-    init() {
+    static func main() {
         SmokeTestRunner.runAndExitIfRequested(arguments: CommandLine.arguments)
+
+        let app = NSApplication.shared
+        let delegate = MacPdfFrameGuestApp()
+        retainedDelegate = delegate
+        app.delegate = delegate
+        app.setActivationPolicy(.regular)
+        app.run()
     }
 
-    var body: some Scene {
-        WindowGroup("RK Workspace Ablage") {
-            ContentView(model: model)
-                .frame(minWidth: 880, minHeight: 640)
-                .onAppear {
-                    model.applyCommandLine()
-                }
-        }
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let model = FrameGuestModel()
+        self.model = model
+
+        let content = ContentView(model: model)
+            .frame(minWidth: 880, minHeight: 640)
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 980, height: 720),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false)
+        window.title = "RK Workspace Ablage"
+        window.contentView = NSHostingView(rootView: content)
+        window.isReleasedWhenClosed = false
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        self.window = window
+
+        model.applyCommandLine()
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
     }
 }
 
@@ -476,52 +503,35 @@ final class RkwpDevLanClient: @unchecked Sendable {
         }
 
         requestLine.append("\n")
-
-        var input: InputStream?
-        var output: OutputStream?
-        Stream.getStreamsToHost(withName: host, port: Int(port), inputStream: &input, outputStream: &output)
-
-        guard let inputStream = input, let outputStream = output else {
-            throw FrameGuestError.connectionFailed
-        }
-
-        inputStream.open()
-        outputStream.open()
+        let fd = try openSocket()
         defer {
-            inputStream.close()
-            outputStream.close()
+            Darwin.close(fd)
         }
 
-        let bytes = Array(requestLine.utf8)
-        let written = bytes.withUnsafeBufferPointer {
-            outputStream.write($0.baseAddress!, maxLength: bytes.count)
-        }
-
-        guard written == bytes.count else {
-            throw FrameGuestError.writeFailed
-        }
-
+        try writeAll(Array(requestLine.utf8), to: fd)
         var response = Data()
-        var buffer = [UInt8](repeating: 0, count: 4096)
-        let deadline = Date().addingTimeInterval(10)
+        var buffer = [UInt8](repeating: 0, count: 64 * 1024)
+        let bufferSize = buffer.count
 
-        while Date() < deadline {
-            if inputStream.hasBytesAvailable {
-                let read = inputStream.read(&buffer, maxLength: buffer.count)
-                if read < 0 {
-                    throw FrameGuestError.readFailed
-                }
+        while true {
+            let read = buffer.withUnsafeMutableBytes {
+                Darwin.recv(fd, $0.baseAddress, bufferSize, 0)
+            }
 
-                if read == 0 {
+            if read < 0 {
+                if errno == EAGAIN || errno == EWOULDBLOCK {
                     break
                 }
+                throw FrameGuestError.readFailed
+            }
 
-                response.append(buffer, count: read)
-                if response.contains(0x0A) {
-                    break
-                }
-            } else {
-                Thread.sleep(forTimeInterval: 0.02)
+            if read == 0 {
+                break
+            }
+
+            response.append(buffer, count: read)
+            if response.contains(0x0A) {
+                break
             }
         }
 
@@ -536,6 +546,69 @@ final class RkwpDevLanClient: @unchecked Sendable {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(RkwpMessage.self, from: response)
+    }
+
+    private func openSocket() throws -> Int32 {
+        var hints = addrinfo(
+            ai_flags: 0,
+            ai_family: AF_UNSPEC,
+            ai_socktype: SOCK_STREAM,
+            ai_protocol: IPPROTO_TCP,
+            ai_addrlen: 0,
+            ai_canonname: nil,
+            ai_addr: nil,
+            ai_next: nil)
+        var result: UnsafeMutablePointer<addrinfo>?
+        let lookup = getaddrinfo(host, String(port), &hints, &result)
+        guard lookup == 0, let result else {
+            throw FrameGuestError.connectionFailed
+        }
+        defer {
+            freeaddrinfo(result)
+        }
+
+        var candidate: UnsafeMutablePointer<addrinfo>? = result
+        while let current = candidate {
+            let info = current.pointee
+            let fd = Darwin.socket(info.ai_family, info.ai_socktype, info.ai_protocol)
+            if fd >= 0 {
+                setTimeouts(on: fd)
+                if Darwin.connect(fd, info.ai_addr, info.ai_addrlen) == 0 {
+                    return fd
+                }
+                Darwin.close(fd)
+            }
+            candidate = info.ai_next
+        }
+
+        throw FrameGuestError.connectionFailed
+    }
+
+    private func setTimeouts(on fd: Int32) {
+        var timeout = timeval(tv_sec: 10, tv_usec: 0)
+        _ = withUnsafePointer(to: &timeout) {
+            setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, $0, socklen_t(MemoryLayout<timeval>.size))
+        }
+        _ = withUnsafePointer(to: &timeout) {
+            setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, $0, socklen_t(MemoryLayout<timeval>.size))
+        }
+    }
+
+    private func writeAll(_ bytes: [UInt8], to fd: Int32) throws {
+        try bytes.withUnsafeBytes { rawBuffer in
+            guard let base = rawBuffer.bindMemory(to: UInt8.self).baseAddress else {
+                throw FrameGuestError.writeFailed
+            }
+
+            var sent = 0
+            while sent < bytes.count {
+                let written = Darwin.send(fd, base.advanced(by: sent), bytes.count - sent, 0)
+                if written <= 0 {
+                    throw FrameGuestError.writeFailed
+                }
+                sent += written
+            }
+        }
     }
 }
 

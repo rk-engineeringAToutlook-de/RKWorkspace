@@ -47,6 +47,15 @@ Fuer den sichtbaren Windows-Glasrand-Livefluss wartet macOS schon vor dem Ablege
 swift run MacPdfFrameGuest --host WINDOWS_IP --port 57120 --wait-for-placement
 ~~~
 
+Fuer den Live-Pilot als dauerhafte macOS-Ablage wird die App als lokales `.app`-Paket mit eigener Netzwerkfreigabe gestartet:
+
+~~~bash
+cd "/path/to/RKWorkspace"
+tools/run-macos-pdf-frame-guest.sh --host 192.168.163.11 --port 57120 --wait-for-placement
+~~~
+
+Der Dienst laeuft als interaktive LaunchAgent-App weiter. Die macOS-Abfrage fuer lokale Netzwerke muss mit `Erlauben` bestaetigt werden.
+
 ## macOS Desktop-Owner starten
 
 Fuer den Gegenweg Mac -> Windows:
