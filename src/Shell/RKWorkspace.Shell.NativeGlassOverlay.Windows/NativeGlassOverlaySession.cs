@@ -51,6 +51,12 @@ public sealed class NativeGlassOverlaySession
 
     public bool RemoteGestureRequiredPrepared { get; private set; }
 
+    public bool WholeObjectPortalWarpPrepared { get; private set; }
+
+    public bool TransferSuccessFadePrepared { get; private set; }
+
+    public bool TransferErrorPulsePrepared { get; private set; }
+
     public NativeGlassOverlayCarryState State { get; private set; } = NativeGlassOverlayCarryState.LocalReady;
 
     public bool IsHolding { get; private set; }
@@ -66,6 +72,8 @@ public sealed class NativeGlassOverlaySession
     public float Absorption { get; private set; }
 
     public float PullOutRecovery { get; private set; } = 1f;
+
+    public float ErrorPulse { get; private set; }
 
     public float TiltX { get; private set; }
 
@@ -118,6 +126,7 @@ public sealed class NativeGlassOverlaySession
         CenterLockedSuctionPrepared = _approachTarget > 0.22f;
         EdgeApexSqueezePrepared = _approachTarget > 0.52f;
         ShadowSuctionPrepared = _approachTarget > 0.66f;
+        WholeObjectPortalWarpPrepared = _approachTarget > 0.42f;
     }
 
     public void LeaveLens()
@@ -141,6 +150,7 @@ public sealed class NativeGlassOverlaySession
         CenterLockedSuctionPrepared = true;
         EdgeApexSqueezePrepared = true;
         ShadowSuctionPrepared = true;
+        WholeObjectPortalWarpPrepared = true;
     }
 
     public void PlaceOnDesktop()
@@ -158,6 +168,16 @@ public sealed class NativeGlassOverlaySession
         TiltY = 0f;
         ShadowLift = 0f;
         ShadowOffsetX = 0f;
+    }
+
+    public void FailTransfer()
+    {
+        State = NativeGlassOverlayCarryState.Closing;
+        IsHolding = false;
+        ErrorPulse = 1f;
+        _openTarget = 0f;
+        _approachTarget = 0f;
+        TransferErrorPulsePrepared = true;
     }
 
     public void PullOut()
@@ -189,6 +209,7 @@ public sealed class NativeGlassOverlaySession
                 State = NativeGlassOverlayCarryState.PlacedRemote;
                 RemotePlacementPrepared = true;
                 TunnelAutoClosePrepared = true;
+                TransferSuccessFadePrepared = true;
             }
         }
 
@@ -198,7 +219,7 @@ public sealed class NativeGlassOverlaySession
             _openTarget = 0f;
             _approachTarget = 0f;
             LensOpen = Math.Clamp(LensOpen - ((float)milliseconds / 520f), 0f, 1f);
-            LensEmergence = Math.Clamp(LensEmergence - ((float)milliseconds / 960f), 0f, 1f);
+            LensEmergence = Math.Clamp(LensEmergence - ((float)milliseconds / 1650f), 0f, 1f);
             if (LensOpen <= 0.001f && LensEmergence <= 0.001f)
             {
                 State = NativeGlassOverlayCarryState.Closed;
@@ -236,6 +257,11 @@ public sealed class NativeGlassOverlaySession
         {
             PullOutRecovery = Math.Clamp(PullOutRecovery + ((float)milliseconds / 620f), 0f, 1f);
         }
+
+        if (ErrorPulse > 0f)
+        {
+            ErrorPulse = Math.Clamp(ErrorPulse - ((float)milliseconds / 680f), 0f, 1f);
+        }
     }
 
     public void RunSmokeScenario()
@@ -253,8 +279,12 @@ public sealed class NativeGlassOverlaySession
         Advance(320);
         PlaceIntoLens();
         Advance(TransitTimeoutMilliseconds + 1400);
+        FailTransfer();
+        var errorPulseOk = TransferErrorPulsePrepared && ErrorPulse > 0.5f;
+        Advance(900);
         ReleaseRequiredForAbsorptionPrepared = ReleaseRequiredForAbsorptionPrepared && noAbsorbBeforeRelease;
         RetakeResetsTransitTimerPrepared = RetakeResetsTransitTimerPrepared && retakeOk;
+        TransferErrorPulsePrepared = TransferErrorPulsePrepared && errorPulseOk;
     }
 
     private static float MoveToward(float current, float target, float amount)

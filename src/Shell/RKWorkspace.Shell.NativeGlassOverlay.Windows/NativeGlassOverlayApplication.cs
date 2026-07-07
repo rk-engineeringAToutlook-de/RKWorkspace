@@ -56,11 +56,14 @@ public static class NativeGlassOverlayApplication
                 session.ReleaseRequiredForAbsorptionPrepared &&
                 session.CenterLockedSuctionPrepared &&
                 session.EdgeApexSqueezePrepared &&
+                session.WholeObjectPortalWarpPrepared &&
                 session.NoTwistPrepared &&
                 session.ShadowSuctionPrepared &&
                 session.TransitCountdownPrepared &&
                 session.RetakeResetsTransitTimerPrepared &&
                 session.TunnelAutoClosePrepared &&
+                session.TransferSuccessFadePrepared &&
+                session.TransferErrorPulsePrepared &&
                 session.RemotePlacementPrepared &&
                 session.RemoteGestureRequiredPrepared &&
                 session.State == NativeGlassOverlayCarryState.Closed;
@@ -87,11 +90,14 @@ public static class NativeGlassOverlayApplication
             Console.WriteLine($"ReleaseRequiredForAbsorption: {(session.ReleaseRequiredForAbsorptionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"CenterLockedSuction: {(session.CenterLockedSuctionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"EdgeApexSqueeze: {(session.EdgeApexSqueezePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"WholeObjectPortalWarp: {(session.WholeObjectPortalWarpPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"NoTwist: {(session.NoTwistPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"ShadowSuction: {(session.ShadowSuctionPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TransitCountdown: {(session.TransitCountdownPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"RetakeResetsTransitTimer: {(session.RetakeResetsTransitTimerPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"TunnelAutoClose: {(session.TunnelAutoClosePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TransferSuccessFade: {(session.TransferSuccessFadePrepared ? "OK" : "FAILED")}");
+            Console.WriteLine($"TransferErrorPulse: {(session.TransferErrorPulsePrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"RemotePlacement: {(session.RemotePlacementPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"RemoteGestureRequired: {(session.RemoteGestureRequiredPrepared ? "OK" : "FAILED")}");
             Console.WriteLine($"State: {session.State}");

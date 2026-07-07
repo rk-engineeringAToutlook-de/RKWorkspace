@@ -31,6 +31,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private string? _sourcePdfPath;
     private string _sourceFileName = string.Empty;
     private ImageSource? _pdfPreview;
+    private BitmapSource? _thingTexture;
+    private string _thingTextureKey = string.Empty;
     private WPoint _thingCenter;
     private WPoint _targetCenter;
     private WPoint _lastTargetCenter;
@@ -432,32 +434,32 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         var closingFade = _session.State == NativeGlassOverlayCarryState.Closing
             ? Math.Clamp(_session.LensEmergence, 0.0, 1.0)
             : 1.0;
-        var opacity = Math.Clamp((0.68 + (active * 0.16)) * closingFade, 0.0, 0.88);
+        var opacity = Math.Clamp((0.78 + (active * 0.05)) * closingFade, 0.0, 0.86);
 
         drawingContext.PushOpacity(opacity);
         drawingContext.PushOpacityMask(ProgressiveEdgeMask(direction));
 
         var desktopMaterial = EdgeAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb(4, 255, 255, 255),
-            WColor.FromArgb(18, 230, 250, 255),
-            WColor.FromArgb(32, 255, 255, 255));
+            WColor.FromArgb(2, 255, 255, 255),
+            WColor.FromArgb(10, 230, 240, 246),
+            WColor.FromArgb(24, 255, 255, 255));
         drawingContext.DrawRectangle(desktopMaterial, null, edge);
 
         var body = EdgeAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb(8, 255, 255, 255),
-            WColor.FromArgb(24, 174, 232, 244),
-            WColor.FromArgb(42, 255, 255, 255));
+            WColor.FromArgb(4, 255, 255, 255),
+            WColor.FromArgb(18, 218, 232, 240),
+            WColor.FromArgb(38, 255, 255, 255));
         drawingContext.DrawRectangle(body, null, edge);
 
         var glow = CrossAxisGradient(direction,
-            WColor.FromArgb(0, 190, 245, 255),
+            WColor.FromArgb(0, 235, 250, 255),
+            WColor.FromArgb(34, 255, 255, 255),
+            WColor.FromArgb(14, 202, 224, 236),
             WColor.FromArgb(30, 255, 255, 255),
-            WColor.FromArgb(26, 142, 236, 245),
-            WColor.FromArgb(30, 255, 255, 255),
-            WColor.FromArgb(0, 190, 245, 255));
-        glow.Opacity = 0.52;
+            WColor.FromArgb(0, 235, 250, 255));
+        glow.Opacity = 0.64;
         drawingContext.DrawRectangle(glow, null, edge);
 
         drawingContext.Pop();
@@ -465,6 +467,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         DrawGlassThroat(drawingContext, edge, direction, active);
         DrawPhysicalGlassEdge(drawingContext, edge, direction, active);
         DrawInnerGlassCatchlight(drawingContext, edge, direction);
+        DrawGlassErrorPulse(drawingContext, edge, direction);
 
         drawingContext.Pop();
     }
@@ -483,21 +486,22 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
                 NativeGlassOverlayCarryState.Closing ||
             _session.PickProgress > 0.03f ||
             _session.Approach > 0.03f ||
-            _session.LensOpen > 0.03f;
+            _session.LensOpen > 0.03f ||
+            _session.ErrorPulse > 0.03f;
     }
 
     private void DrawGlassThroat(DrawingContext drawingContext, WRect edge, AblageDirection direction, double active)
     {
         var fill = CrossAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb((byte)Math.Clamp(72 + (active * 16), 72, 88), 255, 255, 255),
-            WColor.FromArgb((byte)Math.Clamp(54 + (active * 14), 54, 68), 136, 235, 245),
+            WColor.FromArgb((byte)Math.Clamp(50 + (active * 8), 50, 58), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(26 + (active * 6), 26, 32), 210, 228, 238),
             WColor.FromArgb(0, 255, 255, 255));
         var halo = CrossAxisGradient(direction,
-            WColor.FromArgb(0, 145, 235, 246),
-            WColor.FromArgb(24, 150, 236, 246),
+            WColor.FromArgb(0, 245, 252, 255),
             WColor.FromArgb(18, 255, 255, 255),
-            WColor.FromArgb(0, 145, 235, 246));
+            WColor.FromArgb(12, 214, 230, 238),
+            WColor.FromArgb(0, 245, 252, 255));
 
         if (direction is AblageDirection.Left or AblageDirection.Right)
         {
@@ -519,11 +523,11 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private void DrawPhysicalGlassEdge(DrawingContext drawingContext, WRect edge, AblageDirection direction, double active)
     {
         var fill = CrossAxisGradient(direction,
-            WColor.FromArgb(0, 180, 245, 255),
-            WColor.FromArgb((byte)Math.Clamp(62 + (active * 18), 62, 80), 255, 255, 255),
-            WColor.FromArgb((byte)Math.Clamp(42 + (active * 16), 42, 58), 126, 228, 240),
-            WColor.FromArgb((byte)Math.Clamp(62 + (active * 18), 62, 80), 255, 255, 255),
-            WColor.FromArgb(0, 180, 245, 255));
+            WColor.FromArgb(0, 244, 252, 255),
+            WColor.FromArgb((byte)Math.Clamp(82 + (active * 6), 82, 88), 255, 255, 255),
+            WColor.FromArgb((byte)Math.Clamp(34 + (active * 5), 34, 39), 206, 224, 236),
+            WColor.FromArgb((byte)Math.Clamp(78 + (active * 6), 78, 84), 255, 255, 255),
+            WColor.FromArgb(0, 244, 252, 255));
 
         switch (direction)
         {
@@ -546,10 +550,10 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         var fill = CrossAxisGradient(direction,
             WColor.FromArgb(0, 255, 255, 255),
-            WColor.FromArgb(48, 255, 255, 255),
-            WColor.FromArgb(24, 142, 230, 242),
+            WColor.FromArgb(68, 255, 255, 255),
+            WColor.FromArgb(18, 210, 228, 236),
             WColor.FromArgb(0, 255, 255, 255));
-        fill.Opacity = 0.52;
+        fill.Opacity = 0.78;
 
         if (direction is AblageDirection.Left or AblageDirection.Right)
         {
@@ -564,6 +568,27 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             ? edge.Top + (edge.Height * 0.82)
             : edge.Top + (edge.Height * 0.18);
         drawingContext.DrawRoundedRectangle(fill, null, new WRect(edge.X + (edge.Width * 0.14), y - 1.6, edge.Width * 0.72, 3.2), 1.6, 1.6);
+    }
+
+    private void DrawGlassErrorPulse(DrawingContext drawingContext, WRect edge, AblageDirection direction)
+    {
+        if (_session.ErrorPulse <= 0.02f)
+        {
+            return;
+        }
+
+        var pulse = EaseOut(_session.ErrorPulse);
+        drawingContext.PushOpacity(Math.Clamp(pulse * 0.82, 0.0, 0.82));
+        drawingContext.PushOpacityMask(ProgressiveEdgeMask(direction));
+        var fill = CrossAxisGradient(direction,
+            WColor.FromArgb(0, 255, 42, 48),
+            WColor.FromArgb(126, 255, 54, 64),
+            WColor.FromArgb(38, 255, 255, 255),
+            WColor.FromArgb(112, 255, 54, 64),
+            WColor.FromArgb(0, 255, 42, 48));
+        drawingContext.DrawRectangle(fill, null, edge);
+        drawingContext.Pop();
+        drawingContext.Pop();
     }
 
     private static LinearGradientBrush ProgressiveEdgeMask(AblageDirection direction)
@@ -823,32 +848,10 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         DrawPaperShadow(drawingContext, corners, bounds);
 
         var geometry = Polygon(corners);
-        var fill = new LinearGradientBrush
-        {
-            StartPoint = new WPoint(0.50, 0.00),
-            EndPoint = new WPoint(0.50, 1.00)
-        };
-        fill.GradientStops.Add(new GradientStop(WColor.FromArgb(246, 252, 252, 248), 0.0));
-        fill.GradientStops.Add(new GradientStop(WColor.FromArgb(236, 228, 235, 238), 1.0));
-        var border = new WPen(new SolidColorBrush(WColor.FromArgb(156, 96, 106, 112)), 0.9);
-        drawingContext.DrawGeometry(fill, border, geometry);
+        var border = new WPen(new SolidColorBrush(WColor.FromArgb(162, 82, 92, 98)), 0.9);
 
-        if (_pdfPreview is not null)
-        {
-            drawingContext.PushClip(geometry);
-            var previewRect = PdfPreviewRect(bounds);
-            drawingContext.DrawImage(_pdfPreview, previewRect);
-            var veil = new LinearGradientBrush
-            {
-                StartPoint = new WPoint(0.0, 0.0),
-                EndPoint = new WPoint(0.0, 1.0),
-                Opacity = 0.18
-            };
-            veil.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
-            veil.GradientStops.Add(new GradientStop(WColor.FromArgb(90, 255, 255, 255), 1.0));
-            drawingContext.DrawRectangle(veil, null, previewRect);
-            drawingContext.Pop();
-        }
+        drawingContext.PushClip(geometry);
+        DrawWarpedThingTexture(drawingContext, GetThingTexture(), bounds);
 
         var gripOpacity = Math.Clamp(_session.PickProgress * 0.28, 0.0, 0.28);
         if (gripOpacity > 0.02)
@@ -857,15 +860,156 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             {
                 Opacity = gripOpacity
             };
-            drawingContext.PushClip(geometry);
             drawingContext.DrawRectangle(grip, null, new WRect(bounds.X, bounds.Y, bounds.Width * 0.46, bounds.Height));
-            drawingContext.Pop();
         }
 
-        if (_session.Absorption < 0.72)
+        drawingContext.Pop();
+        drawingContext.DrawGeometry(null, border, geometry);
+    }
+
+    private BitmapSource GetThingTexture()
+    {
+        var key = $"{_sourcePdfPath}|{(_pdfPreview is null ? "no-preview" : "preview")}";
+        if (_thingTexture is not null && string.Equals(_thingTextureKey, key, StringComparison.Ordinal))
         {
-            DrawPaperLabel(drawingContext, bounds);
+            return _thingTexture;
         }
+
+        var width = 520;
+        var height = _pdfPreview is null ? 260 : 720;
+        var visual = new DrawingVisual();
+        using (var context = visual.RenderOpen())
+        {
+            var bounds = new WRect(0, 0, width, height);
+            var fill = new LinearGradientBrush
+            {
+                StartPoint = new WPoint(0.50, 0.00),
+                EndPoint = new WPoint(0.50, 1.00)
+            };
+            fill.GradientStops.Add(new GradientStop(WColor.FromArgb(252, 252, 252, 248), 0.0));
+            fill.GradientStops.Add(new GradientStop(WColor.FromArgb(246, 230, 235, 238), 1.0));
+            context.DrawRectangle(fill, null, bounds);
+
+            if (_pdfPreview is not null)
+            {
+                var margin = 24.0;
+                var labelHeight = 76.0;
+                var previewRect = new WRect(
+                    margin,
+                    margin,
+                    width - (margin * 2),
+                    height - (margin * 2) - labelHeight);
+                context.DrawImage(_pdfPreview, previewRect);
+
+                var veil = new LinearGradientBrush
+                {
+                    StartPoint = new WPoint(0.0, 0.0),
+                    EndPoint = new WPoint(0.0, 1.0),
+                    Opacity = 0.16
+                };
+                veil.GradientStops.Add(new GradientStop(WColor.FromArgb(0, 255, 255, 255), 0.0));
+                veil.GradientStops.Add(new GradientStop(WColor.FromArgb(72, 255, 255, 255), 1.0));
+                context.DrawRectangle(veil, null, previewRect);
+            }
+
+            var text = new FormattedText(
+                string.IsNullOrWhiteSpace(_sourceFileName) ? "PDF" : _sourceFileName,
+                CultureInfo.CurrentCulture,
+                System.Windows.FlowDirection.LeftToRight,
+                new Typeface("Segoe UI Semibold"),
+                _pdfPreview is null ? 34 : 30,
+                new SolidColorBrush(WColor.FromArgb(236, 28, 36, 42)),
+                VisualTreeHelper.GetDpi(this).PixelsPerDip)
+            {
+                MaxTextWidth = width - 56,
+                MaxLineCount = 1,
+                Trimming = TextTrimming.CharacterEllipsis
+            };
+            var textY = _pdfPreview is null
+                ? (height / 2.0) - (text.Height / 2.0)
+                : height - text.Height - 28.0;
+            context.DrawText(text, new WPoint(28, textY));
+        }
+
+        var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        bitmap.Freeze();
+        _thingTexture = bitmap;
+        _thingTextureKey = key;
+        return bitmap;
+    }
+
+    private void DrawWarpedThingTexture(DrawingContext drawingContext, BitmapSource texture, WRect bounds)
+    {
+        var warp = PortalWarpAmount();
+        if (warp <= 0.015)
+        {
+            drawingContext.DrawImage(texture, bounds);
+            return;
+        }
+
+        var direction = PortalEdgeDirection();
+        var throat = LensThroatPoint();
+        const int slices = 34;
+        if (direction is AblageDirection.Left or AblageDirection.Right)
+        {
+            for (var index = 0; index < slices; index++)
+            {
+                var start = index / (double)slices;
+                var end = (index + 1) / (double)slices;
+                var sourceX = (int)Math.Round(texture.PixelWidth * start);
+                var sourceRight = (int)Math.Round(texture.PixelWidth * end);
+                var sourceWidth = Math.Max(1, sourceRight - sourceX);
+                var crop = new CroppedBitmap(texture, new Int32Rect(sourceX, 0, sourceWidth, texture.PixelHeight));
+                var x0 = bounds.X + (bounds.Width * start);
+                var x1 = bounds.X + (bounds.Width * end);
+                var pullWeight = direction == AblageDirection.Right ? end : 1.0 - start;
+                var local = warp * Math.Pow(Math.Clamp(pullWeight, 0.0, 1.0), 1.55);
+                var center = new WPoint((x0 + x1) / 2.0, bounds.Y + (bounds.Height / 2.0));
+                var pulledCenter = Interpolate(center, throat, local * 0.88);
+                var destWidth = Math.Max(0.7, (x1 - x0) * (1.0 - (local * 0.72)));
+                var destHeight = Math.Max(1.0, bounds.Height * (1.0 - (local * 0.24)));
+                var dest = new WRect(
+                    pulledCenter.X - (destWidth / 2.0),
+                    pulledCenter.Y - (destHeight / 2.0),
+                    destWidth,
+                    destHeight);
+                drawingContext.DrawImage(crop, dest);
+            }
+
+            return;
+        }
+
+        for (var index = 0; index < slices; index++)
+        {
+            var start = index / (double)slices;
+            var end = (index + 1) / (double)slices;
+            var sourceY = (int)Math.Round(texture.PixelHeight * start);
+            var sourceBottom = (int)Math.Round(texture.PixelHeight * end);
+            var sourceHeight = Math.Max(1, sourceBottom - sourceY);
+            var crop = new CroppedBitmap(texture, new Int32Rect(0, sourceY, texture.PixelWidth, sourceHeight));
+            var y0 = bounds.Y + (bounds.Height * start);
+            var y1 = bounds.Y + (bounds.Height * end);
+            var pullWeight = direction == AblageDirection.Down ? end : 1.0 - start;
+            var local = warp * Math.Pow(Math.Clamp(pullWeight, 0.0, 1.0), 1.55);
+            var center = new WPoint(bounds.X + (bounds.Width / 2.0), (y0 + y1) / 2.0);
+            var pulledCenter = Interpolate(center, throat, local * 0.88);
+            var destWidth = Math.Max(1.0, bounds.Width * (1.0 - (local * 0.24)));
+            var destHeight = Math.Max(0.7, (y1 - y0) * (1.0 - (local * 0.72)));
+            var dest = new WRect(
+                pulledCenter.X - (destWidth / 2.0),
+                pulledCenter.Y - (destHeight / 2.0),
+                destWidth,
+                destHeight);
+            drawingContext.DrawImage(crop, dest);
+        }
+    }
+
+    private double PortalWarpAmount()
+    {
+        var approach = SmoothStep(Math.Clamp((_session.Approach - 0.18) / 0.82, 0.0, 1.0));
+        var absorption = EaseOut(_session.Absorption);
+        return Math.Clamp(Math.Max(approach * 0.84, absorption * 1.0), 0.0, 1.0);
     }
 
     private void DrawPaperShadow(DrawingContext drawingContext, WPoint[] corners, WRect bounds)
@@ -990,6 +1134,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         catch (Exception ex)
         {
             _diagnostics.Set("Signal", $"Fehler: {ex.Message}");
+            _diagnostics.Set("Glaskante", "Fehlerfeedback: roter Puls");
+            _session.FailTransfer();
             // The overlay must never crash while the owner is carrying a document.
         }
     }
@@ -1195,6 +1341,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         _sourcePdfPath = Path.GetFullPath(pdfPath);
         _sourceFileName = Path.GetFileName(_sourcePdfPath);
         _pdfPreview = null;
+        _thingTexture = null;
+        _thingTextureKey = string.Empty;
         _diagnostics.Set("PDF", _sourceFileName);
         _diagnostics.Set("Gegenseite", DescribeNearestAblage());
         if (deferPreview)
@@ -1233,6 +1381,8 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         if (task.Status == TaskStatus.RanToCompletion)
         {
             _pdfPreview = task.Result;
+            _thingTexture = null;
+            _thingTextureKey = string.Empty;
             _diagnostics.Set("PDF", _pdfPreview is null
                 ? $"{_sourceFileName} | Vorschau nicht verfuegbar"
                 : $"{_sourceFileName} | Vorschau bereit");
