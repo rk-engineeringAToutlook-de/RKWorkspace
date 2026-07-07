@@ -5,11 +5,11 @@ import SwiftUI
 
 @main
 @MainActor
-final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
+final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate {
     private static var retainedDelegate: MacPdfFrameGuestApp?
     private let glassOverlay = GuestGlassOverlayController()
-    private var window: NSWindow?
     private var model: FrameGuestModel?
+    private var frameWindows: [String: GuestFrameWindowController] = [:]
 
     static func main() {
         SmokeTestRunner.runAndExitIfRequested(arguments: CommandLine.arguments)
@@ -25,31 +25,18 @@ final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate, NSWindowDelega
     func applicationDidFinishLaunching(_ notification: Notification) {
         let model = FrameGuestModel()
         self.model = model
-        model.onDocumentReady = { [weak self] size in
-            self?.resizeFrameWindow(for: size)
+        model.onPortalPulse = { [weak self] edge in
+            self?.glassOverlay.pulse(edge: edge)
         }
         model.onPortalChanged = { [weak self] isVisible, edge in
-            if isVisible {
-                self?.glassOverlay.show(edge: edge)
-            } else {
-                self?.glassOverlay.hide()
-            }
+            isVisible ? self?.glassOverlay.show(edge: edge) : self?.glassOverlay.hide()
         }
-
-        let content = ContentView(model: model)
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 680),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered,
-            defer: false)
-        window.title = "RK Workspace Ablage"
-        window.contentView = NSHostingView(rootView: content)
-        window.isReleasedWhenClosed = false
-        window.delegate = self
-        window.center()
-        window.makeKeyAndOrderFront(nil)
-        NSApplication.shared.activate(ignoringOtherApps: true)
-        self.window = window
+        model.onFrameReady = { [weak self] lease in
+            self?.openFrameWindow(lease)
+        }
+        model.onAutoReturnFrame = { [weak self] lease in
+            self?.closeFrameWindow(lease)
+        }
 
         model.applyCommandLine()
     }
@@ -58,35 +45,117 @@ final class MacPdfFrameGuestApp: NSObject, NSApplicationDelegate, NSWindowDelega
         false
     }
 
-    func windowWillClose(_ notification: Notification) {
-        model?.returnFrame()
-        model?.discardTransientFrame()
-    }
-
-    private func resizeFrameWindow(for documentSize: CGSize) {
-        guard let window else {
+    private func openFrameWindow(_ lease: GuestFrameLease) {
+        let key = lease.windowKey
+        guard frameWindows[key] == nil else {
             return
         }
 
-        let screenFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
+        let controller = GuestFrameWindowController(
+            lease: lease,
+            cascadeIndex: frameWindows.count,
+            onClose: { [weak self] closedLease in
+                self?.model?.returnFrame(closedLease)
+                self?.frameWindows[closedLease.windowKey] = nil
+            })
+        frameWindows[key] = controller
+        controller.show()
+    }
+
+    private func closeFrameWindow(_ lease: GuestFrameLease) {
+        if let controller = frameWindows[lease.windowKey] {
+            controller.closeFromAutoReturn()
+        } else {
+            model?.returnFrame(lease)
+        }
+    }
+}
+
+struct GuestFrameLease {
+    let windowKey: String
+    let frameSessionId: String
+    let leaseId: String
+    let sessionId: String
+    let displayName: String
+    let status: String
+    let policyText: String
+    let document: PDFDocument?
+    let image: NSImage?
+    let documentSize: CGSize
+    let pdfData: Data?
+    let usesLocalVerificationFrame: Bool
+}
+
+@MainActor
+final class GuestFrameWindowController: NSObject, NSWindowDelegate {
+    private var lease: GuestFrameLease?
+    private var window: NSWindow?
+    private let onClose: (GuestFrameLease) -> Void
+
+    init(lease: GuestFrameLease, cascadeIndex: Int, onClose: @escaping (GuestFrameLease) -> Void) {
+        self.lease = lease
+        self.onClose = onClose
+        super.init()
+        createWindow(for: lease, cascadeIndex: cascadeIndex)
+    }
+
+    func show() {
+        window?.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+
+    func closeFromAutoReturn() {
+        window?.performClose(nil)
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        guard let lease else {
+            return
+        }
+
+        self.lease = nil
+        window?.contentView = nil
+        onClose(lease)
+    }
+
+    private func createWindow(for lease: GuestFrameLease, cascadeIndex: Int) {
+        let contentSize = Self.contentSize(for: lease.documentSize)
+        let screenFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
+        let offset = CGFloat(min(cascadeIndex, 6) * 28)
+        var frame = NSWindow.frameRect(
+            forContentRect: NSRect(origin: .zero, size: contentSize),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable])
+        frame.origin.x = screenFrame.midX - frame.width / 2 + offset
+        frame.origin.y = screenFrame.midY - frame.height / 2 - offset
+
+        let window = NSWindow(
+            contentRect: frame,
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false)
+        window.title = lease.displayName.isEmpty ? "RK Workspace PDF Frame" : lease.displayName
+        window.contentView = NSHostingView(rootView: GuestFrameWindowView(lease: lease))
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        self.window = window
+    }
+
+    private static func contentSize(for documentSize: CGSize) -> NSSize {
+        let screenFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
         let statusHeight: CGFloat = 28
         let maxWidth = screenFrame.width * 0.78
         let maxHeight = screenFrame.height * 0.82
         let rawWidth = max(documentSize.width, 260)
         let rawHeight = max(documentSize.height, 320)
         let scale = min(1.0, maxWidth / rawWidth, (maxHeight - statusHeight) / rawHeight)
-        let contentSize = NSSize(
+        return NSSize(
             width: min(max(rawWidth * scale, 320), maxWidth),
             height: min(max(rawHeight * scale + statusHeight, 420), maxHeight))
-        var frame = window.frameRect(forContentRect: NSRect(origin: .zero, size: contentSize))
-        frame.origin.x = screenFrame.midX - frame.width / 2
-        frame.origin.y = screenFrame.midY - frame.height / 2
-        window.setFrame(frame, display: true, animate: true)
     }
 }
 
-struct ContentView: View {
-    @ObservedObject var model: FrameGuestModel
+struct GuestFrameWindowView: View {
+    let lease: GuestFrameLease
 
     var body: some View {
         VStack(spacing: 0) {
@@ -100,22 +169,14 @@ struct ContentView: View {
         ZStack {
             Color(nsColor: .textBackgroundColor)
 
-            if let document = model.pdfDocument {
+            if let document = lease.document {
                 TransientPDFView(document: document)
-                    .transition(.opacity)
-            } else if let image = model.image {
+            } else if let image = lease.image {
                 Image(nsImage: image)
                     .resizable()
                     .scaledToFit()
-                    .transition(.opacity)
             } else {
-                VStack(spacing: 10) {
-                    Text(model.visibleState)
-                        .font(.system(size: 18, weight: .medium))
-                    Text("Windows bleibt Owner. macOS wartet auf die fluechtige Frame-PDF.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Color(nsColor: .textBackgroundColor)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -124,12 +185,12 @@ struct ContentView: View {
     private var statusLine: some View {
         HStack(spacing: 8) {
             Circle()
-                .fill(model.hasError ? Color.red : Color.green.opacity(0.85))
+                .fill(Color.green.opacity(0.85))
                 .frame(width: 7, height: 7)
-            Text(model.status)
-                .foregroundStyle(model.hasError ? .red : .secondary)
+            Text(lease.status)
+                .foregroundStyle(.secondary)
             Spacer()
-            Text(model.policyText)
+            Text(lease.policyText)
                 .foregroundStyle(.secondary)
         }
         .font(.system(size: 11))
@@ -190,19 +251,16 @@ final class FrameGuestModel: ObservableObject {
     @Published var host: String
     @Published var portText: String
     @Published var status = "macOSGuestAblage: STARTED"
-    @Published var visibleState = "wartet auf Portal"
-    @Published var policyText = "Owner: Windows | PDF: MemoryOnly | Ablage: NO"
-    @Published var pdfDocument: PDFDocument?
-    @Published var image: NSImage?
     @Published var hasError = false
 
-    var frameSessionId = ""
-    var onDocumentReady: ((CGSize) -> Void)?
+    var onPortalPulse: ((GuestPortalEdge) -> Void)?
     var onPortalChanged: ((Bool, GuestPortalEdge) -> Void)?
-    private var leaseId = ""
+    var onFrameReady: ((GuestFrameLease) -> Void)?
+    var onAutoReturnFrame: ((GuestFrameLease) -> Void)?
+
     private var sessionId = ""
-    private var transientPdfData: Data?
-    private var usesLocalVerificationFrame = false
+    private var activeFrameSessionIds = Set<String>()
+    private var completedFrameSessionIds = Set<String>()
     private var autoReturnDelaySeconds: Double?
     private var exitAfterReturn = false
     private var portalEdge: GuestPortalEdge = .left
@@ -247,14 +305,13 @@ final class FrameGuestModel: ObservableObject {
         } else if args.contains("--auto-open") {
             openFrame()
         } else {
-            onPortalChanged?(true, portalEdge)
+            waitForPlacement()
         }
     }
 
     func openFrame() {
         hasError = false
         status = "frage PDF-Lease an..."
-        onPortalChanged?(true, portalEdge)
         Task {
             do {
                 let port = UInt16(portText) ?? 57120
@@ -283,20 +340,24 @@ final class FrameGuestModel: ObservableObject {
                     sessionId: sessionId,
                     payload: frameRequest(waitForPlacement: false)))
 
-                try presentFrame(frame, localVerification: false)
+                let lease = try makeFrameLease(frame, localVerification: false)
+                if registerFrameLease(lease) {
+                    onPortalPulse?(portalEdge)
+                    onFrameReady?(lease)
+                    scheduleAutoReturnIfNeeded(for: lease)
+                }
             } catch {
                 hasError = true
                 status = "nicht verfuegbar: \(error.localizedDescription)"
+                onPortalChanged?(false, portalEdge)
             }
         }
     }
 
     func waitForPlacement() {
         hasError = false
-        clearFrame()
-        visibleState = "wartet auf Ablage am Glasrand"
-        status = "warte auf deine PDF von Windows..."
-        onPortalChanged?(true, portalEdge)
+        status = "hoert im Hintergrund auf PDF-Leases"
+        onPortalChanged?(false, portalEdge)
         Task {
             let port = UInt16(portText) ?? 57120
             let client = RkwpDevLanClient(host: host, port: port)
@@ -333,33 +394,45 @@ final class FrameGuestModel: ObservableObject {
 
                     if frame.payload["placementReady"] == "false" || !Self.hasRenderableFrame(frame.payload) {
                         hasError = false
-                        visibleState = frame.payload["visibleStatus"] ?? "wartet auf Ablage am Glasrand"
-                        status = "bereit am Portal"
-                        onPortalChanged?(true, portalEdge)
+                        status = frame.payload["visibleStatus"] ?? "bereit im Hintergrund"
+                        if Self.hasTransferIntent(frame.payload) {
+                            onPortalPulse?(portalEdge)
+                        }
                         try? await Task.sleep(nanoseconds: 500_000_000)
                         continue
                     }
 
-                    try presentFrame(frame, localVerification: false)
-                    break
+                    let lease = try makeFrameLease(frame, localVerification: false)
+                    if registerFrameLease(lease) {
+                        onPortalPulse?(portalEdge)
+                        onFrameReady?(lease)
+                        scheduleAutoReturnIfNeeded(for: lease)
+                        status = "Frame geoeffnet, hoere weiter"
+                    } else {
+                        status = "Frame bereits offen, hoere weiter"
+                    }
+
+                    try? await Task.sleep(nanoseconds: 350_000_000)
                 } catch {
                     hasError = true
                     status = "warte auf Windows-Ablage: \(error.localizedDescription)"
+                    handshakeComplete = false
+                    onPortalChanged?(false, portalEdge)
                     try? await Task.sleep(nanoseconds: 1_000_000_000)
                 }
             }
         }
     }
 
-    func returnFrame() {
-        guard !frameSessionId.isEmpty else {
-            discardTransientFrame()
+    func returnFrame(_ lease: GuestFrameLease) {
+        markFrameClosed(lease)
+        guard !lease.frameSessionId.isEmpty else {
             return
         }
 
         hasError = false
         status = "gebe zurueck..."
-        if usesLocalVerificationFrame {
+        if lease.usesLocalVerificationFrame {
             finishReturn()
             return
         }
@@ -372,10 +445,10 @@ final class FrameGuestModel: ObservableObject {
                     messageType: "CarryLeaseReturn",
                     sourceAblageId: "ablage-macos-guest",
                     targetAblageId: "ablage-windows-owner",
-                    sessionId: sessionId,
+                    sessionId: lease.sessionId,
                     payload: [
-                        "frameSessionId": frameSessionId,
-                        "leaseId": leaseId,
+                        "frameSessionId": lease.frameSessionId,
+                        "leaseId": lease.leaseId,
                         "guestKeptOriginalFile": "false",
                         "guestPersistedPdfFile": "false",
                         "transientPdfDiscarded": "true",
@@ -393,30 +466,27 @@ final class FrameGuestModel: ObservableObject {
 
     private func showLocalVerificationFrame() {
         do {
-            try presentFrame(LocalVerificationFrame.transientPdfMessage(), localVerification: true)
+            let lease = try makeFrameLease(LocalVerificationFrame.transientPdfMessage(), localVerification: true)
+            if registerFrameLease(lease) {
+                onPortalPulse?(portalEdge)
+                onFrameReady?(lease)
+                scheduleAutoReturnIfNeeded(for: lease)
+            }
         } catch {
             hasError = true
             status = "nicht verfuegbar: \(error.localizedDescription)"
         }
     }
 
-    private func presentFrame(_ frame: RkwpMessage, localVerification: Bool) throws {
+    private func makeFrameLease(_ frame: RkwpMessage, localVerification: Bool) throws -> GuestFrameLease {
         try TransientPdfLeaseVerifier.validatePayload(frame.payload)
-        frameSessionId = frame.payload["frameSessionId"] ?? ""
-        leaseId = frame.payload["leaseId"] ?? ""
-        sessionId = frame.sessionId
-        usesLocalVerificationFrame = localVerification
-        visibleState = frame.payload["visibleStatus"] ?? "liegt hier im Frame"
-        onPortalChanged?(false, portalEdge)
+        let frameSessionId = frame.payload["frameSessionId"] ?? "frame-macos-\(UUID().uuidString)"
+        let leaseId = frame.payload["leaseId"] ?? ""
+        let displayName = frame.payload["displayName"] ?? "RK Workspace PDF Frame"
 
         if let pdfData = Self.decodePdfPayload(frame.payload),
            let document = PDFDocument(data: pdfData) {
-            transientPdfData = pdfData
-            pdfDocument = document
-            image = nil
-            onDocumentReady?(Self.documentDisplaySize(document))
             status = "FrameView: OK"
-            policyText = "Owner: Windows | PDF: MemoryOnly | Ablage: NO | Text: OK"
             print("FrameView: OK")
             print("FrameFormat: \(frame.payload["frameFormat"] ?? "TransientPdfBytes")")
             print("TransientPdfLease: OK")
@@ -426,36 +496,61 @@ final class FrameGuestModel: ObservableObject {
             print("PDFCache: MemoryOnly")
             print("TextSelection: OK")
             print("NoDiskPdf: SUCCESS")
-            scheduleAutoReturnIfNeeded()
-            return
+            return GuestFrameLease(
+                windowKey: frameSessionId,
+                frameSessionId: frameSessionId,
+                leaseId: leaseId,
+                sessionId: frame.sessionId,
+                displayName: displayName,
+                status: "FrameView: OK",
+                policyText: "Owner: Windows | PDF: MemoryOnly | Ablage: NO | Text: OK",
+                document: document,
+                image: nil,
+                documentSize: Self.documentDisplaySize(document),
+                pdfData: pdfData,
+                usesLocalVerificationFrame: localVerification)
         }
 
         if let pngBase64 = frame.payload["pngBase64"],
            let pngData = Data(base64Encoded: pngBase64),
            let nsImage = NSImage(data: pngData) {
-            transientPdfData = nil
-            pdfDocument = nil
-            image = nsImage
-            onDocumentReady?(nsImage.size)
             status = "FrameView: OK"
-            policyText = "Owner: Windows | PNG-Fallback | Ablage: NO"
             print("FrameView: OK")
             print("LegacyPngFrame: OK")
-            scheduleAutoReturnIfNeeded()
-            return
+            return GuestFrameLease(
+                windowKey: frameSessionId,
+                frameSessionId: frameSessionId,
+                leaseId: leaseId,
+                sessionId: frame.sessionId,
+                displayName: displayName,
+                status: "FrameView: OK",
+                policyText: "Owner: Windows | PNG-Fallback | Ablage: NO",
+                document: nil,
+                image: nsImage,
+                documentSize: nsImage.size,
+                pdfData: nil,
+                usesLocalVerificationFrame: localVerification)
         }
 
         throw FrameGuestError.invalidFrame
     }
 
-    func discardTransientFrame() {
-        transientPdfData = nil
-        pdfDocument = nil
-        image = nil
-        frameSessionId = ""
-        leaseId = ""
-        policyText = "Owner: Windows | PDF: verworfen | Ablage: NO"
-        onPortalChanged?(false, portalEdge)
+    private func registerFrameLease(_ lease: GuestFrameLease) -> Bool {
+        guard !activeFrameSessionIds.contains(lease.windowKey),
+              !completedFrameSessionIds.contains(lease.windowKey) else {
+            return false
+        }
+
+        activeFrameSessionIds.insert(lease.windowKey)
+        return true
+    }
+
+    private func markFrameClosed(_ lease: GuestFrameLease) {
+        activeFrameSessionIds.remove(lease.windowKey)
+        completedFrameSessionIds.insert(lease.windowKey)
+        if completedFrameSessionIds.count > 100 {
+            completedFrameSessionIds.removeAll(keepingCapacity: true)
+        }
     }
 
     private static func decodePdfPayload(_ payload: [String: String]) -> Data? {
@@ -481,6 +576,27 @@ final class FrameGuestModel: ObservableObject {
         decodePdfPayload(payload) != nil || payload["pngBase64"] != nil
     }
 
+    private static func hasTransferIntent(_ payload: [String: String]) -> Bool {
+        let truthyKeys = [
+            "carryActive",
+            "transferActive",
+            "portalActive",
+            "placementSignal",
+            "placementSignalReady",
+            "prestreamActive"
+        ]
+        if truthyKeys.contains(where: { payload[$0]?.lowercased() == "true" }) {
+            return true
+        }
+
+        let visibleStatus = (payload["visibleStatus"] ?? "").lowercased()
+        return visibleStatus.contains("signal erkannt") ||
+            visibleStatus.contains("carry") ||
+            visibleStatus.contains("transport") ||
+            visibleStatus.contains("uebertragung") ||
+            visibleStatus.contains("übertragung")
+    }
+
     private static func documentDisplaySize(_ document: PDFDocument) -> CGSize {
         guard let page = document.page(at: 0) else {
             return CGSize(width: 420, height: 620)
@@ -502,6 +618,10 @@ final class FrameGuestModel: ObservableObject {
             "transientPdfFrame": "true",
             "supportsTransientPdfBytes": "true",
             "supportsPngFallback": "true",
+            "supportsMultipleFrameWindows": "true",
+            "keepsListeningAfterFrameClose": "true",
+            "portalIdleVisible": "false",
+            "portalAnimation": "fastOpenSlowClose",
             "pdfLeaseMode": "MemoryOnly",
             "ownerKeepsOriginal": "true",
             "guestMayPersistPdf": "false",
@@ -514,6 +634,7 @@ final class FrameGuestModel: ObservableObject {
     private func frameRequest(waitForPlacement: Bool) -> [String: String] {
         [
             "request": "openTransientPdfFrame",
+            "frameWindowMode": "newWindowPerLease",
             "preferredFrameFormat": "TransientPdfBytes",
             "fallbackFrameFormat": "PngFrame",
             "pdfLeaseMode": "MemoryOnly",
@@ -526,19 +647,11 @@ final class FrameGuestModel: ObservableObject {
     }
 
     private func clearFrame() {
-        transientPdfData = nil
-        pdfDocument = nil
-        image = nil
-        frameSessionId = ""
-        leaseId = ""
-        usesLocalVerificationFrame = false
+        activeFrameSessionIds.removeAll()
     }
 
     private func finishReturn() {
-        clearFrame()
-        visibleState = "zurueckgegeben"
         status = "Return: SUCCESS"
-        policyText = "Owner: Windows | PDF: verworfen | Ablage: NO"
         onPortalChanged?(false, portalEdge)
         print("Return: SUCCESS")
 
@@ -547,7 +660,7 @@ final class FrameGuestModel: ObservableObject {
         }
     }
 
-    private func scheduleAutoReturnIfNeeded() {
+    private func scheduleAutoReturnIfNeeded(for lease: GuestFrameLease) {
         guard let delay = autoReturnDelaySeconds else {
             return
         }
@@ -556,7 +669,7 @@ final class FrameGuestModel: ObservableObject {
         let nanoseconds = UInt64(max(0.1, delay) * 1_000_000_000)
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: nanoseconds)
-            returnFrame()
+            onAutoReturnFrame?(lease)
         }
     }
 }
@@ -676,18 +789,48 @@ enum GuestPortalPlacement {
 final class GuestGlassOverlayController {
     private let state = GuestGlassOverlayState()
     private var window: NSPanel?
+    private var fadeTask: Task<Void, Never>?
+
+    func pulse(edge: GuestPortalEdge) {
+        show(edge: edge)
+        fadeTask?.cancel()
+        fadeTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            self?.hide()
+        }
+    }
 
     func show(edge: GuestPortalEdge) {
+        fadeTask?.cancel()
         state.edge = edge
-        state.isVisible = true
         if window == nil {
             createWindow()
         }
         window?.orderFrontRegardless()
+        state.isMounted = true
+        withAnimation(.easeOut(duration: 0.18)) {
+            state.openness = 1.0
+        }
     }
 
     func hide() {
-        state.isVisible = false
+        fadeTask?.cancel()
+        withAnimation(.easeOut(duration: 2.6)) {
+            state.openness = 0.0
+        }
+        fadeTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 2_900_000_000)
+            self?.orderOutIfClosed()
+        }
+    }
+
+    private func orderOutIfClosed() {
+        guard state.openness <= 0.01 else {
+            return
+        }
+
+        state.isMounted = false
+        window?.orderOut(nil)
     }
 
     private func createWindow() {
@@ -712,7 +855,8 @@ final class GuestGlassOverlayController {
 
 @MainActor
 final class GuestGlassOverlayState: ObservableObject {
-    @Published var isVisible = false
+    @Published var isMounted = false
+    @Published var openness = 0.0
     @Published var edge: GuestPortalEdge = .left
 }
 
@@ -722,12 +866,12 @@ struct GuestGlassOverlayView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                if state.isVisible {
+                if state.isMounted {
                     let frame = edgeFrame(in: geometry.size)
-                    GuestProgressiveGlassEdge(edge: state.edge)
+                    GuestProgressiveGlassEdge(edge: state.edge, openness: state.openness)
                         .frame(width: frame.width, height: frame.height)
                         .position(x: frame.midX, y: frame.midY)
-                        .transition(.opacity)
+                        .opacity(state.openness)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -736,7 +880,7 @@ struct GuestGlassOverlayView: View {
     }
 
     private func edgeFrame(in size: CGSize) -> CGRect {
-        let depth: CGFloat = 220
+        let depth = CGFloat(190 + (70 * state.openness))
         switch state.edge {
         case .left:
             return CGRect(x: 0, y: 0, width: depth, height: size.height)
@@ -752,22 +896,25 @@ struct GuestGlassOverlayView: View {
 
 struct GuestProgressiveGlassEdge: View {
     let edge: GuestPortalEdge
+    let openness: Double
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 Rectangle()
                     .fill(.regularMaterial)
-                    .opacity(0.96)
+                    .opacity(0.72 + (0.24 * openness))
                     .mask(progressiveMask)
 
                 Rectangle()
                     .fill(bodyGradient)
+                    .opacity(0.72 + (0.28 * openness))
                     .mask(progressiveMask)
 
                 Rectangle()
                     .fill(lightGradient)
-                    .blur(radius: 18)
+                    .blur(radius: 12 + (10 * openness))
+                    .opacity(0.7 + (0.3 * openness))
                     .mask(progressiveMask)
 
                 throat(in: geometry.size)
@@ -845,18 +992,19 @@ struct GuestProgressiveGlassEdge: View {
 
     @ViewBuilder
     private func throat(in size: CGSize) -> some View {
+        let open = CGFloat(max(0, min(1, openness)))
         if edge == .left || edge == .right {
             Capsule()
                 .fill(lightGradient)
-                .frame(width: 12, height: min(size.height * 0.36, 320))
-                .position(x: edge == .left ? 18 : size.width - 18, y: size.height / 2)
-                .shadow(color: Color.cyan.opacity(0.34), radius: 18)
+                .frame(width: 8 + (12 * open), height: min(size.height * (0.24 + (0.16 * open)), 360))
+                .position(x: edge == .left ? 14 + (8 * open) : size.width - 14 - (8 * open), y: size.height / 2)
+                .shadow(color: Color.cyan.opacity(0.18 + (0.22 * open)), radius: 10 + (20 * open))
         } else {
             Capsule()
                 .fill(lightGradient)
-                .frame(width: min(size.width * 0.36, 360), height: 12)
-                .position(x: size.width / 2, y: edge == .top ? 18 : size.height - 18)
-                .shadow(color: Color.cyan.opacity(0.34), radius: 18)
+                .frame(width: min(size.width * (0.24 + (0.16 * open)), 420), height: 8 + (12 * open))
+                .position(x: size.width / 2, y: edge == .top ? 14 + (8 * open) : size.height - 14 - (8 * open))
+                .shadow(color: Color.cyan.opacity(0.18 + (0.22 * open)), radius: 10 + (20 * open))
         }
     }
 

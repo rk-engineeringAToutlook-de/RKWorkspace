@@ -1,6 +1,6 @@
 # macOS PDF Frame Guest
 
-Status: first visible pilot for MA017 cross-device PDF frame viewing.
+Status: live pilot for MA017 cross-device transient PDF frame viewing.
 
 Start here for a separate macOS Codex instance:
 
@@ -24,6 +24,7 @@ macOS darf:
 - die PDF-Bytes nur im Speicher des Frame-Fensters halten.
 - Textauswahl/Kopieren im Frame erlauben.
 - die Frame-Lease beim Schliessen, Zurueckgeben oder Verbindungsverlust verwerfen.
+- mehrere uebergebene PDFs parallel in eigenen Frame-Fenstern anzeigen.
 
 ## Windows starten
 
@@ -45,7 +46,7 @@ cd "/path/to/RKWorkspace/release/ma017/packages/macos-frame-guest"
 swift run MacPdfFrameGuest --host WINDOWS_IP --port 57120
 ~~~
 
-Danach im macOS-Fenster `Frame holen` druecken. Die PDF muss im nativen Frame sichtbar und als PDF textselektierbar sein.
+Der Guest bleibt im Hintergrund aktiv. Es gibt im Idle kein Wartefenster und keine dauerhafte Glaskante. Ein neues Frame-Fenster oeffnet erst, wenn Windows eine gueltige fluechtige PDF-Lease committed.
 
 Fuer den sichtbaren Windows-Glasrand-Livefluss wartet macOS schon vor dem Ablegen:
 
@@ -61,6 +62,14 @@ tools/run-macos-pdf-frame-guest.sh --host 192.168.163.11 --port 57120 --wait-for
 ~~~
 
 Der Dienst laeuft als interaktive LaunchAgent-App weiter. Die macOS-Abfrage fuer lokale Netzwerke muss mit `Erlauben` bestaetigt werden. Die Glaskante liegt als Desktop-Overlay an der erkannten Windows-Seite, nicht im PDF-Frame.
+
+Live-Verhalten:
+
+- Der Listener bleibt nach jedem geschlossenen Fenster aktiv.
+- Jede neue PDF-Lease oeffnet ein eigenes neues Frame-Fenster.
+- Schliessen eines Fensters gibt genau diese Lease an Windows zurueck und verwirft die macOS-Speicherkopie.
+- Die Glaskante erscheint nur als Portalimpuls bei echter Carry-/Transfer-Aktivitaet oder gueltiger Frame-Lease.
+- Der Portalimpuls oeffnet schnell und klingt langsam wieder aus.
 
 ## macOS Desktop-Owner starten
 
