@@ -68,6 +68,9 @@ Live-Verhalten:
 - Der Listener bleibt nach jedem geschlossenen Fenster aktiv.
 - Jede neue PDF-Lease oeffnet ein eigenes neues Frame-Fenster.
 - Schliessen eines Fensters gibt genau diese Lease an Windows zurueck und verwirft die macOS-Speicherkopie.
+- Nach `CarryLeaseReturn` muss Windows die aktive Placement-Lease freigeben und darf dieselbe Lease nicht erneut ausspielen.
+- Ein erneutes Uebertragen derselben PDF ist erlaubt, muss aber eine neue `placementId`/Lease bekommen.
+- Textauswahl sowie Copy/Select-All im PDF-Frame sind erlaubt; Save/Export/Print bleiben gesperrt.
 - Die Glaskante erscheint nur als Portalimpuls bei echter Carry-/Transfer-Aktivitaet oder gueltiger Frame-Lease.
 - Der Portalimpuls oeffnet schnell und klingt langsam wieder aus.
 

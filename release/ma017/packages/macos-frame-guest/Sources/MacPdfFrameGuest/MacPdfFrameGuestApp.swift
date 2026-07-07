@@ -222,6 +222,9 @@ struct TransientPDFView: NSViewRepresentable {
         view.backgroundColor = .textBackgroundColor
         view.allowsDragging = false
         view.document = document
+        DispatchQueue.main.async {
+            view.window?.makeFirstResponder(view)
+        }
         return view
     }
 
@@ -234,6 +237,30 @@ struct TransientPDFView: NSViewRepresentable {
 }
 
 final class LockedPDFView: PDFView, NSMenuItemValidation {
+    override var acceptsFirstResponder: Bool {
+        true
+    }
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        guard let key = event.charactersIgnoringModifiers?.lowercased() else {
+            return super.performKeyEquivalent(with: event)
+        }
+
+        let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        let isCopyModifier = modifierFlags.contains(.command) || modifierFlags.contains(.control)
+        if isCopyModifier && key == "c" {
+            copy(nil)
+            return true
+        }
+
+        if isCopyModifier && key == "a" {
+            selectAll(nil)
+            return true
+        }
+
+        return super.performKeyEquivalent(with: event)
+    }
+
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if let action = menuItem.action {
             let blockedActions = [
@@ -270,7 +297,7 @@ final class FrameGuestModel: ObservableObject {
 
     private var sessionId = ""
     private var activeFrameSessionIds = Set<String>()
-    private var recentFrameKeys: [String: Date] = [:]
+    private var returnedFrameKeys = Set<String>()
     private var pendingTransferVisual = false
     private var autoReturnDelaySeconds: Double?
     private var exitAfterReturn = false
@@ -484,6 +511,10 @@ final class FrameGuestModel: ObservableObject {
                     payload: [
                         "frameSessionId": lease.frameSessionId,
                         "leaseId": lease.leaseId,
+                        "frameWindowKey": lease.windowKey,
+                        "displayName": lease.displayName,
+                        "returnReason": "guestFrameClosed",
+                        "ownerMayReleaseLease": "true",
                         "guestKeptOriginalFile": "false",
                         "guestPersistedPdfFile": "false",
                         "transientPdfDiscarded": "true",
@@ -575,9 +606,8 @@ final class FrameGuestModel: ObservableObject {
     }
 
     private func registerFrameLease(_ lease: GuestFrameLease) -> Bool {
-        pruneRecentFrameKeys()
         guard !activeFrameSessionIds.contains(lease.windowKey),
-              recentFrameKeys[lease.windowKey] == nil else {
+              !returnedFrameKeys.contains(lease.windowKey) else {
             return false
         }
 
@@ -586,20 +616,14 @@ final class FrameGuestModel: ObservableObject {
     }
 
     private func shouldSkipFramePayload(_ payload: [String: String]) -> Bool {
-        pruneRecentFrameKeys()
         let key = Self.frameWindowKey(from: payload, fallback: payload["frameSessionId"] ?? "")
-        return activeFrameSessionIds.contains(key) || recentFrameKeys[key] != nil
+        return activeFrameSessionIds.contains(key) || returnedFrameKeys.contains(key)
     }
 
     private func markFrameClosed(_ lease: GuestFrameLease) {
         activeFrameSessionIds.remove(lease.windowKey)
-        recentFrameKeys[lease.windowKey] = Date()
-        pruneRecentFrameKeys()
-    }
-
-    private func pruneRecentFrameKeys() {
-        let cutoff = Date().addingTimeInterval(-3)
-        recentFrameKeys = recentFrameKeys.filter { $0.value >= cutoff }
+        returnedFrameKeys.insert(lease.windowKey)
+        RkwpTrace.log("frame returned key=\(lease.windowKey)")
     }
 
     private static func decodePdfPayload(_ payload: [String: String]) -> Data? {

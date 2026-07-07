@@ -52,7 +52,7 @@ internal static class Program
         }
     }
 
-    private static RenderedFrame RenderFrame(string pdfPath, int page = 1, int width = 1400, bool memoryPdfFrame = false)
+    private static RenderedFrame RenderFrame(string pdfPath, int page = 1, int width = 1400, bool memoryPdfFrame = false, string placementId = "")
     {
         var document = PdfFrameDocument.Load(pdfPath);
         if (memoryPdfFrame)
@@ -61,6 +61,7 @@ internal static class Program
             return new RenderedFrame(
                 $"frame-macos-{Guid.NewGuid():N}",
                 $"lease-macos-{Guid.NewGuid():N}",
+                placementId,
                 document.ThingId,
                 document.FileName,
                 document.PageCount,
@@ -93,6 +94,7 @@ internal static class Program
         return new RenderedFrame(
             $"frame-macos-{Guid.NewGuid():N}",
             $"lease-macos-{Guid.NewGuid():N}",
+            placementId,
             document.ThingId,
             document.FileName,
             document.PageCount,
@@ -227,6 +229,19 @@ internal static class Program
             throw new InvalidOperationException("Dynamic placement smoke failed: lease was not stable for the same placement.");
         }
 
+        if (!provider.ReleaseReturnedLease(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["frameSessionId"] = firstFrame.FrameSessionId,
+                ["leaseId"] = firstFrame.LeaseId,
+                ["placementId"] = firstFrame.PlacementId,
+                ["ownerMayReleaseLease"] = "true"
+            }) ||
+            File.Exists(smokeOptions.PlacementSignalPath) ||
+            provider.ResolveFrame() is not null)
+        {
+            throw new InvalidOperationException("Dynamic placement smoke failed: returned lease was not released.");
+        }
+
         WritePlacementSignal(smokeOptions.PlacementSignalPath, "placement-smoke-002", smokeOptions.PdfPath);
         var secondFrame = provider.ResolveFrame();
         if (secondFrame is null || string.Equals(secondFrame.LeaseId, firstFrame.LeaseId, StringComparison.Ordinal))
@@ -243,6 +258,7 @@ internal static class Program
         Console.WriteLine($"AfterSignal: {firstFrame.FrameFormat}");
         Console.WriteLine("TransientPdfLease: OK");
         Console.WriteLine("StableLeasePerPlacement: OK");
+        Console.WriteLine("ReturnRelease: OK");
         Console.WriteLine("SequentialPlacementLease: OK");
         Console.WriteLine("NoFileIngress: SUCCESS");
         Console.WriteLine("RESULT: SUCCESS");
@@ -411,23 +427,11 @@ internal static class Program
                 sessionId,
                 CreateFramePayload(ResolveFrameForRequest(frame, dynamicFrameProvider, options), options),
                 request.MessageId),
-            TransportMessageType.CarryLeaseReturn => RkwpTransportMessage.Create(
-                TransportMessageType.CarryLeaseReturn,
-                OwnerAblageId,
-                request.SourceAblageId,
-                sessionId,
-                new Dictionary<string, string>
-                {
-                    ["return"] = "accepted",
-                    ["frameSessionId"] = activeFrame?.FrameSessionId ?? string.Empty,
-                    ["leaseId"] = activeFrame?.LeaseId ?? string.Empty,
-                    ["guestKeptOriginalFile"] = "false",
-                    ["guestPersistedPdfFile"] = "false",
-                    ["transientPdfDiscarded"] = "true",
-                    ["pdfLeaseMode"] = "MemoryOnly",
-                    ["noFileIngress"] = "true"
-                },
-                request.MessageId),
+            TransportMessageType.CarryLeaseReturn => CreateCarryLeaseReturnResponse(
+                request,
+                activeFrame,
+                dynamicFrameProvider,
+                sessionId),
             _ => RkwpTransportMessage.Create(
                 request.MessageType,
                 OwnerAblageId,
@@ -440,6 +444,45 @@ internal static class Program
                 },
                 request.MessageId)
         };
+    }
+
+    private static RkwpTransportMessage CreateCarryLeaseReturnResponse(
+        RkwpTransportMessage request,
+        RenderedFrame? activeFrame,
+        DynamicPlacementFrameProvider? dynamicFrameProvider,
+        string sessionId)
+    {
+        var released = dynamicFrameProvider?.ReleaseReturnedLease(request.Payload) ?? false;
+        if (released)
+        {
+            activeFrame = null;
+        }
+
+        return RkwpTransportMessage.Create(
+            TransportMessageType.CarryLeaseReturn,
+            OwnerAblageId,
+            request.SourceAblageId,
+            sessionId,
+            new Dictionary<string, string>
+            {
+                ["return"] = "accepted",
+                ["frameSessionId"] = request.Payload.TryGetValue("frameSessionId", out var frameSessionId)
+                    ? frameSessionId
+                    : activeFrame?.FrameSessionId ?? string.Empty,
+                ["leaseId"] = request.Payload.TryGetValue("leaseId", out var leaseId)
+                    ? leaseId
+                    : activeFrame?.LeaseId ?? string.Empty,
+                ["placementId"] = request.Payload.TryGetValue("placementId", out var placementId)
+                    ? placementId
+                    : activeFrame?.PlacementId ?? string.Empty,
+                ["leaseReleased"] = released ? "true" : "false",
+                ["guestKeptOriginalFile"] = "false",
+                ["guestPersistedPdfFile"] = "false",
+                ["transientPdfDiscarded"] = "true",
+                ["pdfLeaseMode"] = "MemoryOnly",
+                ["noFileIngress"] = "true"
+            },
+            request.MessageId);
     }
 
     private static RenderedFrame? ResolveFrameForRequest(
@@ -525,7 +568,7 @@ internal static class Program
 
             try
             {
-                _lastFrame = RenderFrame(signal.SourcePdfPath, _options.Page, _options.Width, memoryPdfFrame: true);
+                _lastFrame = RenderFrame(signal.SourcePdfPath, _options.Page, _options.Width, memoryPdfFrame: true, signal.PlacementId);
                 _lastFingerprint = fingerprint;
                 Console.WriteLine($"PlacementCommit: OK {_lastFrame.DisplayName}");
                 Console.WriteLine($"PlacementId: {signal.PlacementId}");
@@ -540,6 +583,57 @@ internal static class Program
                 Console.WriteLine($"PlacementCommit: FAILED {ex.Message}");
                 return null;
             }
+        }
+
+        public bool ReleaseReturnedLease(IReadOnlyDictionary<string, string> payload)
+        {
+            if (_lastFrame is null)
+            {
+                return false;
+            }
+
+            var frameSessionId = ReadPayloadString(payload, "frameSessionId");
+            var leaseId = ReadPayloadString(payload, "leaseId");
+            var placementId = ReadPayloadString(payload, "placementId");
+            var ownerMayReleaseLease = ReadPayloadString(payload, "ownerMayReleaseLease");
+
+            var matches =
+                (!string.IsNullOrWhiteSpace(leaseId) && string.Equals(leaseId, _lastFrame.LeaseId, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(frameSessionId) && string.Equals(frameSessionId, _lastFrame.FrameSessionId, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(placementId) && string.Equals(placementId, _lastFrame.PlacementId, StringComparison.OrdinalIgnoreCase));
+            if (!matches)
+            {
+                return false;
+            }
+
+            if (string.Equals(ownerMayReleaseLease, "false", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            _lastFrame = null;
+            _lastFingerprint = null;
+            TryDeletePlacementSignal(_options.PlacementSignalPath);
+            Console.WriteLine("CarryLeaseReturn: RELEASED");
+            return true;
+        }
+    }
+
+    private static string ReadPayloadString(IReadOnlyDictionary<string, string> payload, string key) =>
+        payload.TryGetValue(key, out var value) ? value : string.Empty;
+
+    private static void TryDeletePlacementSignal(string placementSignalPath)
+    {
+        try
+        {
+            if (File.Exists(placementSignalPath))
+            {
+                File.Delete(placementSignalPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PlacementSignal: DELETE_FAILED {ex.Message}");
         }
     }
 
@@ -633,6 +727,7 @@ internal static class Program
         {
             ["frameSessionId"] = frame.FrameSessionId,
             ["leaseId"] = frame.LeaseId,
+            ["placementId"] = frame.PlacementId,
             ["thingId"] = frame.ThingId,
             ["displayName"] = frame.DisplayName,
             ["pageCount"] = frame.PageCount.ToString(),
@@ -909,6 +1004,7 @@ internal static class Program
     private sealed record RenderedFrame(
         string FrameSessionId,
         string LeaseId,
+        string PlacementId,
         string ThingId,
         string DisplayName,
         int PageCount,
@@ -933,6 +1029,7 @@ internal static class Program
             {
                 ["frameSessionId"] = FrameSessionId,
                 ["leaseId"] = LeaseId,
+                ["placementId"] = PlacementId,
                 ["thingId"] = ThingId,
                 ["displayName"] = DisplayName,
                 ["pageCount"] = PageCount.ToString(),
