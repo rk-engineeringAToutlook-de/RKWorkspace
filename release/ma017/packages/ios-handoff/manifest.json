@@ -1,0 +1,16 @@
+{
+  "packageId": "ma017-ios-handoff",
+  "status": "draft",
+  "guestPlatform": "iOS/iPadOS",
+  "purpose": "Native iPad and iPhone guest handoff package",
+  "entrypoints": [
+    "release/ma017/handoff/iOS_START_HERE.md",
+    "release/ma017/handoff/iOS_XCODE_FINAL_CODEX_HANDOFF.md",
+    "tools/run-ma017-ios-handoff.ps1 -SmokeTest"
+  ],
+  "requiredMarkers": [
+    "iOSGuestAblage: STARTED",
+    "NoFileIngress: SUCCESS",
+    "RESULT: SUCCESS"
+  ]
+}

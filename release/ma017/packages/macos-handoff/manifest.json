@@ -1,0 +1,16 @@
+{
+  "packageId": "ma017-macos-handoff",
+  "status": "draft",
+  "guestPlatform": "macOS",
+  "purpose": "Native macOS guest handoff package",
+  "entrypoints": [
+    "release/ma017/handoff/macOS_START_HERE.md",
+    "release/ma017/handoff/macOS_FINAL_CODEX_HANDOFF.md",
+    "tools/run-ma017-macos-handoff.ps1 -SmokeTest"
+  ],
+  "requiredMarkers": [
+    "MacGuestIdentity: OK",
+    "NoFileIngress: SUCCESS",
+    "RESULT: SUCCESS"
+  ]
+}

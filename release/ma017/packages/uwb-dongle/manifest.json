@@ -1,0 +1,15 @@
+{
+  "packageId": "ma017-uwb-dongle",
+  "status": "draft",
+  "purpose": "UWB and dongle proximity package",
+  "entrypoints": [
+    "tools/run-dongle-sim.ps1 -SmokeTest -UseFusion -Profile MovingCloser",
+    "tools/run-ma017-uwb-dongle-pilot.ps1 -SmokeTest",
+    "tools/export-ma017-uwb-privacy-report.ps1 -SmokeTest"
+  ],
+  "requiredMarkers": [
+    "PrivacyMode: EphemeralLab",
+    "NearestAblage",
+    "RESULT: SUCCESS"
+  ]
+}

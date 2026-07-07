@@ -1,0 +1,16 @@
+{
+  "packageId": "ma017-windows-pilot",
+  "status": "draft",
+  "ownerPlatform": "Windows",
+  "purpose": "Original-owned PDF pilot package",
+  "entrypoints": [
+    "tools/run-ma017-windows-pdf-pilot.ps1 -SmokeTest",
+    "tools/run-ma017-windows-all-pdf-lifecycle.ps1 -SmokeTest",
+    "tools/run-ma017-security-policy-pilot.ps1 -SmokeTest"
+  ],
+  "requiredMarkers": [
+    "NoFileIngress: SUCCESS",
+    "OriginalOwnership: Owner",
+    "RESULT: SUCCESS"
+  ]
+}

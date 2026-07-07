@@ -41,6 +41,7 @@ Invoke-RkwsSmoke 'MA017 Cross-Device Diagnostics' { & (Join-Path $root 'tools\ex
 Invoke-RkwsSmoke 'MA017 Pilot Lab' { & (Join-Path $root 'tools\run-ma017-pilot-lab.ps1') -SmokeTest -SkipRepeatability }
 Invoke-RkwsSmoke 'MA017 Human Experience Check' { & (Join-Path $root 'tools\run-ma017-hx-check.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Security Checkpoint' { & (Join-Path $root 'tools\run-ma017-security-checkpoint.ps1') -SmokeTest -SkipRegression }
+Invoke-RkwsSmoke 'MA017 Packaging Checkpoint' { & (Join-Path $root 'tools\run-ma017-packaging-checkpoint.ps1') -SmokeTest -AllowDirty }
 Invoke-RkwsSmoke 'MA017 Context Export' { & (Join-Path $root 'tools\export-codex-context.ps1') }
 Invoke-RkwsSmoke 'MA017 Context Secret Scan' { & (Join-Path $root 'tools\test-context-pack-no-secrets.ps1') -SmokeTest }
 Invoke-RkwsSmoke 'MA017 Final Status Guard Smoke' { & (Join-Path $root 'tools\check-ma016-final-status.ps1') -SmokeTest }
