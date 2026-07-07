@@ -28,6 +28,12 @@ internal static class Program
                 return 0;
             }
 
+            if (options.PlacementGatingSmokeTest)
+            {
+                PrintPlacementGatingSmoke(frame, options);
+                return 0;
+            }
+
             return await RunOwnerAsync(options, frame).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -90,6 +96,50 @@ internal static class Program
         Console.WriteLine("RESULT: SUCCESS");
     }
 
+    private static void PrintPlacementGatingSmoke(RenderedFrame frame, Options options)
+    {
+        var gatedOptions = options with { WaitForPlacement = true };
+        if (File.Exists(gatedOptions.PlacementSignalPath))
+        {
+            File.Delete(gatedOptions.PlacementSignalPath);
+        }
+
+        var before = CreateFramePayload(frame, gatedOptions);
+        if (before.TryGetValue("pngBase64", out _) ||
+            !before.TryGetValue("placementReady", out var beforeReady) ||
+            !string.Equals(beforeReady, "false", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Placement gating failed: frame leaked before placement signal.");
+        }
+
+        var directory = Path.GetDirectoryName(gatedOptions.PlacementSignalPath);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        File.WriteAllText(gatedOptions.PlacementSignalPath, "ready");
+        var after = CreateFramePayload(frame, gatedOptions);
+        if (!after.TryGetValue("pngBase64", out var pngBase64) ||
+            string.IsNullOrWhiteSpace(pngBase64) ||
+            !after.TryGetValue("placementReady", out var afterReady) ||
+            !string.Equals(afterReady, "true", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Placement gating failed: frame was not released after placement signal.");
+        }
+
+        File.Delete(gatedOptions.PlacementSignalPath);
+
+        Console.WriteLine("RK Workspace macOS PDF Frame Owner");
+        Console.WriteLine("----------------------------------");
+        Console.WriteLine("Mode: PlacementGatingSmokeTest");
+        Console.WriteLine("BeforeSignal: NO_FRAME");
+        Console.WriteLine("AfterSignal: PNG_FRAME");
+        Console.WriteLine("PlacementGating: SUCCESS");
+        Console.WriteLine("NoFileIngress: SUCCESS");
+        Console.WriteLine("RESULT: SUCCESS");
+    }
+
     private static async Task<int> RunOwnerAsync(Options options, RenderedFrame frame)
     {
         var sessionId = string.IsNullOrWhiteSpace(options.SessionId)
@@ -117,6 +167,11 @@ internal static class Program
         Console.WriteLine($"RendererName: {frame.RendererName}");
         Console.WriteLine("OwnerKeepsOriginal: OK");
         Console.WriteLine("GuestFileIngressAllowed: NO");
+        Console.WriteLine($"WaitForGlassEdgePlacement: {(options.WaitForPlacement ? "YES" : "NO")}");
+        if (options.WaitForPlacement)
+        {
+            Console.WriteLine($"PlacementSignal: {options.PlacementSignalPath}");
+        }
         Console.WriteLine("WaitingForMacGuest: YES");
         Console.WriteLine("Stop: Ctrl+C");
 
@@ -150,7 +205,7 @@ internal static class Program
             }
 
             requestCount++;
-            var response = CreateResponse(request, frame, sessionId);
+            var response = CreateResponse(request, frame, options, sessionId);
             await server.SendResponseAsync(response, cancellation.Token).ConfigureAwait(false);
             Console.WriteLine($"{request.MessageType}: OK");
 
@@ -169,6 +224,7 @@ internal static class Program
     private static RkwpTransportMessage CreateResponse(
         RkwpTransportMessage request,
         RenderedFrame frame,
+        Options options,
         string sessionId)
     {
         return request.MessageType switch
@@ -205,7 +261,7 @@ internal static class Program
                 OwnerAblageId,
                 request.SourceAblageId,
                 sessionId,
-                frame.ToPayload(),
+                CreateFramePayload(frame, options),
                 request.MessageId),
             TransportMessageType.CarryLeaseReturn => RkwpTransportMessage.Create(
                 TransportMessageType.CarryLeaseReturn,
@@ -235,6 +291,38 @@ internal static class Program
         };
     }
 
+    private static IReadOnlyDictionary<string, string> CreateFramePayload(RenderedFrame frame, Options options)
+    {
+        if (!options.WaitForPlacement || File.Exists(options.PlacementSignalPath))
+        {
+            var payload = new Dictionary<string, string>(frame.ToPayload(), StringComparer.OrdinalIgnoreCase)
+            {
+                ["placementReady"] = "true"
+            };
+            return payload;
+        }
+
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["frameSessionId"] = frame.FrameSessionId,
+            ["leaseId"] = frame.LeaseId,
+            ["thingId"] = frame.ThingId,
+            ["displayName"] = frame.DisplayName,
+            ["pageCount"] = frame.PageCount.ToString(),
+            ["page"] = frame.Page.ToString(),
+            ["width"] = frame.Width.ToString(),
+            ["height"] = frame.Height.ToString(),
+            ["placementReady"] = "false",
+            ["ownerKeepsOriginal"] = "true",
+            ["containsOriginalFileBytes"] = "false",
+            ["hasOriginalPath"] = "false",
+            ["guestHasPdfFile"] = "false",
+            ["noFileIngress"] = "true",
+            ["frameCache"] = "MemoryOnly",
+            ["visibleStatus"] = "wartet auf Ablage am Glasrand"
+        };
+    }
+
     private static void PrintHelp()
     {
         Console.WriteLine("RK Workspace macOS PDF Frame Owner");
@@ -245,8 +333,12 @@ internal static class Program
         Console.WriteLine("  --port <port>           Dev-LAN port. Default: 57120");
         Console.WriteLine("  --page <number>         PDF page. Default: 1");
         Console.WriteLine("  --width <pixels>        Rendered frame width. Default: 1400");
+        Console.WriteLine("  --wait-for-placement    Send the frame only after the glass-edge placement signal exists.");
+        Console.WriteLine("  --placement-signal <p>  Local Windows signal file written by the glass overlay.");
         Console.WriteLine("  --once                  Stop after first FrameUpdate.");
         Console.WriteLine("  --smoke-test            Render the PDF frame without listening.");
+        Console.WriteLine("  --placement-gating-smoke-test");
+        Console.WriteLine("                         Verify that the frame is released only after placement.");
     }
 
     private sealed record Options(
@@ -256,8 +348,11 @@ internal static class Program
         int Page,
         int Width,
         string SessionId,
+        string PlacementSignalPath,
+        bool WaitForPlacement,
         bool Once,
         bool SmokeTest,
+        bool PlacementGatingSmokeTest,
         bool ShowHelp)
     {
         public static Options Parse(string[] args)
@@ -269,8 +364,11 @@ internal static class Program
             var page = 1;
             var width = 1400;
             var sessionId = string.Empty;
+            var placementSignalPath = Path.Combine(Path.GetTempPath(), "rkws-ma017-real-pdf-placement-ready.signal");
+            var waitForPlacement = false;
             var once = false;
             var smokeTest = false;
+            var placementGatingSmokeTest = false;
             var showHelp = false;
 
             for (var index = 0; index < args.Length; index++)
@@ -288,9 +386,22 @@ internal static class Program
                     continue;
                 }
 
+                if (Is(arg, "--wait-for-placement", "-WaitForPlacement"))
+                {
+                    waitForPlacement = true;
+                    continue;
+                }
+
                 if (Is(arg, "--smoke-test", "-SmokeTest"))
                 {
                     smokeTest = true;
+                    continue;
+                }
+
+                if (Is(arg, "--placement-gating-smoke-test", "-PlacementGatingSmokeTest"))
+                {
+                    placementGatingSmokeTest = true;
+                    waitForPlacement = true;
                     continue;
                 }
 
@@ -309,6 +420,12 @@ internal static class Program
                 if (ReadString(args, ref index, "--session-id", "-SessionId") is { } parsedSessionId)
                 {
                     sessionId = parsedSessionId;
+                    continue;
+                }
+
+                if (ReadString(args, ref index, "--placement-signal", "-PlacementSignalPath") is { } parsedPlacementSignalPath)
+                {
+                    placementSignalPath = parsedPlacementSignalPath;
                     continue;
                 }
 
@@ -337,8 +454,11 @@ internal static class Program
                 page,
                 width,
                 sessionId,
+                Path.GetFullPath(placementSignalPath),
+                waitForPlacement,
                 once,
                 smokeTest,
+                placementGatingSmokeTest,
                 showHelp);
         }
 

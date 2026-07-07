@@ -1,6 +1,7 @@
 using RKWorkspace.Shell;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -16,6 +17,9 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
 {
     private readonly WorkspaceShellRuntime _runtime;
     private readonly System.Drawing.Rectangle _screenBounds;
+    private readonly string _sourcePdfPath;
+    private readonly string _sourceFileName;
+    private readonly string _placementSignalPath;
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
     private readonly NativeGlassOverlaySession _session = new();
     private WPoint _thingCenter;
@@ -26,13 +30,18 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     private Vector _grabOffset;
     private bool _isHolding;
     private bool _captureExclusionReady;
+    private bool _pendingRemotePlacement;
+    private bool _placementSignalWritten;
     private long _lastMilliseconds;
     private double _phase;
 
-    public NativeGlassOverlaySurface(WorkspaceShellRuntime runtime, System.Drawing.Rectangle screenBounds)
+    public NativeGlassOverlaySurface(WorkspaceShellRuntime runtime, System.Drawing.Rectangle screenBounds, NativeGlassOverlayOptions options)
     {
         _runtime = runtime;
         _screenBounds = screenBounds;
+        _sourcePdfPath = options.SourcePdfPath;
+        _sourceFileName = Path.GetFileName(options.SourcePdfPath);
+        _placementSignalPath = options.PlacementSignalPath;
         Focusable = true;
         Cursor = WCursors.Arrow;
         Width = screenBounds.Width;
@@ -79,6 +88,16 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         var elapsed = TakeElapsedMilliseconds();
         _phase += elapsed / 1000.0;
         _session.Advance(elapsed);
+
+        if (_pendingRemotePlacement &&
+            !_placementSignalWritten &&
+            _session.TransitRemainingMilliseconds <= 0 &&
+            _session.State is NativeGlassOverlayCarryState.Closing or NativeGlassOverlayCarryState.Closed or NativeGlassOverlayCarryState.PlacedRemote)
+        {
+            SignalPlacementReady();
+            _placementSignalWritten = true;
+            _pendingRemotePlacement = false;
+        }
 
         if (_session.State == NativeGlassOverlayCarryState.InTransit && !_isHolding)
         {
@@ -152,6 +171,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             CaptureMouse();
             Cursor = WCursors.SizeAll;
             _session.Pick();
+            _pendingRemotePlacement = false;
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
             e.Handled = true;
             return;
@@ -168,6 +188,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
             CaptureMouse();
             Cursor = WCursors.SizeAll;
             _session.PullOut();
+            _pendingRemotePlacement = false;
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Picked, "HX-001A");
             e.Handled = true;
         }
@@ -212,12 +233,14 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         {
             _session.ApproachLens(1f);
             _session.PlaceIntoLens();
+            _pendingRemotePlacement = true;
             _targetCenter = Interpolate(_targetCenter, _lensCenter, 0.40);
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.NearSurface, "HX-002");
         }
         else
         {
             _session.PlaceOnDesktop();
+            _pendingRemotePlacement = false;
             _runtime.Shell.UpdateCarryState(WorkspaceCarryState.Placed, "HX-002");
         }
 
@@ -396,7 +419,7 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         }
 
         var text = new FormattedText(
-            "Rechnung.pdf",
+            string.IsNullOrWhiteSpace(_sourceFileName) ? "PDF" : _sourceFileName,
             CultureInfo.CurrentCulture,
             System.Windows.FlowDirection.LeftToRight,
             new Typeface("Segoe UI Semibold"),
@@ -412,6 +435,37 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
         drawingContext.PushOpacity(opacity);
         drawingContext.DrawText(text, new WPoint(bounds.X + 18, bounds.Y + (bounds.Height / 2) - (text.Height / 2)));
         drawingContext.Pop();
+    }
+
+    private void SignalPlacementReady()
+    {
+        if (string.IsNullOrWhiteSpace(_placementSignalPath))
+        {
+            return;
+        }
+
+        try
+        {
+            var directory = Path.GetDirectoryName(_placementSignalPath);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllLines(_placementSignalPath, new[]
+            {
+                "{",
+                $"  \"placedAtUtc\": \"{DateTimeOffset.UtcNow:O}\",",
+                $"  \"sourcePdfName\": \"{EscapeJson(_sourceFileName)}\",",
+                $"  \"sourcePdfOwner\": \"Windows\",",
+                $"  \"sourcePdfPathLocalOnly\": \"{EscapeJson(_sourcePdfPath)}\"",
+                "}"
+            });
+        }
+        catch
+        {
+            // The overlay must never crash while the owner is carrying a document.
+        }
     }
 
     private void DrawMicroStatus(DrawingContext drawingContext)
@@ -621,5 +675,12 @@ public sealed class NativeGlassOverlaySurface : FrameworkElement
     {
         var clamped = Math.Clamp(value, 0.0, 1.0);
         return clamped * clamped * (3.0 - (2.0 * clamped));
+    }
+
+    private static string EscapeJson(string value)
+    {
+        return value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("\"", "\\\"", StringComparison.Ordinal);
     }
 }

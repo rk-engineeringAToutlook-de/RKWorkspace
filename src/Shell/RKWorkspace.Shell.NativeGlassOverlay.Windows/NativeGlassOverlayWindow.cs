@@ -13,7 +13,7 @@ public sealed class NativeGlassOverlayWindow : Window
     private readonly NativeGlassOverlaySurface _surface;
     private readonly NativeGlassShaderLayer _shaderLayer;
 
-    public NativeGlassOverlayWindow(WorkspaceShellRuntime runtime)
+    public NativeGlassOverlayWindow(WorkspaceShellRuntime runtime, NativeGlassOverlayOptions options)
     {
         _runtime = runtime;
         var bounds = FormsScreen.PrimaryScreen?.Bounds ?? new System.Drawing.Rectangle(0, 0, 1280, 720);
@@ -30,7 +30,7 @@ public sealed class NativeGlassOverlayWindow : Window
         Height = bounds.Height;
         Title = string.Empty;
 
-        _surface = new NativeGlassOverlaySurface(runtime, bounds);
+        _surface = new NativeGlassOverlaySurface(runtime, bounds, options);
         _shaderLayer = new NativeGlassShaderLayer
         {
             Width = bounds.Width,

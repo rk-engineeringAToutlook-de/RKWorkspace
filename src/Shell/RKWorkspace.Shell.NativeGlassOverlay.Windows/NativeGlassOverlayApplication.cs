@@ -5,7 +5,7 @@ namespace RKWorkspace.Shell.NativeGlassOverlay.Windows;
 
 public static class NativeGlassOverlayApplication
 {
-    public static int RunDemo()
+    public static int RunDemo(NativeGlassOverlayOptions options)
     {
         var runtime = new WorkspaceShellRuntime();
         try
@@ -16,7 +16,7 @@ public static class NativeGlassOverlayApplication
                 ShutdownMode = ShutdownMode.OnMainWindowClose
             };
 
-            application.Run(new NativeGlassOverlayWindow(runtime));
+            application.Run(new NativeGlassOverlayWindow(runtime, options));
             runtime.Stop();
             return 0;
         }

@@ -4,6 +4,9 @@ param(
     [int] $Port = 57120,
     [int] $Page = 1,
     [int] $Width = 1400,
+    [string] $PlacementSignalPath,
+    [switch] $WaitForPlacement,
+    [switch] $PlacementGatingSmokeTest,
     [switch] $Once,
     [switch] $SmokeTest
 )
@@ -28,8 +31,21 @@ if ($Once) {
     $arguments += '--once'
 }
 
+if ($WaitForPlacement) {
+    $arguments += '--wait-for-placement'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($PlacementSignalPath)) {
+    $arguments += '--placement-signal'
+    $arguments += $PlacementSignalPath
+}
+
 if ($SmokeTest) {
     $arguments += '--smoke-test'
+}
+
+if ($PlacementGatingSmokeTest) {
+    $arguments += '--placement-gating-smoke-test'
 }
 
 Write-Host 'RK Workspace macOS PDF Frame Owner'

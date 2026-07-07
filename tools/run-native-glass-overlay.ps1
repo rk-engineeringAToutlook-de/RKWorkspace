@@ -1,5 +1,7 @@
 param(
-    [switch] $SmokeTest
+    [switch] $SmokeTest,
+    [string] $SourcePdfPath,
+    [string] $PlacementSignalPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -10,6 +12,16 @@ $nativeGlassArgs = @()
 
 if ($SmokeTest) {
     $nativeGlassArgs += '--smoke-test'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($SourcePdfPath)) {
+    $nativeGlassArgs += '--source-pdf'
+    $nativeGlassArgs += $SourcePdfPath
+}
+
+if (-not [string]::IsNullOrWhiteSpace($PlacementSignalPath)) {
+    $nativeGlassArgs += '--placement-signal'
+    $nativeGlassArgs += $PlacementSignalPath
 }
 
 dotnet build $nativeGlassProject -warnaserror

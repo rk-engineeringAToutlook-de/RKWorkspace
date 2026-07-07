@@ -167,6 +167,8 @@ final class FrameGuestModel: ObservableObject {
 
         if args.contains("--local-frame") {
             showLocalVerificationFrame()
+        } else if args.contains("--wait-for-placement") {
+            waitForPlacement()
         } else if args.contains("--auto-open") {
             openFrame()
         }
@@ -218,6 +220,78 @@ final class FrameGuestModel: ObservableObject {
             } catch {
                 hasError = true
                 status = "nicht verfuegbar: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    func waitForPlacement() {
+        hasError = false
+        clearFrame()
+        visibleState = "wartet auf Ablage am Glasrand"
+        status = "warte auf deine PDF von Windows..."
+        Task {
+            let port = UInt16(portText) ?? 57120
+            let client = RkwpDevLanClient(host: host, port: port)
+            var handshakeComplete = false
+
+            while true {
+                do {
+                    if !handshakeComplete {
+                        let hello = try await client.request(RkwpMessage(
+                            messageType: "AblageHello",
+                            sourceAblageId: "ablage-macos-guest",
+                            targetAblageId: "ablage-windows-owner",
+                            sessionId: "",
+                            payload: [
+                                "displayName": "Ablage macOS",
+                                "frameOnly": "true",
+                                "noFileIngress": "true",
+                                "waitForPlacement": "true"
+                            ]))
+                        sessionId = hello.sessionId
+                        print("AblageHello: OK")
+
+                        _ = try await client.request(RkwpMessage(
+                            messageType: "AblageCapabilities",
+                            sourceAblageId: "ablage-macos-guest",
+                            targetAblageId: "ablage-windows-owner",
+                            sessionId: sessionId,
+                            payload: [
+                                "frameOnly": "true",
+                                "noFileIngress": "true",
+                                "memoryOnlyFrame": "true",
+                                "waitForPlacement": "true"
+                            ]))
+                        print("AblageCapabilities: OK")
+                        handshakeComplete = true
+                    }
+
+                    let frame = try await client.request(RkwpMessage(
+                        messageType: "FrameUpdate",
+                        sourceAblageId: "ablage-macos-guest",
+                        targetAblageId: "ablage-windows-owner",
+                        sessionId: sessionId,
+                        payload: [
+                            "request": "openFrame",
+                            "waitForPlacement": "true",
+                            "noFileIngress": "true"
+                        ]))
+
+                    if frame.payload["placementReady"] == "false" || frame.payload["pngBase64"] == nil {
+                        hasError = false
+                        visibleState = frame.payload["visibleStatus"] ?? "wartet auf Ablage am Glasrand"
+                        status = "bereit: PDF auf Windows am Glasrand ablegen"
+                        try? await Task.sleep(nanoseconds: 500_000_000)
+                        continue
+                    }
+
+                    try presentFrame(frame, localVerification: false)
+                    break
+                } catch {
+                    hasError = true
+                    status = "warte auf Windows-Ablage: \(error.localizedDescription)"
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                }
             }
         }
     }

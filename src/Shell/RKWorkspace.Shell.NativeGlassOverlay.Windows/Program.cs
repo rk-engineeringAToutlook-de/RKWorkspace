@@ -10,6 +10,6 @@ internal static class Program
             return NativeGlassOverlayApplication.RunSmokeTest();
         }
 
-        return NativeGlassOverlayApplication.RunDemo();
+        return NativeGlassOverlayApplication.RunDemo(NativeGlassOverlayOptions.Parse(args));
     }
 }
