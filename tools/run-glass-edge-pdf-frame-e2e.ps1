@@ -1,5 +1,7 @@
 param(
     [switch] $SmokeTest,
+    [switch] $ClosedPdfCapsuleTest,
+    [switch] $OpenPdfFrameTest,
     [switch] $UseManualMap,
     [string] $TargetAblage,
     [string] $PdfPath,
@@ -14,6 +16,14 @@ $arguments = @()
 
 if ($SmokeTest) {
     $arguments += '--smoke-test'
+}
+
+if ($ClosedPdfCapsuleTest) {
+    Write-Host 'ClosedPdfCapsuleTest: ENABLED'
+}
+
+if ($OpenPdfFrameTest) {
+    Write-Host 'OpenPdfFrameTest: ENABLED'
 }
 
 if ($UseManualMap) {

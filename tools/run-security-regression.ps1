@@ -1,3 +1,7 @@
+param(
+    [switch] $SmokeTest
+)
+
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $PSScriptRoot

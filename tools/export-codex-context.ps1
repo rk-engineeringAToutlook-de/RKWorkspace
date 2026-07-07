@@ -282,9 +282,17 @@ $files = @(
     'release\ma017\reports\final-pdf-lifecycle-report.md',
     'release\ma017\reports\final-platform-handoff-report.md',
     'release\ma017\reports\final-cleanup-checkpoint-report.md',
+    'release\ma017\reports\final-verification-report.md',
+    'release\ma017\reports\final-repository-hygiene-report.md',
     'release\ma017\PACKAGE_INDEX.md',
     'release\ma017\OWNER_SHORT_GUIDE.md',
     'release\ma017\OWNER_FINAL_GUIDE.md',
+    'release\ma017\RELEASE_SUMMARY.md',
+    'release\ma017\GO_NO_GO_FINAL.md',
+    'release\ma017\REAL_TEST_START_PACKET.md',
+    'release\ma017\PLATFORM_PACKAGES_FINAL.md',
+    'release\ma017\FINAL_COMPLETION_REPORT.md',
+    'release\ma017\CONTEXT_PACK_FINAL.md',
     'release\ma017\packages\windows-pilot\README.md',
     'release\ma017\packages\windows-pilot\manifest.json',
     'release\ma017\packages\macos-handoff\README.md',
@@ -556,6 +564,11 @@ $files = @(
     'tools\run-ma017-documentation-checkpoint.ps1',
     'tools\run-ma017-final-verification.ps1',
     'tools\run-ma017-final-cleanup-checkpoint.ps1',
+    'tools\run-ma017-overall-acceptance.ps1',
+    'tools\run-ma017-final-repository-hygiene.ps1',
+    'tools\run-pilot-proximity.ps1',
+    'tools\run-uwb-sim.ps1',
+    'tools\run-policy-regression.ps1',
     'tools\configure-ma017-pilot.ps1',
     'tools\export-ma017-pilot-report.ps1',
     'tools\record-ma017-feedback.ps1',
@@ -611,6 +624,8 @@ git -C $root ls-files | Where-Object { $_ -notmatch '(^|/)(bin|obj)/' } | Set-Co
 .\tools\run-ma017-pilot-lab.ps1 -SmokeTest
 .\tools\run-ma017-final-verification.ps1 -SkipHeavy
 .\tools\run-ma017-final-cleanup-checkpoint.ps1 -SmokeTest -AllowDirty
+.\tools\run-ma017-overall-acceptance.ps1 -SkipHeavy
+.\tools\run-ma017-final-repository-hygiene.ps1 -AllowDirty
 .\tools\run-no-file-ingress-report.ps1
 .\tools\run-cross-device-session-monitor.ps1 -SmokeTest
 .\tools\export-cross-device-diagnostics.ps1 -SmokeTest
