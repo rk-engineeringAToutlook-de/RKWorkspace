@@ -99,6 +99,40 @@ If HiDrive sync creates conflicts, duplicate files, lock files, or partial state
 - resolve using Git
 - do not manually merge random synced files
 
+## Shared Data / MySQL Rule
+
+At the time of this note, the repository does not contain an active MySQL/MariaDB implementation or connection-string configuration.
+
+If Windows Codex and macOS Codex later use the same MySQL or MariaDB data basis, the database is shared runtime state, not source exchange.
+
+Mandatory rules:
+
+- GitHub remains the source of truth for code, schemas, migrations, fixtures, and documentation.
+- Database schema changes must be committed as versioned migrations before either instance relies on them.
+- Only one Codex instance may own a schema migration at a time.
+- Never make manual schema changes directly in a shared database without also committing the migration to GitHub.
+- Never use production-like shared data for destructive tests.
+- Test data setup must be repeatable from GitHub-versioned scripts or fixtures.
+- Secrets and connection strings must not be committed.
+- If a schema mismatch appears, stop and pull from GitHub before changing code or data.
+
+Safe sequence for future database work:
+
+```text
+1. Pull latest GitHub state.
+2. Create or update a versioned migration/fixture.
+3. Run the migration locally or in the agreed test database.
+4. Verify.
+5. Commit and push.
+6. Other Codex instance pulls and applies the same migration.
+```
+
+Current rule:
+
+```text
+Shared database state may support tests, but it must never replace GitHub as coordination state.
+```
+
 ## macOS Codex Rule
 
 The macOS Codex instance must begin by reading:
