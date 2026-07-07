@@ -13,12 +13,15 @@
   },
   "commands": [
     ".\\tools\\run-ma017-windows-to-mac-closed-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices",
-    ".\\tools\\run-ma017-windows-to-mac-open-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices"
+    ".\\tools\\run-ma017-windows-to-mac-open-pdf.ps1 -SmokeTest -Policy TrustedPersonalDevices",
+    ".\\tools\\run-ma017-windows-to-mac-glass-frame-pilot.ps1 -SmokeTest -WindowsOwnerAddress 192.168.163.11"
   ],
   "expected": [
     "NoFileIngress: SUCCESS",
     "MA017WindowsToMacClosedPdf: SUCCESS",
     "MA017WindowsToMacOpenPdf: SUCCESS",
+    "GlassPortalBar: READY",
+    "MA017WindowsToMacGlassFramePilot: READY",
     "RESULT: SUCCESS"
   ]
 }
